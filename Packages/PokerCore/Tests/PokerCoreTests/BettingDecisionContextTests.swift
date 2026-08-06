@@ -36,6 +36,22 @@ import Testing
     ])
 }
 
+@Test func facingBetDoesNotOfferRaiseWhenMinimumRaiseIsNotAboveCall() {
+    let context = BettingDecisionContext(
+        pot: .init(centiBB: 1_000),
+        effectiveStack: .init(centiBB: 2_000),
+        amountToCall: .init(centiBB: 300),
+        minimumRaiseTo: .init(centiBB: 200),
+        configuredBetSizes: [.init(centiBB: 250)]
+    )
+
+    #expect(context.legalActions() == [
+        .fold,
+        .call(to: .init(centiBB: 300)),
+        .allIn(to: .init(centiBB: 2_000)),
+    ])
+}
+
 @Test func legalActionsExcludeNonPositiveAndAllInConfiguredSizes() {
     let context = BettingDecisionContext(
         pot: .init(centiBB: 1_000),
@@ -91,6 +107,14 @@ import Testing
 
 @Test func bettingDecisionContextCodableRejectsCallsAboveTheEffectiveStack() {
     let invalidContext = Data(#"{"pot":{"centiBB":1000},"effectiveStack":{"centiBB":200},"amountToCall":{"centiBB":300},"minimumRaiseTo":null,"configuredBetSizes":[]}"#.utf8)
+
+    #expect(throws: DecodingError.self) {
+        try JSONDecoder().decode(BettingDecisionContext.self, from: invalidContext)
+    }
+}
+
+@Test func bettingDecisionContextCodableRejectsMinimumRaiseNotAboveCall() {
+    let invalidContext = Data(#"{"pot":{"centiBB":1000},"effectiveStack":{"centiBB":2000},"amountToCall":{"centiBB":300},"minimumRaiseTo":{"centiBB":200},"configuredBetSizes":[{"centiBB":250}]}"#.utf8)
 
     #expect(throws: DecodingError.self) {
         try JSONDecoder().decode(BettingDecisionContext.self, from: invalidContext)

@@ -36,6 +36,16 @@ public struct BettingDecisionContext: Hashable, Codable, Sendable {
                 debugDescription: "Call amount cannot exceed the effective stack"
             )
         }
+        if amountToCall > BBAmount(centiBB: 0), let minimumRaiseTo {
+            guard minimumRaiseTo > amountToCall else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .minimumRaiseTo,
+                    in: container,
+                    debugDescription:
+                        "Minimum raise must be greater than the call amount"
+                )
+            }
+        }
 
         self.init(
             pot: pot,
@@ -63,8 +73,8 @@ public struct BettingDecisionContext: Hashable, Codable, Sendable {
                 actions.insert(.allIn(to: effectiveStack))
             }
 
-            if let minimumRaiseTo {
-                for size in configuredBetSizes where size.centiBB > 0 && size >= minimumRaiseTo && size < effectiveStack {
+            if let minimumRaiseTo, minimumRaiseTo > amountToCall {
+                for size in configuredBetSizes where size.centiBB > 0 && size >= minimumRaiseTo && size > amountToCall && size < effectiveStack {
                     actions.insert(.raise(to: size))
                 }
             }

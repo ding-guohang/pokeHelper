@@ -164,6 +164,51 @@ func heroSeatOffsetOutsideTableIsRejected(
     }
 }
 
+@Test func raiseBelowCallFromConstructedContextIsRejected() throws {
+    let loadedPack = try StrategyPackLoader().load(
+        data: fixture("valid-pack.json"),
+        expectedSHA256: nil
+    )
+    let sourceScenario = try #require(loadedPack.scenarios.first)
+    let invalidRaiseScenario = DecisionScenario(
+        id: sourceScenario.id,
+        title: sourceScenario.title,
+        abilityDimension: sourceScenario.abilityDimension,
+        heroSeatOffsetFromButton: sourceScenario.heroSeatOffsetFromButton,
+        heroCards: sourceScenario.heroCards,
+        board: sourceScenario.board,
+        decision: BettingDecisionContext(
+            pot: .init(centiBB: 1_000),
+            effectiveStack: .init(centiBB: 2_000),
+            amountToCall: .init(centiBB: 300),
+            minimumRaiseTo: .init(centiBB: 200),
+            configuredBetSizes: [.init(centiBB: 250)]
+        ),
+        options: [
+            StrategyOption(
+                action: .raise(to: .init(centiBB: 250)),
+                frequencyBasisPoints: 10_000,
+                ev: .init(milliBB: 100)
+            )
+        ],
+        rangeCells: sourceScenario.rangeCells,
+        assumptions: sourceScenario.assumptions,
+        explanation: sourceScenario.explanation
+    )
+    let invalidPack = StrategyPack(
+        manifest: loadedPack.manifest,
+        scenarios: [invalidRaiseScenario]
+    )
+
+    #expect(
+        throws: StrategyPackValidationError.illegalAction(
+            scenarioID: sourceScenario.id
+        )
+    ) {
+        try StrategyPackValidator().validate(invalidPack)
+    }
+}
+
 @Test func duplicateActionIsRejected() throws {
     let data = try mutatedValidPack { root in
         updateFirstScenario(in: &root) { scenario in
