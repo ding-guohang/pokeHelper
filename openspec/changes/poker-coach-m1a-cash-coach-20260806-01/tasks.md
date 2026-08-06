@@ -922,7 +922,7 @@ git commit -m "feat: persist append-only local training events"
 - Produces: `TrainingCatalogItem`, `DailyPlan`, `TrainingPlanner.makePlan(profile:catalog:now:)`.
 - Consumes: ordered `TrainingEvent` records and scenario ability dimensions.
 
-- [ ] **Step 1: Write failing reducer and priority tests**
+- [x] **Step 1: Write failing reducer and priority tests**
 
 ```swift
 import Foundation
@@ -951,13 +951,13 @@ import Testing
 }
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `swift test --package-path Packages/TrainingDomain`
 
 Expected: compile failure for missing profile and planner types.
 
-- [ ] **Step 3: Implement deterministic reduction and planning**
+- [x] **Step 3: Implement deterministic reduction and planning**
 
 `AbilitySnapshot` must expose:
 
@@ -1011,13 +1011,13 @@ Unseen dimensions use `meanScore = 60`, zero confidence errors, and `daysSincePr
 
 `PlannerFixtures.swift` must define `PlayerProfileFixture.twoDimensions()` with bet sizing below preflop range, plus three `TrainingCatalogFixture.items` whose IDs sort deterministically. The fixture dates are fixed relative to `1_800_000_000` seconds since 1970.
 
-- [ ] **Step 4: Run all TrainingDomain tests**
+- [x] **Step 4: Run all TrainingDomain tests**
 
 Run: `swift test --package-path Packages/TrainingDomain`
 
 Expected: PASS with deterministic ordering.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Packages/TrainingDomain
