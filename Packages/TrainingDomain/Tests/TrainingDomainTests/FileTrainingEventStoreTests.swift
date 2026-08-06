@@ -1,0 +1,129 @@
+import Foundation
+import Testing
+@testable import TrainingDomain
+
+@Test func eventStoreAppendsAndDeduplicatesByID() async throws {
+    let directory = FileManager.default.temporaryDirectory
+        .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+    let store = try FileTrainingEventStore(directory: directory)
+    let event = TrainingEventFixture.correctHighConfidence()
+
+    try await store.append(event)
+    try await store.append(event)
+
+    let events = try await store.allEvents()
+    #expect(events == [event])
+}
+
+@Test func eventsAfterCheckpointAreOrdered() async throws {
+    let store = try FileTrainingEventStore.temporary()
+    let first = TrainingEventFixture.at(seconds: 1)
+    let second = TrainingEventFixture.at(seconds: 2)
+    try await store.append(second)
+    try await store.append(first)
+
+    #expect(try await store.events(after: first.id) == [second])
+}
+
+@Test func initializationCreatesEmptyJSONLinesFile() throws {
+    let directory = temporaryEventDirectory()
+    _ = try FileTrainingEventStore(directory: directory)
+
+    let fileURL = directory.appending(path: "training-events.jsonl")
+    #expect(FileManager.default.fileExists(atPath: fileURL.path()))
+    #expect(try Data(contentsOf: fileURL).isEmpty)
+}
+
+@Test func eventStorePersistsEventsAcrossInstances() async throws {
+    let directory = temporaryEventDirectory()
+    let event = TrainingEventFixture.correctHighConfidence()
+    let firstStore = try FileTrainingEventStore(directory: directory)
+    try await firstStore.append(event)
+
+    let reopenedStore = try FileTrainingEventStore(directory: directory)
+    #expect(try await reopenedStore.allEvents() == [event])
+}
+
+@Test func corruptedSecondLineReturnsTypedLineNumber() throws {
+    let directory = temporaryEventDirectory()
+    try FileManager.default.createDirectory(
+        at: directory,
+        withIntermediateDirectories: true
+    )
+    let firstLine = try JSONEncoder().encode(
+        TrainingEventFixture.correctHighConfidence()
+    )
+    var contents = firstLine
+    contents.append(Data("\nnot-json\n".utf8))
+    try contents.write(
+        to: directory.appending(path: "training-events.jsonl")
+    )
+
+    #expect(throws: TrainingEventStoreError.corruptedLine(2)) {
+        _ = try FileTrainingEventStore(directory: directory)
+    }
+}
+
+@Test func missingCheckpointReturnsTypedError() async throws {
+    let store = try FileTrainingEventStore.temporary()
+    try await store.append(TrainingEventFixture.correctHighConfidence())
+    let missingID = UUID(
+        uuidString: "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"
+    )!
+
+    await #expect(throws: TrainingEventStoreError.checkpointNotFound) {
+        try await store.events(after: missingID)
+    }
+}
+
+@Test func equalTimestampsAreOrderedByUUIDString() async throws {
+    let store = try FileTrainingEventStore.temporary()
+    let earlierID = UUID(
+        uuidString: "00000000-0000-0000-0000-000000000001"
+    )!
+    let laterID = UUID(
+        uuidString: "00000000-0000-0000-0000-000000000002"
+    )!
+    let earlier = TrainingEventFixture.at(seconds: 10, id: earlierID)
+    let later = TrainingEventFixture.at(seconds: 10, id: laterID)
+
+    try await store.append(later)
+    try await store.append(earlier)
+
+    #expect(try await store.allEvents() == [earlier, later])
+}
+
+@Test func duplicateIDRemainsDeduplicatedAfterReopening() async throws {
+    let directory = temporaryEventDirectory()
+    let event = TrainingEventFixture.correctHighConfidence()
+    let firstStore = try FileTrainingEventStore(directory: directory)
+    try await firstStore.append(event)
+
+    let reopenedStore = try FileTrainingEventStore(directory: directory)
+    try await reopenedStore.append(event)
+
+    #expect(try await reopenedStore.allEvents() == [event])
+}
+
+@Test func concurrentAppendsDoNotLoseEvents() async throws {
+    let store = try FileTrainingEventStore.temporary()
+    let expected = (1...12).map {
+        TrainingEventFixture.at(seconds: TimeInterval($0))
+    }
+
+    try await withThrowingTaskGroup(of: Void.self) { group in
+        for event in expected.reversed() {
+            group.addTask {
+                try await store.append(event)
+            }
+        }
+        try await group.waitForAll()
+    }
+
+    #expect(try await store.allEvents() == expected)
+}
+
+private func temporaryEventDirectory() -> URL {
+    FileManager.default.temporaryDirectory
+        .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+}
