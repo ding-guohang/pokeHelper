@@ -279,7 +279,7 @@ git commit -m "build: scaffold native poker coach modules"
 - Produces: `BBAmount(centiBB:)`, `EVAmount(milliBB:)`.
 - Produces: exact comparison and arithmetic used by every later domain module.
 
-- [ ] **Step 1: Write failing value tests**
+- [x] **Step 1: Write failing value tests**
 
 ```swift
 import Testing
@@ -299,13 +299,13 @@ import Testing
 }
 ```
 
-- [ ] **Step 2: Run the tests and verify missing symbols**
+- [x] **Step 2: Run the tests and verify missing symbols**
 
 Run: `swift test --package-path Packages/PokerCore`
 
 Expected: compile failure for missing `Card`, `BBAmount`, and `EVAmount`.
 
-- [ ] **Step 3: Implement the exact value API**
+- [x] **Step 3: Implement the exact value API**
 
 Define:
 
@@ -345,13 +345,13 @@ public struct EVAmount: RawRepresentable, Hashable, Comparable, Codable, Sendabl
 
 Reject negative `BBAmount` values with a precondition. Allow negative `EVAmount` because actions may have negative expected value. Implement only exact integer arithmetic required by the tests.
 
-- [ ] **Step 4: Run package tests**
+- [x] **Step 4: Run package tests**
 
 Run: `swift test --package-path Packages/PokerCore`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Packages/PokerCore
