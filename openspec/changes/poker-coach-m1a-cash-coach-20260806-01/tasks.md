@@ -1346,7 +1346,7 @@ git commit -m "feat: show professional explainable decision feedback"
 - Produces: `ReviewViewModel.refresh()` with sorted ability snapshots.
 - Consumes: event store, profile reducer, planner, and debug training catalog.
 
-- [ ] **Step 1: Write failing Today and Review model tests**
+- [x] **Step 1: Write failing Today and Review model tests**
 
 ```swift
 import XCTest
@@ -1372,13 +1372,13 @@ final class ReviewViewModelTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run the two app test classes.
 
 Expected: compile failure for missing dashboard view models.
 
-- [ ] **Step 3: Implement event-derived dashboards**
+- [x] **Step 3: Implement event-derived dashboards**
 
 Today must show:
 
@@ -1400,7 +1400,7 @@ Learn displays the M1A cash path as a read-only sequence and clearly labels MTT 
 
 `DashboardFixture.withBetSizingWeakness()` and `.withTwoDimensions()` must use `InMemoryTrainingEventStore` populated with fixed events from `TrainingEventFixture` equivalents in the app test target. The fixture exposes `today` and `review` view models so tests never reach into private state.
 
-- [ ] **Step 4: Run dashboard tests**
+- [x] **Step 4: Run dashboard tests**
 
 Run:
 
@@ -1413,7 +1413,7 @@ xcodebuild test -project PokerCoach.xcodeproj -scheme PokerCoach \
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add PokerCoach/Features PokerCoachTests
