@@ -74,6 +74,10 @@ final class TodayViewModel {
         strategyContentAvailability.disclosureText
     }
 
+    var canStartTraining: Bool {
+        strategyContentAvailability.canStartTraining
+    }
+
     private let eventStore: any TrainingEventStore
     private let reducer: PlayerModelReducer
     private let planner: TrainingPlanner
@@ -124,6 +128,9 @@ final class TodayViewModel {
     }
 
     func startPrimaryItem() -> String? {
-        primaryItem?.catalogItem.scenarioID
+        guard canStartTraining else {
+            return nil
+        }
+        return primaryItem?.catalogItem.scenarioID
     }
 }

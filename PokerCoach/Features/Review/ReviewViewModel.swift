@@ -10,6 +10,18 @@ final class ReviewViewModel {
     private(set) var history: [TrainingEvent] = []
     private(set) var suggestedTraining: DailyPlanItem?
     private(set) var failureMessage: String?
+    let strategyContentAvailability: StrategyContentAvailability
+
+    var canStartTraining: Bool {
+        strategyContentAvailability.canStartTraining
+    }
+
+    var trainingUnavailableExplanation: String? {
+        guard !canStartTraining else {
+            return nil
+        }
+        return "未安装已审核策略内容，当前仅可查看复盘。"
+    }
 
     private let eventStore: any TrainingEventStore
     private let reducer: PlayerModelReducer
@@ -22,12 +34,15 @@ final class ReviewViewModel {
         reducer: PlayerModelReducer,
         planner: TrainingPlanner = TrainingPlanner(),
         catalog: [TrainingCatalogItem] = M1ALocalTrainingCatalog.cashItems,
+        strategyContentAvailability: StrategyContentAvailability =
+            .reviewedContentUnavailable,
         now: @escaping @MainActor () -> Date = Date.init
     ) {
         self.eventStore = eventStore
         self.reducer = reducer
         self.planner = planner
         self.catalog = catalog
+        self.strategyContentAvailability = strategyContentAvailability
         self.now = now
     }
 
@@ -55,7 +70,10 @@ final class ReviewViewModel {
     }
 
     func startSuggestedTraining() -> String? {
-        suggestedTraining?.catalogItem.scenarioID
+        guard canStartTraining else {
+            return nil
+        }
+        return suggestedTraining?.catalogItem.scenarioID
     }
 
     func contentDisclosure(for event: TrainingEvent) -> String? {

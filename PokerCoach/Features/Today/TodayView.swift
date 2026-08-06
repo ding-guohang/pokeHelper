@@ -97,6 +97,7 @@ struct TodayView: View {
                 selectedScenarioID = viewModel.startPrimaryItem()
             }
             .buttonStyle(.borderedProminent)
+            .disabled(!viewModel.canStartTraining)
         }
         .padding()
         .background(.quaternary, in: RoundedRectangle(cornerRadius: 16))

@@ -4,6 +4,47 @@ import TrainingDomain
 
 @MainActor
 final class TodayViewModelTests: XCTestCase {
+    func testUnavailableContentKeepsPlanButBlocksPrimaryRoute() async {
+        let viewModel = TodayViewModel(
+            eventStore: InMemoryTrainingEventStore(),
+            reducer: PlayerModelReducer(),
+            planner: TrainingPlanner(),
+            strategyContentAvailability: .reviewedContentUnavailable
+        )
+
+        await viewModel.refresh()
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(
+            viewModel.primaryItem?.catalogItem.scenarioID,
+            "cash-bet-sizing"
+        )
+        XCTAssertFalse(viewModel.canStartTraining)
+        XCTAssertNil(viewModel.startPrimaryItem())
+    }
+
+    func testAvailableContentAllowsPrimaryRoute() async {
+        for availability in [
+            StrategyContentAvailability.developmentFixtureAvailable,
+            .reviewedContentAvailable,
+        ] {
+            let viewModel = TodayViewModel(
+                eventStore: InMemoryTrainingEventStore(),
+                reducer: PlayerModelReducer(),
+                planner: TrainingPlanner(),
+                strategyContentAvailability: availability
+            )
+
+            await viewModel.refresh()
+
+            XCTAssertTrue(viewModel.canStartTraining)
+            XCTAssertEqual(
+                viewModel.startPrimaryItem(),
+                "cash-bet-sizing"
+            )
+        }
+    }
+
     func testDevelopmentPlanDisclosesFixtureContent() async {
         let viewModel = TodayViewModel(
             eventStore: InMemoryTrainingEventStore(),

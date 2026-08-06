@@ -46,6 +46,8 @@ struct DashboardFixture {
                 reducer: reducer,
                 planner: planner,
                 catalog: M1ALocalTrainingCatalog.cashItems,
+                strategyContentAvailability:
+                    .developmentFixtureAvailable,
                 now: { Date(timeIntervalSince1970: 1_786_086_400) }
             ),
             review: ReviewViewModel(
@@ -53,6 +55,8 @@ struct DashboardFixture {
                 reducer: reducer,
                 planner: planner,
                 catalog: M1ALocalTrainingCatalog.cashItems,
+                strategyContentAvailability:
+                    .developmentFixtureAvailable,
                 now: { Date(timeIntervalSince1970: 1_786_086_400) }
             ),
             store: store

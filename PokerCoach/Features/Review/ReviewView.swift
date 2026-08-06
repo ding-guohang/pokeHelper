@@ -18,7 +18,9 @@ struct ReviewView: View {
             eventStore: dependencies.eventStore,
             reducer: dependencies.playerModelReducer,
             planner: dependencies.planner,
-            catalog: dependencies.localTrainingCatalog
+            catalog: dependencies.localTrainingCatalog,
+            strategyContentAvailability:
+                dependencies.strategyContentAvailability
         ))
     }
 
@@ -57,6 +59,14 @@ struct ReviewView: View {
                             selectedScenarioID = viewModel.startSuggestedTraining()
                         }
                         .buttonStyle(.borderedProminent)
+                        .disabled(!viewModel.canStartTraining)
+                        if let explanation =
+                            viewModel.trainingUnavailableExplanation
+                        {
+                            Text(explanation)
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }

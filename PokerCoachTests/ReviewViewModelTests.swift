@@ -4,6 +4,56 @@ import TrainingDomain
 
 @MainActor
 final class ReviewViewModelTests: XCTestCase {
+    func testUnavailableContentKeepsHistoryButBlocksSuggestedRoute()
+        async
+    {
+        let event = DashboardFixture.developmentBetSizingEvent()
+        let viewModel = ReviewViewModel(
+            eventStore: InMemoryTrainingEventStore(events: [event]),
+            reducer: PlayerModelReducer(),
+            strategyContentAvailability: .reviewedContentUnavailable
+        )
+
+        await viewModel.refresh()
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.history.count, 1)
+        XCTAssertEqual(
+            viewModel.suggestedTraining?.catalogItem.scenarioID,
+            "cash-bet-sizing"
+        )
+        XCTAssertFalse(viewModel.canStartTraining)
+        XCTAssertNil(viewModel.startSuggestedTraining())
+        XCTAssertEqual(
+            viewModel.trainingUnavailableExplanation,
+            "未安装已审核策略内容，当前仅可查看复盘。"
+        )
+    }
+
+    func testAvailableContentAllowsSuggestedRoute() async {
+        let event = DashboardFixture.developmentBetSizingEvent()
+
+        for availability in [
+            StrategyContentAvailability.developmentFixtureAvailable,
+            .reviewedContentAvailable,
+        ] {
+            let viewModel = ReviewViewModel(
+                eventStore: InMemoryTrainingEventStore(events: [event]),
+                reducer: PlayerModelReducer(),
+                strategyContentAvailability: availability
+            )
+
+            await viewModel.refresh()
+
+            XCTAssertTrue(viewModel.canStartTraining)
+            XCTAssertNil(viewModel.trainingUnavailableExplanation)
+            XCTAssertEqual(
+                viewModel.startSuggestedTraining(),
+                "cash-bet-sizing"
+            )
+        }
+    }
+
     func testDevelopmentEventDisclosesFixtureInsteadOfPackID() async throws {
         let event = DashboardFixture.developmentBetSizingEvent()
         let viewModel = ReviewViewModel(
