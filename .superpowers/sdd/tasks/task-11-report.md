@@ -9,6 +9,11 @@ Status: implemented and verified.
 - Added deterministic Chinese ability names, raw `milliBB` EV-loss history, and a Review empty-state route to training.
 - Added append-then-refresh regressions against one shared in-memory event store, plus catalog and state-contract tests.
 
+## Fix round 2
+
+- Today empty state now routes through the existing root training destination with an injected callback instead of retrying an immutable empty catalog.
+- Added the empty-catalog refresh regression and a testable Chinese `前往训练` action contract; normal and failure-state actions are unchanged.
+
 - Today and Review refresh from the shared `TrainingEventStore`, then derive their display state through `PlayerModelReducer` and `TrainingPlanner`.
 - Today presents one primary item, two supporting items, the deterministic planner reason, total duration, and scenario routing.
 - Review sorts ability snapshots deterministically, exposes historical score / EV-loss / content-version details, and creates weak-area training.

@@ -4,12 +4,17 @@ import TrainingDomain
 
 struct TodayView: View {
     let dependencies: AppDependencies
+    let onStartTraining: () -> Void
 
     @State private var viewModel: TodayViewModel
     @State private var selectedScenarioID: String?
 
-    init(dependencies: AppDependencies) {
+    init(
+        dependencies: AppDependencies,
+        onStartTraining: @escaping () -> Void = {}
+    ) {
         self.dependencies = dependencies
+        self.onStartTraining = onStartTraining
         _viewModel = State(initialValue: TodayViewModel(
             eventStore: dependencies.eventStore,
             reducer: dependencies.playerModelReducer,
@@ -41,8 +46,10 @@ struct TodayView: View {
                     } description: {
                         Text("当前内容暂未提供训练场景。")
                     } actions: {
-                        Button("重新生成计划") {
-                            Task { await viewModel.refresh() }
+                        Button(TodayEmptyPresentation.buttonTitle) {
+                            TodayEmptyPresentation.startTraining(
+                                onStartTraining
+                            )
                         }
                     }
                 case .loaded:

@@ -56,6 +56,32 @@ final class TodayViewModelTests: XCTestCase {
         )
     }
 
+    func testEmptyCatalogStaysEmptyWhenRefreshedAgain() async {
+        let viewModel = TodayViewModel(
+            eventStore: InMemoryTrainingEventStore(),
+            reducer: PlayerModelReducer(),
+            planner: TrainingPlanner(),
+            catalog: []
+        )
+
+        await viewModel.refresh()
+        await viewModel.refresh()
+
+        XCTAssertEqual(viewModel.state, .empty)
+        XCTAssertNil(viewModel.startPrimaryItem())
+    }
+
+    func testEmptyPresentationRoutesToTrainingCallback() {
+        var startTrainingCount = 0
+
+        TodayEmptyPresentation.startTraining {
+            startTrainingCount += 1
+        }
+
+        XCTAssertEqual(TodayEmptyPresentation.buttonTitle, "前往训练")
+        XCTAssertEqual(startTrainingCount, 1)
+    }
+
     func testLocalCatalogIsAvailableOutsideDebugStrategyContent() {
         XCTAssertEqual(M1ALocalTrainingCatalog.cashItems.count, 3)
         XCTAssertEqual(

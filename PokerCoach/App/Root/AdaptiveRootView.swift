@@ -92,7 +92,10 @@ struct AdaptiveRootView: View {
     private func destinationView(_ destination: AppDestination) -> some View {
         switch destination {
         case .today:
-            TodayView(dependencies: dependencies)
+            TodayView(
+                dependencies: dependencies,
+                onStartTraining: { selectedDestination = .train }
+            )
         case .learn:
             LearnView(dependencies: dependencies)
         case .train:

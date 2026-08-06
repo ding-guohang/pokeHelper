@@ -32,6 +32,14 @@ enum DashboardLoadState: Equatable {
     case failed(message: String)
 }
 
+enum TodayEmptyPresentation {
+    static let buttonTitle = "前往训练"
+
+    static func startTraining(_ onStartTraining: () -> Void) {
+        onStartTraining()
+    }
+}
+
 enum AbilityDimensionPresentation {
     static func displayName(for dimension: String) -> String {
         let normalized = dimension.trimmingCharacters(
