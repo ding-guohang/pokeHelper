@@ -36,12 +36,26 @@ final class AppDependencies {
             throw AppDependencyError.libraryDirectoryUnavailable
         }
 
-        return try make(
-            storageDirectory: libraryDirectory.appending(
-                path: "PokerCoach",
-                directoryHint: .isDirectory
-            )
+        let storageDirectory = libraryDirectory.appending(
+            path: "PokerCoach",
+            directoryHint: .isDirectory
         )
+
+#if DEVELOPMENT_STRATEGY_FIXTURES
+        try resetTrainingEventsIfRequested(
+            storageDirectory: storageDirectory
+        )
+        return try make(
+            storageDirectory: storageDirectory,
+            strategyProvider: developmentStrategyProvider()
+        )
+#else
+        return try make(
+            storageDirectory: storageDirectory,
+            strategyProvider: PendingStrategyPackProvider(),
+            localTrainingCatalog: []
+        )
+#endif
     }
 
     static let preview: AppDependencies = {
@@ -51,7 +65,8 @@ final class AppDependencies {
                     .appending(
                         path: "PokerCoachPreview-\(UUID().uuidString)",
                         directoryHint: .isDirectory
-                    )
+                    ),
+                strategyProvider: PendingStrategyPackProvider()
             )
         } catch {
             preconditionFailure("无法初始化预览依赖：\(error)")
@@ -59,15 +74,56 @@ final class AppDependencies {
     }()
 
     private static func make(
-        storageDirectory: URL
+        storageDirectory: URL,
+        strategyProvider: any StrategyPackProviding,
+        localTrainingCatalog: [TrainingCatalogItem] =
+            M1ALocalTrainingCatalog.cashItems
     ) throws -> AppDependencies {
         AppDependencies(
             eventStore: try FileTrainingEventStore(
                 directory: storageDirectory
             ),
-            strategyProvider: PendingStrategyPackProvider()
+            strategyProvider: strategyProvider,
+            localTrainingCatalog: localTrainingCatalog
         )
     }
+
+#if DEVELOPMENT_STRATEGY_FIXTURES
+    private static func resetTrainingEventsIfRequested(
+        storageDirectory: URL
+    ) throws {
+        guard CommandLine.arguments.contains("--reset-training-events") else {
+            return
+        }
+
+        let eventFile = storageDirectory.appending(
+            path: "training-events.jsonl",
+            directoryHint: .notDirectory
+        )
+        guard FileManager.default.fileExists(atPath: eventFile.path()) else {
+            return
+        }
+
+        try FileManager.default.removeItem(at: eventFile)
+    }
+
+    private static func developmentStrategyProvider() throws
+        -> any StrategyPackProviding
+    {
+        guard let fixtureURL = Bundle.main.url(
+            forResource: "DevStrategyPack",
+            withExtension: "json"
+        ) else {
+            throw AppDependencyError.strategyPackUnavailable
+        }
+
+        let pack = try StrategyPackLoader().load(
+            data: Data(contentsOf: fixtureURL),
+            expectedSHA256: nil
+        )
+        return InMemoryStrategyPackProvider(pack: pack)
+    }
+#endif
 }
 
 private enum AppDependencyError: Error {

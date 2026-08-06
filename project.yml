@@ -17,7 +17,11 @@ targets:
     platform: iOS
     deploymentTarget: "18.0"
     sources:
-      - PokerCoach
+      - path: PokerCoach
+        excludes:
+          - Resources
+      - path: PokerCoach/Resources
+        buildPhase: resources
     configFiles:
       Debug: Config/Debug.xcconfig
       Release: Config/Release.xcconfig

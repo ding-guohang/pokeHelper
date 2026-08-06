@@ -5,7 +5,7 @@ struct ActionFrequencyView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("全部行动频率与 EV", systemImage: "chart.bar.xaxis")
+            Label("行动频率", systemImage: "chart.bar.xaxis")
                 .font(.headline)
 
             ForEach(rows) { row in

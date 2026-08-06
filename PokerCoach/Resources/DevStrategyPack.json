@@ -1,0 +1,102 @@
+{
+  "manifest": {
+    "id": "cash-6max-100bb-dev",
+    "schemaVersion": 1,
+    "contentVersion": "2026.08.06-dev.1",
+    "reviewStatus": "testFixture",
+    "generatedSource": "deterministic-ui-test-fixture"
+  },
+  "scenarios": [
+    {
+      "id": "cash-bet-sizing",
+      "title": "BTN 对 BB 的翻牌下注尺度",
+      "abilityDimension": "bet-sizing",
+      "heroSeatOffsetFromButton": 0,
+      "heroCards": [
+        "Ah",
+        "Qh"
+      ],
+      "board": [
+        "Ks",
+        "7c",
+        "2d"
+      ],
+      "decision": {
+        "pot": {
+          "centiBB": 650
+        },
+        "effectiveStack": {
+          "centiBB": 10000
+        },
+        "amountToCall": {
+          "centiBB": 0
+        },
+        "minimumRaiseTo": null,
+        "configuredBetSizes": [
+          {
+            "centiBB": 217
+          }
+        ]
+      },
+      "options": [
+        {
+          "action": {
+            "kind": "check"
+          },
+          "frequencyBasisPoints": 5500,
+          "ev": {
+            "milliBB": 240
+          }
+        },
+        {
+          "action": {
+            "kind": "bet",
+            "toCentiBB": 217
+          },
+          "frequencyBasisPoints": 3000,
+          "ev": {
+            "milliBB": 100
+          }
+        },
+        {
+          "action": {
+            "kind": "allIn",
+            "toCentiBB": 10000
+          },
+          "frequencyBasisPoints": 1500,
+          "ev": {
+            "milliBB": 200
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AQs",
+          "actionWeightsBasisPoints": {
+            "all-in-10000": 1500,
+            "bet-217": 3000,
+            "check": 5500
+          }
+        }
+      ],
+      "assumptions": {
+        "gameType": "无限注德州扑克现金局，BTN 单加注底池对 BB",
+        "tableSize": 6,
+        "effectiveStack": {
+          "centiBB": 10000
+        },
+        "rakeDescription": "抽水 5%，单手上限 3BB",
+        "allowedBetSizeDescription": "翻牌可过牌、下注 2.17BB 或全下"
+      },
+      "explanation": {
+        "conclusion": "这是一份开发演示数据；此牌面以过牌为主，并保留小注与低频全下。",
+        "rangeReasoning": "BTN 的整体范围更宽，AQ 同花在这里保留摊牌价值，不需要把全部组合投入底池。",
+        "boardReasoning": "K 高彩虹牌面较干燥，小注即可给弱牌施压，过牌能保护后续街范围。",
+        "opponentReasoning": "假设 BB 以均衡范围防守翻前，并在翻牌对小注继续所有 Kx、部分 7x 与后门听牌。",
+        "futurePlan": "过牌后在改善权益或对手继续示弱时延迟下注；小注被跟后谨慎选择转牌二次开火。",
+        "gtoBaseline": "开发演示基线保留三个非零频率行动，所有频率合计 100%。",
+        "exploitCondition": "仅当对手对小注过度弃牌时增加 2.17BB 下注；没有该读牌时保持开发演示基线。"
+      }
+    }
+  ]
+}

@@ -76,7 +76,9 @@ struct ProfessionalFeedbackView: View {
 
             Divider()
 
-            LabeledContent("EV 损失") {
+            HStack {
+                Text("EV 损失")
+                Spacer()
                 Text(presentation.evLossText)
                     .monospacedDigit()
             }

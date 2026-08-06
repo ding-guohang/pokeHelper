@@ -5,8 +5,11 @@ import TrainingDomain
 
 struct DecisionSessionView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var viewModel: DecisionSessionViewModel
 
-    let viewModel: DecisionSessionViewModel
+    init(viewModel: DecisionSessionViewModel) {
+        _viewModel = State(initialValue: viewModel)
+    }
 
     var body: some View {
         Group {
@@ -97,10 +100,16 @@ struct DecisionSessionView: View {
                                     maxWidth: .infinity,
                                     alignment: .topLeading
                                 )
+                                .accessibilityIdentifier(
+                                    "feedback.table-column"
+                                )
                             feedbackAnalysis(presentation)
                                 .frame(
                                     maxWidth: .infinity,
                                     alignment: .topLeading
+                                )
+                                .accessibilityIdentifier(
+                                    "feedback.analysis-column"
                                 )
                         }
                     } else {
@@ -146,6 +155,14 @@ struct DecisionSessionView: View {
 
     private var scenarioFacts: some View {
         VStack(alignment: .leading, spacing: 8) {
+            if viewModel.strategyManifest?.reviewStatus == .testFixture {
+                Label(
+                    "开发演示数据",
+                    systemImage: "hammer.fill"
+                )
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.orange)
+            }
             LabeledContent("位置") {
                 Text(viewModel.positionLabel ?? "—")
                     .accessibilityIdentifier("decision.position")
