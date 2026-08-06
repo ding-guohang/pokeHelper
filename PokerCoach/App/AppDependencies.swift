@@ -10,6 +10,7 @@ final class AppDependencies {
     let playerModelReducer: PlayerModelReducer
     let planner: TrainingPlanner
     let localTrainingCatalog: [TrainingCatalogItem]
+    let strategyContentAvailability: StrategyContentAvailability
 
     init(
         eventStore: any TrainingEventStore,
@@ -18,7 +19,8 @@ final class AppDependencies {
         playerModelReducer: PlayerModelReducer = PlayerModelReducer(),
         planner: TrainingPlanner = TrainingPlanner(),
         localTrainingCatalog: [TrainingCatalogItem] =
-            M1ALocalTrainingCatalog.cashItems
+            M1ALocalTrainingCatalog.cashItems,
+        strategyContentAvailability: StrategyContentAvailability
     ) {
         self.eventStore = eventStore
         self.strategyProvider = strategyProvider
@@ -26,6 +28,7 @@ final class AppDependencies {
         self.playerModelReducer = playerModelReducer
         self.planner = planner
         self.localTrainingCatalog = localTrainingCatalog
+        self.strategyContentAvailability = strategyContentAvailability
     }
 
     static func live() throws -> AppDependencies {
@@ -45,46 +48,45 @@ final class AppDependencies {
         try resetTrainingEventsIfRequested(
             storageDirectory: storageDirectory
         )
-        return try make(
-            storageDirectory: storageDirectory,
-            strategyProvider: developmentStrategyProvider()
+        return AppDependencies(
+            eventStore: try FileTrainingEventStore(
+                directory: storageDirectory
+            ),
+            strategyProvider: try developmentStrategyProvider(),
+            strategyContentAvailability: .developmentFixtureAvailable
         )
 #else
-        return try make(
-            storageDirectory: storageDirectory,
-            strategyProvider: PendingStrategyPackProvider(),
-            localTrainingCatalog: []
+        return reviewedContentUnavailable(
+            eventStore: try FileTrainingEventStore(
+                directory: storageDirectory
+            )
         )
 #endif
     }
 
     static let preview: AppDependencies = {
         do {
-            return try make(
-                storageDirectory: FileManager.default.temporaryDirectory
-                    .appending(
-                        path: "PokerCoachPreview-\(UUID().uuidString)",
-                        directoryHint: .isDirectory
-                    ),
-                strategyProvider: PendingStrategyPackProvider()
+            return reviewedContentUnavailable(
+                eventStore: try FileTrainingEventStore(
+                    directory: FileManager.default.temporaryDirectory
+                        .appending(
+                            path: "PokerCoachPreview-\(UUID().uuidString)",
+                            directoryHint: .isDirectory
+                        )
+                )
             )
         } catch {
             preconditionFailure("无法初始化预览依赖：\(error)")
         }
     }()
 
-    private static func make(
-        storageDirectory: URL,
-        strategyProvider: any StrategyPackProviding,
-        localTrainingCatalog: [TrainingCatalogItem] =
-            M1ALocalTrainingCatalog.cashItems
-    ) throws -> AppDependencies {
+    static func reviewedContentUnavailable(
+        eventStore: any TrainingEventStore
+    ) -> AppDependencies {
         AppDependencies(
-            eventStore: try FileTrainingEventStore(
-                directory: storageDirectory
-            ),
-            strategyProvider: strategyProvider,
-            localTrainingCatalog: localTrainingCatalog
+            eventStore: eventStore,
+            strategyProvider: PendingStrategyPackProvider(),
+            strategyContentAvailability: .reviewedContentUnavailable
         )
     }
 

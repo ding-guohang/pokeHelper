@@ -173,7 +173,7 @@ struct FeedbackPresentation {
         }
         provenanceBadge = switch manifest?.reviewStatus {
         case .testFixture:
-            "开发演示数据"
+            StrategyContentMetadata.developmentDisclosure
         case .reviewed:
             "已审核 · \(manifest?.contentVersion ?? "")"
         case .retired:

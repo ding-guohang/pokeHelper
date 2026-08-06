@@ -19,7 +19,9 @@ struct TodayView: View {
             eventStore: dependencies.eventStore,
             reducer: dependencies.playerModelReducer,
             planner: dependencies.planner,
-            catalog: dependencies.localTrainingCatalog
+            catalog: dependencies.localTrainingCatalog,
+            strategyContentAvailability:
+                dependencies.strategyContentAvailability
         ))
     }
 
@@ -74,6 +76,12 @@ struct TodayView: View {
 
     private func primaryTraining(_ item: DailyPlanItem) -> some View {
         VStack(alignment: .leading, spacing: 12) {
+            Label(
+                viewModel.contentDisclosureText,
+                systemImage: "info.circle.fill"
+            )
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.orange)
             Label("今日重点", systemImage: "target")
                 .font(.headline)
             Text(AbilityDimensionPresentation.displayName(

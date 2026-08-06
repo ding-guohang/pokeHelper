@@ -4,6 +4,20 @@ import TrainingDomain
 
 @MainActor
 final class TodayViewModelTests: XCTestCase {
+    func testDevelopmentPlanDisclosesFixtureContent() async {
+        let viewModel = TodayViewModel(
+            eventStore: InMemoryTrainingEventStore(),
+            reducer: PlayerModelReducer(),
+            planner: TrainingPlanner(),
+            strategyContentAvailability: .developmentFixtureAvailable
+        )
+
+        await viewModel.refresh()
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.contentDisclosureText, "开发演示数据")
+    }
+
     func testWeakestDimensionBecomesPrimaryTraining() async throws {
         let fixture = DashboardFixture.withBetSizingWeakness()
 

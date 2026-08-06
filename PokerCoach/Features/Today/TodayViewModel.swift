@@ -68,6 +68,11 @@ final class TodayViewModel {
     private(set) var supportingItems: [DailyPlanItem] = []
     private(set) var durationText = "约 0 分钟"
     private(set) var failureMessage: String?
+    let strategyContentAvailability: StrategyContentAvailability
+
+    var contentDisclosureText: String {
+        strategyContentAvailability.disclosureText
+    }
 
     private let eventStore: any TrainingEventStore
     private let reducer: PlayerModelReducer
@@ -80,12 +85,15 @@ final class TodayViewModel {
         reducer: PlayerModelReducer,
         planner: TrainingPlanner,
         catalog: [TrainingCatalogItem] = M1ALocalTrainingCatalog.cashItems,
+        strategyContentAvailability: StrategyContentAvailability =
+            .reviewedContentUnavailable,
         now: @escaping @MainActor () -> Date = Date.init
     ) {
         self.eventStore = eventStore
         self.reducer = reducer
         self.planner = planner
         self.catalog = catalog
+        self.strategyContentAvailability = strategyContentAvailability
         self.now = now
     }
 

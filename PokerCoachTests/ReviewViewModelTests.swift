@@ -4,6 +4,26 @@ import TrainingDomain
 
 @MainActor
 final class ReviewViewModelTests: XCTestCase {
+    func testDevelopmentEventDisclosesFixtureInsteadOfPackID() async throws {
+        let event = DashboardFixture.developmentBetSizingEvent()
+        let viewModel = ReviewViewModel(
+            eventStore: InMemoryTrainingEventStore(events: [event]),
+            reducer: PlayerModelReducer()
+        )
+
+        await viewModel.refresh()
+
+        let historyEvent = try XCTUnwrap(viewModel.history.first)
+        XCTAssertEqual(
+            viewModel.contentDisclosure(for: historyEvent),
+            "开发演示数据"
+        )
+        XCTAssertNotEqual(
+            viewModel.contentDisclosure(for: historyEvent),
+            historyEvent.strategyPackID
+        )
+    }
+
     func testReviewSortsWeakestAbilityFirst() async throws {
         let fixture = DashboardFixture.withTwoDimensions()
 

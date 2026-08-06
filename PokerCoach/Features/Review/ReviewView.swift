@@ -109,6 +109,13 @@ struct ReviewView: View {
                 .font(.headline)
             ForEach(viewModel.history) { event in
                 VStack(alignment: .leading, spacing: 4) {
+                    if let disclosure = viewModel.contentDisclosure(
+                        for: event
+                    ) {
+                        Label(disclosure, systemImage: "hammer.fill")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.orange)
+                    }
                     Text(AbilityDimensionPresentation.displayName(
                         for: event.abilityDimension
                     ))

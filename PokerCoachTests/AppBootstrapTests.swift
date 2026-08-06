@@ -1,8 +1,41 @@
 import XCTest
+import TrainingDomain
 @testable import PokerCoach
 
 @MainActor
 final class AppBootstrapTests: XCTestCase {
+    func testReviewedContentUnavailableKeepsCatalogMetadataIndependent()
+        async
+    {
+        let dependencies = AppDependencies.reviewedContentUnavailable(
+            eventStore: InMemoryTrainingEventStore()
+        )
+
+        XCTAssertEqual(
+            dependencies.strategyContentAvailability,
+            .reviewedContentUnavailable
+        )
+        XCTAssertEqual(
+            dependencies.localTrainingCatalog.map(\.id),
+            [
+                "cash-bet-sizing",
+                "cash-preflop-range",
+                "cash-flop-cbet",
+            ]
+        )
+        XCTAssertEqual(
+            dependencies.strategyContentAvailability.disclosureText,
+            "未安装已审核策略内容"
+        )
+
+        do {
+            _ = try await dependencies.strategyProvider.pack()
+            XCTFail("Reviewed-content-unavailable mode must not load a pack")
+        } catch {
+            // Expected: Release has catalog metadata but no strategy content.
+        }
+    }
+
     func testSuccessfulLoadPublishesOriginalDependenciesInstance() {
         let expectedDependencies = AppDependencies.preview
         let bootstrap = AppBootstrap {

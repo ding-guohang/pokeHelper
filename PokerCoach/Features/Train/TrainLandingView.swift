@@ -7,7 +7,9 @@ struct TrainLandingView: View {
         ContentUnavailableView(
             "训练",
             systemImage: "suit.spade.fill",
-            description: Text("训练场景准备完成后会显示在这里。")
+            description: Text(
+                dependencies.strategyContentAvailability.disclosureText
+            )
         )
         .navigationTitle("训练")
     }

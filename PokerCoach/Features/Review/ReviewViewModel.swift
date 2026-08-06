@@ -58,6 +58,12 @@ final class ReviewViewModel {
         suggestedTraining?.catalogItem.scenarioID
     }
 
+    func contentDisclosure(for event: TrainingEvent) -> String? {
+        StrategyContentMetadata.disclosure(
+            forStrategyPackID: event.strategyPackID
+        )
+    }
+
     private static func isWeakerFirst(
         _ lhs: AbilitySnapshot,
         _ rhs: AbilitySnapshot

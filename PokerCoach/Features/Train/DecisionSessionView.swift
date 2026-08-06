@@ -157,7 +157,7 @@ struct DecisionSessionView: View {
         VStack(alignment: .leading, spacing: 8) {
             if viewModel.strategyManifest?.reviewStatus == .testFixture {
                 Label(
-                    "开发演示数据",
+                    StrategyContentMetadata.developmentDisclosure,
                     systemImage: "hammer.fill"
                 )
                 .font(.caption.weight(.semibold))

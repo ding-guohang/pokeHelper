@@ -72,13 +72,25 @@ struct DashboardFixture {
         )
     }
 
+    static func developmentBetSizingEvent() -> TrainingEvent {
+        event(
+            id: "40000000-0000-0000-0000-000000000004",
+            occurredAt: 1_786_172_800,
+            score: 40,
+            confidence: .verySure,
+            dimension: "bet-sizing",
+            strategyPackID: "cash-6max-100bb-dev"
+        )
+    }
+
     private static func event(
         id: String,
         occurredAt: TimeInterval,
         score: Int,
         confidence: DecisionConfidence,
         dimension: String,
-        contentVersion: String = "2026.08.06"
+        contentVersion: String = "2026.08.06",
+        strategyPackID: String = "cash-pack"
     ) -> TrainingEvent {
         let scenario = DecisionSessionFixture.makePack(
             abilityDimension: dimension,
@@ -101,7 +113,7 @@ struct DashboardFixture {
             deviceID: UUID(uuidString: "20000000-0000-0000-0000-000000000001")!,
             occurredAt: Date(timeIntervalSince1970: occurredAt),
             scenarioID: "fixture-\(dimension)",
-            strategyPackID: "cash-pack",
+            strategyPackID: strategyPackID,
             strategyContentVersion: contentVersion,
             abilityDimension: dimension,
             submission: submission,
