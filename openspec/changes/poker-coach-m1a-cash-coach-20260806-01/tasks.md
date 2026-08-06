@@ -1043,7 +1043,7 @@ git commit -m "feat: derive ability profile and daily priorities"
 - Produces: routes `today`, `learn`, `train`, `review`.
 - Consumes: `TrainingEventStore`, strategy-pack provider, scorer, reducer, and planner.
 
-- [ ] **Step 1: Write a failing navigation contract test**
+- [x] **Step 1: Write a failing navigation contract test**
 
 ```swift
 import XCTest
@@ -1057,7 +1057,7 @@ final class AdaptiveNavigationTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: Run the app unit test and verify failure**
+- [x] **Step 2: Run the app unit test and verify failure**
 
 Run:
 
@@ -1070,7 +1070,7 @@ xcodebuild test -project PokerCoach.xcodeproj -scheme PokerCoach \
 
 Expected: compile failure for missing `AppDestination`.
 
-- [ ] **Step 3: Implement dependency composition and navigation**
+- [x] **Step 3: Implement dependency composition and navigation**
 
 Define:
 
@@ -1094,7 +1094,7 @@ final class AppDependencies {
 
 Use a `TabView` in compact horizontal size class and `NavigationSplitView` with a four-item sidebar in regular width. Keep feature views simple but real: each screen renders its title and an empty-state sentence. Inject one `AppDependencies` instance from `PokerCoachApp`.
 
-- [ ] **Step 4: Build both application idioms**
+- [x] **Step 4: Build both application idioms**
 
 Run:
 
@@ -1105,7 +1105,7 @@ xcodebuild build -project PokerCoach.xcodeproj -scheme PokerCoach -destination '
 
 Expected: both builds succeed without project-owned strict-concurrency warnings.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add PokerCoach PokerCoachTests project.yml
