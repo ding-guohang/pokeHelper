@@ -80,21 +80,58 @@ final class DecisionSessionViewModelTests: XCTestCase {
         )
     }
 
-    func testLoadRequestsExactlyOneScenarioByID() async {
-        let pack = DecisionSessionFixture.makePack()
-        let provider = RecordingStrategyProvider(pack: pack)
+    func testLoadAndSubmitUseOneImmutablePackSnapshot() async throws {
+        let packA = DecisionSessionFixture.makePack(
+            packID: "pack-a",
+            contentVersion: "version-a",
+            generatedSource: "source-a",
+            scenarioTitle: "版本 A 场景",
+            abilityDimension: "ability-a",
+            foldEVMilliBB: -100
+        )
+        let packB = DecisionSessionFixture.makePack(
+            packID: "pack-b",
+            contentVersion: "version-b",
+            generatedSource: "source-b",
+            scenarioTitle: "版本 B 场景",
+            abilityDimension: "ability-b",
+            foldEVMilliBB: 900
+        )
+        let provider = SnapshotDriftStrategyProvider(
+            scenarioPack: packA,
+            packSnapshot: packB
+        )
+        let store = InMemoryTrainingEventStore()
         let sut = DecisionSessionFixture.makeViewModel(
             provider: provider,
-            store: InMemoryTrainingEventStore()
+            store: store
         )
 
         await sut.load()
 
-        let requestedScenarioIDs = await provider.requestedScenarioIDs()
-        XCTAssertEqual(
-            requestedScenarioIDs,
-            ["fixture-scenario"]
-        )
+        let loadCalls = await provider.callCounts()
+        XCTAssertEqual(loadCalls.pack, 1)
+        XCTAssertEqual(loadCalls.scenario, 0)
+        XCTAssertEqual(sut.scenario?.title, "版本 B 场景")
+        XCTAssertEqual(sut.scenario?.abilityDimension, "ability-b")
+        XCTAssertEqual(sut.strategyManifest?.id, "pack-b")
+        XCTAssertEqual(sut.strategyManifest?.contentVersion, "version-b")
+        XCTAssertEqual(sut.strategyManifest?.generatedSource, "source-b")
+
+        let selectedAction = packB.scenarios[0].options[0].action
+        sut.select(action: selectedAction)
+        sut.setConfidence(.verySure)
+        await sut.submit()
+
+        XCTAssertEqual(sut.state, .feedback)
+        XCTAssertEqual(sut.grade?.selectedEV.milliBB, 900)
+        let savedEvents = await store.allEvents()
+        let event = try XCTUnwrap(savedEvents.only)
+        XCTAssertEqual(event.scenarioID, packB.scenarios[0].id)
+        XCTAssertEqual(event.strategyPackID, "pack-b")
+        XCTAssertEqual(event.strategyContentVersion, "version-b")
+        XCTAssertEqual(event.abilityDimension, "ability-b")
+        XCTAssertEqual(event.grade.selectedEV.milliBB, 900)
     }
 
     func testValidSubmitGradesAndPersistsOneImmutableVersionedEvent() async throws {
@@ -363,21 +400,28 @@ private actor FailThenSuspendTrainingEventStore: TrainingEventStore {
     }
 }
 
-private actor RecordingStrategyProvider: StrategyPackProviding {
-    let packValue: StrategyPack
-    var requests: [String] = []
+private actor SnapshotDriftStrategyProvider: StrategyPackProviding {
+    let scenarioPack: StrategyPack
+    let packSnapshot: StrategyPack
+    var packCallCount = 0
+    var scenarioCallCount = 0
 
-    init(pack: StrategyPack) {
-        packValue = pack
+    init(
+        scenarioPack: StrategyPack,
+        packSnapshot: StrategyPack
+    ) {
+        self.scenarioPack = scenarioPack
+        self.packSnapshot = packSnapshot
     }
 
     func pack() -> StrategyPack {
-        packValue
+        packCallCount += 1
+        return packSnapshot
     }
 
     func scenario(id: String) throws -> DecisionScenario {
-        requests.append(id)
-        guard let scenario = packValue.scenarios.first(where: {
+        scenarioCallCount += 1
+        guard let scenario = scenarioPack.scenarios.first(where: {
             $0.id == id
         }) else {
             throw StrategyPackLookupError.scenarioNotFound(id: id)
@@ -385,8 +429,8 @@ private actor RecordingStrategyProvider: StrategyPackProviding {
         return scenario
     }
 
-    func requestedScenarioIDs() -> [String] {
-        requests
+    func callCounts() -> (pack: Int, scenario: Int) {
+        (packCallCount, scenarioCallCount)
     }
 }
 
@@ -396,21 +440,21 @@ private actor FailFirstStrategyProvider: StrategyPackProviding {
     }
 
     let packValue: StrategyPack
-    var scenarioRequestCount = 0
+    var packRequestCount = 0
 
     init(pack: StrategyPack) {
         packValue = pack
     }
 
-    func pack() -> StrategyPack {
-        packValue
+    func pack() throws -> StrategyPack {
+        packRequestCount += 1
+        guard packRequestCount > 1 else {
+            throw Failure.unavailable
+        }
+        return packValue
     }
 
     func scenario(id: String) throws -> DecisionScenario {
-        scenarioRequestCount += 1
-        guard scenarioRequestCount > 1 else {
-            throw Failure.unavailable
-        }
         guard let scenario = packValue.scenarios.first(where: {
             $0.id == id
         }) else {

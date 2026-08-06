@@ -100,21 +100,29 @@ enum DecisionSessionFixture {
         )
     }
 
-    static func makePack() -> StrategyPack {
+    static func makePack(
+        packID: String = "cash-pack",
+        contentVersion: String = "2026.08.06",
+        generatedSource: String = "decision-session-fixture",
+        scenarioID: String = "fixture-scenario",
+        scenarioTitle: String = "按钮位",
+        abilityDimension: String = "flop-cbet",
+        foldEVMilliBB: Int = 0
+    ) -> StrategyPack {
         let json = """
         {
           "manifest": {
-            "id": "cash-pack",
+            "id": "\(packID)",
             "schemaVersion": 1,
-            "contentVersion": "2026.08.06",
+            "contentVersion": "\(contentVersion)",
             "reviewStatus": "testFixture",
-            "generatedSource": "decision-session-fixture",
+            "generatedSource": "\(generatedSource)",
             "reviewedAt": null
           },
           "scenarios": [{
-            "id": "fixture-scenario",
-            "title": "按钮位",
-            "abilityDimension": "flop-cbet",
+            "id": "\(scenarioID)",
+            "title": "\(scenarioTitle)",
+            "abilityDimension": "\(abilityDimension)",
             "heroSeatOffsetFromButton": 0,
             "heroCards": ["As", "Kh"],
             "board": ["Qs", "Jh", "2c"],
@@ -132,7 +140,7 @@ enum DecisionSessionFixture {
               {
                 "action": {"kind": "fold"},
                 "frequencyBasisPoints": 1500,
-                "ev": {"milliBB": 0}
+                "ev": {"milliBB": \(foldEVMilliBB)}
               },
               {
                 "action": {"kind": "call", "toCentiBB": 200},

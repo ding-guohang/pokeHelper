@@ -114,14 +114,12 @@ final class DecisionSessionViewModel {
         resetLoadedSession()
 
         do {
-            async let scenarioRequest = strategyProvider.scenario(
-                id: scenarioID
-            )
-            async let packRequest = strategyProvider.pack()
-            let (loadedScenario, pack) = try await (
-                scenarioRequest,
-                packRequest
-            )
+            let pack = try await strategyProvider.pack()
+            guard let loadedScenario = pack.scenarios.first(where: {
+                $0.id == scenarioID
+            }) else {
+                throw StrategyPackLookupError.scenarioNotFound(id: scenarioID)
+            }
             let position = try TablePosition(
                 tableSize: loadedScenario.assumptions.tableSize,
                 heroSeatOffsetFromButton:
