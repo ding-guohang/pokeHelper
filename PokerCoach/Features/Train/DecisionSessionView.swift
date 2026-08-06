@@ -200,6 +200,7 @@ struct DecisionSessionView: View {
                     }
                 }
             }
+            .disabled(!viewModel.canRetry)
         }
     }
 }

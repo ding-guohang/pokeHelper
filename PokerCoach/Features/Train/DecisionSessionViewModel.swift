@@ -31,10 +31,17 @@ final class DecisionSessionViewModel {
     private(set) var isSaving = false
 
     var canSubmit: Bool {
-        state == .answering
-            && selectedAction != nil
-            && selectedConfidence != nil
-            && !isSaving
+        state == .answering && !isSaving
+    }
+
+    var canRetry: Bool {
+        guard !isSaving else {
+            return false
+        }
+        guard case .failed = state else {
+            return false
+        }
+        return scenario == nil || pendingEvent != nil
     }
 
     private let scenarioID: String
@@ -190,7 +197,8 @@ final class DecisionSessionViewModel {
                     grade: grade
                 )
             } catch {
-                state = .failed(message: "评分失败，请重试")
+                state = .answering
+                validationMessage = "评分失败，请重试"
                 return
             }
         }

@@ -7,6 +7,16 @@ import XCTest
 
 @MainActor
 final class DecisionSessionViewModelTests: XCTestCase {
+    func testAnsweringAllowsSubmitAttemptBeforeSelections() async {
+        let sut = DecisionSessionFixture.makeViewModel()
+
+        await sut.load()
+
+        XCTAssertEqual(sut.state, .answering)
+        XCTAssertTrue(sut.canSubmit)
+        XCTAssertFalse(sut.canRetry)
+    }
+
     func testSubmitRequiresActionAndConfidence() async throws {
         let fixture = DecisionSessionFixture.make()
         await fixture.viewModel.load()
@@ -146,6 +156,53 @@ final class DecisionSessionViewModelTests: XCTestCase {
         XCTAssertEqual(events.count, 1)
     }
 
+    func testScoringFailureReturnsToEditableAnsweringAndCanSubmitAgain() async {
+        enum GradingFailure: Error {
+            case unavailable
+        }
+
+        let pack = DecisionSessionFixture.makePack()
+        let store = InMemoryTrainingEventStore()
+        let scorer = DecisionScorer()
+        var gradeCount = 0
+        let sut = DecisionSessionFixture.makeViewModel(
+            provider: InMemoryStrategyPackProvider(pack: pack),
+            store: store,
+            grader: { submission, scenario in
+                gradeCount += 1
+                guard gradeCount > 1 else {
+                    throw GradingFailure.unavailable
+                }
+                return try scorer.grade(
+                    submission: submission,
+                    scenario: scenario
+                )
+            }
+        )
+        await sut.load()
+        let action = pack.scenarios[0].options[0].action
+        sut.select(action: action)
+        sut.setConfidence(.verySure)
+
+        await sut.submit()
+
+        XCTAssertEqual(sut.state, .answering)
+        XCTAssertEqual(sut.validationMessage, "评分失败，请重试")
+        XCTAssertEqual(sut.selectedAction, action)
+        XCTAssertEqual(sut.selectedConfidence?.rawValue, "verySure")
+        XCTAssertTrue(sut.canSubmit)
+        XCTAssertFalse(sut.canRetry)
+        let eventsAfterFailure = await store.allEvents()
+        XCTAssertTrue(eventsAfterFailure.isEmpty)
+
+        await sut.submit()
+
+        XCTAssertEqual(sut.state, .feedback)
+        XCTAssertEqual(gradeCount, 2)
+        let eventsAfterRetry = await store.allEvents()
+        XCTAssertEqual(eventsAfterRetry.count, 1)
+    }
+
     func testLoadFailureSurfacesChineseRetryMessageAndCanRetry() async {
         let provider = FailFirstStrategyProvider(
             pack: DecisionSessionFixture.makePack()
@@ -160,9 +217,11 @@ final class DecisionSessionViewModelTests: XCTestCase {
             sut.state,
             .failed(message: "场景加载失败，请重试")
         )
+        XCTAssertTrue(sut.canRetry)
 
         await sut.load()
         XCTAssertEqual(sut.state, .answering)
+        XCTAssertFalse(sut.canRetry)
     }
 
     func testSubmissionIsDisabledWhileSavingAndConcurrentSubmitIsIgnored() async {
@@ -190,6 +249,40 @@ final class DecisionSessionViewModelTests: XCTestCase {
         XCTAssertEqual(sut.state, .feedback)
     }
 
+    func testSaveRetryIsDisabledWhileRetryIsInFlight() async {
+        let pack = DecisionSessionFixture.makePack()
+        let store = FailThenSuspendTrainingEventStore()
+        let sut = DecisionSessionFixture.makeViewModel(
+            provider: InMemoryStrategyPackProvider(pack: pack),
+            store: store
+        )
+        await sut.load()
+        sut.select(action: pack.scenarios[0].options[0].action)
+        sut.setConfidence(.unsure)
+        await sut.submit()
+
+        XCTAssertEqual(
+            sut.state,
+            .failed(message: "保存失败，请重试")
+        )
+        XCTAssertTrue(sut.canRetry)
+
+        let retry = Task { await sut.submit() }
+        await store.waitUntilRetryStarts()
+
+        XCTAssertTrue(sut.isSaving)
+        XCTAssertFalse(sut.canSubmit)
+        XCTAssertFalse(sut.canRetry)
+        await sut.submit()
+        let appendCallCount = await store.appendCallCount()
+        XCTAssertEqual(appendCallCount, 2)
+
+        await store.resumeRetry()
+        await retry.value
+        XCTAssertEqual(sut.state, .feedback)
+        XCTAssertFalse(sut.canRetry)
+    }
+
     func testContinueSessionMovesFeedbackToCompleted() async {
         let fixture = DecisionSessionFixture.make()
         await fixture.viewModel.load()
@@ -202,6 +295,57 @@ final class DecisionSessionViewModelTests: XCTestCase {
         fixture.viewModel.continueSession()
 
         XCTAssertEqual(fixture.viewModel.state, .completed)
+    }
+}
+
+private actor FailThenSuspendTrainingEventStore: TrainingEventStore {
+    enum Failure: Error {
+        case unavailable
+    }
+
+    private var events: [TrainingEvent] = []
+    private var appendCount = 0
+    private var retryStarted: CheckedContinuation<Void, Never>?
+    private var retryRelease: CheckedContinuation<Void, Never>?
+
+    func append(_ event: TrainingEvent) async throws {
+        appendCount += 1
+        guard appendCount > 1 else {
+            throw Failure.unavailable
+        }
+
+        retryStarted?.resume()
+        retryStarted = nil
+        await withCheckedContinuation { continuation in
+            retryRelease = continuation
+        }
+        events.append(event)
+    }
+
+    func allEvents() -> [TrainingEvent] {
+        events
+    }
+
+    func events(after checkpoint: UUID?) -> [TrainingEvent] {
+        events
+    }
+
+    func waitUntilRetryStarts() async {
+        guard appendCount < 2 else {
+            return
+        }
+        await withCheckedContinuation { continuation in
+            retryStarted = continuation
+        }
+    }
+
+    func resumeRetry() {
+        retryRelease?.resume()
+        retryRelease = nil
+    }
+
+    func appendCallCount() -> Int {
+        appendCount
     }
 }
 
