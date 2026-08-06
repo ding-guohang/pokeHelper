@@ -21,6 +21,9 @@ targets:
     configFiles:
       Debug: Config/Debug.xcconfig
       Release: Config/Release.xcconfig
+    settings:
+      base:
+        "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": NO
     dependencies:
       - package: PokerCore
       - package: StrategyContent
@@ -39,6 +42,9 @@ targets:
     platform: iOS
     deploymentTarget: "18.0"
     sources: [PokerCoachTests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: PokerCoach
   PokerCoachUITests:
@@ -46,6 +52,9 @@ targets:
     platform: iOS
     deploymentTarget: "18.0"
     sources: [PokerCoachUITests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: PokerCoach
 schemes:
