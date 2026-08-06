@@ -148,7 +148,7 @@ status: planned
 - Produces: Xcode scheme `PokerCoach`; local Swift modules `PokerCore`, `StrategyContent`, and `TrainingDomain`.
 - Produces: compile-time flag `DEVELOPMENT_STRATEGY_FIXTURES` in Debug only.
 
-- [ ] **Step 1: Write the project-shape assertion**
+- [x] **Step 1: Write the project-shape assertion**
 
 Create `scripts/check-project-shape.sh`:
 
@@ -164,13 +164,13 @@ test -f Packages/TrainingDomain/Package.swift
 test -f PokerCoach/App/PokerCoachApp.swift
 ```
 
-- [ ] **Step 2: Run the shape check and verify it fails**
+- [x] **Step 2: Run the shape check and verify it fails**
 
 Run: `bash scripts/check-project-shape.sh`
 
 Expected: non-zero exit because `project.yml` and source files do not exist.
 
-- [ ] **Step 3: Define the packages and application**
+- [x] **Step 3: Define the packages and application**
 
 Use this project skeleton in `project.yml`:
 
@@ -242,7 +242,7 @@ Each package manifest must expose one library product, use Swift tools 6.0, and 
 
 Create an app entry point that renders a temporary `AdaptiveRootView` containing `Text("手牌教练")`. Do not add feature behavior in this task.
 
-- [ ] **Step 4: Generate and compile the skeleton**
+- [x] **Step 4: Generate and compile the skeleton**
 
 Run:
 
@@ -257,7 +257,7 @@ xcodebuild build -project PokerCoach.xcodeproj -scheme PokerCoach -destination '
 
 Expected: all commands exit 0; each empty package reports a successful build.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add project.yml Config PokerCoach Packages scripts/check-project-shape.sh
