@@ -1,0 +1,221 @@
+import Foundation
+import PokerCore
+import Testing
+@testable import StrategyContent
+
+@Test func validPackLoadsAndPreservesProvenance() throws {
+    let data = try fixture("valid-pack.json")
+    let pack = try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+
+    #expect(pack.manifest.id == "cash-6max-100bb-dev")
+    #expect(pack.manifest.schemaVersion == 1)
+    #expect(pack.scenarios[0].options.reduce(0) { $0 + $1.frequencyBasisPoints } == 10_000)
+    #expect(pack.scenarios[0].assumptions.effectiveStack == .init(centiBB: 10_000))
+}
+
+@Test func invalidFrequencyTotalIsRejected() throws {
+    let data = try fixture("invalid-frequency-pack.json")
+
+    #expect(throws: StrategyPackValidationError.self) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func unsupportedSchemaVersionIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        updateManifest(in: &root) { manifest in
+            manifest["schemaVersion"] = 2
+        }
+    }
+
+    #expect(throws: StrategyPackValidationError.unsupportedSchemaVersion(2)) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func duplicateScenarioIDIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        var scenarios = scenarios(in: root)
+        scenarios.append(scenarios[0])
+        root["scenarios"] = scenarios
+    }
+
+    #expect(throws: StrategyPackValidationError.duplicateScenarioID("btn-check")) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func duplicateCardIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        updateFirstScenario(in: &root) { scenario in
+            scenario["board"] = ["As", "7d", "Jh"]
+        }
+    }
+
+    #expect(throws: StrategyPackValidationError.duplicateCard("As")) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func illegalActionIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        updateFirstScenario(in: &root) { scenario in
+            var options = scenario["options"] as! [[String: Any]]
+            options[0]["action"] = ["kind": "fold"]
+            scenario["options"] = options
+        }
+    }
+
+    #expect(throws: StrategyPackValidationError.illegalAction(scenarioID: "btn-check")) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func duplicateActionIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        updateFirstScenario(in: &root) { scenario in
+            var options = scenario["options"] as! [[String: Any]]
+            options[1]["action"] = ["kind": "check"]
+            scenario["options"] = options
+        }
+    }
+
+    #expect(throws: StrategyPackValidationError.duplicateAction(scenarioID: "btn-check")) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func emptyGeneratedSourceIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        updateManifest(in: &root) { manifest in
+            manifest["generatedSource"] = ""
+        }
+    }
+
+    #expect(throws: StrategyPackValidationError.emptyGeneratedSource) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func reviewedPackWithoutReviewedAtIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        updateManifest(in: &root) { manifest in
+            manifest["reviewStatus"] = "reviewed"
+        }
+    }
+
+    #expect(throws: StrategyPackValidationError.missingReviewedAt) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func reviewedPackAcceptsISO8601ReviewedAt() throws {
+    let data = try mutatedValidPack { root in
+        updateManifest(in: &root) { manifest in
+            manifest["reviewStatus"] = "reviewed"
+            manifest["reviewedAt"] = "2026-08-06T08:30:00Z"
+        }
+    }
+
+    let pack = try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+
+    #expect(pack.manifest.reviewedAt != nil)
+}
+
+@Test func emptyPackIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        root["scenarios"] = []
+    }
+
+    #expect(throws: StrategyPackValidationError.emptyScenarios) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func malformedJSONReturnsDecodingError() {
+    #expect(throws: StrategyPackLoadingError.decodingFailed) {
+        try StrategyPackLoader().load(data: Data("not-json".utf8), expectedSHA256: nil)
+    }
+}
+
+@Test func checksumMismatchIsReportedBeforeDecoding() {
+    #expect(throws: StrategyPackLoadingError.checksumMismatch) {
+        try StrategyPackLoader().load(
+            data: Data("not-json".utf8),
+            expectedSHA256: String(repeating: "0", count: 64)
+        )
+    }
+}
+
+@Test func matchingChecksumAllowsLoading() throws {
+    let data = try fixture("valid-pack.json")
+    let pack = try StrategyPackLoader().load(
+        data: data,
+        expectedSHA256: "02387c1714530de1eabdc8a8ce16bfbbeb971d70253bbed684feb64fde8c8fc6"
+    )
+
+    #expect(pack.manifest.id == "cash-6max-100bb-dev")
+}
+
+@Test func inMemoryProviderReturnsPackAndLooksUpScenario() async throws {
+    let data = try fixture("valid-pack.json")
+    let pack = try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    let provider = InMemoryStrategyPackProvider(pack: pack)
+
+    #expect(try await provider.pack().manifest.id == "cash-6max-100bb-dev")
+    #expect(try await provider.scenario(id: "btn-check").title == "Button checks the flop")
+}
+
+@Test func inMemoryProviderRejectsMissingScenario() async throws {
+    let data = try fixture("valid-pack.json")
+    let pack = try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    let provider = InMemoryStrategyPackProvider(pack: pack)
+
+    await #expect(throws: StrategyPackLookupError.scenarioNotFound(id: "missing")) {
+        try await provider.scenario(id: "missing")
+    }
+}
+
+private func fixture(_ name: String) throws -> Data {
+    guard let url = Bundle.module.url(forResource: name, withExtension: nil) else {
+        throw FixtureError.missing(name)
+    }
+
+    return try Data(contentsOf: url)
+}
+
+private func mutatedValidPack(
+    _ mutation: (inout [String: Any]) -> Void
+) throws -> Data {
+    var root = try #require(
+        JSONSerialization.jsonObject(with: fixture("valid-pack.json")) as? [String: Any]
+    )
+    mutation(&root)
+    return try JSONSerialization.data(withJSONObject: root, options: [.sortedKeys])
+}
+
+private func scenarios(in root: [String: Any]) -> [[String: Any]] {
+    root["scenarios"] as! [[String: Any]]
+}
+
+private func updateManifest(
+    in root: inout [String: Any],
+    _ update: (inout [String: Any]) -> Void
+) {
+    var packManifest = root["manifest"] as! [String: Any]
+    update(&packManifest)
+    root["manifest"] = packManifest
+}
+
+private func updateFirstScenario(
+    in root: inout [String: Any],
+    _ update: (inout [String: Any]) -> Void
+) {
+    var allScenarios = scenarios(in: root)
+    update(&allScenarios[0])
+    root["scenarios"] = allScenarios
+}
+
+private enum FixtureError: Error {
+    case missing(String)
+}

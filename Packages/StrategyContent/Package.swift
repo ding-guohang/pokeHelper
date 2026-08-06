@@ -23,6 +23,7 @@ let package = Package(
         .testTarget(
             name: "StrategyContentTests",
             dependencies: ["StrategyContent"],
+            resources: [.process("Fixtures")],
             swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
         ),
     ]

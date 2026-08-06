@@ -1,0 +1,62 @@
+{
+  "manifest": {
+    "id": "cash-6max-100bb-dev",
+    "schemaVersion": 1,
+    "contentVersion": "1.0.0",
+    "reviewStatus": "testFixture",
+    "generatedSource": "unit-test-fixture"
+  },
+  "scenarios": [
+    {
+      "id": "btn-check",
+      "title": "Button checks the flop",
+      "abilityDimension": "postflop-cbet",
+      "heroCards": ["As", "Kh"],
+      "board": ["2c", "7d", "Jh"],
+      "decision": {
+        "pot": {"centiBB": 750},
+        "effectiveStack": {"centiBB": 10000},
+        "amountToCall": {"centiBB": 0},
+        "minimumRaiseTo": null,
+        "configuredBetSizes": [{"centiBB": 500}]
+      },
+      "options": [
+        {
+          "action": {"kind": "check"},
+          "frequencyBasisPoints": 4000,
+          "ev": {"milliBB": 125}
+        },
+        {
+          "action": {"kind": "bet", "toCentiBB": 500},
+          "frequencyBasisPoints": 6000,
+          "ev": {"milliBB": 140}
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AKo",
+          "actionWeightsBasisPoints": {
+            "check": 4000,
+            "bet-500": 6000
+          }
+        }
+      ],
+      "assumptions": {
+        "gameType": "cash",
+        "tableSize": 6,
+        "effectiveStack": {"centiBB": 10000},
+        "rakeDescription": "5% capped",
+        "allowedBetSizeDescription": "500 centiBB"
+      },
+      "explanation": {
+        "conclusion": "Mix check and bet.",
+        "rangeReasoning": "Top pair supports both actions.",
+        "boardReasoning": "The board is relatively dry.",
+        "opponentReasoning": "Assume a balanced caller.",
+        "futurePlan": "Continue selectively on turns.",
+        "gtoBaseline": "Use the configured mixed strategy.",
+        "exploitCondition": null
+      }
+    }
+  ]
+}
