@@ -140,6 +140,7 @@ The system SHALL load strategy packs that identify schema version, content versi
 - WHEN loader 完成 checksum、解码和语义校验
 - THEN 返回不可变 StrategyPack
 - AND manifest 与场景中的求解假设可供反馈界面读取
+- AND 场景使用 tableSize 与 heroSeatOffsetFromButton 表示可验证的 2–9 人桌位置
 
 ##### Scenario: checksum 不匹配
 

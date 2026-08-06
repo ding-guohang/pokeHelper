@@ -7,6 +7,7 @@ enum ScenarioFixture {
             id: "mixed-strategy",
             title: "Mixed strategy scoring fixture",
             abilityDimension: "flop",
+            heroSeatOffsetFromButton: 0,
             heroCards: [try card("As"), try card("Kd")],
             board: [try card("7c"), try card("8h"), try card("2s")],
             decision: BettingDecisionContext(

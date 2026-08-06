@@ -11,12 +11,66 @@ import Testing
     #expect(pack.manifest.schemaVersion == 1)
     #expect(pack.scenarios[0].options.reduce(0) { $0 + $1.frequencyBasisPoints } == 10_000)
     #expect(pack.scenarios[0].assumptions.effectiveStack == .init(centiBB: 10_000))
+    #expect(pack.scenarios[0].heroSeatOffsetFromButton == 0)
 }
 
 @Test func invalidFrequencyTotalIsRejected() throws {
     let data = try fixture("invalid-frequency-pack.json")
 
     #expect(throws: StrategyPackValidationError.self) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func missingHeroSeatOffsetIsRejectedAsInvalidSchema() throws {
+    let data = try mutatedValidPack { root in
+        updateFirstScenario(in: &root) { scenario in
+            scenario.removeValue(forKey: "heroSeatOffsetFromButton")
+        }
+    }
+
+    #expect(throws: StrategyPackLoadingError.decodingFailed) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test(arguments: [1, 10])
+func tableSizeOutsideTwoThroughNineIsRejected(tableSize: Int) throws {
+    let data = try mutatedValidPack { root in
+        updateFirstScenario(in: &root) { scenario in
+            var assumptions = scenario["assumptions"] as! [String: Any]
+            assumptions["tableSize"] = tableSize
+            scenario["assumptions"] = assumptions
+        }
+    }
+
+    #expect(
+        throws: StrategyPackValidationError.invalidTableSize(
+            scenarioID: "btn-check",
+            tableSize: tableSize
+        )
+    ) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test(arguments: [-1, 6])
+func heroSeatOffsetOutsideTableIsRejected(
+    heroSeatOffsetFromButton: Int
+) throws {
+    let data = try mutatedValidPack { root in
+        updateFirstScenario(in: &root) { scenario in
+            scenario["heroSeatOffsetFromButton"] = heroSeatOffsetFromButton
+        }
+    }
+
+    #expect(
+        throws: StrategyPackValidationError.invalidHeroSeatOffset(
+            scenarioID: "btn-check",
+            tableSize: 6,
+            heroSeatOffsetFromButton: heroSeatOffsetFromButton
+        )
+    ) {
         try StrategyPackLoader().load(data: data, expectedSHA256: nil)
     }
 }
@@ -202,7 +256,7 @@ import Testing
     let data = try fixture("valid-pack.json")
     let pack = try StrategyPackLoader().load(
         data: data,
-        expectedSHA256: "02387c1714530de1eabdc8a8ce16bfbbeb971d70253bbed684feb64fde8c8fc6"
+        expectedSHA256: "6b14c519a3fec910d7d2ccfffe629a556a08be5fadc1762641aa4b79f30580d1"
     )
 
     #expect(pack.manifest.id == "cash-6max-100bb-dev")

@@ -52,6 +52,7 @@ SwiftUI App 只组合领域协议和展示模型。M1A 使用 append-only 本地
 - `EVAmount` 使用 milli-BB。
 - `DecisionAction` 使用稳定 `{kind,toCentiBB}` JSON。
 - `BettingDecisionContext.legalActions()` 计算 stored node 的合法行动。
+- `TablePosition` 根据 `tableSize` 与 `heroSeatOffsetFromButton` 确定性生成 2–9 人桌位置名称；M1A 的 6-max 只是内容范围，不是领域类型限制。
 
 禁止：
 
@@ -62,7 +63,7 @@ SwiftUI App 只组合领域协议和展示模型。M1A 使用 append-only 本地
 职责：
 
 - `StrategyPackManifest` 保存 schema/content version、来源和审核状态。
-- `DecisionScenario` 保存牌、行动上下文、选项、频率、EV、范围和解释。
+- `DecisionScenario` 保存牌、行动上下文、英雄相对按钮的座位偏移、选项、频率、EV、范围和解释；`SolverAssumptions.tableSize` 表示本手参与人数。
 - `StrategyPackLoader` 先校验 SHA-256，再 ISO-8601 解码。
 - `StrategyPackValidator` 校验重复牌、合法行动、重复行动、频率总和和审核元数据。
 - `StrategyPackProviding` 隔离内容来源。
@@ -189,4 +190,3 @@ M1B 通过基础设施适配器增加远端同步，不把认证、HTTP 或数�
 ## 完成边界
 
 M1A 只在完整验证、逐 Task 双阶段评审和最终分支评审通过后完成。它仍不是完整 M1；M1B 独立账号同步和 M1C 自适应现金局课程必须后续分别验收。
-

@@ -11,6 +11,7 @@
       "id": "btn-check",
       "title": "Button checks the flop",
       "abilityDimension": "postflop-cbet",
+      "heroSeatOffsetFromButton": 0,
       "heroCards": ["As", "Kh"],
       "board": ["2c", "7d", "Jh"],
       "decision": {

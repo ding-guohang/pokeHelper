@@ -66,6 +66,20 @@ final class DecisionSessionViewModelTests: XCTestCase {
         )
     }
 
+    func testM1ASixPlayerFixturePresentsDerivedButtonPosition() async {
+        let fixture = DecisionSessionFixture.make()
+
+        await fixture.viewModel.load()
+
+        XCTAssertEqual(fixture.scenario.assumptions.tableSize, 6)
+        XCTAssertEqual(fixture.scenario.heroSeatOffsetFromButton, 0)
+        XCTAssertEqual(fixture.viewModel.positionLabel, "BTN")
+        XCTAssertNotEqual(
+            fixture.viewModel.positionLabel,
+            fixture.scenario.title
+        )
+    }
+
     func testLoadRequestsExactlyOneScenarioByID() async {
         let pack = DecisionSessionFixture.makePack()
         let provider = RecordingStrategyProvider(pack: pack)

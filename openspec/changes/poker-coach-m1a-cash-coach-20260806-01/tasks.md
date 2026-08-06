@@ -1212,6 +1212,14 @@ The view must show position, effective stack, pot, hero cards, board, legal acti
 - `decision.confidence.<raw-value>`
 - `decision.submit`
 
+Position is a table-size-independent domain contract:
+
+- keep `SolverAssumptions.tableSize` as the number of players dealt into the hand;
+- add `DecisionScenario.heroSeatOffsetFromButton`;
+- define and validate a PokerCore position value for 2–9 players;
+- derive the display label deterministically (`BTN/SB` for heads-up button; otherwise BTN, SB, BB and the conventional early/middle/late labels);
+- the M1A fixture uses 6 players, but the type must not be named or constrained as 6-max-only.
+
 - [ ] **Step 4: Run model tests and build**
 
 Run:

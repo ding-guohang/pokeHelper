@@ -81,7 +81,7 @@ struct DecisionSessionView: View {
     private var scenarioFacts: some View {
         VStack(alignment: .leading, spacing: 8) {
             LabeledContent("位置") {
-                Text(viewModel.scenario?.title ?? "—")
+                Text(viewModel.positionLabel ?? "—")
                     .accessibilityIdentifier("decision.position")
             }
             LabeledContent("有效筹码") {

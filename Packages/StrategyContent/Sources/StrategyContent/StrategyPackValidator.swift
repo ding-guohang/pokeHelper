@@ -33,8 +33,36 @@ public struct StrategyPackValidator: Sendable {
                 throw StrategyPackValidationError.duplicateScenarioID(scenario.id)
             }
 
+            try validatePosition(in: scenario)
             try validateCards(in: scenario)
             try validateOptions(in: scenario)
+        }
+    }
+
+    private func validatePosition(in scenario: DecisionScenario) throws {
+        do {
+            _ = try TablePosition(
+                tableSize: scenario.assumptions.tableSize,
+                heroSeatOffsetFromButton:
+                    scenario.heroSeatOffsetFromButton
+            )
+        } catch let error {
+            switch error {
+            case let .invalidTableSize(tableSize):
+                throw StrategyPackValidationError.invalidTableSize(
+                    scenarioID: scenario.id,
+                    tableSize: tableSize
+                )
+            case let .invalidHeroSeatOffset(
+                tableSize,
+                heroSeatOffsetFromButton
+            ):
+                throw StrategyPackValidationError.invalidHeroSeatOffset(
+                    scenarioID: scenario.id,
+                    tableSize: tableSize,
+                    heroSeatOffsetFromButton: heroSeatOffsetFromButton
+                )
+            }
         }
     }
 

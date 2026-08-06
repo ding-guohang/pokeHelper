@@ -115,6 +115,7 @@ enum DecisionSessionFixture {
             "id": "fixture-scenario",
             "title": "按钮位",
             "abilityDimension": "flop-cbet",
+            "heroSeatOffsetFromButton": 0,
             "heroCards": ["As", "Kh"],
             "board": ["Qs", "Jh", "2c"],
             "decision": {

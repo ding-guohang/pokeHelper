@@ -22,6 +22,7 @@ final class DecisionSessionViewModel {
 
     private(set) var state: DecisionSessionState = .loading
     private(set) var scenario: DecisionScenario?
+    private(set) var positionLabel: String?
     private(set) var legalActions: [DecisionAction] = []
     private(set) var selectedAction: DecisionAction?
     private(set) var selectedConfidence: DecisionConfidence?
@@ -120,8 +121,14 @@ final class DecisionSessionViewModel {
                 scenarioRequest,
                 packRequest
             )
+            let position = try TablePosition(
+                tableSize: loadedScenario.assumptions.tableSize,
+                heroSeatOffsetFromButton:
+                    loadedScenario.heroSeatOffsetFromButton
+            )
 
             scenario = loadedScenario
+            positionLabel = position.label
             strategyPackID = pack.manifest.id
             strategyContentVersion = pack.manifest.contentVersion
             legalActions = loadedScenario.decision.legalActions()
@@ -231,6 +238,7 @@ final class DecisionSessionViewModel {
 
     private func resetLoadedSession() {
         scenario = nil
+        positionLabel = nil
         legalActions = []
         selectedAction = nil
         selectedConfidence = nil

@@ -49,6 +49,7 @@ public struct DecisionScenario: Codable, Sendable, Identifiable {
     public let id: String
     public let title: String
     public let abilityDimension: String
+    public let heroSeatOffsetFromButton: Int
     public let heroCards: [Card]
     public let board: [Card]
     public let decision: BettingDecisionContext
@@ -71,6 +72,12 @@ public enum StrategyPackLoadingError: Error, Equatable {
 public enum StrategyPackValidationError: Error, Equatable {
     case unsupportedSchemaVersion(Int)
     case duplicateScenarioID(String)
+    case invalidTableSize(scenarioID: String, tableSize: Int)
+    case invalidHeroSeatOffset(
+        scenarioID: String,
+        tableSize: Int,
+        heroSeatOffsetFromButton: Int
+    )
     case duplicateCard(String)
     case invalidFrequencyTotal(scenarioID: String, actual: Int)
     case illegalAction(scenarioID: String)
