@@ -487,7 +487,7 @@ git commit -m "feat: validate legal cash decision actions"
 - Produces: `StrategyPackProviding` and `InMemoryStrategyPackProvider`.
 - Consumes: `Card`, `BBAmount`, `EVAmount`, `BettingDecisionContext`, `DecisionAction`.
 
-- [ ] **Step 1: Write failing decoder and semantic validation tests**
+- [x] **Step 1: Write failing decoder and semantic validation tests**
 
 ```swift
 import Foundation
@@ -513,13 +513,13 @@ import Testing
 
 The `fixture(_:)` helper reads resources from `Bundle.module`.
 
-- [ ] **Step 2: Run the StrategyContent tests**
+- [x] **Step 2: Run the StrategyContent tests**
 
 Run: `swift test --package-path Packages/StrategyContent`
 
 Expected: compile failure for missing strategy models and loader.
 
-- [ ] **Step 3: Implement the strategy schema and validator**
+- [x] **Step 3: Implement the strategy schema and validator**
 
 Use these public contracts:
 
@@ -634,13 +634,13 @@ Validation must reject:
 Use `CryptoKit.SHA256` when `expectedSHA256` is supplied and throw a checksum-specific error before decoding. Configure `JSONDecoder.dateDecodingStrategy = .iso8601`.
 Configure the package test target with `.process("Fixtures")`. `InMemoryStrategyPackProvider.scenario(id:)` throws `StrategyPackLookupError.scenarioNotFound(id:)` when absent.
 
-- [ ] **Step 4: Run the package tests**
+- [x] **Step 4: Run the package tests**
 
 Run: `swift test --package-path Packages/StrategyContent`
 
 Expected: PASS for the valid fixture and the named validation failure for invalid frequency totals.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Packages/StrategyContent
