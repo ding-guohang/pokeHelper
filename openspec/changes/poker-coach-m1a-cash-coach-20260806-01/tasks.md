@@ -1531,7 +1531,7 @@ git commit -m "test: cover cash coach vertical slice on phone and tablet"
 - Produces: `bash scripts/verify-m1a.sh`.
 - Documents: module ownership and the exact contracts M1B may consume without changing.
 
-- [ ] **Step 1: Write the verification script**
+- [x] **Step 1: Write the verification script**
 
 ```bash
 #!/usr/bin/env bash
@@ -1552,7 +1552,7 @@ xcodebuild test -project PokerCoach.xcodeproj -scheme PokerCoach \
   -only-testing:PokerCoachUITests/IPadLayoutTests
 ```
 
-- [ ] **Step 2: Document the executable workflow**
+- [x] **Step 2: Document the executable workflow**
 
 `README.md` must contain:
 
@@ -1574,13 +1574,13 @@ StrategyPackManifest
 
 M1B must add a remote synchronizer around these contracts and may not move HTTP, authentication, or database DTOs into `PokerCore`, `StrategyContent`, or `TrainingDomain`.
 
-- [ ] **Step 3: Run complete verification**
+- [x] **Step 3: Run complete verification**
 
 Run: `bash scripts/verify-m1a.sh`
 
 Expected: every package, unit, iPhone UI, and iPad UI test exits 0.
 
-- [ ] **Step 4: Confirm release exclusion and repository cleanliness**
+- [x] **Step 4: Confirm release exclusion and repository cleanliness**
 
 Run:
 
@@ -1594,7 +1594,7 @@ git status --short
 
 Expected: Release build succeeds; `find` prints no `DevStrategyPack.json`; diff check is clean; only intended task files are modified.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md docs/architecture scripts/verify-m1a.sh
