@@ -148,4 +148,27 @@ final class TodayViewModelTests: XCTestCase {
             [4, 2, 2]
         )
     }
+
+    func testUnseenPrimaryReasonIsPresentedInChinese() async throws {
+        let fixture = DashboardFixture.empty()
+
+        await fixture.today.refresh()
+
+        XCTAssertEqual(
+            fixture.today.primaryReasonText,
+            "尚无下注尺度训练记录，按基准分 60 分、距上次练习 7 天计算；优先级 54。"
+        )
+    }
+
+    func testPracticedPrimaryReasonIsPresentedInChinese() async throws {
+        let fixture = DashboardFixture.withBetSizingWeakness()
+
+        await fixture.today.refresh()
+
+        let reason = try XCTUnwrap(fixture.today.primaryReasonText)
+        XCTAssertTrue(reason.contains("下注尺度"))
+        XCTAssertTrue(reason.contains("平均得分"))
+        XCTAssertTrue(reason.contains("高信心错误"))
+        XCTAssertFalse(reason.contains("Mean score"))
+    }
 }

@@ -90,9 +90,11 @@ struct TodayView: View {
                 .font(.title2.bold())
             Text(viewModel.durationText)
                 .foregroundStyle(.secondary)
-            Text(reasonText(item.reason))
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            if let primaryReasonText = viewModel.primaryReasonText {
+                Text("选择原因：\(primaryReasonText)")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
             Button("开始今日训练") {
                 selectedScenarioID = viewModel.startPrimaryItem()
             }
@@ -127,9 +129,5 @@ struct TodayView: View {
         dependencies.makeDecisionSessionViewModel(
             scenarioID: scenarioID
         )
-    }
-
-    private func reasonText(_ reason: String) -> String {
-        "选择原因：\(reason)"
     }
 }

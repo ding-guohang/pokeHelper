@@ -2,7 +2,7 @@
   "manifest": {
     "id": "cash-6max-100bb-dev",
     "schemaVersion": 1,
-    "contentVersion": "2026.08.06-dev.1",
+    "contentVersion": "2026.08.07-dev.2",
     "reviewStatus": "testFixture",
     "generatedSource": "deterministic-ui-test-fixture"
   },
@@ -96,6 +96,175 @@
         "futurePlan": "过牌后在改善权益或对手继续示弱时延迟下注；小注被跟后谨慎选择转牌二次开火。",
         "gtoBaseline": "开发演示基线保留三个非零频率行动，所有频率合计 100%。",
         "exploitCondition": "仅当对手对小注过度弃牌时增加 2.17BB 下注；没有该读牌时保持开发演示基线。"
+      }
+    },
+    {
+      "id": "cash-preflop-range",
+      "title": "CO 面对 HJ 加注的翻前范围",
+      "abilityDimension": "preflop-range",
+      "heroSeatOffsetFromButton": 5,
+      "heroCards": [
+        "As",
+        "Kd"
+      ],
+      "board": [],
+      "decision": {
+        "pot": {
+          "centiBB": 350
+        },
+        "effectiveStack": {
+          "centiBB": 10000
+        },
+        "amountToCall": {
+          "centiBB": 250
+        },
+        "minimumRaiseTo": {
+          "centiBB": 750
+        },
+        "configuredBetSizes": [
+          {
+            "centiBB": 750
+          }
+        ]
+      },
+      "options": [
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "frequencyBasisPoints": 1000,
+          "ev": {
+            "milliBB": -50
+          }
+        },
+        {
+          "action": {
+            "kind": "call",
+            "toCentiBB": 250
+          },
+          "frequencyBasisPoints": 4500,
+          "ev": {
+            "milliBB": 320
+          }
+        },
+        {
+          "action": {
+            "kind": "raise",
+            "toCentiBB": 750
+          },
+          "frequencyBasisPoints": 4500,
+          "ev": {
+            "milliBB": 360
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AKo",
+          "actionWeightsBasisPoints": {
+            "fold": 1000,
+            "call-250": 4500,
+            "raise-750": 4500
+          }
+        }
+      ],
+      "assumptions": {
+        "gameType": "无限注德州扑克现金局，CO 面对 HJ 翻前加注",
+        "tableSize": 6,
+        "effectiveStack": {
+          "centiBB": 10000
+        },
+        "rakeDescription": "抽水 5%，单手上限 3BB",
+        "allowedBetSizeDescription": "翻前可弃牌、跟注 2.5BB 或加注到 7.5BB"
+      },
+      "explanation": {
+        "conclusion": "这是一份开发演示数据；AKo 面对 HJ 加注以跟注和三下注混合为主。",
+        "rangeReasoning": "CO 的继续范围需要兼顾位置优势与身后玩家，AKo 同时保留跟注和价值三下注。",
+        "boardReasoning": "翻前尚无公共牌，判断重点是位置、范围强度与身后未行动玩家。",
+        "opponentReasoning": "假设 HJ 使用标准六人桌开池范围，且面对三下注采用均衡继续策略。",
+        "futurePlan": "跟注后根据翻牌范围优势继续；三下注被跟后在有利高张牌面保持主动。",
+        "gtoBaseline": "开发演示基线保留跟注与三下注的混合频率，所有行动频率合计 100%。",
+        "exploitCondition": "仅当 HJ 对三下注过度弃牌时提高三下注频率；没有该读牌时保持开发演示基线。"
+      }
+    },
+    {
+      "id": "cash-flop-cbet",
+      "title": "BTN 对 BB 的翻牌持续下注",
+      "abilityDimension": "flop-cbet",
+      "heroSeatOffsetFromButton": 0,
+      "heroCards": [
+        "Jc",
+        "Tc"
+      ],
+      "board": [
+        "Qs",
+        "8d",
+        "3h"
+      ],
+      "decision": {
+        "pot": {
+          "centiBB": 650
+        },
+        "effectiveStack": {
+          "centiBB": 10000
+        },
+        "amountToCall": {
+          "centiBB": 0
+        },
+        "minimumRaiseTo": null,
+        "configuredBetSizes": [
+          {
+            "centiBB": 217
+          }
+        ]
+      },
+      "options": [
+        {
+          "action": {
+            "kind": "check"
+          },
+          "frequencyBasisPoints": 4000,
+          "ev": {
+            "milliBB": 500
+          }
+        },
+        {
+          "action": {
+            "kind": "bet",
+            "toCentiBB": 217
+          },
+          "frequencyBasisPoints": 6000,
+          "ev": {
+            "milliBB": 540
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "JTs",
+          "actionWeightsBasisPoints": {
+            "bet-217": 6000,
+            "check": 4000
+          }
+        }
+      ],
+      "assumptions": {
+        "gameType": "无限注德州扑克现金局，BTN 单加注底池对 BB",
+        "tableSize": 6,
+        "effectiveStack": {
+          "centiBB": 10000
+        },
+        "rakeDescription": "抽水 5%，单手上限 3BB",
+        "allowedBetSizeDescription": "翻牌可过牌、持续下注 2.17BB 或全下"
+      },
+      "explanation": {
+        "conclusion": "这是一份开发演示数据；JTs 在 Q 高彩虹牌面以小额持续下注为主，并保留过牌。",
+        "rangeReasoning": "BTN 拥有更多强 Qx 与高对组合，JTs 可利用顺子后门和高张阻断参与小注范围。",
+        "boardReasoning": "Q 高彩虹牌面连接度较低，小注能够让大量无对牌承受压力。",
+        "opponentReasoning": "假设 BB 以标准范围防守翻前，并按均衡频率继续顶对、中对和后门听牌。",
+        "futurePlan": "被跟注后在形成顺子听牌或对手继续示弱的转牌选择二次开火，否则控制底池。",
+        "gtoBaseline": "开发演示基线以 2.17BB 持续下注为主，同时用过牌保护后续街范围。",
+        "exploitCondition": "仅当 BB 对翻牌小注过度弃牌时提高持续下注频率；没有该读牌时保持开发演示基线。"
       }
     }
   ]

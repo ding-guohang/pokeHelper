@@ -37,12 +37,33 @@ enum AbilityDimensionPresentation {
     }
 }
 
+enum TodayReasonPresentation {
+    static func text(
+        for item: DailyPlanItem,
+        profile: PlayerProfile,
+        now: Date
+    ) -> String {
+        let abilityName = AbilityDimensionPresentation.displayName(
+            for: item.abilityDimension
+        )
+        guard let snapshot = profile[item.abilityDimension] else {
+            return "尚无\(abilityName)训练记录，按基准分 60 分、距上次练习 7 天计算；优先级 \(item.priority)。"
+        }
+
+        let daysSincePractice = snapshot.lastPracticedAt.map {
+            max(0, Int(now.timeIntervalSince($0) / 86_400))
+        } ?? 7
+        return "\(abilityName)平均得分 \(snapshot.meanScore) 分，高信心错误 \(snapshot.highConfidenceErrorCount) 次，距上次练习 \(daysSincePractice) 天；优先级 \(item.priority)。"
+    }
+}
+
 @MainActor
 @Observable
 final class TodayViewModel {
     private(set) var state: DashboardLoadState = .loading
     private(set) var primaryItem: DailyPlanItem?
     private(set) var supportingItems: [DailyPlanItem] = []
+    private(set) var primaryReasonText: String?
     private(set) var durationText = "约 0 分钟"
     private(set) var failureMessage: String?
     let strategyContentAvailability: StrategyContentAvailability
@@ -89,6 +110,13 @@ final class TodayViewModel {
             )
             primaryItem = plan.items.first
             supportingItems = Array(plan.items.dropFirst())
+            primaryReasonText = plan.items.first.map {
+                TodayReasonPresentation.text(
+                    for: $0,
+                    profile: profile,
+                    now: plan.generatedAt
+                )
+            }
             let totalMinutes = plan.items.reduce(0) { partialResult, item in
                 partialResult + item.catalogItem.estimatedMinutes
             }
@@ -98,6 +126,7 @@ final class TodayViewModel {
         } catch {
             primaryItem = nil
             supportingItems = []
+            primaryReasonText = nil
             durationText = "约 0 分钟"
             failureMessage = "读取训练记录失败，请重试"
             state = .failed(message: "读取训练记录失败，请重试")
