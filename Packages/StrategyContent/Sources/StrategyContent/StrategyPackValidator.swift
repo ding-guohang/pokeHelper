@@ -1,3 +1,4 @@
+import Foundation
 import PokerCore
 
 public struct StrategyPackValidator: Sendable {
@@ -10,7 +11,10 @@ public struct StrategyPackValidator: Sendable {
             )
         }
 
-        guard !pack.manifest.generatedSource.isEmpty else {
+        guard !pack.manifest.generatedSource
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+        else {
             throw StrategyPackValidationError.emptyGeneratedSource
         }
 
@@ -45,9 +49,28 @@ public struct StrategyPackValidator: Sendable {
     }
 
     private func validateOptions(in scenario: DecisionScenario) throws {
-        let frequencyTotal = scenario.options.reduce(0) {
-            $0 + $1.frequencyBasisPoints
+        var frequencyTotal = 0
+        for option in scenario.options {
+            let frequency = option.frequencyBasisPoints
+            guard (0...10_000).contains(frequency) else {
+                throw StrategyPackValidationError.invalidFrequencyTotal(
+                    scenarioID: scenario.id,
+                    actual: frequency
+                )
+            }
+
+            let (updatedTotal, overflowed) = frequencyTotal.addingReportingOverflow(
+                frequency
+            )
+            guard !overflowed else {
+                throw StrategyPackValidationError.invalidFrequencyTotal(
+                    scenarioID: scenario.id,
+                    actual: Int.max
+                )
+            }
+            frequencyTotal = updatedTotal
         }
+
         guard frequencyTotal == 10_000 else {
             throw StrategyPackValidationError.invalidFrequencyTotal(
                 scenarioID: scenario.id,

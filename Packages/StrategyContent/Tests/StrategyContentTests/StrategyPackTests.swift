@@ -21,6 +21,45 @@ import Testing
     }
 }
 
+@Test func negativeFrequencyCannotBeOffsetByAnotherOption() throws {
+    let data = try validPackWithFrequencies([-1_000, 11_000])
+
+    #expect(
+        throws: StrategyPackValidationError.invalidFrequencyTotal(
+            scenarioID: "btn-check",
+            actual: -1_000
+        )
+    ) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func frequencyAboveBasisPointMaximumCannotBeOffsetByAnotherOption() throws {
+    let data = try validPackWithFrequencies([11_000, -1_000])
+
+    #expect(
+        throws: StrategyPackValidationError.invalidFrequencyTotal(
+            scenarioID: "btn-check",
+            actual: 11_000
+        )
+    ) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func extremeFrequencyThrowsTypedErrorInsteadOfOverflowing() throws {
+    let data = try validPackWithFrequencies([Int.max, 1])
+
+    #expect(
+        throws: StrategyPackValidationError.invalidFrequencyTotal(
+            scenarioID: "btn-check",
+            actual: Int.max
+        )
+    ) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
 @Test func unsupportedSchemaVersionIsRejected() throws {
     let data = try mutatedValidPack { root in
         updateManifest(in: &root) { manifest in
@@ -89,6 +128,18 @@ import Testing
     let data = try mutatedValidPack { root in
         updateManifest(in: &root) { manifest in
             manifest["generatedSource"] = ""
+        }
+    }
+
+    #expect(throws: StrategyPackValidationError.emptyGeneratedSource) {
+        try StrategyPackLoader().load(data: data, expectedSHA256: nil)
+    }
+}
+
+@Test func whitespaceOnlyGeneratedSourceIsRejected() throws {
+    let data = try mutatedValidPack { root in
+        updateManifest(in: &root) { manifest in
+            manifest["generatedSource"] = " \n\t "
         }
     }
 
@@ -196,6 +247,18 @@ private func mutatedValidPack(
 
 private func scenarios(in root: [String: Any]) -> [[String: Any]] {
     root["scenarios"] as! [[String: Any]]
+}
+
+private func validPackWithFrequencies(_ frequencies: [Int]) throws -> Data {
+    try mutatedValidPack { root in
+        updateFirstScenario(in: &root) { scenario in
+            var options = scenario["options"] as! [[String: Any]]
+            for index in options.indices {
+                options[index]["frequencyBasisPoints"] = frequencies[index]
+            }
+            scenario["options"] = options
+        }
+    }
 }
 
 private func updateManifest(
