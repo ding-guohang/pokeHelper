@@ -1129,7 +1129,7 @@ git commit -m "feat: add adaptive four-destination app shell"
 - Produces: `DecisionSessionViewModel.load()`, `select(action:)`, `setConfidence(_:)`, `submit()`, `continueSession()`.
 - Consumes: one `DecisionScenario`, `DecisionScorer`, and `TrainingEventStore`.
 
-- [ ] **Step 1: Write failing state-machine tests**
+- [x] **Step 1: Write failing state-machine tests**
 
 ```swift
 import XCTest
@@ -1159,13 +1159,13 @@ final class DecisionSessionViewModelTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run the `DecisionSessionViewModelTests` with the same simulator command from Task 8.
 
 Expected: compile failure for missing session types.
 
-- [ ] **Step 3: Implement the state machine and table screen**
+- [x] **Step 3: Implement the state machine and table screen**
 
 The view model must:
 
@@ -1220,7 +1220,7 @@ Position is a table-size-independent domain contract:
 - derive the display label deterministically (`BTN/SB` for heads-up button; otherwise BTN, SB, BB and the conventional early/middle/late labels);
 - the M1A fixture uses 6 players, but the type must not be named or constrained as 6-max-only.
 
-- [ ] **Step 4: Run model tests and build**
+- [x] **Step 4: Run model tests and build**
 
 Run:
 
@@ -1233,7 +1233,7 @@ xcodebuild build -project PokerCoach.xcodeproj -scheme PokerCoach -destination '
 
 Expected: tests and build PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add PokerCoach/Features/Train PokerCoach/Shared PokerCoachTests
