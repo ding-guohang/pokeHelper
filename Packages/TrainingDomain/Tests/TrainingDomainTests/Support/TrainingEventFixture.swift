@@ -21,6 +21,16 @@ enum TrainingEventFixture {
         )
     }
 
+    static func at(seconds: TimeInterval, score: Int, dimension: String) -> TrainingEvent {
+        makeEvent(
+            id: eventID(for: seconds),
+            occurredAt: Date(timeIntervalSince1970: seconds),
+            score: score,
+            confidence: .unsure,
+            dimension: dimension
+        )
+    }
+
     static func score(
         _ score: Int,
         confidence: DecisionConfidence,
