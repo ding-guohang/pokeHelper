@@ -12,7 +12,14 @@ let package = Package(
         .library(name: "PokerCore", targets: ["PokerCore"]),
     ],
     targets: [
-        .target(name: "PokerCore"),
-        .testTarget(name: "PokerCoreTests", dependencies: ["PokerCore"]),
+        .target(
+            name: "PokerCore",
+            swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
+        ),
+        .testTarget(
+            name: "PokerCoreTests",
+            dependencies: ["PokerCore"],
+            swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
+        ),
     ]
 )

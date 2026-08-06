@@ -17,8 +17,13 @@ let package = Package(
     targets: [
         .target(
             name: "StrategyContent",
-            dependencies: ["PokerCore"]
+            dependencies: ["PokerCore"],
+            swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
         ),
-        .testTarget(name: "StrategyContentTests", dependencies: ["StrategyContent"]),
+        .testTarget(
+            name: "StrategyContentTests",
+            dependencies: ["StrategyContent"],
+            swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
+        ),
     ]
 )
