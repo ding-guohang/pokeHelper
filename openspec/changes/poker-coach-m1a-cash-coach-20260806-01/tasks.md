@@ -1437,7 +1437,7 @@ git commit -m "feat: drive today and review from training history"
 - Produces: launch argument `--reset-training-events`.
 - Consumes: complete M1A UI flow.
 
-- [ ] **Step 1: Write failing UI tests**
+- [x] **Step 1: Write failing UI tests**
 
 ```swift
 import XCTest
@@ -1466,7 +1466,7 @@ final class CashCoachHappyPathTests: XCTestCase {
 
 `IPadLayoutTests` launches on iPad and asserts identifiers `feedback.table-column` and `feedback.analysis-column` both exist after submission.
 
-- [ ] **Step 2: Run UI tests and verify failure**
+- [x] **Step 2: Run UI tests and verify failure**
 
 Run:
 
@@ -1479,7 +1479,7 @@ xcodebuild test -project PokerCoach.xcodeproj -scheme PokerCoach \
 
 Expected: failure because the debug strategy resource and route are absent.
 
-- [ ] **Step 3: Add a disclosed development fixture and reset hook**
+- [x] **Step 3: Add a disclosed development fixture and reset hook**
 
 The debug pack must:
 
@@ -1496,7 +1496,7 @@ The debug pack must:
 
 Add `--reset-training-events` handling before dependency creation so UI tests begin with an empty file store. In Debug, load the fixture through the same loader and validator used by production content. In Release, `EXCLUDED_SOURCE_FILE_NAMES = DevStrategyPack.json` removes the fixture, and `AppDependencies.live()` must show a visible “未安装已审核策略内容” state when no reviewed pack exists.
 
-- [ ] **Step 4: Run iPhone and iPad UI tests**
+- [x] **Step 4: Run iPhone and iPad UI tests**
 
 Run:
 
@@ -1511,7 +1511,7 @@ xcodebuild test -project PokerCoach.xcodeproj -scheme PokerCoach \
 
 Expected: both UI tests PASS; every feedback screen shows `开发演示数据`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add PokerCoach/Resources PokerCoach/App project.yml PokerCoachUITests
