@@ -1,0 +1,14 @@
+# 产品规则
+
+本目录沉淀稳定业务规则。完整产品设计仍以已批准的 Superpowers 规格为准。
+
+## 规则文件
+
+- [核心学习与评分规则](learning-rules.md)
+- [产品范围与里程碑](scope-and-milestones.md)
+
+## 产品真值
+
+- [德州扑克自适应教练产品设计](../superpowers/specs/2026-08-06-texas-holdem-coach-design.md)
+- [实施路线](../superpowers/plans/2026-08-06-poker-coach-implementation-roadmap.md)
+

@@ -1,0 +1,27 @@
+project:
+  name: Poker Coach
+  type: ios
+  status: planned-greenfield
+  tech_stack:
+    - SwiftUI
+    - Swift 6.2.3
+    - Xcode 26.2
+    - XcodeGen
+    - Swift Package Manager
+    - Go 1.25.4
+    - PostgreSQL
+
+commands:
+  pre_build: xcodegen generate
+  build: xcodebuild build -project PokerCoach.xcodeproj -scheme PokerCoach -destination 'generic/platform=iOS Simulator'
+  test: bash scripts/verify-m1a.sh
+  lint: git diff --check
+
+high_risk_areas:
+  - PokerCore 精确金额、合法行动和牌局状态
+  - 策略数据来源、版本、频率和 EV 可信度
+  - 混合策略与结果独立的决策评分
+  - 本地优先的幂等增量同步
+  - 牌谱、能力画像和账号隐私
+  - iPhone 与 iPad 自适应交互
+
