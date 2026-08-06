@@ -21,9 +21,6 @@ targets:
     configFiles:
       Debug: Config/Debug.xcconfig
       Release: Config/Release.xcconfig
-    settings:
-      base:
-        "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": NO
     dependencies:
       - package: PokerCore
       - package: StrategyContent
