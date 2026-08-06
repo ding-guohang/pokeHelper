@@ -53,6 +53,21 @@ import Testing
     ])
 }
 
+@Test func callingAnOpponentAllInDoesNotOfferAnActiveAllInAction() {
+    let context = BettingDecisionContext(
+        pot: .init(centiBB: 1_000),
+        effectiveStack: .init(centiBB: 2_000),
+        amountToCall: .init(centiBB: 2_000),
+        minimumRaiseTo: nil,
+        configuredBetSizes: []
+    )
+
+    #expect(context.legalActions() == [
+        .fold,
+        .call(to: .init(centiBB: 2_000)),
+    ])
+}
+
 @Test func decisionActionCodableUsesStableFlatJSON() throws {
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.sortedKeys]

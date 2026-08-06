@@ -47,16 +47,21 @@ public struct BettingDecisionContext: Hashable, Codable, Sendable {
     }
 
     public func legalActions() -> Set<DecisionAction> {
-        var actions: Set<DecisionAction> = [.allIn(to: effectiveStack)]
+        var actions: Set<DecisionAction> = []
 
         if amountToCall == BBAmount(centiBB: 0) {
             actions.insert(.check)
+            actions.insert(.allIn(to: effectiveStack))
             for size in configuredBetSizes where size.centiBB > 0 && size < effectiveStack {
                 actions.insert(.bet(to: size))
             }
         } else {
             actions.insert(.fold)
             actions.insert(.call(to: amountToCall))
+
+            if amountToCall < effectiveStack {
+                actions.insert(.allIn(to: effectiveStack))
+            }
 
             if let minimumRaiseTo {
                 for size in configuredBetSizes where size.centiBB > 0 && size >= minimumRaiseTo && size < effectiveStack {
