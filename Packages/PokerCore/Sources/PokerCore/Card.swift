@@ -49,4 +49,23 @@ public struct Card: Hashable, Codable, Sendable {
     public var code: String {
         rank.rawValue + suit.rawValue
     }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let code = try container.decode(String.self)
+
+        guard let card = Card(code: code) else {
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Card code must be a valid two-character rank and suit"
+            )
+        }
+
+        self = card
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(code)
+    }
 }
