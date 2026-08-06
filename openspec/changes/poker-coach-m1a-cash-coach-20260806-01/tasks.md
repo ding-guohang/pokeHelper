@@ -1257,7 +1257,7 @@ git commit -m "feat: add cash decision training flow"
 - Produces: Chinese summary, raw EV values, frequency rows, range cells, assumptions, and exploit-condition sections.
 - Consumes: `DecisionScenario`, `DecisionSubmission`, and `DecisionGrade`.
 
-- [ ] **Step 1: Write failing presentation tests**
+- [x] **Step 1: Write failing presentation tests**
 
 ```swift
 import XCTest
@@ -1284,13 +1284,13 @@ final class FeedbackPresentationTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run the `FeedbackPresentationTests` target.
 
 Expected: compile failure for missing presentation types.
 
-- [ ] **Step 3: Implement the professional feedback hierarchy**
+- [x] **Step 3: Implement the professional feedback hierarchy**
 
 Render, in order:
 
@@ -1307,7 +1307,7 @@ The presentation formatter must show EV to three decimal BB and frequency to one
 
 `FeedbackFixture.mixedStrategy()` must return a scenario, submission, and grade whose second action loses exactly 20 milliBB. `developmentPresentation()` uses a pack manifest with `.testFixture`; a reviewed manifest must instead produce the badge `已审核 · <contentVersion>`.
 
-- [ ] **Step 4: Run tests and inspect both size classes**
+- [x] **Step 4: Run tests and inspect both size classes**
 
 Run:
 
@@ -1320,7 +1320,7 @@ xcodebuild build -project PokerCoach.xcodeproj -scheme PokerCoach -destination '
 
 Expected: PASS. In an iPad preview, range matrix and analysis may share columns; in iPhone previews they remain in one scrollable column.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add PokerCoach/Features/Feedback PokerCoachTests
