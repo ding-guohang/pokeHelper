@@ -20,6 +20,8 @@ HTTP 客户端、认证与会话、outbox 持久化细节、服务端 schema，�
 位置使用两个联合字段，定义在 `Packages/StrategyContent/Sources/StrategyContent/StrategyModels.swift`：
 
 - `SolverAssumptions.tableSize`：本手被发牌的玩家人数，合法范围为 2–9。
-- `DecisionScenario.heroSeatOffsetFromButton`：英雄相对按钮的座位偏移，合法范围为 `0..<tableSize`；`0` 是 BTN（单挑时显示 `BTN/SB`）、`1` 是 SB、`2` 是 BB，其余位置按人数确定性推导。
+- `DecisionScenario.heroSeatOffsetFromButton`：英雄相对按钮的座位偏移，有效范围始终为 `0..<tableSize`。
+  - `tableSize == 2`：`0` 是 `BTN/SB`，`1` 是 `BB`。
+  - `tableSize >= 3`：`0` 是 `BTN`，`1` 是 `SB`，`2` 是 `BB`，其余位置按人数确定性推导。
 
 `StrategyPackValidator` 必须联合校验这两个字段。M1A fixture 使用 6 人桌，但类型和内容契约不绑定 6-max；M3 的标准 MTT、人数递减和决赛桌场景应直接复用该表示，不新增自由文本位置或固定人数位置枚举。
