@@ -1,0 +1,59 @@
+name: PokerCoach
+options:
+  bundleIdPrefix: com.porkhelper
+configs:
+  Debug: debug
+  Release: release
+packages:
+  PokerCore:
+    path: Packages/PokerCore
+  StrategyContent:
+    path: Packages/StrategyContent
+  TrainingDomain:
+    path: Packages/TrainingDomain
+targets:
+  PokerCoach:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - PokerCoach
+    configFiles:
+      Debug: Config/Debug.xcconfig
+      Release: Config/Release.xcconfig
+    dependencies:
+      - package: PokerCore
+      - package: StrategyContent
+      - package: TrainingDomain
+    info:
+      path: PokerCoach/Info.plist
+      properties:
+        CFBundleDisplayName: 手牌教练
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+  PokerCoachTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources: [PokerCoachTests]
+    dependencies:
+      - target: PokerCoach
+  PokerCoachUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources: [PokerCoachUITests]
+    dependencies:
+      - target: PokerCoach
+schemes:
+  PokerCoach:
+    build:
+      targets:
+        PokerCoach: all
+    test:
+      targets:
+        - PokerCoachTests
+        - PokerCoachUITests

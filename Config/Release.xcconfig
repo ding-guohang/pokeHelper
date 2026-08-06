@@ -1,0 +1,3 @@
+#include "Shared.xcconfig"
+
+EXCLUDED_SOURCE_FILE_NAMES = DevStrategyPack.json
