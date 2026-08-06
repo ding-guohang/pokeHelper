@@ -4,6 +4,8 @@ import SwiftUI
 import TrainingDomain
 
 struct DecisionSessionView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     let viewModel: DecisionSessionViewModel
 
     var body: some View {
@@ -11,8 +13,10 @@ struct DecisionSessionView: View {
             switch viewModel.state {
             case .loading:
                 ProgressView("正在加载训练场景…")
-            case .answering, .feedback:
+            case .answering:
                 tableScreen
+            case .feedback:
+                feedbackScreen
             case .completed:
                 ContentUnavailableView(
                     "训练完成",
@@ -46,35 +50,97 @@ struct DecisionSessionView: View {
                         .foregroundStyle(.red)
                 }
 
-                if viewModel.state == .feedback {
-                    Label("回答已保存", systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                    Button("继续") {
-                        viewModel.continueSession()
+                Button {
+                    Task {
+                        await viewModel.submit()
                     }
-                    .buttonStyle(.borderedProminent)
-                } else {
-                    Button {
-                        Task {
-                            await viewModel.submit()
-                        }
-                    } label: {
-                        if viewModel.isSaving {
-                            ProgressView()
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            Text("提交")
-                                .frame(maxWidth: .infinity)
-                        }
+                } label: {
+                    if viewModel.isSaving {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("提交")
+                            .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(!viewModel.canSubmit)
-                    .accessibilityIdentifier("decision.submit")
                 }
+                .buttonStyle(.borderedProminent)
+                .disabled(!viewModel.canSubmit)
+                .accessibilityIdentifier("decision.submit")
             }
             .padding()
             .frame(maxWidth: 720)
             .frame(maxWidth: .infinity)
+        }
+    }
+
+    @ViewBuilder
+    private var feedbackScreen: some View {
+        if
+            let scenario = viewModel.scenario,
+            let submission = viewModel.submission,
+            let grade = viewModel.grade
+        {
+            let presentation = FeedbackPresentation(
+                scenario: scenario,
+                submission: submission,
+                grade: grade,
+                manifest: viewModel.strategyManifest
+            )
+            ScrollView {
+                Group {
+                    if ProfessionalFeedbackLayout(
+                        horizontalSizeClass: horizontalSizeClass
+                    ) == .splitColumns {
+                        HStack(alignment: .top, spacing: 32) {
+                            tableContext
+                                .frame(
+                                    maxWidth: .infinity,
+                                    alignment: .topLeading
+                                )
+                            feedbackAnalysis(presentation)
+                                .frame(
+                                    maxWidth: .infinity,
+                                    alignment: .topLeading
+                                )
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 24) {
+                            tableContext
+                            feedbackAnalysis(presentation)
+                        }
+                    }
+                }
+                .padding()
+                .frame(maxWidth: 1_200)
+                .frame(maxWidth: .infinity)
+            }
+        } else {
+            ContentUnavailableView(
+                "反馈暂不可用",
+                systemImage: "exclamationmark.triangle",
+                description: Text("已保存的决策数据不完整。")
+            )
+        }
+    }
+
+    private var tableContext: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            scenarioFacts
+            cards
+        }
+    }
+
+    private func feedbackAnalysis(
+        _ presentation: FeedbackPresentation
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Label("回答已保存", systemImage: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+            ProfessionalFeedbackView(presentation: presentation)
+            Button("继续") {
+                viewModel.continueSession()
+            }
+            .buttonStyle(.borderedProminent)
         }
     }
 

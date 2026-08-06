@@ -28,6 +28,7 @@ final class DecisionSessionViewModel {
     private(set) var selectedConfidence: DecisionConfidence?
     private(set) var submission: DecisionSubmission?
     private(set) var grade: DecisionGrade?
+    private(set) var strategyManifest: StrategyPackManifest?
     private(set) var validationMessage: String?
     private(set) var isSaving = false
 
@@ -131,6 +132,7 @@ final class DecisionSessionViewModel {
             positionLabel = position.label
             strategyPackID = pack.manifest.id
             strategyContentVersion = pack.manifest.contentVersion
+            strategyManifest = pack.manifest
             legalActions = loadedScenario.decision.legalActions()
                 .sorted(by: DecisionAction.stableDisplayOrder)
             state = .answering
@@ -244,6 +246,7 @@ final class DecisionSessionViewModel {
         selectedConfidence = nil
         submission = nil
         grade = nil
+        strategyManifest = nil
         strategyPackID = nil
         strategyContentVersion = nil
         pendingEvent = nil
