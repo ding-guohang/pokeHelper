@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 import StrategyContent
 import TrainingDomain
@@ -154,7 +155,7 @@ final class AppBootstrapTests: XCTestCase {
 
         bootstrap.loadIfNeeded()
 
-        guard case .failure = bootstrap.state else {
+        guard case .failure(.unavailable) = bootstrap.state else {
             return XCTFail("Expected recoverable failure")
         }
     }
@@ -178,6 +179,92 @@ final class AppBootstrapTests: XCTestCase {
             return XCTFail("Expected content after retry")
         }
         XCTAssertTrue(actualDependencies === expectedDependencies)
+    }
+
+    func testCorruptedHistoryRequiresExplicitRecoveryBeforeReloading() {
+        let expectedDependencies = AppDependencies.preview
+        var isRecovered = false
+        var loadCount = 0
+        var recoveryCount = 0
+        let bootstrap = AppBootstrap(
+            loader: {
+                loadCount += 1
+                guard isRecovered else {
+                    throw TrainingEventStoreError.corruptedLine(2)
+                }
+                return expectedDependencies
+            },
+            corruptedHistoryRecovery: {
+                recoveryCount += 1
+                isRecovered = true
+            }
+        )
+
+        bootstrap.loadIfNeeded()
+
+        guard case .failure(.corruptedTrainingHistory(line: 2)) =
+            bootstrap.state
+        else {
+            return XCTFail("Expected typed corrupted-history failure")
+        }
+
+        bootstrap.retry()
+        XCTAssertEqual(loadCount, 1, "Generic retry must not reread corruption")
+
+        bootstrap.recoverCorruptedTrainingHistory()
+
+        XCTAssertEqual(recoveryCount, 1)
+        XCTAssertEqual(loadCount, 2)
+        guard case let .content(actualDependencies) = bootstrap.state else {
+            return XCTFail("Expected recovery to retry dependency loading")
+        }
+        XCTAssertTrue(actualDependencies === expectedDependencies)
+    }
+
+    func testCorruptedHistoryRecoveryPreservesBackupAndCreatesEmptyLog()
+        async throws
+    {
+        let directory = FileManager.default.temporaryDirectory.appending(
+            path: UUID().uuidString,
+            directoryHint: .isDirectory
+        )
+        try FileManager.default.createDirectory(
+            at: directory,
+            withIntermediateDirectories: true
+        )
+        addTeardownBlock {
+            try? FileManager.default.removeItem(at: directory)
+        }
+        let eventFile = directory.appending(path: "training-events.jsonl")
+        let corruptedContents = Data("not-json\n".utf8)
+        try corruptedContents.write(to: eventFile)
+
+        XCTAssertThrowsError(
+            try FileTrainingEventStore(directory: directory)
+        ) { error in
+            XCTAssertEqual(
+                error as? TrainingEventStoreError,
+                .corruptedLine(1)
+            )
+        }
+
+        let backupURL = try AppDependencies.recoverCorruptedTrainingEvents(
+            in: directory,
+            backupID: UUID(
+                uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"
+            )!
+        )
+
+        XCTAssertTrue(
+            FileManager.default.fileExists(
+                atPath: backupURL.path(percentEncoded: false)
+            )
+        )
+        XCTAssertEqual(try Data(contentsOf: backupURL), corruptedContents)
+        XCTAssertEqual(try Data(contentsOf: eventFile), Data())
+        let recoveredStore = try FileTrainingEventStore(directory: directory)
+        let recoveredEvents = try await recoveredStore.allEvents()
+        XCTAssertEqual(recoveredEvents, [])
     }
 }
 

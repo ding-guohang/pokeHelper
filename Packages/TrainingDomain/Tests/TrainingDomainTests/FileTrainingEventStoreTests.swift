@@ -15,14 +15,29 @@ import Testing
     #expect(events == [event])
 }
 
-@Test func eventsAfterCheckpointAreOrdered() async throws {
+@Test func eventsAfterCheckpointFollowAppendOrder() async throws {
     let store = try FileTrainingEventStore.temporary()
     let first = TrainingEventFixture.at(seconds: 1)
     let second = TrainingEventFixture.at(seconds: 2)
-    try await store.append(second)
     try await store.append(first)
+    try await store.append(second)
 
     #expect(try await store.events(after: first.id) == [second])
+}
+
+@Test func laterAppendBeforeCheckpointTimeStillAppearsAfterCheckpoint()
+    async throws
+{
+    let store = try FileTrainingEventStore.temporary()
+    let checkpoint = TrainingEventFixture.at(seconds: 10)
+    let clockRollbackEvent = TrainingEventFixture.at(seconds: 5)
+    try await store.append(checkpoint)
+    try await store.append(clockRollbackEvent)
+
+    #expect(try await store.allEvents() == [clockRollbackEvent, checkpoint])
+    #expect(
+        try await store.events(after: checkpoint.id) == [clockRollbackEvent]
+    )
 }
 
 @Test func initializationCreatesEmptyJSONLinesFile() throws {

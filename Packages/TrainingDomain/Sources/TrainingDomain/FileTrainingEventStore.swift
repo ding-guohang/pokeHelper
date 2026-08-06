@@ -117,17 +117,16 @@ private actor TrainingEventFileCoordinator {
 
     func events(after checkpoint: UUID?) throws -> [TrainingEvent] {
         try refreshFromDisk()
-        let orderedEvents = sortedEvents()
         guard let checkpoint else {
-            return orderedEvents
+            return events
         }
-        guard let checkpointIndex = orderedEvents.firstIndex(where: {
+        guard let checkpointIndex = events.firstIndex(where: {
             $0.id == checkpoint
         }) else {
             throw TrainingEventStoreError.checkpointNotFound
         }
 
-        return Array(orderedEvents.dropFirst(checkpointIndex + 1))
+        return Array(events.dropFirst(checkpointIndex + 1))
     }
 
     static func decodeEvents(from fileURL: URL) throws -> [TrainingEvent] {

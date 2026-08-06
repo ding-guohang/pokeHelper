@@ -36,17 +36,7 @@ final class AppDependencies {
     }
 
     static func live() throws -> AppDependencies {
-        guard let libraryDirectory = FileManager.default.urls(
-            for: .libraryDirectory,
-            in: .userDomainMask
-        ).first else {
-            throw AppDependencyError.libraryDirectoryUnavailable
-        }
-
-        let storageDirectory = libraryDirectory.appending(
-            path: "PokerCoach",
-            directoryHint: .isDirectory
-        )
+        let storageDirectory = try liveStorageDirectory()
         let localIdentity = LocalIdentityStore().loadOrCreate()
 
 #if DEVELOPMENT_STRATEGY_FIXTURES
@@ -69,6 +59,42 @@ final class AppDependencies {
             localIdentity: localIdentity
         )
 #endif
+    }
+
+    static func recoverCorruptedTrainingEvents() throws {
+        _ = try recoverCorruptedTrainingEvents(
+            in: try liveStorageDirectory()
+        )
+    }
+
+    static func recoverCorruptedTrainingEvents(
+        in storageDirectory: URL,
+        backupID: UUID = UUID()
+    ) throws -> URL {
+        try FileManager.default.createDirectory(
+            at: storageDirectory,
+            withIntermediateDirectories: true
+        )
+        let eventFile = storageDirectory.appending(
+            path: "training-events.jsonl",
+            directoryHint: .notDirectory
+        )
+        guard FileManager.default.fileExists(
+            atPath: eventFile.path(percentEncoded: false)
+        ) else {
+            throw AppDependencyError.trainingHistoryUnavailable
+        }
+
+        let backupFile = storageDirectory.appending(
+            path: "training-events.corrupted-\(backupID.uuidString).jsonl",
+            directoryHint: .notDirectory
+        )
+        try FileManager.default.copyItem(
+            at: eventFile,
+            to: backupFile
+        )
+        try Data().write(to: eventFile, options: .atomic)
+        return backupFile
     }
 
     static let preview: AppDependencies = {
@@ -173,6 +199,20 @@ final class AppDependencies {
         return pack
     }
 #endif
+
+    private static func liveStorageDirectory() throws -> URL {
+        guard let libraryDirectory = FileManager.default.urls(
+            for: .libraryDirectory,
+            in: .userDomainMask
+        ).first else {
+            throw AppDependencyError.libraryDirectoryUnavailable
+        }
+
+        return libraryDirectory.appending(
+            path: "PokerCoach",
+            directoryHint: .isDirectory
+        )
+    }
 }
 
 enum RuntimeTrainingCatalog {
@@ -205,6 +245,7 @@ enum RuntimeTrainingCatalog {
 private enum AppDependencyError: Error {
     case libraryDirectoryUnavailable
     case strategyPackUnavailable
+    case trainingHistoryUnavailable
 }
 
 private struct PendingStrategyPackProvider: StrategyPackProviding {
