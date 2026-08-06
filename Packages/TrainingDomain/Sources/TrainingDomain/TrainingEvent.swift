@@ -11,6 +11,30 @@ public struct TrainingEvent: Identifiable, Codable, Sendable {
     public let abilityDimension: String
     public let submission: DecisionSubmission
     public let grade: DecisionGrade
+
+    public init(
+        id: UUID,
+        localUserID: UUID,
+        deviceID: UUID,
+        occurredAt: Date,
+        scenarioID: String,
+        strategyPackID: String,
+        strategyContentVersion: String,
+        abilityDimension: String,
+        submission: DecisionSubmission,
+        grade: DecisionGrade
+    ) {
+        self.id = id
+        self.localUserID = localUserID
+        self.deviceID = deviceID
+        self.occurredAt = occurredAt
+        self.scenarioID = scenarioID
+        self.strategyPackID = strategyPackID
+        self.strategyContentVersion = strategyContentVersion
+        self.abilityDimension = abilityDimension
+        self.submission = submission
+        self.grade = grade
+    }
 }
 
 extension TrainingEvent: Equatable {

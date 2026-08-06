@@ -123,6 +123,42 @@ import Testing
     #expect(try await store.allEvents() == expected)
 }
 
+@Test func liveStoresInterleaveAppendsWithoutLosingEvents() async throws {
+    let directory = temporaryEventDirectory()
+    let firstStore = try FileTrainingEventStore(directory: directory)
+    let secondStore = try FileTrainingEventStore(directory: directory)
+    let first = TrainingEventFixture.at(seconds: 1)
+    let second = TrainingEventFixture.at(seconds: 2)
+    let third = TrainingEventFixture.at(seconds: 3)
+    let expected = [first, second, third]
+
+    try await firstStore.append(first)
+    try await secondStore.append(second)
+    try await firstStore.append(third)
+
+    #expect(try await firstStore.allEvents() == expected)
+    #expect(try await secondStore.allEvents() == expected)
+    let reopenedStore = try FileTrainingEventStore(directory: directory)
+    #expect(try await reopenedStore.allEvents() == expected)
+}
+
+@Test func staleStoreDoesNotOverwriteCorruptedFile() async throws {
+    let directory = temporaryEventDirectory()
+    let firstStore = try FileTrainingEventStore(directory: directory)
+    let staleStore = try FileTrainingEventStore(directory: directory)
+    try await firstStore.append(TrainingEventFixture.at(seconds: 1))
+
+    let fileURL = directory.appending(path: "training-events.jsonl")
+    var corruptedContents = try Data(contentsOf: fileURL)
+    corruptedContents.append(Data("not-json\n".utf8))
+    try corruptedContents.write(to: fileURL)
+
+    await #expect(throws: TrainingEventStoreError.corruptedLine(2)) {
+        try await staleStore.append(TrainingEventFixture.at(seconds: 2))
+    }
+    #expect(try Data(contentsOf: fileURL) == corruptedContents)
+}
+
 private func temporaryEventDirectory() -> URL {
     FileManager.default.temporaryDirectory
         .appending(path: UUID().uuidString, directoryHint: .isDirectory)
