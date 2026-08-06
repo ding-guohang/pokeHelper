@@ -660,7 +660,7 @@ git commit -m "feat: load validated versioned strategy packs"
 - Produces: `DecisionSubmission`, `DecisionGrade`, `DecisionQuality`, `DecisionScorer.grade(submission:scenario:)`.
 - Consumes: `DecisionScenario`, `DecisionAction`, `EVAmount`.
 
-- [ ] **Step 1: Write failing grading tests**
+- [x] **Step 1: Write failing grading tests**
 
 ```swift
 import Testing
@@ -701,13 +701,13 @@ import StrategyContent
 }
 ```
 
-- [ ] **Step 2: Run and verify missing grading symbols**
+- [x] **Step 2: Run and verify missing grading symbols**
 
 Run: `swift test --package-path Packages/TrainingDomain`
 
 Expected: compile failure for `DecisionScorer` and related types.
 
-- [ ] **Step 3: Implement the scoring policy**
+- [x] **Step 3: Implement the scoring policy**
 
 Define:
 
@@ -762,13 +762,13 @@ Calculate `score` as `max(0, 100 - lossRateBasisPoints / 5)`. Preserve the raw E
 
 `ScenarioFixture.mixedStrategy()` must construct a 650-centiBB pot with three legal options: best EV `1,000` milliBB, second EV `980` milliBB, and third EV `700` milliBB; frequencies must total 10,000 basis points. This single fixture makes the expected 20-milliBB mixed-action loss explicit.
 
-- [ ] **Step 4: Run TrainingDomain tests**
+- [x] **Step 4: Run TrainingDomain tests**
 
 Run: `swift test --package-path Packages/TrainingDomain`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Packages/TrainingDomain
