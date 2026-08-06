@@ -10,7 +10,11 @@ struct DecisionSessionTestContext {
 }
 
 actor InMemoryTrainingEventStore: TrainingEventStore {
-    private var events: [TrainingEvent] = []
+    private var events: [TrainingEvent]
+
+    init(events: [TrainingEvent] = []) {
+        self.events = events
+    }
 
     func append(_ event: TrainingEvent) {
         guard !events.contains(where: { $0.id == event.id }) else {
