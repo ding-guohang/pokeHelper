@@ -175,16 +175,30 @@ final class AppDependencies {
 #endif
 }
 
-private enum RuntimeTrainingCatalog {
+enum RuntimeTrainingCatalog {
     static func items(from pack: StrategyPack) -> [TrainingCatalogItem] {
-        pack.scenarios.map { scenario in
+        let estimatedMinutes = estimatedMinutesPerItem(
+            forScenarioCount: pack.scenarios.count
+        )
+        return pack.scenarios.map { scenario in
             TrainingCatalogItem(
                 id: scenario.id,
                 scenarioID: scenario.id,
                 abilityDimension: scenario.abilityDimension,
-                estimatedMinutes: 4
+                estimatedMinutes: estimatedMinutes
             )
         }
+    }
+
+    static func estimatedMinutesPerItem(
+        forScenarioCount scenarioCount: Int
+    ) -> Int {
+        let plannedScenarioCount = min(max(scenarioCount, 0), 3)
+        guard plannedScenarioCount > 0 else {
+            return 0
+        }
+
+        return max(3, 8 / plannedScenarioCount)
     }
 }
 

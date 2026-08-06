@@ -64,6 +64,7 @@ final class AppBootstrapTests: XCTestCase {
         await today.refresh()
         await review.refresh()
 
+        XCTAssertEqual(today.durationText, "约 8 分钟")
         let recommendedScenarioIDs = [
             today.startPrimaryItem(),
             review.startSuggestedTraining(),
@@ -74,6 +75,29 @@ final class AppBootstrapTests: XCTestCase {
         )
         for scenarioID in recommendedScenarioIDs {
             _ = try await dependencies.strategyProvider.scenario(id: scenarioID)
+        }
+    }
+
+    func testRuntimeCatalogKeepsOneToThreePlannedScenariosWithinDailyDuration()
+    {
+        XCTAssertEqual(
+            RuntimeTrainingCatalog.estimatedMinutesPerItem(
+                forScenarioCount: 1
+            ),
+            8
+        )
+
+        for scenarioCount in 1...6 {
+            let plannedScenarioCount = min(scenarioCount, 3)
+            let totalMinutes =
+                RuntimeTrainingCatalog.estimatedMinutesPerItem(
+                    forScenarioCount: scenarioCount
+                ) * plannedScenarioCount
+
+            XCTAssertTrue(
+                (5...10).contains(totalMinutes),
+                "\(scenarioCount) scenarios produced \(totalMinutes) minutes"
+            )
         }
     }
 
