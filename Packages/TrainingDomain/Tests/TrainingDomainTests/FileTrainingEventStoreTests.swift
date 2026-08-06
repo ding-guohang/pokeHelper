@@ -30,7 +30,11 @@ import Testing
     _ = try FileTrainingEventStore(directory: directory)
 
     let fileURL = directory.appending(path: "training-events.jsonl")
-    #expect(FileManager.default.fileExists(atPath: fileURL.path()))
+    #expect(
+        FileManager.default.fileExists(
+            atPath: fileURL.path(percentEncoded: false)
+        )
+    )
     #expect(try Data(contentsOf: fileURL).isEmpty)
 }
 
@@ -40,6 +44,27 @@ import Testing
     let firstStore = try FileTrainingEventStore(directory: directory)
     try await firstStore.append(event)
 
+    let reopenedStore = try FileTrainingEventStore(directory: directory)
+    #expect(try await reopenedStore.allEvents() == [event])
+}
+
+@Test func eventStorePersistsEventsWhenDirectoryContainsSpaces() async throws {
+    let directory = FileManager.default.temporaryDirectory
+        .appending(
+            path: "Poker Coach \(UUID().uuidString)",
+            directoryHint: .isDirectory
+        )
+    let event = TrainingEventFixture.correctHighConfidence()
+    let firstStore = try FileTrainingEventStore(directory: directory)
+
+    try await firstStore.append(event)
+
+    let eventFile = directory.appending(path: "training-events.jsonl")
+    #expect(
+        FileManager.default.fileExists(
+            atPath: eventFile.path(percentEncoded: false)
+        )
+    )
     let reopenedStore = try FileTrainingEventStore(directory: directory)
     #expect(try await reopenedStore.allEvents() == [event])
 }

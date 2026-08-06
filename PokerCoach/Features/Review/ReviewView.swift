@@ -148,13 +148,8 @@ struct ReviewView: View {
     private func makeSessionViewModel(
         _ scenarioID: String
     ) -> DecisionSessionViewModel {
-        DecisionSessionViewModel(
-            scenarioID: scenarioID,
-            strategyProvider: dependencies.strategyProvider,
-            scorer: dependencies.scorer,
-            eventStore: dependencies.eventStore,
-            localUserID: UUID(),
-            deviceID: UUID()
+        dependencies.makeDecisionSessionViewModel(
+            scenarioID: scenarioID
         )
     }
 }

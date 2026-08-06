@@ -33,7 +33,7 @@ final class ReviewViewModel {
         eventStore: any TrainingEventStore,
         reducer: PlayerModelReducer,
         planner: TrainingPlanner = TrainingPlanner(),
-        catalog: [TrainingCatalogItem] = M1ALocalTrainingCatalog.cashItems,
+        catalog: [TrainingCatalogItem] = [],
         strategyContentAvailability: StrategyContentAvailability =
             .reviewedContentUnavailable,
         now: @escaping @MainActor () -> Date = Date.init

@@ -9,6 +9,7 @@ final class TodayViewModelTests: XCTestCase {
             eventStore: InMemoryTrainingEventStore(),
             reducer: PlayerModelReducer(),
             planner: TrainingPlanner(),
+            catalog: DashboardFixture.catalog,
             strategyContentAvailability: .reviewedContentUnavailable
         )
 
@@ -32,6 +33,7 @@ final class TodayViewModelTests: XCTestCase {
                 eventStore: InMemoryTrainingEventStore(),
                 reducer: PlayerModelReducer(),
                 planner: TrainingPlanner(),
+                catalog: DashboardFixture.catalog,
                 strategyContentAvailability: availability
             )
 
@@ -50,6 +52,7 @@ final class TodayViewModelTests: XCTestCase {
             eventStore: InMemoryTrainingEventStore(),
             reducer: PlayerModelReducer(),
             planner: TrainingPlanner(),
+            catalog: DashboardFixture.catalog,
             strategyContentAvailability: .developmentFixtureAvailable
         )
 
@@ -102,7 +105,8 @@ final class TodayViewModelTests: XCTestCase {
         let failing = TodayViewModel(
             eventStore: FailingDashboardEventStore(),
             reducer: PlayerModelReducer(),
-            planner: TrainingPlanner()
+            planner: TrainingPlanner(),
+            catalog: DashboardFixture.catalog
         )
         await failing.refresh()
         XCTAssertEqual(
@@ -137,10 +141,10 @@ final class TodayViewModelTests: XCTestCase {
         XCTAssertEqual(startTrainingCount, 1)
     }
 
-    func testLocalCatalogIsAvailableOutsideDebugStrategyContent() {
-        XCTAssertEqual(M1ALocalTrainingCatalog.cashItems.count, 3)
+    func testDashboardFixtureCatalogKeepsExpectedDurations() {
+        XCTAssertEqual(DashboardFixture.catalog.count, 3)
         XCTAssertEqual(
-            M1ALocalTrainingCatalog.cashItems.map(\.estimatedMinutes),
+            DashboardFixture.catalog.map(\.estimatedMinutes),
             [4, 2, 2]
         )
     }

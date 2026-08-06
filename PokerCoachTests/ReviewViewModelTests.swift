@@ -11,6 +11,7 @@ final class ReviewViewModelTests: XCTestCase {
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
+            catalog: DashboardFixture.catalog,
             strategyContentAvailability: .reviewedContentUnavailable
         )
 
@@ -40,6 +41,7 @@ final class ReviewViewModelTests: XCTestCase {
             let viewModel = ReviewViewModel(
                 eventStore: InMemoryTrainingEventStore(events: [event]),
                 reducer: PlayerModelReducer(),
+                catalog: DashboardFixture.catalog,
                 strategyContentAvailability: availability
             )
 

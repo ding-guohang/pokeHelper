@@ -2,29 +2,6 @@ import Foundation
 import Observation
 import TrainingDomain
 
-enum M1ALocalTrainingCatalog {
-    static let cashItems = [
-        TrainingCatalogItem(
-            id: "cash-bet-sizing",
-            scenarioID: "cash-bet-sizing",
-            abilityDimension: "bet-sizing",
-            estimatedMinutes: 4
-        ),
-        TrainingCatalogItem(
-            id: "cash-preflop-range",
-            scenarioID: "cash-preflop-range",
-            abilityDimension: "preflop-range",
-            estimatedMinutes: 2
-        ),
-        TrainingCatalogItem(
-            id: "cash-flop-cbet",
-            scenarioID: "cash-flop-cbet",
-            abilityDimension: "flop-cbet",
-            estimatedMinutes: 2
-        ),
-    ]
-}
-
 enum DashboardLoadState: Equatable {
     case loading
     case loaded
@@ -88,7 +65,7 @@ final class TodayViewModel {
         eventStore: any TrainingEventStore,
         reducer: PlayerModelReducer,
         planner: TrainingPlanner,
-        catalog: [TrainingCatalogItem] = M1ALocalTrainingCatalog.cashItems,
+        catalog: [TrainingCatalogItem] = [],
         strategyContentAvailability: StrategyContentAvailability =
             .reviewedContentUnavailable,
         now: @escaping @MainActor () -> Date = Date.init

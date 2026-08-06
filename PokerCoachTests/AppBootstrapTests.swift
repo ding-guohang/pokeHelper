@@ -1,10 +1,83 @@
 import XCTest
+import StrategyContent
 import TrainingDomain
 @testable import PokerCoach
 
 @MainActor
 final class AppBootstrapTests: XCTestCase {
-    func testReviewedContentUnavailableKeepsCatalogMetadataIndependent()
+    func testAvailableContentKeepsDashboardRecommendationsLoadableAfterExcellentDecision()
+        async throws
+    {
+        let pack = DecisionSessionFixture.makePack(
+            scenarioID: "cash-bet-sizing",
+            abilityDimension: "bet-sizing"
+        )
+        let store = InMemoryTrainingEventStore()
+        let dependencies = AppDependencies.availableContent(
+            eventStore: store,
+            strategyPack: pack,
+            strategyContentAvailability: .developmentFixtureAvailable
+        )
+        let scenarioIDs = dependencies.localTrainingCatalog.map(\.scenarioID)
+
+        XCTAssertEqual(scenarioIDs, ["cash-bet-sizing"])
+        for scenarioID in scenarioIDs {
+            _ = try await dependencies.strategyProvider.scenario(id: scenarioID)
+        }
+
+        let session = DecisionSessionViewModel(
+            scenarioID: "cash-bet-sizing",
+            strategyProvider: dependencies.strategyProvider,
+            scorer: dependencies.scorer,
+            eventStore: dependencies.eventStore,
+            localUserID: DecisionSessionFixture.localUserID,
+            deviceID: DecisionSessionFixture.deviceID,
+            makeEventID: { DecisionSessionFixture.eventID },
+            now: { DecisionSessionFixture.occurredAt }
+        )
+        await session.load()
+        let scenario = try XCTUnwrap(session.scenario)
+        let bestAction = try XCTUnwrap(
+            scenario.options.max(by: { $0.ev < $1.ev })?.action
+        )
+        session.select(action: bestAction)
+        session.setConfidence(.verySure)
+        await session.submit()
+        XCTAssertEqual(session.grade?.quality, .excellent)
+
+        let today = TodayViewModel(
+            eventStore: dependencies.eventStore,
+            reducer: dependencies.playerModelReducer,
+            planner: dependencies.planner,
+            catalog: dependencies.localTrainingCatalog,
+            strategyContentAvailability:
+                dependencies.strategyContentAvailability
+        )
+        let review = ReviewViewModel(
+            eventStore: dependencies.eventStore,
+            reducer: dependencies.playerModelReducer,
+            planner: dependencies.planner,
+            catalog: dependencies.localTrainingCatalog,
+            strategyContentAvailability:
+                dependencies.strategyContentAvailability
+        )
+        await today.refresh()
+        await review.refresh()
+
+        let recommendedScenarioIDs = [
+            today.startPrimaryItem(),
+            review.startSuggestedTraining(),
+        ].compactMap { $0 }
+        XCTAssertEqual(
+            recommendedScenarioIDs,
+            ["cash-bet-sizing", "cash-bet-sizing"]
+        )
+        for scenarioID in recommendedScenarioIDs {
+            _ = try await dependencies.strategyProvider.scenario(id: scenarioID)
+        }
+    }
+
+    func testReviewedContentUnavailableHasNoTrainableCatalog()
         async
     {
         let dependencies = AppDependencies.reviewedContentUnavailable(
@@ -17,11 +90,7 @@ final class AppBootstrapTests: XCTestCase {
         )
         XCTAssertEqual(
             dependencies.localTrainingCatalog.map(\.id),
-            [
-                "cash-bet-sizing",
-                "cash-preflop-range",
-                "cash-flop-cbet",
-            ]
+            []
         )
         XCTAssertEqual(
             dependencies.strategyContentAvailability.disclosureText,

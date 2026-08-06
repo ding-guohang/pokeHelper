@@ -11,6 +11,8 @@ final class AppDependencies {
     let planner: TrainingPlanner
     let localTrainingCatalog: [TrainingCatalogItem]
     let strategyContentAvailability: StrategyContentAvailability
+    let localUserID: UUID
+    let deviceID: UUID
 
     init(
         eventStore: any TrainingEventStore,
@@ -18,8 +20,8 @@ final class AppDependencies {
         scorer: DecisionScorer = DecisionScorer(),
         playerModelReducer: PlayerModelReducer = PlayerModelReducer(),
         planner: TrainingPlanner = TrainingPlanner(),
-        localTrainingCatalog: [TrainingCatalogItem] =
-            M1ALocalTrainingCatalog.cashItems,
+        localTrainingCatalog: [TrainingCatalogItem],
+        localIdentity: LocalIdentity,
         strategyContentAvailability: StrategyContentAvailability
     ) {
         self.eventStore = eventStore
@@ -28,6 +30,8 @@ final class AppDependencies {
         self.playerModelReducer = playerModelReducer
         self.planner = planner
         self.localTrainingCatalog = localTrainingCatalog
+        localUserID = localIdentity.localUserID
+        deviceID = localIdentity.deviceID
         self.strategyContentAvailability = strategyContentAvailability
     }
 
@@ -43,23 +47,26 @@ final class AppDependencies {
             path: "PokerCoach",
             directoryHint: .isDirectory
         )
+        let localIdentity = LocalIdentityStore().loadOrCreate()
 
 #if DEVELOPMENT_STRATEGY_FIXTURES
         try resetTrainingEventsIfRequested(
             storageDirectory: storageDirectory
         )
-        return AppDependencies(
+        return availableContent(
             eventStore: try FileTrainingEventStore(
                 directory: storageDirectory
             ),
-            strategyProvider: try developmentStrategyProvider(),
+            strategyPack: try developmentStrategyPack(),
+            localIdentity: localIdentity,
             strategyContentAvailability: .developmentFixtureAvailable
         )
 #else
         return reviewedContentUnavailable(
             eventStore: try FileTrainingEventStore(
                 directory: storageDirectory
-            )
+            ),
+            localIdentity: localIdentity
         )
 #endif
     }
@@ -73,7 +80,8 @@ final class AppDependencies {
                             path: "PokerCoachPreview-\(UUID().uuidString)",
                             directoryHint: .isDirectory
                         )
-                )
+                ),
+                localIdentity: .preview
             )
         } catch {
             preconditionFailure("无法初始化预览依赖：\(error)")
@@ -81,12 +89,51 @@ final class AppDependencies {
     }()
 
     static func reviewedContentUnavailable(
-        eventStore: any TrainingEventStore
+        eventStore: any TrainingEventStore,
+        localIdentity: LocalIdentity = .preview
     ) -> AppDependencies {
         AppDependencies(
             eventStore: eventStore,
             strategyProvider: PendingStrategyPackProvider(),
+            localTrainingCatalog: [],
+            localIdentity: localIdentity,
             strategyContentAvailability: .reviewedContentUnavailable
+        )
+    }
+
+    static func availableContent(
+        eventStore: any TrainingEventStore,
+        strategyPack: StrategyPack,
+        localIdentity: LocalIdentity = .preview,
+        strategyContentAvailability: StrategyContentAvailability
+    ) -> AppDependencies {
+        precondition(
+            strategyContentAvailability.canStartTraining,
+            "Available strategy content requires a trainable availability"
+        )
+        return AppDependencies(
+            eventStore: eventStore,
+            strategyProvider: InMemoryStrategyPackProvider(
+                pack: strategyPack
+            ),
+            localTrainingCatalog: RuntimeTrainingCatalog.items(
+                from: strategyPack
+            ),
+            localIdentity: localIdentity,
+            strategyContentAvailability: strategyContentAvailability
+        )
+    }
+
+    func makeDecisionSessionViewModel(
+        scenarioID: String
+    ) -> DecisionSessionViewModel {
+        DecisionSessionViewModel(
+            scenarioID: scenarioID,
+            strategyProvider: strategyProvider,
+            scorer: scorer,
+            eventStore: eventStore,
+            localUserID: localUserID,
+            deviceID: deviceID
         )
     }
 
@@ -102,16 +149,16 @@ final class AppDependencies {
             path: "training-events.jsonl",
             directoryHint: .notDirectory
         )
-        guard FileManager.default.fileExists(atPath: eventFile.path()) else {
+        guard FileManager.default.fileExists(
+            atPath: eventFile.path(percentEncoded: false)
+        ) else {
             return
         }
 
         try FileManager.default.removeItem(at: eventFile)
     }
 
-    private static func developmentStrategyProvider() throws
-        -> any StrategyPackProviding
-    {
+    private static func developmentStrategyPack() throws -> StrategyPack {
         guard let fixtureURL = Bundle.main.url(
             forResource: "DevStrategyPack",
             withExtension: "json"
@@ -123,9 +170,22 @@ final class AppDependencies {
             data: Data(contentsOf: fixtureURL),
             expectedSHA256: nil
         )
-        return InMemoryStrategyPackProvider(pack: pack)
+        return pack
     }
 #endif
+}
+
+private enum RuntimeTrainingCatalog {
+    static func items(from pack: StrategyPack) -> [TrainingCatalogItem] {
+        pack.scenarios.map { scenario in
+            TrainingCatalogItem(
+                id: scenario.id,
+                scenarioID: scenario.id,
+                abilityDimension: scenario.abilityDimension,
+                estimatedMinutes: 4
+            )
+        }
+    }
 }
 
 private enum AppDependencyError: Error {

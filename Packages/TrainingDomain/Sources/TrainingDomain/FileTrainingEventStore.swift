@@ -43,7 +43,8 @@ private enum TrainingEventFileCoordinatorRegistry {
         )
 
         return try coordinators.withLock { coordinators in
-            if !FileManager.default.fileExists(atPath: fileURL.path()) {
+            let fileSystemPath = fileURL.path(percentEncoded: false)
+            if !FileManager.default.fileExists(atPath: fileSystemPath) {
                 try Data().write(
                     to: fileURL,
                     options: .withoutOverwriting
@@ -53,7 +54,7 @@ private enum TrainingEventFileCoordinatorRegistry {
             let decodedEvents = try TrainingEventFileCoordinator.decodeEvents(
                 from: fileURL
             )
-            let key = fileURL.path()
+            let key = fileSystemPath
             if let coordinator = coordinators[key]?.coordinator {
                 return coordinator
             }

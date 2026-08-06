@@ -8,6 +8,27 @@ struct DashboardFixture {
     let review: ReviewViewModel
     let store: InMemoryTrainingEventStore
 
+    static let catalog = [
+        TrainingCatalogItem(
+            id: "cash-bet-sizing",
+            scenarioID: "cash-bet-sizing",
+            abilityDimension: "bet-sizing",
+            estimatedMinutes: 4
+        ),
+        TrainingCatalogItem(
+            id: "cash-preflop-range",
+            scenarioID: "cash-preflop-range",
+            abilityDimension: "preflop-range",
+            estimatedMinutes: 2
+        ),
+        TrainingCatalogItem(
+            id: "cash-flop-cbet",
+            scenarioID: "cash-flop-cbet",
+            abilityDimension: "flop-cbet",
+            estimatedMinutes: 2
+        ),
+    ]
+
     static func withBetSizingWeakness() -> DashboardFixture {
         make(events: [
             event(
@@ -45,7 +66,7 @@ struct DashboardFixture {
                 eventStore: store,
                 reducer: reducer,
                 planner: planner,
-                catalog: M1ALocalTrainingCatalog.cashItems,
+                catalog: catalog,
                 strategyContentAvailability:
                     .developmentFixtureAvailable,
                 now: { Date(timeIntervalSince1970: 1_786_086_400) }
@@ -54,7 +75,7 @@ struct DashboardFixture {
                 eventStore: store,
                 reducer: reducer,
                 planner: planner,
-                catalog: M1ALocalTrainingCatalog.cashItems,
+                catalog: catalog,
                 strategyContentAvailability:
                     .developmentFixtureAvailable,
                 now: { Date(timeIntervalSince1970: 1_786_086_400) }
