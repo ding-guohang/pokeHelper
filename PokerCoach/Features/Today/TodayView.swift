@@ -13,32 +13,43 @@ struct TodayView: View {
         _viewModel = State(initialValue: TodayViewModel(
             eventStore: dependencies.eventStore,
             reducer: dependencies.playerModelReducer,
-            planner: dependencies.planner
+            planner: dependencies.planner,
+            catalog: dependencies.localTrainingCatalog
         ))
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                if let failureMessage = viewModel.failureMessage {
+                switch viewModel.state {
+                case .loading:
+                    ProgressView("正在生成今日计划…")
+                        .frame(maxWidth: .infinity, minHeight: 180)
+                case let .failed(message):
                     ContentUnavailableView {
                         Label("今日计划暂不可用", systemImage: "exclamationmark.triangle")
                     } description: {
-                        Text(failureMessage)
+                        Text(message)
                     } actions: {
                         Button("重试") {
                             Task { await viewModel.refresh() }
                         }
                     }
-                } else if let primaryItem = viewModel.primaryItem {
-                    primaryTraining(primaryItem)
-                    supportingTraining
-                } else {
-                    ContentUnavailableView(
-                        "暂无可用训练",
-                        systemImage: "checkmark.circle",
-                        description: Text("当前内容暂未提供训练场景。")
-                    )
+                case .empty:
+                    ContentUnavailableView {
+                        Label("暂无可用训练", systemImage: "checkmark.circle")
+                    } description: {
+                        Text("当前内容暂未提供训练场景。")
+                    } actions: {
+                        Button("重新生成计划") {
+                            Task { await viewModel.refresh() }
+                        }
+                    }
+                case .loaded:
+                    if let primaryItem = viewModel.primaryItem {
+                        primaryTraining(primaryItem)
+                        supportingTraining
+                    }
                 }
             }
             .padding()
@@ -58,14 +69,16 @@ struct TodayView: View {
         VStack(alignment: .leading, spacing: 12) {
             Label("今日重点", systemImage: "target")
                 .font(.headline)
-            Text(abilityTitle(item.abilityDimension))
+            Text(AbilityDimensionPresentation.displayName(
+                for: item.abilityDimension
+            ))
                 .font(.title2.bold())
             Text(viewModel.durationText)
                 .foregroundStyle(.secondary)
             Text(reasonText(item.reason))
                 .font(.callout)
                 .foregroundStyle(.secondary)
-            Button("开始重点训练") {
+            Button("开始今日训练") {
                 selectedScenarioID = viewModel.startPrimaryItem()
             }
             .buttonStyle(.borderedProminent)
@@ -81,7 +94,9 @@ struct TodayView: View {
                 Text("补充练习")
                     .font(.headline)
                 ForEach(viewModel.supportingItems) { item in
-                    LabeledContent(abilityTitle(item.abilityDimension)) {
+                    LabeledContent(AbilityDimensionPresentation.displayName(
+                        for: item.abilityDimension
+                    )) {
                         Text("约 \(item.catalogItem.estimatedMinutes) 分钟")
                             .foregroundStyle(.secondary)
                     }
@@ -101,15 +116,6 @@ struct TodayView: View {
             localUserID: UUID(),
             deviceID: UUID()
         )
-    }
-
-    private func abilityTitle(_ dimension: String) -> String {
-        switch dimension {
-        case "bet-sizing": "下注尺度"
-        case "preflop-range": "翻前范围"
-        case "flop-cbet": "翻牌持续下注"
-        default: dimension
-        }
     }
 
     private func reasonText(_ reason: String) -> String {

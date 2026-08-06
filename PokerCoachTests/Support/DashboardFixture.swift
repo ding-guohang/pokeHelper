@@ -6,6 +6,7 @@ import TrainingDomain
 struct DashboardFixture {
     let today: TodayViewModel
     let review: ReviewViewModel
+    let store: InMemoryTrainingEventStore
 
     static func withBetSizingWeakness() -> DashboardFixture {
         make(events: [
@@ -30,6 +31,10 @@ struct DashboardFixture {
         withBetSizingWeakness()
     }
 
+    static func empty() -> DashboardFixture {
+        make(events: [])
+    }
+
     private static func make(events: [TrainingEvent]) -> DashboardFixture {
         let store = InMemoryTrainingEventStore(events: events)
 
@@ -40,13 +45,30 @@ struct DashboardFixture {
                 eventStore: store,
                 reducer: reducer,
                 planner: planner,
-                catalog: DebugTrainingCatalog.cashItems,
+                catalog: M1ALocalTrainingCatalog.cashItems,
                 now: { Date(timeIntervalSince1970: 1_786_086_400) }
             ),
             review: ReviewViewModel(
                 eventStore: store,
-                reducer: reducer
-            )
+                reducer: reducer,
+                planner: planner,
+                catalog: M1ALocalTrainingCatalog.cashItems,
+                now: { Date(timeIntervalSince1970: 1_786_086_400) }
+            ),
+            store: store
+        )
+    }
+
+    static func weakPreflopEvent(
+        contentVersion: String
+    ) -> TrainingEvent {
+        event(
+            id: "40000000-0000-0000-0000-000000000003",
+            occurredAt: 1_786_172_800,
+            score: 0,
+            confidence: .verySure,
+            dimension: "preflop-range",
+            contentVersion: contentVersion
         )
     }
 
@@ -55,11 +77,12 @@ struct DashboardFixture {
         occurredAt: TimeInterval,
         score: Int,
         confidence: DecisionConfidence,
-        dimension: String
+        dimension: String,
+        contentVersion: String = "2026.08.06"
     ) -> TrainingEvent {
         let scenario = DecisionSessionFixture.makePack(
             abilityDimension: dimension,
-            foldEVMilliBB: score < 50 ? 200 : 0
+            foldEVMilliBB: score == 0 ? 0 : (score < 50 ? 200 : 0)
         ).scenarios[0]
         let action = score < 50
             ? scenario.options[0].action
@@ -79,10 +102,28 @@ struct DashboardFixture {
             occurredAt: Date(timeIntervalSince1970: occurredAt),
             scenarioID: "fixture-\(dimension)",
             strategyPackID: "cash-pack",
-            strategyContentVersion: "2026.08.06",
+            strategyContentVersion: contentVersion,
             abilityDimension: dimension,
             submission: submission,
             grade: grade
         )
+    }
+}
+
+actor FailingDashboardEventStore: TrainingEventStore {
+    enum Failure: Error {
+        case unavailable
+    }
+
+    func append(_ event: TrainingEvent) throws {
+        throw Failure.unavailable
+    }
+
+    func allEvents() throws -> [TrainingEvent] {
+        throw Failure.unavailable
+    }
+
+    func events(after checkpoint: UUID?) throws -> [TrainingEvent] {
+        throw Failure.unavailable
     }
 }

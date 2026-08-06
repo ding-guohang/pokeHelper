@@ -2,11 +2,18 @@
 
 Status: implemented and verified.
 
+## Fix round 1
+
+- Replaced the Debug-only catalog with `M1ALocalTrainingCatalog`, injected through `AppDependencies` so Debug and Release both generate directory plans without embedding strategy truth.
+- Added explicit loading, loaded, empty, and recoverable failed states for Today and Review, including Chinese loading and actionable empty/error UI.
+- Added deterministic Chinese ability names, raw `milliBB` EV-loss history, and a Review empty-state route to training.
+- Added append-then-refresh regressions against one shared in-memory event store, plus catalog and state-contract tests.
+
 - Today and Review refresh from the shared `TrainingEventStore`, then derive their display state through `PlayerModelReducer` and `TrainingPlanner`.
 - Today presents one primary item, two supporting items, the deterministic planner reason, total duration, and scenario routing.
 - Review sorts ability snapshots deterministically, exposes historical score / EV-loss / content-version details, and creates weak-area training.
 - Learn shows the read-only M1A cash path and identifies MTT as a later milestone.
-- Debug catalog entries are training-directory metadata only; they include no strategy frequencies, EV, ranges, or solver truth.
+- Local catalog entries are training-directory metadata only; they include no strategy frequencies, EV, ranges, or solver truth.
 
 Verification:
 

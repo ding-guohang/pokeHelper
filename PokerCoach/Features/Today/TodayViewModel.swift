@@ -2,8 +2,7 @@ import Foundation
 import Observation
 import TrainingDomain
 
-enum DebugTrainingCatalog {
-    #if DEBUG
+enum M1ALocalTrainingCatalog {
     static let cashItems = [
         TrainingCatalogItem(
             id: "cash-bet-sizing",
@@ -24,14 +23,39 @@ enum DebugTrainingCatalog {
             estimatedMinutes: 2
         ),
     ]
-    #else
-    static let cashItems: [TrainingCatalogItem] = []
-    #endif
+}
+
+enum DashboardLoadState: Equatable {
+    case loading
+    case loaded
+    case empty
+    case failed(message: String)
+}
+
+enum AbilityDimensionPresentation {
+    static func displayName(for dimension: String) -> String {
+        let normalized = dimension.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        return switch normalized {
+        case "bet-sizing":
+            "下注尺度"
+        case "preflop-range":
+            "翻前范围"
+        case "flop-cbet":
+            "翻牌持续下注"
+        case "":
+            "未命名能力"
+        default:
+            "其他能力（\(normalized)）"
+        }
+    }
 }
 
 @MainActor
 @Observable
 final class TodayViewModel {
+    private(set) var state: DashboardLoadState = .loading
     private(set) var primaryItem: DailyPlanItem?
     private(set) var supportingItems: [DailyPlanItem] = []
     private(set) var durationText = "约 0 分钟"
@@ -47,7 +71,7 @@ final class TodayViewModel {
         eventStore: any TrainingEventStore,
         reducer: PlayerModelReducer,
         planner: TrainingPlanner,
-        catalog: [TrainingCatalogItem] = DebugTrainingCatalog.cashItems,
+        catalog: [TrainingCatalogItem] = M1ALocalTrainingCatalog.cashItems,
         now: @escaping @MainActor () -> Date = Date.init
     ) {
         self.eventStore = eventStore
@@ -58,6 +82,7 @@ final class TodayViewModel {
     }
 
     func refresh() async {
+        state = .loading
         do {
             let profile = reducer.reduce(events: try await eventStore.allEvents())
             let plan = planner.makePlan(
@@ -72,11 +97,13 @@ final class TodayViewModel {
             }
             durationText = "约 \(totalMinutes) 分钟"
             failureMessage = nil
+            state = plan.items.isEmpty ? .empty : .loaded
         } catch {
             primaryItem = nil
             supportingItems = []
             durationText = "约 0 分钟"
             failureMessage = "读取训练记录失败，请重试"
+            state = .failed(message: "读取训练记录失败，请重试")
         }
     }
 

@@ -3,39 +3,53 @@ import TrainingDomain
 
 struct ReviewView: View {
     let dependencies: AppDependencies
+    let onStartTraining: () -> Void
 
     @State private var viewModel: ReviewViewModel
     @State private var selectedScenarioID: String?
 
-    init(dependencies: AppDependencies) {
+    init(
+        dependencies: AppDependencies,
+        onStartTraining: @escaping () -> Void = {}
+    ) {
         self.dependencies = dependencies
+        self.onStartTraining = onStartTraining
         _viewModel = State(initialValue: ReviewViewModel(
             eventStore: dependencies.eventStore,
             reducer: dependencies.playerModelReducer,
-            planner: dependencies.planner
+            planner: dependencies.planner,
+            catalog: dependencies.localTrainingCatalog
         ))
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                if let failureMessage = viewModel.failureMessage {
+                switch viewModel.state {
+                case .loading:
+                    ProgressView("正在加载复盘记录…")
+                        .frame(maxWidth: .infinity, minHeight: 180)
+                case let .failed(message):
                     ContentUnavailableView {
                         Label("复盘暂不可用", systemImage: "exclamationmark.triangle")
                     } description: {
-                        Text(failureMessage)
+                        Text(message)
                     } actions: {
                         Button("重试") {
                             Task { await viewModel.refresh() }
                         }
                     }
-                } else if viewModel.abilities.isEmpty {
-                    ContentUnavailableView(
-                        "还没有训练记录",
-                        systemImage: "chart.bar",
-                        description: Text("完成一次决策训练后，这里会显示真实的能力画像。")
-                    )
-                } else {
+                case .empty:
+                    ContentUnavailableView {
+                        Label("还没有训练记录", systemImage: "chart.bar")
+                    } description: {
+                        Text("完成一次决策训练后，这里会显示真实的能力画像。")
+                    } actions: {
+                        Button("前往训练") {
+                            onStartTraining()
+                        }
+                    }
+                case .loaded:
                     abilities
                     history
                     if viewModel.suggestedTraining != nil {
@@ -65,7 +79,9 @@ struct ReviewView: View {
                 .font(.headline)
             ForEach(viewModel.abilities, id: \.dimension) { ability in
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(ability.dimension)
+                    Text(AbilityDimensionPresentation.displayName(
+                        for: ability.dimension
+                    ))
                         .font(.headline)
                     LabeledContent("样本数", value: "\(ability.sampleCount)")
                     LabeledContent("平均得分", value: "\(ability.meanScore)")
@@ -93,8 +109,12 @@ struct ReviewView: View {
                 .font(.headline)
             ForEach(viewModel.history) { event in
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(event.abilityDimension)
-                    Text("得分 \(event.grade.score) · EV 损失率 \(event.grade.lossRateBasisPoints) bp")
+                    Text(AbilityDimensionPresentation.displayName(
+                        for: event.abilityDimension
+                    ))
+                    Text(
+                        "得分 \(event.grade.score) · EV 损失 \(event.grade.evLoss.milliBB) milliBB · EV 损失率 \(event.grade.lossRateBasisPoints) bp"
+                    )
                         .font(.callout)
                         .foregroundStyle(.secondary)
                     Text("内容 \(event.strategyPackID) / \(event.strategyContentVersion)")

@@ -5,6 +5,7 @@ import TrainingDomain
 @MainActor
 @Observable
 final class ReviewViewModel {
+    private(set) var state: DashboardLoadState = .loading
     private(set) var abilities: [AbilitySnapshot] = []
     private(set) var history: [TrainingEvent] = []
     private(set) var suggestedTraining: DailyPlanItem?
@@ -20,7 +21,7 @@ final class ReviewViewModel {
         eventStore: any TrainingEventStore,
         reducer: PlayerModelReducer,
         planner: TrainingPlanner = TrainingPlanner(),
-        catalog: [TrainingCatalogItem] = DebugTrainingCatalog.cashItems,
+        catalog: [TrainingCatalogItem] = M1ALocalTrainingCatalog.cashItems,
         now: @escaping @MainActor () -> Date = Date.init
     ) {
         self.eventStore = eventStore
@@ -31,6 +32,7 @@ final class ReviewViewModel {
     }
 
     func refresh() async {
+        state = .loading
         do {
             let events = try await eventStore.allEvents()
             let profile = reducer.reduce(events: events)
@@ -42,11 +44,13 @@ final class ReviewViewModel {
                 now: now()
             ).items.first
             failureMessage = nil
+            state = events.isEmpty ? .empty : .loaded
         } catch {
             abilities = []
             history = []
             suggestedTraining = nil
             failureMessage = "读取复盘记录失败，请重试"
+            state = .failed(message: "读取复盘记录失败，请重试")
         }
     }
 

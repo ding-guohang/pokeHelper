@@ -9,19 +9,23 @@ final class AppDependencies {
     let scorer: DecisionScorer
     let playerModelReducer: PlayerModelReducer
     let planner: TrainingPlanner
+    let localTrainingCatalog: [TrainingCatalogItem]
 
     init(
         eventStore: any TrainingEventStore,
         strategyProvider: any StrategyPackProviding,
         scorer: DecisionScorer = DecisionScorer(),
         playerModelReducer: PlayerModelReducer = PlayerModelReducer(),
-        planner: TrainingPlanner = TrainingPlanner()
+        planner: TrainingPlanner = TrainingPlanner(),
+        localTrainingCatalog: [TrainingCatalogItem] =
+            M1ALocalTrainingCatalog.cashItems
     ) {
         self.eventStore = eventStore
         self.strategyProvider = strategyProvider
         self.scorer = scorer
         self.playerModelReducer = playerModelReducer
         self.planner = planner
+        self.localTrainingCatalog = localTrainingCatalog
     }
 
     static func live() throws -> AppDependencies {

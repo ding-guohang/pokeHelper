@@ -98,7 +98,10 @@ struct AdaptiveRootView: View {
         case .train:
             TrainLandingView(dependencies: dependencies)
         case .review:
-            ReviewView(dependencies: dependencies)
+            ReviewView(
+                dependencies: dependencies,
+                onStartTraining: { selectedDestination = .train }
+            )
         }
     }
 }
