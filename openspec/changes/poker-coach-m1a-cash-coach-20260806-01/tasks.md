@@ -372,7 +372,7 @@ git commit -m "feat: add exact poker card and amount types"
 - Produces: `BettingDecisionContext.legalActions() -> Set<DecisionAction>`.
 - Consumes: `BBAmount`.
 
-- [ ] **Step 1: Write failing legal-action tests**
+- [x] **Step 1: Write failing legal-action tests**
 
 ```swift
 import Testing
@@ -411,13 +411,13 @@ import Testing
 }
 ```
 
-- [ ] **Step 2: Verify the tests fail**
+- [x] **Step 2: Verify the tests fail**
 
 Run: `swift test --package-path Packages/PokerCore`
 
 Expected: compile failure for missing decision types.
 
-- [ ] **Step 3: Implement deterministic legal-action filtering**
+- [x] **Step 3: Implement deterministic legal-action filtering**
 
 Define:
 
@@ -453,13 +453,13 @@ Reject a missing `toCentiBB` for call/bet/raise/all-in and reject an unexpected 
 
 When `amountToCall` is zero, include check, configured positive bet sizes below the effective stack, and all-in. When facing a bet, include fold, call, configured sizes at or above `minimumRaiseTo`, and all-in. Deduplicate all-in if a configured size equals the effective stack. Reject contexts whose call exceeds the effective stack.
 
-- [ ] **Step 4: Run all PokerCore tests**
+- [x] **Step 4: Run all PokerCore tests**
 
 Run: `swift test --package-path Packages/PokerCore`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Packages/PokerCore
