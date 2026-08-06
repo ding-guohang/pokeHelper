@@ -792,7 +792,7 @@ git commit -m "feat: grade decisions with transparent EV loss"
 - Produces: `FileTrainingEventStore`, an actor backed by newline-delimited JSON.
 - Consumes: `DecisionSubmission`, `DecisionGrade`, scenario and content version IDs.
 
-- [ ] **Step 1: Write failing append and deduplication tests**
+- [x] **Step 1: Write failing append and deduplication tests**
 
 ```swift
 import Foundation
@@ -823,13 +823,13 @@ import Testing
 }
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `swift test --package-path Packages/TrainingDomain`
 
 Expected: compile failure for missing event-store contracts.
 
-- [ ] **Step 3: Implement the sync-ready event contract and file actor**
+- [x] **Step 3: Implement the sync-ready event contract and file actor**
 
 Define:
 
@@ -888,7 +888,7 @@ extension FileTrainingEventStore {
 
 Use fixed UUIDs, a fixed local user/device pair, and `Date(timeIntervalSince1970:)` values so equality and ordering assertions are deterministic. If `events(after:)` receives a checkpoint not present in the log, throw `TrainingEventStoreError.checkpointNotFound`.
 
-- [ ] **Step 4: Run store tests twice**
+- [x] **Step 4: Run store tests twice**
 
 Run:
 
@@ -899,7 +899,7 @@ swift test --package-path Packages/TrainingDomain
 
 Expected: both runs PASS, proving tests do not depend on process-global state.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Packages/TrainingDomain
