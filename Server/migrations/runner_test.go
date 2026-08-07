@@ -46,8 +46,8 @@ func TestApplyMigratesAnEmptySchema(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() after Apply: %v", err)
 	}
-	if after != 2 {
-		t.Errorf("CurrentVersion() after Apply = %d, want 2", after)
+	if after != 3 {
+		t.Errorf("CurrentVersion() after Apply = %d, want 3", after)
 	}
 }
 
@@ -66,8 +66,8 @@ func TestApplyIsIdempotent(t *testing.T) {
 	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM schema_migrations").Scan(&count); err != nil {
 		t.Fatalf("count schema_migrations: %v", err)
 	}
-	if count != 2 {
-		t.Errorf("schema_migrations count = %d, want 2", count)
+	if count != 3 {
+		t.Errorf("schema_migrations count = %d, want 3", count)
 	}
 }
 
@@ -457,8 +457,8 @@ func TestApplyUpgradesOriginalVersionOneWithoutDataLoss(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() after upgrade: %v", err)
 	}
-	if version != 2 {
-		t.Fatalf("CurrentVersion() after upgrade = %d, want 2", version)
+	if version != 3 {
+		t.Fatalf("CurrentVersion() after upgrade = %d, want 3", version)
 	}
 
 	for tableName, wantCount := range map[string]int{
@@ -633,6 +633,141 @@ func TestApplyResumesAfterCommittedDDLIsInterrupted(t *testing.T) {
 	}
 }
 
+func TestVersionThreeAddsRegistrationColumnsAndEmailConstraint(t *testing.T) {
+	db := migratedDatabase(t)
+
+	for _, column := range []struct {
+		tableName    string
+		columnName   string
+		dataType     string
+		nullable     string
+		defaultValue any
+	}{
+		{"auth_identities", "display_email", "varchar", "YES", nil},
+		{"email_challenges", "attempt_count", "int", "NO", "0"},
+	} {
+		var dataType, nullable string
+		var defaultValue sql.NullString
+		if err := db.QueryRow(`
+			SELECT data_type, is_nullable, column_default
+			FROM information_schema.columns
+			WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?`,
+			column.tableName,
+			column.columnName,
+		).Scan(&dataType, &nullable, &defaultValue); err != nil {
+			t.Fatalf("inspect %s.%s: %v", column.tableName, column.columnName, err)
+		}
+		if dataType != column.dataType || nullable != column.nullable {
+			t.Errorf("%s.%s = %s nullable %s, want %s nullable %s",
+				column.tableName, column.columnName, dataType, nullable, column.dataType, column.nullable)
+		}
+		if column.defaultValue == nil {
+			if defaultValue.Valid {
+				t.Errorf("%s.%s default = %q, want NULL", column.tableName, column.columnName, defaultValue.String)
+			}
+		} else if !defaultValue.Valid || defaultValue.String != column.defaultValue {
+			t.Errorf("%s.%s default = %v, want %v", column.tableName, column.columnName, defaultValue, column.defaultValue)
+		}
+	}
+
+	mustExec(t, db, "INSERT INTO users (id) VALUES (UUID_TO_BIN(?))", testUserID)
+	_, err := db.Exec(`
+		INSERT INTO auth_identities (id, user_id, provider, subject, canonical_email, display_email)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), 'email', 'user@example.test', NULL, NULL)`,
+		testIdentityID, testUserID)
+	var mysqlErr *mysql.MySQLError
+	if !errors.As(err, &mysqlErr) || mysqlErr.Number != 3819 {
+		t.Fatalf("email identity without required emails error = %v, want MySQL 3819", err)
+	}
+}
+
+func TestApplyUpgradesVersionTwoRegistrationDataWithoutLoss(t *testing.T) {
+	db := mysqltest.Database(t)
+	installVersionTwo(t, db)
+	seedCompleteUserGraph(t, db)
+
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("Apply() version 2 upgrade: %v", err)
+	}
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("repeat Apply() version 3: %v", err)
+	}
+
+	var subject, canonical, display string
+	if err := db.QueryRow(`
+		SELECT subject, canonical_email, display_email
+		FROM auth_identities
+		WHERE id = UUID_TO_BIN(?)`, testIdentityID,
+	).Scan(&subject, &canonical, &display); err != nil {
+		t.Fatalf("read upgraded email identity: %v", err)
+	}
+	if subject != "user@example.test" || canonical != subject || display != subject {
+		t.Errorf("upgraded identity = %q/%q/%q, want preserved subject in all email fields",
+			subject, canonical, display)
+	}
+
+	var attempts uint64
+	if err := db.QueryRow(`
+		SELECT attempt_count FROM email_challenges WHERE id = UUID_TO_BIN(?)`,
+		testChallengeID,
+	).Scan(&attempts); err != nil {
+		t.Fatalf("read upgraded challenge: %v", err)
+	}
+	if attempts != 0 {
+		t.Errorf("upgraded challenge attempt_count = %d, want 0", attempts)
+	}
+	for tableName, wantCount := range map[string]int{
+		"users": 1, "auth_identities": 1, "password_credentials": 1,
+		"email_challenges": 1, "user_sync_sequences": 1, "training_events": 1,
+	} {
+		var got int
+		if err := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM `%s`", tableName)).Scan(&got); err != nil {
+			t.Fatalf("count %s: %v", tableName, err)
+		}
+		if got != wantCount {
+			t.Errorf("%s count = %d, want %d", tableName, got, wantCount)
+		}
+	}
+}
+
+func TestApplyVersionThreeResumesEachCommittedDDLBeforeCheckpoint(t *testing.T) {
+	contents, checksum := migrationFixture(t, "0003_m1b_registration_fields.sql")
+	statements := splitMigrationStatements(contents)
+	for _, interruptedStatement := range []int{0, 2, 3} {
+		interruptedStatement := interruptedStatement
+		t.Run(fmt.Sprintf("statement_%d", interruptedStatement), func(t *testing.T) {
+			db := mysqltest.Database(t)
+			installVersionTwo(t, db)
+			mustExec(t, db, `
+				ALTER TABLE schema_migrations
+				ADD COLUMN state VARCHAR(16) NOT NULL DEFAULT 'applied',
+				ADD COLUMN next_statement INT UNSIGNED NOT NULL DEFAULT 0`)
+			mustExec(t, db, `
+				INSERT INTO schema_migrations (version, name, checksum, state, next_statement)
+				VALUES (3, '0003_m1b_registration_fields.sql', ?, 'applying', ?)`,
+				checksum[:], interruptedStatement)
+
+			for index := 0; index <= interruptedStatement; index++ {
+				mustExec(t, db, statements[index])
+			}
+
+			if err := migrations.Apply(context.Background(), db); err != nil {
+				t.Fatalf("Apply() after statement %d committed before checkpoint: %v", interruptedStatement, err)
+			}
+			var state string
+			var next int
+			if err := db.QueryRow(`
+				SELECT state, next_statement FROM schema_migrations WHERE version = 3`,
+			).Scan(&state, &next); err != nil {
+				t.Fatalf("read migration progress: %v", err)
+			}
+			if state != "applied" || next != len(statements) {
+				t.Errorf("migration progress = %s/%d, want applied/%d", state, next, len(statements))
+			}
+		})
+	}
+}
+
 func migratedDatabase(t *testing.T) *sql.DB {
 	t.Helper()
 	db := mysqltest.Database(t)
@@ -706,10 +841,31 @@ const (
 func seedCompleteUserGraph(t *testing.T, db *sql.DB) {
 	t.Helper()
 	mustExec(t, db, "INSERT INTO users (id) VALUES (UUID_TO_BIN(?))", testUserID)
-	mustExec(t, db, `
-		INSERT INTO auth_identities (id, user_id, provider, subject)
-		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), 'email', 'user@example.test')`,
-		testIdentityID, testUserID)
+	var hasDisplayEmail int
+	if err := db.QueryRow(`
+		SELECT EXISTS (
+			SELECT 1 FROM information_schema.columns
+			WHERE table_schema = DATABASE()
+			  AND table_name = 'auth_identities'
+			  AND column_name = 'display_email'
+		)`).Scan(&hasDisplayEmail); err != nil {
+		t.Fatalf("inspect auth identity fixture schema: %v", err)
+	}
+	if hasDisplayEmail == 1 {
+		mustExec(t, db, `
+			INSERT INTO auth_identities (
+				id, user_id, provider, subject, canonical_email, display_email
+			) VALUES (
+				UUID_TO_BIN(?), UUID_TO_BIN(?), 'email',
+				'user@example.test', 'user@example.test', 'user@example.test'
+			)`,
+			testIdentityID, testUserID)
+	} else {
+		mustExec(t, db, `
+			INSERT INTO auth_identities (id, user_id, provider, subject)
+			VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), 'email', 'user@example.test')`,
+			testIdentityID, testUserID)
+	}
 	mustExec(t, db, `
 		INSERT INTO password_credentials (user_id, password_hash, password_changed_at)
 		VALUES (UUID_TO_BIN(?), '$argon2id$test', NOW(3))`,
@@ -823,6 +979,37 @@ func installOriginalVersionOne(t *testing.T, db *sql.DB) {
 		INSERT INTO schema_migrations (version, name, checksum)
 		VALUES (1, '0001_m1b_initial.sql', UNHEX(?))`,
 		originalChecksum)
+}
+
+func installVersionTwo(t *testing.T, db *sql.DB) {
+	t.Helper()
+	installOriginalVersionOne(t, db)
+	contents, checksum := migrationFixture(t, "0002_m1b_schema_corrections.sql")
+	for _, statement := range splitMigrationStatements(contents) {
+		mustExec(t, db, statement)
+	}
+	mustExec(t, db, `
+		INSERT INTO schema_migrations (version, name, checksum)
+		VALUES (2, '0002_m1b_schema_corrections.sql', ?)`, checksum[:])
+}
+
+func migrationFixture(t *testing.T, name string) (string, [sha256.Size]byte) {
+	t.Helper()
+	body, err := os.ReadFile(name)
+	if err != nil {
+		t.Fatalf("read %s: %v", name, err)
+	}
+	return string(body), sha256.Sum256(body)
+}
+
+func splitMigrationStatements(contents string) []string {
+	var statements []string
+	for _, statement := range strings.Split(contents, ";") {
+		if statement = strings.TrimSpace(statement); statement != "" {
+			statements = append(statements, statement)
+		}
+	}
+	return statements
 }
 
 func waitForMigrationProgress(db *sql.DB, minimumNext int, timeout time.Duration) (string, int, []byte, error) {

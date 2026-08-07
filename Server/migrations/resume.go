@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
+	"unicode"
 )
 
 func prepareMigration(ctx context.Context, conn *sql.Conn, item migration) error {
@@ -30,9 +32,21 @@ func migrationStatementAlreadyApplied(
 	item migration,
 	statement int,
 ) (bool, error) {
-	if item.version != 2 {
+	switch item.version {
+	case 2:
+		return migrationTwoStatementAlreadyApplied(ctx, conn, statement)
+	case 3:
+		return migrationThreeStatementAlreadyApplied(ctx, conn, statement)
+	default:
 		return false, nil
 	}
+}
+
+func migrationTwoStatementAlreadyApplied(
+	ctx context.Context,
+	conn *sql.Conn,
+	statement int,
+) (bool, error) {
 	switch statement {
 	case 0:
 		foreignKey, err := readForeignKey(ctx, conn, "training_events", "fk_training_events_device")
@@ -105,6 +119,136 @@ func migrationStatementAlreadyApplied(
 	default:
 		return false, fmt.Errorf("migration 0002 has unexpected statement index %d", statement)
 	}
+}
+
+func migrationThreeStatementAlreadyApplied(
+	ctx context.Context,
+	conn *sql.Conn,
+	statement int,
+) (bool, error) {
+	switch statement {
+	case 0:
+		return columnMatches(
+			ctx,
+			conn,
+			"auth_identities",
+			"display_email",
+			"varchar(320)",
+			true,
+			nil,
+		)
+	case 1:
+		// The backfill is intentionally idempotent and safe to repeat.
+		return false, nil
+	case 2:
+		defaultValue := "0"
+		return columnMatches(
+			ctx,
+			conn,
+			"email_challenges",
+			"attempt_count",
+			"int unsigned",
+			false,
+			&defaultValue,
+		)
+	case 3:
+		return checkConstraintMatches(
+			ctx,
+			conn,
+			"auth_identities",
+			"chk_auth_identities_email_fields",
+			"provider<>'email'orcanonical_emailisnotnullanddisplay_emailisnotnull",
+		)
+	default:
+		return false, fmt.Errorf("migration 0003 has unexpected statement index %d", statement)
+	}
+}
+
+func columnMatches(
+	ctx context.Context,
+	conn *sql.Conn,
+	tableName string,
+	columnName string,
+	columnType string,
+	nullable bool,
+	defaultValue *string,
+) (bool, error) {
+	var actualType, isNullable string
+	var actualDefault sql.NullString
+	err := conn.QueryRowContext(ctx, `
+		SELECT column_type, is_nullable, column_default
+		FROM information_schema.columns
+		WHERE table_schema = DATABASE()
+		  AND table_name = ?
+		  AND column_name = ?`,
+		tableName,
+		columnName,
+	).Scan(&actualType, &isNullable, &actualDefault)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("inspect column %s.%s: %w", tableName, columnName, err)
+	}
+	if actualType != columnType || (isNullable == "YES") != nullable {
+		return false, nil
+	}
+	if defaultValue == nil {
+		return !actualDefault.Valid, nil
+	}
+	return actualDefault.Valid && actualDefault.String == *defaultValue, nil
+}
+
+func checkConstraintMatches(
+	ctx context.Context,
+	conn *sql.Conn,
+	tableName string,
+	constraintName string,
+	expectedClause string,
+) (bool, error) {
+	var clause, enforced string
+	err := conn.QueryRowContext(ctx, `
+		SELECT cc.check_clause, tc.enforced
+		FROM information_schema.check_constraints AS cc
+		INNER JOIN information_schema.table_constraints AS tc
+			ON tc.constraint_schema = cc.constraint_schema
+		   AND tc.constraint_name = cc.constraint_name
+		WHERE tc.constraint_schema = DATABASE()
+		  AND tc.table_name = ?
+		  AND tc.constraint_name = ?`,
+		tableName,
+		constraintName,
+	).Scan(&clause, &enforced)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("inspect check constraint %s.%s: %w", tableName, constraintName, err)
+	}
+	normalized := normalizeCheckClause(clause)
+	if enforced != "YES" || normalized != expectedClause {
+		return false, fmt.Errorf(
+			"check constraint %s.%s differs: enforced=%s clause=%q normalized=%q",
+			tableName,
+			constraintName,
+			enforced,
+			clause,
+			normalized,
+		)
+	}
+	return true, nil
+}
+
+func normalizeCheckClause(clause string) string {
+	clause = strings.ToLower(clause)
+	clause = strings.ReplaceAll(clause, "_utf8mb4", "")
+	clause = strings.ReplaceAll(clause, "\\'", "'")
+	return strings.Map(func(value rune) rune {
+		if unicode.IsSpace(value) || strings.ContainsRune("()`", value) {
+			return -1
+		}
+		return value
+	}, clause)
 }
 
 type foreignKeyDefinition struct {
