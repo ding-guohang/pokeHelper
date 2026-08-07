@@ -1,7 +1,8 @@
 ---
 name: poker-coach-m1a-cash-coach-20260806-01
 created: 2026-08-06
-status: review_passed
+status: archived
+archived: 2026-08-07T09:52:31+08:00
 ---
 
 # 需求提案：M1A 现金局教练纵向切片
