@@ -13,7 +13,7 @@ The approved product contains independent rule, content, training, synchronizati
 | Order | Plan | Independently testable result | Product milestone |
 |---|---|---|---|
 | 1 | M1A Offline Cash Coach Vertical Slice | Native iPhone/iPad app with a deterministic cash-game decision, professional feedback, local event history, and four-tab navigation | M1 |
-| 2 | M1B Independent Identity and Sync | Apple/email sign-in, Go API, PostgreSQL event store, idempotent outbox sync, device sessions, export, and deletion | M1 |
+| 2 | M1B Independent Identity and Sync | Apple/email sign-in, Go API, MySQL event store, idempotent outbox sync, device sessions, export, and deletion | M1 |
 | 3 | M1C Adaptive Cash Curriculum | Initial diagnostic, cash-game skill tree, reviewed strategy packs, ability profile, spaced repetition, and daily plan | M1 |
 | 4 | M2A Cash Session Simulation | Seeded dealing, legal betting state, four virtual opponent profiles, 15/30/60-hand sessions, and key-hand selection | M2 |
 | 5 | M2B Personal Hand Lab | Text hand-history parsers, conflict preview, manual scenario builder, branching replay, and generated remediation drills | M2 |

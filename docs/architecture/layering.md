@@ -40,7 +40,7 @@ Infrastructure
 - `PokerCore → TrainingDomain`
 - 领域包 → SwiftUI
 - 领域包 → 具体 HTTP 客户端
-- View → PostgreSQL、文件系统或同步 DTO
+- View → MySQL、文件系统或同步 DTO
 - 生成式文本 → DecisionScorer 输入
 
 ## 违反案例

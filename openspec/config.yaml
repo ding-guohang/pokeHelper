@@ -9,7 +9,7 @@ project:
     - XcodeGen
     - Swift Package Manager
     - Go 1.25.4
-    - PostgreSQL
+    - MySQL 8.4+ InnoDB
 
 commands:
   pre_build: xcodegen generate

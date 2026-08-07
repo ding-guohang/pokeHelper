@@ -5,7 +5,7 @@
 - **项目名称：** Poker Coach（仓库：porkHelper）
 - **项目类型：** 绿地原生 iOS/iPadOS 教学 APP，包含独立同步后端
 - **客户端技术栈：** SwiftUI、Swift 6.2.3、Xcode 26.2、XcodeGen、Swift Package Manager
-- **服务端技术栈：** Go、PostgreSQL、HTTPS 增量同步 API、对象存储
+- **服务端技术栈：** Go、MySQL 8.4+ InnoDB、HTTPS 增量同步 API、对象存储
 - **当前阶段：** M1A 离线现金局教练纵向切片已实现并进入最终评审收口；M1B 独立账号与同步尚未开始
 - **源码入口：** SwiftUI APP 位于 `PokerCoach/`，领域包位于 `Packages/`，工程真值为 `project.yml`
 
@@ -33,10 +33,14 @@ StrategyContent → PokerCore
 
 App Infrastructure
   ├─ 本地事件存储
-  └─ M1B Remote Sync Client → Go API → PostgreSQL / Object Storage
+  └─ M1B Remote Sync Client → Go API → MySQL / Object Storage
 ```
 
 依赖只能沿箭头方向。网络、认证和数据库 DTO 不得进入 PokerCore、StrategyContent 或 TrainingDomain。
+
+### 关系型数据库选型
+
+M1B 的服务端数据库是 MySQL 8.4+ InnoDB，取代早期设计中的 PostgreSQL。变更理由：团队现有运维栈围绕 MySQL，而 M1B 只依赖两项通用能力——`SELECT ... FOR UPDATE` 行锁（用于每用户单调序列分配和 refresh token 轮换）与唯一约束（用于事件幂等），两者 InnoDB 均原生满足，不需要 PostgreSQL 专有特性。领域包不感知该选择：数据库 DTO 只存在于 `Server/internal/mysqlstore`，并在基础设施边界转换为领域类型。
 
 ## 活跃变更区域
 
