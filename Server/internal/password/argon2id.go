@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"golang.org/x/crypto/argon2"
@@ -13,11 +14,18 @@ import (
 )
 
 const (
-	defaultMemoryKiB   uint32 = 19_456
-	defaultIterations  uint32 = 2
-	defaultParallelism uint8  = 1
-	saltLength                = 16
-	keyLength          uint32 = 32
+	defaultMemoryKiB     uint32 = 19_456
+	defaultIterations    uint32 = 2
+	defaultParallelism   uint8  = 1
+	saltLength                  = 16
+	keyLength            uint32 = 32
+	minStoredSaltLength         = 16
+	maxStoredSaltLength         = 32
+	minStoredKeyLength          = 16
+	maxStoredKeyLength          = 64
+	maxStoredMemoryKiB   uint32 = 65_536
+	maxStoredIterations  uint32 = 4
+	maxStoredParallelism uint8  = 4
 )
 
 type Hasher struct {
@@ -105,24 +113,64 @@ func parsePHC(phc string) (phcParameters, []byte, []byte, error) {
 	if len(parts) != 6 || parts[0] != "" || parts[1] != "argon2id" || parts[2] != "v=19" {
 		return phcParameters{}, nil, nil, &Error{Code: Invalid}
 	}
-	var parameters phcParameters
-	if count, err := fmt.Sscanf(
-		parts[3],
-		"m=%d,t=%d,p=%d",
-		&parameters.memoryKiB,
-		&parameters.iterations,
-		&parameters.parallelism,
-	); err != nil || count != 3 ||
-		parameters.memoryKiB == 0 || parameters.iterations == 0 || parameters.parallelism == 0 {
+	parameters, err := parseParameters(parts[3])
+	if err != nil {
+		return phcParameters{}, nil, nil, &Error{Code: Invalid}
+	}
+	if len(parts[4]) > base64.RawStdEncoding.EncodedLen(maxStoredSaltLength) ||
+		len(parts[5]) > base64.RawStdEncoding.EncodedLen(maxStoredKeyLength) {
 		return phcParameters{}, nil, nil, &Error{Code: Invalid}
 	}
 	salt, err := base64.RawStdEncoding.Strict().DecodeString(parts[4])
-	if err != nil || len(salt) == 0 {
+	if err != nil || len(salt) < minStoredSaltLength || len(salt) > maxStoredSaltLength {
 		return phcParameters{}, nil, nil, &Error{Code: Invalid}
 	}
 	key, err := base64.RawStdEncoding.Strict().DecodeString(parts[5])
-	if err != nil || len(key) == 0 {
+	if err != nil || len(key) < minStoredKeyLength || len(key) > maxStoredKeyLength {
 		return phcParameters{}, nil, nil, &Error{Code: Invalid}
 	}
 	return parameters, salt, key, nil
+}
+
+func parseParameters(value string) (phcParameters, error) {
+	fields := strings.Split(value, ",")
+	if len(fields) != 3 {
+		return phcParameters{}, &Error{Code: Invalid}
+	}
+	memory, err := parseParameter(fields[0], "m=", 32)
+	if err != nil {
+		return phcParameters{}, err
+	}
+	iterations, err := parseParameter(fields[1], "t=", 32)
+	if err != nil {
+		return phcParameters{}, err
+	}
+	parallelism, err := parseParameter(fields[2], "p=", 8)
+	if err != nil {
+		return phcParameters{}, err
+	}
+	parameters := phcParameters{
+		memoryKiB:   uint32(memory),
+		iterations:  uint32(iterations),
+		parallelism: uint8(parallelism),
+	}
+	if parameters.parallelism < 1 || parameters.parallelism > maxStoredParallelism ||
+		parameters.iterations < 1 || parameters.iterations > maxStoredIterations ||
+		parameters.memoryKiB < 8*uint32(parameters.parallelism) ||
+		parameters.memoryKiB > maxStoredMemoryKiB {
+		return phcParameters{}, &Error{Code: Invalid}
+	}
+	return parameters, nil
+}
+
+func parseParameter(value, prefix string, bitSize int) (uint64, error) {
+	number, found := strings.CutPrefix(value, prefix)
+	if !found || number == "" {
+		return 0, &Error{Code: Invalid}
+	}
+	parsed, err := strconv.ParseUint(number, 10, bitSize)
+	if err != nil {
+		return 0, &Error{Code: Invalid}
+	}
+	return parsed, nil
 }

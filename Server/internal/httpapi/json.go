@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
@@ -10,7 +11,14 @@ import (
 const maxJSONBody = 1 << 20
 
 func decodeJSON(request *http.Request, destination any) error {
-	decoder := json.NewDecoder(io.LimitReader(request.Body, maxJSONBody))
+	body, err := io.ReadAll(io.LimitReader(request.Body, maxJSONBody+1))
+	if err != nil {
+		return err
+	}
+	if len(body) > maxJSONBody {
+		return errors.New("httpapi: JSON body exceeds limit")
+	}
+	decoder := json.NewDecoder(bytes.NewReader(body))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(destination); err != nil {
 		return err

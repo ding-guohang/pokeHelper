@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -78,6 +79,53 @@ func TestVerifyEmailHTTPConsumesChallengeOnce(t *testing.T) {
 	}
 }
 
+func TestRegistrationHTTPRejectsBodiesOverJSONLimit(t *testing.T) {
+	tests := []struct {
+		name    string
+		payload func(string) string
+	}{
+		{
+			name: "trailing whitespace over limit",
+			payload: func(base string) string {
+				return base + strings.Repeat(" ", maxHTTPJSONBody-len(base)+1)
+			},
+		},
+		{
+			name: "second JSON value starts after limit",
+			payload: func(base string) string {
+				return base + strings.Repeat(" ", maxHTTPJSONBody-len(base)) + `{}`
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			handler, _, _ := registrationHandler(t, time.Date(2026, 8, 7, 3, 4, 5, 0, time.UTC))
+			base := `{"email":"body-limit@example.com","password":"fifteen characters"}`
+			response := serveJSON(t, handler, "/v1/auth/register", tt.payload(base), "request-too-large")
+
+			if response.Code != http.StatusBadRequest {
+				t.Fatalf("response status = %d, want 400", response.Code)
+			}
+			if response.Body.String() !=
+				`{"error":{"code":"validationFailed","requestID":"request-too-large"}}` {
+				t.Fatalf("response body = %q", response.Body.String())
+			}
+		})
+	}
+}
+
+func TestRegistrationHTTPAllowsSingleJSONWithWhitespaceAtLimit(t *testing.T) {
+	handler, _, _ := registrationHandler(t, time.Date(2026, 8, 7, 3, 4, 5, 0, time.UTC))
+	base := `{"email":"at-limit@example.com","password":"fifteen characters"}`
+	payload := base + strings.Repeat(" ", maxHTTPJSONBody-len(base))
+
+	response := serveJSON(t, handler, "/v1/auth/register", payload, "")
+	if response.Code != http.StatusAccepted || response.Body.String() != `{"accepted":true}` {
+		t.Fatalf("response = %d %q, want 202 accepted", response.Code, response.Body.String())
+	}
+}
+
 func registrationHandler(
 	t *testing.T,
 	now time.Time,
@@ -125,3 +173,5 @@ func httpSequentialBytes(length int) []byte {
 	}
 	return values
 }
+
+const maxHTTPJSONBody = 1 << 20

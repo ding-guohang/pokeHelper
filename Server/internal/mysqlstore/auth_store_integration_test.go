@@ -10,6 +10,7 @@ import (
 	"errors"
 	"log/slog"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -145,6 +146,115 @@ func TestRegistrationIsAtomicEnumerationSafeAndStoresOnlyCredentialHashes(t *tes
 	}
 }
 
+func TestRegistrationCanonicalIdentityUsesExactDatabaseComparison(t *testing.T) {
+	db := mysqltest.Database(t)
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+	mailer := &mail.MemoryMailer{}
+	service := auth.NewService(
+		mysqlstore.NewAuthStore(db),
+		password.NewPolicy(password.Blocklist{}),
+		password.NewHasher(bytes.NewReader(bytes.Repeat([]byte{0x45}, 48))),
+		mailer,
+		bytes.NewReader(sequentialBytes(256)),
+		func() time.Time { return time.Date(2026, 8, 7, 3, 4, 5, 0, time.UTC) },
+	)
+
+	for _, input := range []auth.RegisterInput{
+		{Email: "user@example.test", Password: "first valid password"},
+		{Email: "usér@example.test", Password: "second valid password"},
+		{Email: "USER@example.test", Password: "duplicate valid password"},
+	} {
+		accepted, err := service.Register(context.Background(), input)
+		if err != nil {
+			t.Fatalf("Register(%q) error = %v", input.Email, err)
+		}
+		if accepted != (auth.Accepted{Accepted: true}) {
+			t.Fatalf("Register(%q) = %#v, want accepted", input.Email, accepted)
+		}
+	}
+
+	for tableName, want := range map[string]int{
+		"users": 2, "auth_identities": 2, "password_credentials": 2,
+		"email_challenges": 2, "user_sync_sequences": 2,
+	} {
+		var got int
+		if err := db.QueryRow("SELECT COUNT(*) FROM `" + tableName + "`").Scan(&got); err != nil {
+			t.Fatalf("count %s: %v", tableName, err)
+		}
+		if got != want {
+			t.Errorf("%s count = %d, want %d", tableName, got, want)
+		}
+	}
+	if got := len(mailer.Delivered()); got != 2 {
+		t.Errorf("delivered messages = %d, want 2", got)
+	}
+}
+
+func TestConcurrentRegistrationForSameCanonicalIdentityIsEnumerationSafe(t *testing.T) {
+	db := mysqltest.Database(t)
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+	mailer := &mail.MemoryMailer{}
+	service := auth.NewService(
+		mysqlstore.NewAuthStore(db),
+		password.NewPolicy(password.Blocklist{}),
+		password.NewHasher(nil),
+		mailer,
+		nil,
+		func() time.Time { return time.Date(2026, 8, 7, 3, 4, 5, 0, time.UTC) },
+	)
+
+	const workerCount = 8
+	start := make(chan struct{})
+	results := make(chan registrationResult, workerCount)
+	var ready sync.WaitGroup
+	ready.Add(workerCount)
+	for index := 0; index < workerCount; index++ {
+		index := index
+		go func() {
+			ready.Done()
+			<-start
+			accepted, err := service.Register(context.Background(), auth.RegisterInput{
+				Email:    concurrentEmail(index),
+				Password: "concurrent valid password",
+			})
+			results <- registrationResult{accepted: accepted, err: err}
+		}()
+	}
+	ready.Wait()
+	close(start)
+
+	for index := 0; index < workerCount; index++ {
+		result := <-results
+		if result.err != nil {
+			t.Errorf("concurrent Register() error = %v", result.err)
+			continue
+		}
+		if result.accepted != (auth.Accepted{Accepted: true}) {
+			t.Errorf("concurrent Register() = %#v, want identical accepted", result.accepted)
+		}
+	}
+
+	for tableName, want := range map[string]int{
+		"users": 1, "auth_identities": 1, "password_credentials": 1,
+		"email_challenges": 1, "user_sync_sequences": 1,
+	} {
+		var got int
+		if err := db.QueryRow("SELECT COUNT(*) FROM `" + tableName + "`").Scan(&got); err != nil {
+			t.Fatalf("count %s: %v", tableName, err)
+		}
+		if got != want {
+			t.Errorf("%s count = %d, want %d", tableName, got, want)
+		}
+	}
+	if got := len(mailer.Delivered()); got != 1 {
+		t.Errorf("delivered messages = %d, want 1", got)
+	}
+}
+
 func TestVerificationChallengeIsSingleUseAndExpiredChallengesFail(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -261,6 +371,18 @@ func assertChallengeInvalid(t *testing.T, err error) {
 
 type mutableClock struct {
 	now time.Time
+}
+
+type registrationResult struct {
+	accepted auth.Accepted
+	err      error
+}
+
+func concurrentEmail(index int) string {
+	if index%2 == 0 {
+		return "Concurrent@Example.test"
+	}
+	return "concurrent@example.test"
 }
 
 func (c *mutableClock) Now() time.Time {

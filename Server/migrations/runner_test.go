@@ -46,8 +46,8 @@ func TestApplyMigratesAnEmptySchema(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() after Apply: %v", err)
 	}
-	if after != 3 {
-		t.Errorf("CurrentVersion() after Apply = %d, want 3", after)
+	if after != 4 {
+		t.Errorf("CurrentVersion() after Apply = %d, want 4", after)
 	}
 }
 
@@ -66,8 +66,8 @@ func TestApplyIsIdempotent(t *testing.T) {
 	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM schema_migrations").Scan(&count); err != nil {
 		t.Fatalf("count schema_migrations: %v", err)
 	}
-	if count != 3 {
-		t.Errorf("schema_migrations count = %d, want 3", count)
+	if count != 4 {
+		t.Errorf("schema_migrations count = %d, want 4", count)
 	}
 }
 
@@ -457,8 +457,8 @@ func TestApplyUpgradesOriginalVersionOneWithoutDataLoss(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() after upgrade: %v", err)
 	}
-	if version != 3 {
-		t.Fatalf("CurrentVersion() after upgrade = %d, want 3", version)
+	if version != 4 {
+		t.Fatalf("CurrentVersion() after upgrade = %d, want 4", version)
 	}
 
 	for tableName, wantCount := range map[string]int{
@@ -768,6 +768,114 @@ func TestApplyVersionThreeResumesEachCommittedDDLBeforeCheckpoint(t *testing.T) 
 	}
 }
 
+func TestVersionFourUsesExactAuthIdentitySubjectComparison(t *testing.T) {
+	db := migratedDatabase(t)
+
+	var columnType, characterSet, collation, nullable string
+	if err := db.QueryRow(`
+		SELECT column_type, character_set_name, collation_name, is_nullable
+		FROM information_schema.columns
+		WHERE table_schema = DATABASE()
+		  AND table_name = 'auth_identities'
+		  AND column_name = 'subject'`,
+	).Scan(&columnType, &characterSet, &collation, &nullable); err != nil {
+		t.Fatalf("inspect auth_identities.subject: %v", err)
+	}
+	if columnType != "varchar(255)" || characterSet != "utf8mb4" ||
+		collation != "utf8mb4_bin" || nullable != "NO" {
+		t.Errorf("auth_identities.subject = %s/%s/%s nullable %s, want varchar(255)/utf8mb4/utf8mb4_bin/NO",
+			columnType, characterSet, collation, nullable)
+	}
+}
+
+func TestApplyUpgradesVersionThreeToExactSubjectComparisonWithoutDataLoss(t *testing.T) {
+	db := mysqltest.Database(t)
+	installVersionThree(t, db)
+	seedCompleteUserGraph(t, db)
+
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("Apply() version 3 upgrade: %v", err)
+	}
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("repeat Apply() version 4: %v", err)
+	}
+	version, err := migrations.CurrentVersion(context.Background(), db)
+	if err != nil {
+		t.Fatalf("CurrentVersion() after version 3 upgrade: %v", err)
+	}
+	if version != 4 {
+		t.Fatalf("CurrentVersion() after version 3 upgrade = %d, want 4", version)
+	}
+	var collation string
+	if err := db.QueryRow(`
+		SELECT collation_name
+		FROM information_schema.columns
+		WHERE table_schema = DATABASE()
+		  AND table_name = 'auth_identities'
+		  AND column_name = 'subject'`,
+	).Scan(&collation); err != nil {
+		t.Fatalf("inspect upgraded subject collation: %v", err)
+	}
+	if collation != "utf8mb4_bin" {
+		t.Fatalf("upgraded subject collation = %q, want utf8mb4_bin", collation)
+	}
+
+	var subject, canonical, display string
+	if err := db.QueryRow(`
+		SELECT subject, canonical_email, display_email
+		FROM auth_identities
+		WHERE id = UUID_TO_BIN(?)`, testIdentityID,
+	).Scan(&subject, &canonical, &display); err != nil {
+		t.Fatalf("read upgraded identity: %v", err)
+	}
+	if subject != "user@example.test" || canonical != subject || display != subject {
+		t.Errorf("upgraded identity = %q/%q/%q, want preserved values", subject, canonical, display)
+	}
+	var userCount, challengeCount int
+	if err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount); err != nil {
+		t.Fatalf("count users: %v", err)
+	}
+	if err := db.QueryRow("SELECT COUNT(*) FROM email_challenges").Scan(&challengeCount); err != nil {
+		t.Fatalf("count challenges: %v", err)
+	}
+	if userCount != 1 || challengeCount != 1 {
+		t.Errorf("upgraded user/challenge counts = %d/%d, want 1/1", userCount, challengeCount)
+	}
+}
+
+func TestApplyVersionFourResumesCommittedDDLBeforeCheckpoint(t *testing.T) {
+	db := mysqltest.Database(t)
+	installVersionThree(t, db)
+	contents, checksum := migrationFixture(t, "0004_auth_identity_subject_binary.sql")
+	statements := splitMigrationStatements(contents)
+	if len(statements) != 1 {
+		t.Fatalf("migration 0004 statement count = %d, want 1", len(statements))
+	}
+	mustExec(t, db, `
+		ALTER TABLE schema_migrations
+		ADD COLUMN state VARCHAR(16) NOT NULL DEFAULT 'applied',
+		ADD COLUMN next_statement INT UNSIGNED NOT NULL DEFAULT 0`)
+	mustExec(t, db, `
+		INSERT INTO schema_migrations (version, name, checksum, state, next_statement)
+		VALUES (4, '0004_auth_identity_subject_binary.sql', ?, 'applying', 0)`,
+		checksum[:])
+	mustExec(t, db, statements[0])
+
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("Apply() after version 4 DDL committed before checkpoint: %v", err)
+	}
+	var state string
+	var next int
+	if err := db.QueryRow(`
+		SELECT state, next_statement FROM schema_migrations WHERE version = 4`,
+	).Scan(&state, &next); err != nil {
+		t.Fatalf("read migration progress: %v", err)
+	}
+	if state != "applied" || next != 1 {
+		t.Errorf("migration progress = %s/%d, want applied/1", state, next)
+	}
+}
+
 func migratedDatabase(t *testing.T) *sql.DB {
 	t.Helper()
 	db := mysqltest.Database(t)
@@ -991,6 +1099,18 @@ func installVersionTwo(t *testing.T, db *sql.DB) {
 	mustExec(t, db, `
 		INSERT INTO schema_migrations (version, name, checksum)
 		VALUES (2, '0002_m1b_schema_corrections.sql', ?)`, checksum[:])
+}
+
+func installVersionThree(t *testing.T, db *sql.DB) {
+	t.Helper()
+	installVersionTwo(t, db)
+	contents, checksum := migrationFixture(t, "0003_m1b_registration_fields.sql")
+	for _, statement := range splitMigrationStatements(contents) {
+		mustExec(t, db, statement)
+	}
+	mustExec(t, db, `
+		INSERT INTO schema_migrations (version, name, checksum)
+		VALUES (3, '0003_m1b_registration_fields.sql', ?)`, checksum[:])
 }
 
 func migrationFixture(t *testing.T, name string) (string, [sha256.Size]byte) {

@@ -37,9 +37,31 @@ func migrationStatementAlreadyApplied(
 		return migrationTwoStatementAlreadyApplied(ctx, conn, statement)
 	case 3:
 		return migrationThreeStatementAlreadyApplied(ctx, conn, statement)
+	case 4:
+		return migrationFourStatementAlreadyApplied(ctx, conn, statement)
 	default:
 		return false, nil
 	}
+}
+
+func migrationFourStatementAlreadyApplied(
+	ctx context.Context,
+	conn *sql.Conn,
+	statement int,
+) (bool, error) {
+	if statement != 0 {
+		return false, fmt.Errorf("migration 0004 has unexpected statement index %d", statement)
+	}
+	return textColumnMatches(
+		ctx,
+		conn,
+		"auth_identities",
+		"subject",
+		"varchar(255)",
+		"utf8mb4",
+		"utf8mb4_bin",
+		false,
+	)
 }
 
 func migrationTwoStatementAlreadyApplied(
@@ -197,6 +219,38 @@ func columnMatches(
 		return !actualDefault.Valid, nil
 	}
 	return actualDefault.Valid && actualDefault.String == *defaultValue, nil
+}
+
+func textColumnMatches(
+	ctx context.Context,
+	conn *sql.Conn,
+	tableName string,
+	columnName string,
+	columnType string,
+	characterSet string,
+	collation string,
+	nullable bool,
+) (bool, error) {
+	var actualType, actualCharacterSet, actualCollation, isNullable string
+	err := conn.QueryRowContext(ctx, `
+		SELECT column_type, character_set_name, collation_name, is_nullable
+		FROM information_schema.columns
+		WHERE table_schema = DATABASE()
+		  AND table_name = ?
+		  AND column_name = ?`,
+		tableName,
+		columnName,
+	).Scan(&actualType, &actualCharacterSet, &actualCollation, &isNullable)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("inspect text column %s.%s: %w", tableName, columnName, err)
+	}
+	return actualType == columnType &&
+		actualCharacterSet == characterSet &&
+		actualCollation == collation &&
+		(isNullable == "YES") == nullable, nil
 }
 
 func checkConstraintMatches(
