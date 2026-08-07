@@ -52,6 +52,11 @@ func TestHistoricalMigrationChecksums(t *testing.T) {
 			filename: "0003_m1b_registration_fields.sql",
 			want:     "9ba50f6b1be1223214112e26347c28348e15b12dd7f370d9d7aaa08c2a20a127",
 		},
+		{
+			name:     "0004",
+			filename: "0004_auth_identity_subject_binary.sql",
+			want:     "3294a886adc509c580d87019947237a7ff4103435a5ccbd88b270fbf019f0602",
+		},
 	}
 
 	for _, tt := range tests {

@@ -14,12 +14,28 @@ import (
 )
 
 type Service struct {
-	store  Store
-	policy password.Policy
-	hasher password.Hasher
-	mailer mail.Mailer
-	random io.Reader
-	now    func() time.Time
+	store         Store
+	policy        password.Policy
+	hasher        password.Hasher
+	mailer        mail.Mailer
+	random        io.Reader
+	now           func() time.Time
+	throttle      *Throttle
+	sessionIssuer SessionIssuer
+}
+
+type ServiceOption func(*Service)
+
+func WithThrottle(throttle *Throttle) ServiceOption {
+	return func(service *Service) {
+		service.throttle = throttle
+	}
+}
+
+func WithSessionIssuer(issuer SessionIssuer) ServiceOption {
+	return func(service *Service) {
+		service.sessionIssuer = issuer
+	}
 }
 
 func NewService(
@@ -29,6 +45,7 @@ func NewService(
 	mailer mail.Mailer,
 	random io.Reader,
 	now func() time.Time,
+	options ...ServiceOption,
 ) *Service {
 	if random == nil {
 		random = rand.Reader
@@ -36,16 +53,25 @@ func NewService(
 	if now == nil {
 		now = time.Now
 	}
-	return &Service{
+	service := &Service{
 		store: store, policy: policy, hasher: hasher, mailer: mailer,
 		random: random, now: now,
 	}
+	for _, option := range options {
+		option(service)
+	}
+	return service
 }
 
 func (s *Service) Register(ctx context.Context, input RegisterInput) (Accepted, error) {
 	email, err := NormalizeEmail(input.Email)
 	if err != nil {
 		return Accepted{}, err
+	}
+	if s.throttle != nil {
+		if err := s.throttle.Consume(ctx, email.Canonical, NetworkSignal(ctx)); err != nil {
+			return Accepted{}, err
+		}
 	}
 	normalizedPassword, err := s.policy.NormalizeAndValidate(input.Password)
 	if err != nil {
@@ -107,6 +133,11 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (Accepted, 
 func (s *Service) VerifyEmail(ctx context.Context, rawToken string) error {
 	tokenHash := sha256.Sum256([]byte(rawToken))
 	if err := s.store.ConsumeEmailChallenge(ctx, tokenHash, s.now().UTC()); err != nil {
+		if s.throttle != nil {
+			if throttleErr := s.throttle.Consume(ctx, rawToken, NetworkSignal(ctx)); throttleErr != nil {
+				return throttleErr
+			}
+		}
 		return err
 	}
 	return nil

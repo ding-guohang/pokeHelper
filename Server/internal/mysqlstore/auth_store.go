@@ -157,6 +157,313 @@ func (s *AuthStore) ConsumeEmailChallenge(
 	return nil
 }
 
+func (s *AuthStore) LookupLoginCredential(
+	ctx context.Context,
+	canonicalEmail string,
+) (auth.LoginCredential, error) {
+	var userID []byte
+	var credential auth.LoginCredential
+	err := s.db.QueryRowContext(ctx, `
+		SELECT i.user_id, i.email_verified, p.password_hash
+		FROM auth_identities AS i
+		INNER JOIN password_credentials AS p ON p.user_id = i.user_id
+		WHERE i.provider = 'email' AND i.subject = ?`,
+		canonicalEmail,
+	).Scan(&userID, &credential.Verified, &credential.PasswordPHC)
+	if errors.Is(err, sql.ErrNoRows) {
+		return auth.LoginCredential{}, nil
+	}
+	if err != nil {
+		return auth.LoginCredential{}, fmt.Errorf("lookup login credential: %w", err)
+	}
+	credential.UserID, err = authID(userID)
+	if err != nil {
+		return auth.LoginCredential{}, err
+	}
+	credential.Found = true
+	return credential, nil
+}
+
+func (s *AuthStore) CreatePasswordResetChallenge(
+	ctx context.Context,
+	canonicalEmail string,
+	challenge auth.PasswordResetChallenge,
+) (delivery auth.PasswordResetDelivery, created bool, err error) {
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("begin password reset request: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	var userID []byte
+	err = tx.QueryRowContext(ctx, `
+		SELECT user_id, display_email
+		FROM auth_identities
+		WHERE provider = 'email' AND subject = ? AND email_verified = TRUE`,
+		canonicalEmail,
+	).Scan(&userID, &delivery.DisplayEmail)
+	if errors.Is(err, sql.ErrNoRows) {
+		if err = tx.Commit(); err != nil {
+			return auth.PasswordResetDelivery{}, false, fmt.Errorf("commit hidden reset request: %w", err)
+		}
+		return auth.PasswordResetDelivery{}, false, nil
+	}
+	if err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("find reset identity: %w", err)
+	}
+	if _, err = tx.ExecContext(ctx, `
+		INSERT INTO email_challenges (
+			id, user_id, token_hash, purpose, attempt_count, expires_at
+		) VALUES (?, ?, ?, ?, 0, ?)`,
+		challenge.ChallengeID[:],
+		userID,
+		challenge.TokenHash[:],
+		challenge.Purpose,
+		challenge.ExpiresAt,
+	); err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("insert password reset challenge: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("commit password reset request: %w", err)
+	}
+	return delivery, true, nil
+}
+
+func (s *AuthStore) ReplacePassword(
+	ctx context.Context,
+	tokenHash [32]byte,
+	passwordPHC string,
+	now time.Time,
+	revoke func(context.Context, string) error,
+) (err error) {
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return fmt.Errorf("begin password reset confirmation: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	var userIDBytes []byte
+	var expiresAt time.Time
+	var consumedAt sql.NullTime
+	err = tx.QueryRowContext(ctx, `
+		SELECT user_id, expires_at, consumed_at
+		FROM email_challenges
+		WHERE token_hash = ? AND purpose = 'resetPassword'
+		FOR UPDATE`,
+		tokenHash[:],
+	).Scan(&userIDBytes, &expiresAt, &consumedAt)
+	if errors.Is(err, sql.ErrNoRows) {
+		return &auth.Error{Code: auth.ChallengeInvalid}
+	}
+	if err != nil {
+		return fmt.Errorf("lock password reset challenge: %w", err)
+	}
+	if _, err = tx.ExecContext(ctx, `
+		UPDATE email_challenges
+		SET attempt_count = attempt_count + 1
+		WHERE token_hash = ?`,
+		tokenHash[:],
+	); err != nil {
+		return fmt.Errorf("increment password reset attempt: %w", err)
+	}
+	if consumedAt.Valid || !now.Before(expiresAt) {
+		if err = tx.Commit(); err != nil {
+			return fmt.Errorf("commit invalid password reset attempt: %w", err)
+		}
+		return &auth.Error{Code: auth.ChallengeInvalid}
+	}
+
+	userID, err := authID(userIDBytes)
+	if err != nil {
+		return err
+	}
+	if _, err = tx.ExecContext(ctx, `
+		UPDATE password_credentials
+		SET password_hash = ?, password_changed_at = ?
+		WHERE user_id = ?`,
+		passwordPHC,
+		now,
+		userIDBytes,
+	); err != nil {
+		return fmt.Errorf("replace password credential: %w", err)
+	}
+	if _, err = tx.ExecContext(ctx, `
+		UPDATE email_challenges
+		SET consumed_at = ?
+		WHERE token_hash = ?`,
+		now,
+		tokenHash[:],
+	); err != nil {
+		return fmt.Errorf("consume password reset challenge: %w", err)
+	}
+	if err = revoke(ctx, userID.String()); err != nil {
+		return fmt.Errorf("revoke sessions after password reset: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("commit password reset confirmation: %w", err)
+	}
+	return nil
+}
+
+func (s *AuthStore) CheckAuthThrottles(
+	ctx context.Context,
+	keys auth.ThrottleKeys,
+	now time.Time,
+) (time.Time, error) {
+	zero := [32]byte{}
+	pairs := [][2][32]byte{
+		{keys.Account, zero},
+		{zero, keys.Network},
+	}
+	var retryAt time.Time
+	for _, pair := range pairs {
+		var stored sql.NullTime
+		err := s.db.QueryRowContext(ctx, `
+			SELECT retry_after
+			FROM auth_throttles
+			WHERE identity_signal_hash = ? AND network_signal_hash = ?`,
+			pair[0][:],
+			pair[1][:],
+		).Scan(&stored)
+		if errors.Is(err, sql.ErrNoRows) {
+			continue
+		}
+		if err != nil {
+			return time.Time{}, fmt.Errorf("check auth throttle: %w", err)
+		}
+		if stored.Valid && now.Before(stored.Time) && stored.Time.After(retryAt) {
+			retryAt = stored.Time
+		}
+	}
+	return retryAt, nil
+}
+
+func (s *AuthStore) ConsumeAuthThrottles(
+	ctx context.Context,
+	keys auth.ThrottleKeys,
+	now time.Time,
+	limits auth.ThrottleLimits,
+) (retryAt time.Time, err error) {
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return time.Time{}, fmt.Errorf("begin auth throttle: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	zero := [32]byte{}
+	buckets := []struct {
+		identity [32]byte
+		network  [32]byte
+		limit    uint32
+	}{
+		{identity: keys.Account, network: zero, limit: limits.Account},
+		{identity: zero, network: keys.Network, limit: limits.Network},
+	}
+	for _, bucket := range buckets {
+		if _, err = tx.ExecContext(ctx, `
+			INSERT INTO auth_throttles (
+				identity_signal_hash,
+				network_signal_hash,
+				window_started_at,
+				failure_count
+			) VALUES (?, ?, ?, 0)
+			ON DUPLICATE KEY UPDATE updated_at = updated_at`,
+			bucket.identity[:],
+			bucket.network[:],
+			now,
+		); err != nil {
+			return time.Time{}, fmt.Errorf("ensure auth throttle: %w", err)
+		}
+
+		var windowStartedAt time.Time
+		var failureCount uint32
+		var storedRetry sql.NullTime
+		if err = tx.QueryRowContext(ctx, `
+			SELECT window_started_at, failure_count, retry_after
+			FROM auth_throttles
+			WHERE identity_signal_hash = ? AND network_signal_hash = ?
+			FOR UPDATE`,
+			bucket.identity[:],
+			bucket.network[:],
+		).Scan(&windowStartedAt, &failureCount, &storedRetry); err != nil {
+			return time.Time{}, fmt.Errorf("lock auth throttle: %w", err)
+		}
+
+		if storedRetry.Valid && now.Before(storedRetry.Time) {
+			if storedRetry.Time.After(retryAt) {
+				retryAt = storedRetry.Time
+			}
+			continue
+		}
+		if !now.Before(windowStartedAt.Add(limits.Window)) {
+			windowStartedAt = now
+			failureCount = 0
+		}
+		failureCount++
+		var nextRetry any
+		if failureCount > bucket.limit {
+			blockedUntil := now.Add(limits.Block)
+			nextRetry = blockedUntil
+			if blockedUntil.After(retryAt) {
+				retryAt = blockedUntil
+			}
+		}
+		if _, err = tx.ExecContext(ctx, `
+			UPDATE auth_throttles
+			SET window_started_at = ?, failure_count = ?, retry_after = ?
+			WHERE identity_signal_hash = ? AND network_signal_hash = ?`,
+			windowStartedAt,
+			failureCount,
+			nextRetry,
+			bucket.identity[:],
+			bucket.network[:],
+		); err != nil {
+			return time.Time{}, fmt.Errorf("update auth throttle: %w", err)
+		}
+	}
+	if err = tx.Commit(); err != nil {
+		return time.Time{}, fmt.Errorf("commit auth throttle: %w", err)
+	}
+	return retryAt, nil
+}
+
+func (s *AuthStore) ClearAuthAccountThrottle(
+	ctx context.Context,
+	accountHash [32]byte,
+) error {
+	zero := [32]byte{}
+	if _, err := s.db.ExecContext(ctx, `
+		DELETE FROM auth_throttles
+		WHERE identity_signal_hash = ? AND network_signal_hash = ?`,
+		accountHash[:],
+		zero[:],
+	); err != nil {
+		return fmt.Errorf("clear account throttle: %w", err)
+	}
+	return nil
+}
+
+func authID(raw []byte) (auth.ID, error) {
+	if len(raw) != len(auth.ID{}) {
+		return auth.ID{}, fmt.Errorf("auth store: invalid binary user ID length %d", len(raw))
+	}
+	var id auth.ID
+	copy(id[:], raw)
+	return id, nil
+}
+
 func isOccupiedEmail(err error) bool {
 	var mysqlError *mysql.MySQLError
 	return errors.As(err, &mysqlError) &&

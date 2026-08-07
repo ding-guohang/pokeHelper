@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -16,13 +15,16 @@ import (
 type ErrorCode string
 
 const (
-	ValidationFailed ErrorCode = "validationFailed"
-	ChallengeInvalid ErrorCode = "challengeInvalid"
+	ValidationFailed     ErrorCode = "validationFailed"
+	ChallengeInvalid     ErrorCode = "challengeInvalid"
+	AuthenticationFailed ErrorCode = "authenticationFailed"
+	RateLimited          ErrorCode = "rateLimited"
 )
 
 type Error struct {
-	Code ErrorCode
-	Err  error
+	Code       ErrorCode
+	RetryAfter time.Duration
+	Err        error
 }
 
 func (e *Error) Error() string {
@@ -49,6 +51,59 @@ type Accepted struct {
 
 type ID [16]byte
 
+func (id ID) String() string {
+	return fmt.Sprintf(
+		"%08x-%04x-%04x-%04x-%012x",
+		id[0:4],
+		id[4:6],
+		id[6:8],
+		id[8:10],
+		id[10:16],
+	)
+}
+
+type DeviceMetadata struct {
+	DeviceID    string `json:"deviceID"`
+	DisplayName string `json:"displayName"`
+	Platform    string `json:"platform"`
+}
+
+type SessionTokens struct {
+	AccessToken      string    `json:"accessToken"`
+	RefreshToken     string    `json:"refreshToken"`
+	AccessExpiresAt  time.Time `json:"accessExpiresAt"`
+	RefreshExpiresAt time.Time `json:"refreshExpiresAt"`
+	UserID           string    `json:"userID"`
+	SessionID        string    `json:"sessionID"`
+	RecentAuthAt     time.Time `json:"recentAuthAt"`
+}
+
+type LoginInput struct {
+	Email    string         `json:"email"`
+	Password string         `json:"password"`
+	Device   DeviceMetadata `json:"device"`
+}
+
+type LoginResult SessionTokens
+
+type LoginCredential struct {
+	UserID      ID
+	PasswordPHC string
+	Verified    bool
+	Found       bool
+}
+
+type PasswordResetChallenge struct {
+	ChallengeID ID
+	TokenHash   [32]byte
+	Purpose     string
+	ExpiresAt   time.Time
+}
+
+type PasswordResetDelivery struct {
+	DisplayEmail string
+}
+
 type Registration struct {
 	UserID        ID
 	IdentityID    ID
@@ -59,11 +114,6 @@ type Registration struct {
 	ChallengeHash [32]byte
 	Purpose       string
 	ExpiresAt     time.Time
-}
-
-type Store interface {
-	CreateRegistration(context.Context, Registration) (bool, error)
-	ConsumeEmailChallenge(context.Context, [32]byte, time.Time) error
 }
 
 func NormalizeEmail(raw string) (Email, error) {
