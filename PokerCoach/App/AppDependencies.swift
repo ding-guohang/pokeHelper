@@ -63,8 +63,12 @@ final class AppDependencies {
     }
 
     static func live() throws -> AppDependencies {
-        let storageDirectory = try liveStorageDirectory()
-        let localIdentity = LocalIdentityStore().loadOrCreate()
+        let profile = try startupProfile()
+        let storageDirectory = profile.directory
+        let localIdentity = LocalIdentity(
+            localUserID: profile.localUserID,
+            deviceID: profile.deviceID
+        )
 
 #if DEVELOPMENT_STRATEGY_FIXTURES
         try resetTrainingEventsIfRequested(
@@ -90,7 +94,31 @@ final class AppDependencies {
 
     static func recoverCorruptedTrainingEvents() throws {
         _ = try recoverCorruptedTrainingEvents(
-            in: try liveStorageDirectory()
+            in: try startupProfile().directory
+        )
+    }
+
+    /// Resolves the profile to open with, migrating an M1A installation on
+    /// first launch. Startup is synchronous, so this reads the profile record
+    /// directly instead of going through the actor.
+    static func startupProfile() throws -> ActiveProfile {
+        let root = try liveStorageDirectory()
+        let records = ProfileRecordFile(directory: root)
+        let directories = ProfileDirectoryProvider(root: root)
+
+        try ProfileMigration.migrateLegacyInstallIfNeeded(
+            root: root,
+            records: records,
+            directories: directories,
+            legacyIdentity: LocalIdentityStore().storedIdentity()
+        )
+
+        let id = try records.lastActiveProfile()
+        return ActiveProfile(
+            id: id,
+            localUserID: try records.localUserID(for: id),
+            deviceID: try records.deviceID(),
+            directory: try directories.createDirectory(for: id)
         )
     }
 

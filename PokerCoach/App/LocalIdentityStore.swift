@@ -41,6 +41,23 @@ final class LocalIdentityStore {
         )
     }
 
+    /// The identity an M1A installation left in UserDefaults, if any.
+    ///
+    /// M1B keeps identities in the profile record instead, so this is read only
+    /// once during migration. It never creates an identity, because doing so
+    /// would make a fresh install look like an upgrade.
+    func storedIdentity() -> LocalIdentity? {
+        guard
+            let storedUser = userDefaults.string(forKey: Key.localUserID),
+            let localUserID = UUID(uuidString: storedUser),
+            let storedDevice = userDefaults.string(forKey: Key.deviceID),
+            let deviceID = UUID(uuidString: storedDevice)
+        else {
+            return nil
+        }
+        return LocalIdentity(localUserID: localUserID, deviceID: deviceID)
+    }
+
     private func loadOrCreateUUID(forKey key: String) -> UUID {
         if
             let storedValue = userDefaults.string(forKey: key),
