@@ -40,14 +40,26 @@ enum AppDestination: String, CaseIterable, Identifiable {
 struct AdaptiveRootView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedDestination: AppDestination? = .today
+    @State private var isShowingAccount = false
 
     let dependencies: AppDependencies
 
     var body: some View {
-        if horizontalSizeClass == .compact {
-            compactNavigation
-        } else {
-            regularNavigation
+        Group {
+            if horizontalSizeClass == .compact {
+                compactNavigation
+            } else {
+                regularNavigation
+            }
+        }
+        .sheet(isPresented: $isShowingAccount) {
+            NavigationStack {
+                AccountCenterView(controller: dependencies.accountSession)
+            }
+        }
+        .task {
+            await dependencies.accountSession.restore()
+            await dependencies.accountSession.processPendingRevocation()
         }
     }
 
@@ -90,6 +102,33 @@ struct AdaptiveRootView: View {
 
     @ViewBuilder
     private func destinationView(_ destination: AppDestination) -> some View {
+        content(for: destination)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    accountToolbarItem
+                }
+            }
+    }
+
+    /// The account entry lives in the toolbar of every destination, so signing
+    /// in is always one tap away and never a wall in front of training.
+    private var accountToolbarItem: some View {
+        Button {
+            isShowingAccount = true
+        } label: {
+            if case .anonymous = dependencies.accountSession.state {
+                Label(AccountCopy.localOnlySuffix, systemImage: "person.crop.circle")
+                    .labelStyle(.titleAndIcon)
+                    .font(.footnote)
+            } else {
+                Label(AccountCopy.toolbarLabel, systemImage: "person.crop.circle.fill")
+            }
+        }
+        .accessibilityIdentifier("account.open")
+    }
+
+    @ViewBuilder
+    private func content(for destination: AppDestination) -> some View {
         switch destination {
         case .today:
             TodayView(

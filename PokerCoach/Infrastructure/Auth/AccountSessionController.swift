@@ -1,0 +1,290 @@
+import Foundation
+import Observation
+
+struct AccountSummary: Equatable, Sendable {
+    let userID: UUID
+    let email: String?
+}
+
+enum AccountSessionState: Equatable, Sendable {
+    /// The M1A experience: full offline training with no account at all.
+    case anonymous
+    case awaitingVerification(email: String)
+    case authenticated(AccountSummary)
+    /// Credentials were rejected and removed. Local training history is intact.
+    case locked
+}
+
+struct AccountFailure: Equatable, Sendable {
+    let message: String
+}
+
+/// Bridges the account use cases to SwiftUI.
+///
+/// Every operation is failable but non-throwing: a failure becomes recoverable
+/// Chinese text in `failure` and never removes the user's ability to train.
+@MainActor
+@Observable
+final class AccountSessionController {
+    private(set) var state: AccountSessionState = .anonymous
+    private(set) var failure: AccountFailure?
+    private(set) var needsReauthentication = false
+    private(set) var isBusy = false
+
+    @ObservationIgnored
+    let authorizer: SessionAuthorizer
+
+    @ObservationIgnored
+    private let api: any AccountAPI
+    @ObservationIgnored
+    private let credentials: any CredentialStore
+    @ObservationIgnored
+    private let apple: any AppleAuthorizationClient
+    @ObservationIgnored
+    private let policy: PasswordPolicy
+    @ObservationIgnored
+    private let device: DeviceDescriptor
+
+    init(
+        api: any AccountAPI,
+        credentials: any CredentialStore,
+        apple: any AppleAuthorizationClient,
+        policy: PasswordPolicy,
+        device: DeviceDescriptor
+    ) {
+        self.api = api
+        self.credentials = credentials
+        self.apple = apple
+        self.policy = policy
+        self.device = device
+
+        let signal = SessionLockSignal()
+        authorizer = SessionAuthorizer(store: credentials, api: api, lockSignal: signal)
+        signal.onLock { [weak self] in
+            await MainActor.run { self?.lockProfile() }
+        }
+    }
+
+    func restore() async {
+        failure = nil
+        do {
+            guard let active = try await credentials.loadActive() else {
+                state = .anonymous
+                return
+            }
+            state = .authenticated(summary(for: active))
+        } catch {
+            // Secure storage is unreadable. Surface it, but keep the app usable
+            // anonymously so training is never blocked by an account problem.
+            state = .anonymous
+            report(error)
+        }
+    }
+
+    func register(email: String, password: String) async {
+        await run {
+            let validated = try self.policy.validate(password)
+            try await self.api.register(email: email, password: validated)
+            self.state = .awaitingVerification(email: email)
+        }
+    }
+
+    func verifyEmail(token: String) async {
+        await run {
+            let session = try await self.api.verifyEmail(token: token)
+            try await self.adopt(session, email: self.pendingEmail)
+        }
+    }
+
+    func resendVerification() async {
+        guard case let .awaitingVerification(email) = state else {
+            failure = AccountFailure(message: "当前没有等待验证的邮箱。")
+            return
+        }
+        await run {
+            try await self.api.resendVerification(email: email)
+        }
+    }
+
+    func login(email: String, password: String) async {
+        await run {
+            let validated = try self.policy.validate(password)
+            let session = try await self.api.login(
+                email: email,
+                password: validated,
+                device: self.device
+            )
+            try await self.adopt(session, email: email)
+        }
+    }
+
+    func requestPasswordReset(email: String) async {
+        await run {
+            try await self.api.requestPasswordReset(email: email)
+        }
+    }
+
+    func confirmPasswordReset(token: String, newPassword: String) async {
+        await run {
+            let validated = try self.policy.validate(newPassword)
+            try await self.api.confirmPasswordReset(token: token, newPassword: validated)
+        }
+    }
+
+    func signInWithApple() async {
+        await run {
+            let credential = try await self.apple.requestCredential()
+            let session = try await self.api.signInWithApple(
+                identityToken: credential.identityToken,
+                nonce: credential.nonce,
+                device: self.device
+            )
+            try await self.adopt(session, email: session.email)
+        }
+    }
+
+    func linkApple() async {
+        guard case .authenticated = state else {
+            failure = AccountFailure(message: "请先登录，再绑定 Apple 账号。")
+            return
+        }
+        await run {
+            let credential = try await self.apple.requestCredential()
+            try await self.authorizer.authorize { accessToken in
+                try await self.api.linkApple(
+                    identityToken: credential.identityToken,
+                    nonce: credential.nonce,
+                    accessToken: accessToken
+                )
+            }
+        }
+    }
+
+    func reauthenticate(_ proof: ReauthenticationProof) async {
+        await run {
+            switch proof {
+            case let .password(email, password):
+                let validated = try self.policy.validate(password)
+                let session = try await self.api.login(
+                    email: email,
+                    password: validated,
+                    device: self.device
+                )
+                try await self.adopt(session, email: email)
+            case .apple:
+                let credential = try await self.apple.requestCredential()
+                let session = try await self.api.signInWithApple(
+                    identityToken: credential.identityToken,
+                    nonce: credential.nonce,
+                    device: self.device
+                )
+                try await self.adopt(session, email: session.email)
+            }
+            self.needsReauthentication = false
+        }
+    }
+
+    /// Signs out. If the network is unavailable the refresh token is parked for
+    /// later revocation, so the session still ends immediately on this device.
+    func logOut() async {
+        failure = nil
+        let active = try? await credentials.loadActive()
+        if let active {
+            do {
+                try await api.logOut(refreshToken: active.refreshToken)
+                try? await credentials.clearActive()
+            } catch {
+                try? await credentials.moveRefreshToPendingRevocation()
+            }
+        }
+        needsReauthentication = false
+        state = .anonymous
+    }
+
+    /// Revokes a token parked by an offline logout. Safe to call repeatedly.
+    func processPendingRevocation() async {
+        guard let pending = try? await credentials.loadPendingRevocation() else {
+            return
+        }
+        do {
+            try await api.logOut(refreshToken: pending.refreshToken)
+            try await credentials.clearPendingRevocation()
+        } catch APIError.unauthorized {
+            // Already revoked or expired server-side; the slot can go.
+            try? await credentials.clearPendingRevocation()
+        } catch {
+            // Still offline. Keep the token parked and retry later.
+        }
+    }
+
+    private var pendingEmail: String? {
+        if case let .awaitingVerification(email) = state {
+            return email
+        }
+        return nil
+    }
+
+    private func adopt(_ session: StoredSession, email: String?) async throws {
+        let resolved = StoredSession(
+            accessToken: session.accessToken,
+            refreshToken: session.refreshToken,
+            accessExpiresAt: session.accessExpiresAt,
+            refreshExpiresAt: session.refreshExpiresAt,
+            userID: session.userID,
+            sessionID: session.sessionID,
+            recentAuthAt: session.recentAuthAt,
+            email: session.email ?? email
+        )
+        try await credentials.saveActive(resolved)
+        state = .authenticated(summary(for: resolved))
+    }
+
+    private func summary(for session: StoredSession) -> AccountSummary {
+        AccountSummary(userID: session.userID, email: session.email)
+    }
+
+    private func lockProfile() {
+        state = .locked
+        failure = AccountFailure(
+            message: "登录状态已失效，请重新登录。本机训练记录未受影响。"
+        )
+    }
+
+    private func run(_ operation: @escaping () async throws -> Void) async {
+        failure = nil
+        isBusy = true
+        defer { isBusy = false }
+        do {
+            try await operation()
+        } catch {
+            report(error)
+        }
+    }
+
+    private func report(_ error: Error) {
+        if case APIError.reauthenticationRequired = error {
+            needsReauthentication = true
+        }
+        failure = AccountFailure(message: Self.message(for: error))
+    }
+
+    private static func message(for error: Error) -> String {
+        switch error {
+        case let error as APIError:
+            error.recoverySuggestion
+        case let error as CredentialStoreError:
+            error.recoverySuggestion
+        case let error as PasswordPolicy.Failure:
+            error.recoverySuggestion
+        case let error as AppleAuthorizationError:
+            error.recoverySuggestion
+        default:
+            "操作未能完成，请稍后重试。"
+        }
+    }
+}
+
+enum ReauthenticationProof: Sendable, Equatable {
+    case password(email: String, password: String)
+    case apple
+}

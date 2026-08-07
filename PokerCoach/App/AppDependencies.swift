@@ -1,6 +1,9 @@
 import Foundation
 import StrategyContent
 import TrainingDomain
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @MainActor
 final class AppDependencies {
@@ -13,6 +16,7 @@ final class AppDependencies {
     let strategyContentAvailability: StrategyContentAvailability
     let localUserID: UUID
     let deviceID: UUID
+    let accountSession: AccountSessionController
 
     init(
         eventStore: any TrainingEventStore,
@@ -22,7 +26,8 @@ final class AppDependencies {
         planner: TrainingPlanner = TrainingPlanner(),
         localTrainingCatalog: [TrainingCatalogItem],
         localIdentity: LocalIdentity,
-        strategyContentAvailability: StrategyContentAvailability
+        strategyContentAvailability: StrategyContentAvailability,
+        accountSession: AccountSessionController? = nil
     ) {
         self.eventStore = eventStore
         self.strategyProvider = strategyProvider
@@ -33,6 +38,28 @@ final class AppDependencies {
         localUserID = localIdentity.localUserID
         deviceID = localIdentity.deviceID
         self.strategyContentAvailability = strategyContentAvailability
+        self.accountSession = accountSession
+            ?? AppDependencies.makeAccountSession(localIdentity: localIdentity)
+    }
+
+    /// Builds the account stack. Training never depends on it: with no account
+    /// and no network the controller simply stays anonymous.
+    static func makeAccountSession(
+        localIdentity: LocalIdentity
+    ) -> AccountSessionController {
+        let api = RemoteAccountAPI(client: APIClient(baseURL: accountServiceBaseURL))
+        return AccountSessionController(
+            api: api,
+            credentials: KeychainCredentialStore(vault: KeychainVault()),
+            apple: SystemAppleAuthorizationClient(),
+            policy: PasswordPolicy(),
+            device: DeviceDescriptor(
+                deviceID: localIdentity.deviceID,
+                displayName: deviceDisplayName,
+                platform: devicePlatform,
+                appVersion: appVersion
+            )
+        )
     }
 
     static func live() throws -> AppDependencies {
@@ -246,6 +273,44 @@ private enum AppDependencyError: Error {
     case libraryDirectoryUnavailable
     case strategyPackUnavailable
     case trainingHistoryUnavailable
+}
+
+extension AppDependencies {
+    /// Sync service location. M1B does not ship a production deployment, so
+    /// this defaults to a local development service and is overridden by the
+    /// `AccountServiceBaseURL` Info.plist key when one is configured.
+    static var accountServiceBaseURL: URL {
+        if
+            let configured = Bundle.main.object(
+                forInfoDictionaryKey: "AccountServiceBaseURL"
+            ) as? String,
+            let url = URL(string: configured)
+        {
+            return url
+        }
+        return URL(string: "https://127.0.0.1:8443")!
+    }
+
+    static var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")
+            as? String ?? "0.0.0"
+    }
+
+    static var deviceDisplayName: String {
+        #if canImport(UIKit)
+        UIDevice.current.name
+        #else
+        "iPhone"
+        #endif
+    }
+
+    static var devicePlatform: String {
+        #if canImport(UIKit)
+        UIDevice.current.systemName
+        #else
+        "iOS"
+        #endif
+    }
 }
 
 private struct PendingStrategyPackProvider: StrategyPackProviding {
