@@ -184,6 +184,35 @@ func (s *AuthStore) LookupLoginCredential(
 	return credential, nil
 }
 
+func (s *AuthStore) UpgradePasswordCredential(
+	ctx context.Context,
+	userID auth.ID,
+	oldPHC string,
+	newPHC string,
+	now time.Time,
+) error {
+	result, err := s.db.ExecContext(ctx, `
+		UPDATE password_credentials
+		SET password_hash = ?, password_changed_at = ?
+		WHERE user_id = ? AND password_hash = ?`,
+		newPHC,
+		now,
+		userID[:],
+		oldPHC,
+	)
+	if err != nil {
+		return fmt.Errorf("conditionally upgrade password credential: %w", err)
+	}
+	updated, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("read password credential upgrade result: %w", err)
+	}
+	if updated > 1 {
+		return fmt.Errorf("password credential upgrade changed %d rows, want at most 1", updated)
+	}
+	return nil
+}
+
 func (s *AuthStore) CreatePasswordResetChallenge(
 	ctx context.Context,
 	canonicalEmail string,
@@ -216,6 +245,17 @@ func (s *AuthStore) CreatePasswordResetChallenge(
 		return auth.PasswordResetDelivery{}, false, fmt.Errorf("find reset identity: %w", err)
 	}
 	if _, err = tx.ExecContext(ctx, `
+		UPDATE email_challenges
+		SET consumed_at = ?
+		WHERE user_id = ?
+		  AND purpose = 'resetPassword'
+		  AND consumed_at IS NULL`,
+		challenge.IssuedAt,
+		userID,
+	); err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("supersede password reset challenges: %w", err)
+	}
+	if _, err = tx.ExecContext(ctx, `
 		INSERT INTO email_challenges (
 			id, user_id, token_hash, purpose, attempt_count, expires_at
 		) VALUES (?, ?, ?, ?, 0, ?)`,
@@ -236,8 +276,8 @@ func (s *AuthStore) CreatePasswordResetChallenge(
 func (s *AuthStore) ReplacePassword(
 	ctx context.Context,
 	tokenHash [32]byte,
-	passwordPHC string,
 	now time.Time,
+	hashPassword func() (string, error),
 	revoke func(context.Context, string) error,
 ) (err error) {
 	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
@@ -282,6 +322,10 @@ func (s *AuthStore) ReplacePassword(
 	}
 
 	userID, err := authID(userIDBytes)
+	if err != nil {
+		return err
+	}
+	passwordPHC, err := hashPassword()
 	if err != nil {
 		return err
 	}
@@ -407,11 +451,51 @@ func (s *AuthStore) ConsumeAuthThrottles(
 			}
 			continue
 		}
-		if !now.Before(windowStartedAt.Add(limits.Window)) {
-			windowStartedAt = now
-			failureCount = 0
+
+		cutoff := now.Add(-limits.Window)
+		if _, err = tx.ExecContext(ctx, `
+			DELETE FROM auth_throttle_attempts
+			WHERE identity_signal_hash = ?
+			  AND network_signal_hash = ?
+			  AND attempted_at <= ?`,
+			bucket.identity[:],
+			bucket.network[:],
+			cutoff,
+		); err != nil {
+			return time.Time{}, fmt.Errorf("delete expired auth throttle attempts: %w", err)
 		}
-		failureCount++
+
+		var recentCount uint64
+		var earliest sql.NullTime
+		if err = tx.QueryRowContext(ctx, `
+			SELECT COALESCE(SUM(attempt_count), 0), MIN(attempted_at)
+			FROM auth_throttle_attempts
+			WHERE identity_signal_hash = ? AND network_signal_hash = ?`,
+			bucket.identity[:],
+			bucket.network[:],
+		).Scan(&recentCount, &earliest); err != nil {
+			return time.Time{}, fmt.Errorf("count recent auth throttle attempts: %w", err)
+		}
+		if _, err = tx.ExecContext(ctx, `
+			INSERT INTO auth_throttle_attempts (
+				identity_signal_hash,
+				network_signal_hash,
+				attempted_at,
+				attempt_count
+			) VALUES (?, ?, ?, 1)
+			ON DUPLICATE KEY UPDATE attempt_count = attempt_count + 1`,
+			bucket.identity[:],
+			bucket.network[:],
+			now,
+		); err != nil {
+			return time.Time{}, fmt.Errorf("insert auth throttle attempt: %w", err)
+		}
+		recentCount++
+		failureCount = uint32(recentCount)
+		windowStartedAt = now
+		if earliest.Valid {
+			windowStartedAt = earliest.Time
+		}
 		var nextRetry any
 		if failureCount > bucket.limit {
 			blockedUntil := now.Add(limits.Block)

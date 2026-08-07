@@ -46,8 +46,8 @@ func TestApplyMigratesAnEmptySchema(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() after Apply: %v", err)
 	}
-	if after != 4 {
-		t.Errorf("CurrentVersion() after Apply = %d, want 4", after)
+	if after != 5 {
+		t.Errorf("CurrentVersion() after Apply = %d, want 5", after)
 	}
 }
 
@@ -66,8 +66,8 @@ func TestApplyIsIdempotent(t *testing.T) {
 	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM schema_migrations").Scan(&count); err != nil {
 		t.Fatalf("count schema_migrations: %v", err)
 	}
-	if count != 4 {
-		t.Errorf("schema_migrations count = %d, want 4", count)
+	if count != 5 {
+		t.Errorf("schema_migrations count = %d, want 5", count)
 	}
 }
 
@@ -98,6 +98,7 @@ func TestInitialMigrationCreatesRequiredTables(t *testing.T) {
 
 	want := []string{
 		"auth_identities",
+		"auth_throttle_attempts",
 		"auth_throttles",
 		"devices",
 		"email_challenges",
@@ -457,8 +458,8 @@ func TestApplyUpgradesOriginalVersionOneWithoutDataLoss(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() after upgrade: %v", err)
 	}
-	if version != 4 {
-		t.Fatalf("CurrentVersion() after upgrade = %d, want 4", version)
+	if version != 5 {
+		t.Fatalf("CurrentVersion() after upgrade = %d, want 5", version)
 	}
 
 	for tableName, wantCount := range map[string]int{
@@ -803,8 +804,8 @@ func TestApplyUpgradesVersionThreeToExactSubjectComparisonWithoutDataLoss(t *tes
 	if err != nil {
 		t.Fatalf("CurrentVersion() after version 3 upgrade: %v", err)
 	}
-	if version != 4 {
-		t.Fatalf("CurrentVersion() after version 3 upgrade = %d, want 4", version)
+	if version != 5 {
+		t.Fatalf("CurrentVersion() after version 3 upgrade = %d, want 5", version)
 	}
 	var collation string
 	if err := db.QueryRow(`
@@ -873,6 +874,124 @@ func TestApplyVersionFourResumesCommittedDDLBeforeCheckpoint(t *testing.T) {
 	}
 	if state != "applied" || next != 1 {
 		t.Errorf("migration progress = %s/%d, want applied/1", state, next)
+	}
+}
+
+func TestApplyUpgradesVersionFourThrottleStateAndIsIdempotent(t *testing.T) {
+	db := mysqltest.Database(t)
+	installVersionFour(t, db)
+	identityHash := bytes.Repeat([]byte{0x31}, 32)
+	networkSentinel := make([]byte, 32)
+	windowStartedAt := time.Date(2026, 8, 7, 3, 4, 5, 0, time.UTC)
+	mustExec(t, db, `
+		INSERT INTO auth_throttles (
+			identity_signal_hash,
+			network_signal_hash,
+			window_started_at,
+			failure_count
+		) VALUES (?, ?, ?, 3)`,
+		identityHash,
+		networkSentinel,
+		windowStartedAt,
+	)
+
+	// GIVEN a version-four throttle summary with three unexpired attempts
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("Apply() version 4 upgrade: %v", err)
+	}
+
+	// WHEN the version-five migration is repeated
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("repeat Apply() version 5: %v", err)
+	}
+
+	// THEN the summary is conservatively backfilled once and the schema is version five
+	version, err := migrations.CurrentVersion(context.Background(), db)
+	if err != nil {
+		t.Fatalf("CurrentVersion() after version 4 upgrade: %v", err)
+	}
+	if version != 5 {
+		t.Fatalf("CurrentVersion() after version 4 upgrade = %d, want 5", version)
+	}
+	var attemptCount uint64
+	var attemptedAt time.Time
+	if err := db.QueryRow(`
+		SELECT attempt_count, attempted_at
+		FROM auth_throttle_attempts
+		WHERE identity_signal_hash = ? AND network_signal_hash = ?`,
+		identityHash,
+		networkSentinel,
+	).Scan(&attemptCount, &attemptedAt); err != nil {
+		t.Fatalf("read upgraded throttle attempts: %v", err)
+	}
+	if attemptCount != 3 || !attemptedAt.Equal(windowStartedAt) {
+		t.Fatalf("upgraded throttle attempts = %d at %s, want 3 at %s",
+			attemptCount, attemptedAt, windowStartedAt)
+	}
+}
+
+func TestApplyVersionFiveResumesEachCommittedStatementBeforeCheckpoint(t *testing.T) {
+	contents, checksum := migrationFixture(t, "0005_auth_throttle_attempts.sql")
+	statements := splitMigrationStatements(contents)
+	if len(statements) != 2 {
+		t.Fatalf("migration 0005 statement count = %d, want 2", len(statements))
+	}
+	for _, interruptedStatement := range []int{0, 1} {
+		interruptedStatement := interruptedStatement
+		t.Run(fmt.Sprintf("statement_%d", interruptedStatement), func(t *testing.T) {
+			db := mysqltest.Database(t)
+			installVersionFour(t, db)
+			mustExec(t, db, `
+				INSERT INTO auth_throttles (
+					identity_signal_hash,
+					network_signal_hash,
+					window_started_at,
+					failure_count
+				) VALUES (UNHEX(REPEAT('41', 32)), UNHEX(REPEAT('00', 32)), ?, 2)`,
+				time.Date(2026, 8, 7, 3, 4, 5, 0, time.UTC),
+			)
+			mustExec(t, db, `
+				ALTER TABLE schema_migrations
+				ADD COLUMN state VARCHAR(16) NOT NULL DEFAULT 'applied',
+				ADD COLUMN next_statement INT UNSIGNED NOT NULL DEFAULT 0`)
+			mustExec(t, db, `
+				INSERT INTO schema_migrations (version, name, checksum, state, next_statement)
+				VALUES (5, '0005_auth_throttle_attempts.sql', ?, 'applying', ?)`,
+				checksum[:], interruptedStatement)
+			for index := 0; index <= interruptedStatement; index++ {
+				mustExec(t, db, statements[index])
+			}
+
+			// GIVEN version-five DDL/backfill committed before its checkpoint
+			// WHEN Apply resumes the interrupted migration
+			if err := migrations.Apply(context.Background(), db); err != nil {
+				t.Fatalf("Apply() after statement %d committed before checkpoint: %v",
+					interruptedStatement, err)
+			}
+
+			// THEN migration progress completes and idempotent backfill remains single
+			var state string
+			var next int
+			if err := db.QueryRow(`
+				SELECT state, next_statement FROM schema_migrations WHERE version = 5`,
+			).Scan(&state, &next); err != nil {
+				t.Fatalf("read migration progress: %v", err)
+			}
+			if state != "applied" || next != 2 {
+				t.Fatalf("migration progress = %s/%d, want applied/2", state, next)
+			}
+			var rows int
+			var attempts uint64
+			if err := db.QueryRow(`
+				SELECT COUNT(*), COALESCE(SUM(attempt_count), 0)
+				FROM auth_throttle_attempts`,
+			).Scan(&rows, &attempts); err != nil {
+				t.Fatalf("read resumed attempt rows: %v", err)
+			}
+			if rows != 1 || attempts != 2 {
+				t.Fatalf("resumed attempts = rows %d count %d, want 1/2", rows, attempts)
+			}
+		})
 	}
 }
 
@@ -1111,6 +1230,18 @@ func installVersionThree(t *testing.T, db *sql.DB) {
 	mustExec(t, db, `
 		INSERT INTO schema_migrations (version, name, checksum)
 		VALUES (3, '0003_m1b_registration_fields.sql', ?)`, checksum[:])
+}
+
+func installVersionFour(t *testing.T, db *sql.DB) {
+	t.Helper()
+	installVersionThree(t, db)
+	contents, checksum := migrationFixture(t, "0004_auth_identity_subject_binary.sql")
+	for _, statement := range splitMigrationStatements(contents) {
+		mustExec(t, db, statement)
+	}
+	mustExec(t, db, `
+		INSERT INTO schema_migrations (version, name, checksum)
+		VALUES (4, '0004_auth_identity_subject_binary.sql', ?)`, checksum[:])
 }
 
 func migrationFixture(t *testing.T, name string) (string, [sha256.Size]byte) {

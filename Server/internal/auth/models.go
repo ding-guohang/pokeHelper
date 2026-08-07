@@ -97,6 +97,7 @@ type PasswordResetChallenge struct {
 	ChallengeID ID
 	TokenHash   [32]byte
 	Purpose     string
+	IssuedAt    time.Time
 	ExpiresAt   time.Time
 }
 

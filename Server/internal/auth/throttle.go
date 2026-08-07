@@ -4,16 +4,25 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
+	"unicode/utf8"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"golang.org/x/text/unicode/norm"
 )
 
 type signalDomain string
 
 const (
-	accountSignalDomain signalDomain = "account"
-	networkSignalDomain signalDomain = "network"
+	accountSignalDomain   signalDomain = "account"
+	networkSignalDomain   signalDomain = "network"
+	invalidAccountDomain  signalDomain = "invalid-account"
+	challengeSignalDomain signalDomain = "challenge"
 
 	throttleWindow = 15 * time.Minute
 	accountLimit   = uint32(5)
@@ -73,10 +82,40 @@ func (t *Throttle) Check(
 	accountSignal string,
 	networkSignal string,
 ) error {
+	return t.check(ctx, accountSignalDomain, accountSignal, networkSignal)
+}
+
+func (t *Throttle) CheckInvalidAccount(
+	ctx context.Context,
+	rawAccountSignal string,
+	networkSignal string,
+) error {
+	return t.check(
+		ctx,
+		invalidAccountDomain,
+		normalizeInvalidAccountSignal(rawAccountSignal),
+		networkSignal,
+	)
+}
+
+func (t *Throttle) CheckChallenge(
+	ctx context.Context,
+	rawChallenge string,
+	networkSignal string,
+) error {
+	return t.check(ctx, challengeSignalDomain, rawChallenge, networkSignal)
+}
+
+func (t *Throttle) check(
+	ctx context.Context,
+	domain signalDomain,
+	accountSignal string,
+	networkSignal string,
+) error {
 	now := t.now().UTC()
 	retryAt, err := t.store.CheckAuthThrottles(
 		ctx,
-		t.keys(accountSignal, networkSignal),
+		t.keys(domain, accountSignal, networkSignal),
 		now,
 	)
 	if err != nil {
@@ -90,10 +129,40 @@ func (t *Throttle) Consume(
 	accountSignal string,
 	networkSignal string,
 ) error {
+	return t.consume(ctx, accountSignalDomain, accountSignal, networkSignal)
+}
+
+func (t *Throttle) ConsumeInvalidAccount(
+	ctx context.Context,
+	rawAccountSignal string,
+	networkSignal string,
+) error {
+	return t.consume(
+		ctx,
+		invalidAccountDomain,
+		normalizeInvalidAccountSignal(rawAccountSignal),
+		networkSignal,
+	)
+}
+
+func (t *Throttle) ConsumeChallenge(
+	ctx context.Context,
+	rawChallenge string,
+	networkSignal string,
+) error {
+	return t.consume(ctx, challengeSignalDomain, rawChallenge, networkSignal)
+}
+
+func (t *Throttle) consume(
+	ctx context.Context,
+	domain signalDomain,
+	accountSignal string,
+	networkSignal string,
+) error {
 	now := t.now().UTC()
 	retryAt, err := t.store.ConsumeAuthThrottles(
 		ctx,
-		t.keys(accountSignal, networkSignal),
+		t.keys(domain, accountSignal, networkSignal),
 		now,
 		ThrottleLimits{
 			Account: accountLimit,
@@ -118,11 +187,23 @@ func (t *Throttle) ClearAccount(ctx context.Context, accountSignal string) error
 	return nil
 }
 
-func (t *Throttle) keys(accountSignal, networkSignal string) ThrottleKeys {
+func (t *Throttle) keys(
+	accountDomain signalDomain,
+	accountSignal string,
+	networkSignal string,
+) ThrottleKeys {
 	return ThrottleKeys{
-		Account: signalHash(t.secret, accountSignalDomain, accountSignal),
+		Account: signalHash(t.secret, accountDomain, accountSignal),
 		Network: signalHash(t.secret, networkSignalDomain, networkSignal),
 	}
+}
+
+func normalizeInvalidAccountSignal(raw string) string {
+	if !utf8.ValidString(raw) {
+		return base64.RawStdEncoding.EncodeToString([]byte(raw))
+	}
+	trimmed := strings.TrimSpace(raw)
+	return norm.NFC.String(cases.Lower(language.Und).String(trimmed))
 }
 
 func throttleError(now, retryAt time.Time) error {

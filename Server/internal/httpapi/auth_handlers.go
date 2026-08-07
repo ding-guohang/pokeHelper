@@ -82,10 +82,6 @@ func (h *authHandler) confirmPasswordReset(
 		writeTypedError(response, http.StatusBadRequest, string(auth.ValidationFailed), requestID)
 		return
 	}
-	if input.Token == "" {
-		writeTypedError(response, http.StatusBadRequest, string(auth.ChallengeInvalid), requestID)
-		return
-	}
 	if err := h.service.ConfirmPasswordReset(
 		requestContext(request),
 		input.Token,

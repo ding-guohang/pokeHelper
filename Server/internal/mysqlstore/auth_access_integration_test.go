@@ -138,3 +138,56 @@ func TestThrottleRequiresExactlyThirtyTwoSecretBytes(t *testing.T) {
 		}
 	}
 }
+
+func TestThrottleCountsTheExactRollingFifteenMinuteWindow(t *testing.T) {
+	db := mysqltest.Database(t)
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+	clock := &mutableClock{now: time.Date(2026, 8, 7, 3, 0, 0, 0, time.UTC)}
+	throttle, err := auth.NewThrottle(
+		mysqlstore.NewAuthStore(db),
+		bytes.Repeat([]byte{0x55}, 32),
+		clock.Now,
+	)
+	if err != nil {
+		t.Fatalf("NewThrottle() error = %v", err)
+	}
+
+	// GIVEN one old attempt followed by attempts two through five at 14:59
+	if err := throttle.Consume(context.Background(), "rolling@example.com", "192.0.2.50"); err != nil {
+		t.Fatalf("first Consume() error = %v", err)
+	}
+	clock.now = clock.now.Add(14*time.Minute + 59*time.Second)
+	for attempt := 2; attempt <= 5; attempt++ {
+		if err := throttle.Consume(context.Background(), "rolling@example.com", "192.0.2.50"); err != nil {
+			t.Fatalf("Consume(attempt %d) error = %v", attempt, err)
+		}
+	}
+
+	// WHEN attempt six occurs after the first record expires and attempt seven follows
+	clock.now = clock.now.Add(time.Second + time.Millisecond)
+	sixth := throttle.Consume(context.Background(), "rolling@example.com", "192.0.2.50")
+	seventh := throttle.Consume(context.Background(), "rolling@example.com", "192.0.2.50")
+
+	// THEN attempt six is the fifth recent event and attempt seven opens the block
+	if sixth != nil {
+		t.Fatalf("sixth total attempt error = %v, want allowed after first expires", sixth)
+	}
+	var authError *auth.Error
+	if !errors.As(seventh, &authError) || authError.Code != auth.RateLimited {
+		t.Fatalf("seventh total attempt error = %v, want rateLimited", seventh)
+	}
+	var recentAttempts uint64
+	if err := db.QueryRow(`
+		SELECT COALESCE(SUM(attempt_count), 0)
+		FROM auth_throttle_attempts
+		WHERE network_signal_hash = ?`,
+		make([]byte, 32),
+	).Scan(&recentAttempts); err != nil {
+		t.Fatalf("read rolling account attempts: %v", err)
+	}
+	if recentAttempts != 6 {
+		t.Fatalf("recent account attempts = %d, want 6", recentAttempts)
+	}
+}

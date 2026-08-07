@@ -66,6 +66,15 @@ func NewService(
 func (s *Service) Register(ctx context.Context, input RegisterInput) (Accepted, error) {
 	email, err := NormalizeEmail(input.Email)
 	if err != nil {
+		if s.throttle != nil {
+			if throttleErr := s.throttle.ConsumeInvalidAccount(
+				ctx,
+				input.Email,
+				NetworkSignal(ctx),
+			); throttleErr != nil {
+				return Accepted{}, throttleErr
+			}
+		}
 		return Accepted{}, err
 	}
 	if s.throttle != nil {
@@ -134,7 +143,11 @@ func (s *Service) VerifyEmail(ctx context.Context, rawToken string) error {
 	tokenHash := sha256.Sum256([]byte(rawToken))
 	if err := s.store.ConsumeEmailChallenge(ctx, tokenHash, s.now().UTC()); err != nil {
 		if s.throttle != nil {
-			if throttleErr := s.throttle.Consume(ctx, rawToken, NetworkSignal(ctx)); throttleErr != nil {
+			if throttleErr := s.throttle.ConsumeChallenge(
+				ctx,
+				rawToken,
+				NetworkSignal(ctx),
+			); throttleErr != nil {
 				return throttleErr
 			}
 		}

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 const dummyPasswordPHC = "$argon2id$v=19$m=19456,t=2,p=1$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -17,6 +19,15 @@ type SessionIssuer interface {
 func (s *Service) Login(ctx context.Context, input LoginInput) (LoginResult, error) {
 	email, err := NormalizeEmail(input.Email)
 	if err != nil {
+		if s.throttle != nil {
+			if throttleErr := s.throttle.ConsumeInvalidAccount(
+				ctx,
+				input.Email,
+				NetworkSignal(ctx),
+			); throttleErr != nil {
+				return LoginResult{}, throttleErr
+			}
+		}
 		return LoginResult{}, &Error{Code: AuthenticationFailed}
 	}
 	if s.throttle != nil {
@@ -33,9 +44,10 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (LoginResult, err
 	if !credential.Found {
 		phc = dummyPasswordPHC
 	}
-	valid, _, err := s.hasher.Verify(phc, input.Password)
-	if err != nil {
-		return LoginResult{}, fmt.Errorf("auth: verify password: %w", err)
+	valid, needsUpgrade, verifyErr := s.hasher.Verify(phc, input.Password)
+	if verifyErr != nil {
+		valid = false
+		needsUpgrade = false
 	}
 	if !credential.Found || !credential.Verified || !valid {
 		if s.throttle != nil {
@@ -44,6 +56,21 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (LoginResult, err
 			}
 		}
 		return LoginResult{}, &Error{Code: AuthenticationFailed}
+	}
+	if needsUpgrade {
+		upgradedPHC, err := s.hasher.Hash(norm.NFC.String(input.Password))
+		if err != nil {
+			return LoginResult{}, fmt.Errorf("auth: upgrade password hash: %w", err)
+		}
+		if err := s.store.UpgradePasswordCredential(
+			ctx,
+			credential.UserID,
+			credential.PasswordPHC,
+			upgradedPHC,
+			s.now().UTC(),
+		); err != nil {
+			return LoginResult{}, fmt.Errorf("auth: store upgraded password hash: %w", err)
+		}
 	}
 
 	if s.sessionIssuer == nil {

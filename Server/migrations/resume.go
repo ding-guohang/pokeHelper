@@ -39,8 +39,37 @@ func migrationStatementAlreadyApplied(
 		return migrationThreeStatementAlreadyApplied(ctx, conn, statement)
 	case 4:
 		return migrationFourStatementAlreadyApplied(ctx, conn, statement)
+	case 5:
+		return migrationFiveStatementAlreadyApplied(ctx, conn, statement)
 	default:
 		return false, nil
+	}
+}
+
+func migrationFiveStatementAlreadyApplied(
+	ctx context.Context,
+	conn *sql.Conn,
+	statement int,
+) (bool, error) {
+	switch statement {
+	case 0:
+		var exists bool
+		if err := conn.QueryRowContext(ctx, `
+			SELECT EXISTS (
+				SELECT 1
+				FROM information_schema.tables
+				WHERE table_schema = DATABASE()
+				  AND table_name = 'auth_throttle_attempts'
+			)`,
+		).Scan(&exists); err != nil {
+			return false, fmt.Errorf("inspect auth_throttle_attempts table: %w", err)
+		}
+		return exists, nil
+	case 1:
+		// Backfill is idempotent and safe to repeat after commit-before-checkpoint.
+		return false, nil
+	default:
+		return false, fmt.Errorf("migration 0005 has unexpected statement index %d", statement)
 	}
 }
 

@@ -20,6 +20,15 @@ func (s *Service) RequestPasswordReset(
 ) (Accepted, error) {
 	email, err := NormalizeEmail(rawEmail)
 	if err != nil {
+		if s.throttle != nil {
+			if throttleErr := s.throttle.ConsumeInvalidAccount(
+				ctx,
+				rawEmail,
+				NetworkSignal(ctx),
+			); throttleErr != nil {
+				return Accepted{}, throttleErr
+			}
+		}
 		return Accepted{}, err
 	}
 	if s.throttle != nil {
@@ -46,6 +55,7 @@ func (s *Service) RequestPasswordReset(
 			ChallengeID: challengeID,
 			TokenHash:   tokenHash,
 			Purpose:     resetPasswordPurpose,
+			IssuedAt:    now,
 			ExpiresAt:   now.Add(time.Hour),
 		},
 	)
@@ -61,7 +71,9 @@ func (s *Service) RequestPasswordReset(
 		Subject: "Reset your password",
 		Body:    rawToken,
 	}); err != nil {
-		return Accepted{}, fmt.Errorf("auth: deliver password reset: %w", err)
+		// The challenge is already committed. Keep the response enumeration-safe;
+		// a later request supersedes this undelivered challenge.
+		return accepted, nil
 	}
 	return accepted, nil
 }
@@ -71,20 +83,27 @@ func (s *Service) ConfirmPasswordReset(
 	rawToken string,
 	rawPassword string,
 ) error {
+	if s.throttle != nil {
+		if err := s.throttle.CheckChallenge(ctx, rawToken, NetworkSignal(ctx)); err != nil {
+			return err
+		}
+	}
 	normalizedPassword, err := s.policy.NormalizeAndValidate(rawPassword)
 	if err != nil {
 		return &Error{Code: ValidationFailed}
-	}
-	passwordPHC, err := s.hasher.Hash(normalizedPassword)
-	if err != nil {
-		return fmt.Errorf("auth: hash replacement password: %w", err)
 	}
 	tokenHash := sha256.Sum256([]byte(rawToken))
 	err = s.store.ReplacePassword(
 		ctx,
 		tokenHash,
-		passwordPHC,
 		s.now().UTC(),
+		func() (string, error) {
+			passwordPHC, err := s.hasher.Hash(normalizedPassword)
+			if err != nil {
+				return "", fmt.Errorf("auth: hash replacement password: %w", err)
+			}
+			return passwordPHC, nil
+		},
 		func(ctx context.Context, userID string) error {
 			if s.sessionIssuer == nil {
 				return errors.New("auth: session issuer is required")
@@ -93,6 +112,18 @@ func (s *Service) ConfirmPasswordReset(
 		},
 	)
 	if err != nil {
+		var authError *Error
+		if s.throttle != nil &&
+			errors.As(err, &authError) &&
+			authError.Code == ChallengeInvalid {
+			if throttleErr := s.throttle.ConsumeChallenge(
+				ctx,
+				rawToken,
+				NetworkSignal(ctx),
+			); throttleErr != nil {
+				return throttleErr
+			}
+		}
 		return err
 	}
 	return nil
