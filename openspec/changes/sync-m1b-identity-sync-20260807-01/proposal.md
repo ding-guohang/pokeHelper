@@ -1,7 +1,7 @@
 ---
 name: sync-m1b-identity-sync-20260807-01
 created: 2026-08-07
-status: draft
+status: review_passed
 ---
 
 # 需求提案：M1B 独立身份与同步
@@ -57,7 +57,7 @@ The system SHALL register a canonical email identity with a verified password po
 
 ##### Scenario: 合法注册
 
-- GIVEN 用户提交格式合法且未占用的邮箱以及 15–128 字符、未命中弱密码列表的密码
+- GIVEN 用户提交格式合法且未占用的邮箱以及 15–128 个 Unicode scalar、未命中弱密码列表的密码
 - WHEN 服务端完成注册
 - THEN 密码以带独立 salt 和参数的 Argon2id PHC 字符串保存
 - AND APP 进入等待邮箱验证状态
@@ -65,10 +65,17 @@ The system SHALL register a canonical email identity with a verified password po
 
 ##### Scenario: 不合规密码
 
-- GIVEN 密码少于 15 字符、超过 128 字符或命中弱密码列表
+- GIVEN 密码少于 15 个 Unicode scalar、超过 128 个 Unicode scalar 或命中弱密码列表
 - WHEN 用户提交注册
 - THEN 服务端拒绝注册并返回 typed validation error
 - AND 系统不要求大小写、数字或符号组合规则
+
+##### Scenario: Unicode 密码长度边界
+
+- GIVEN 密码包含由多个 UTF-8 字节表示的 Unicode scalar
+- WHEN 客户端和服务端校验密码长度
+- THEN 两端都按 Unicode scalar 而不是 UTF-8 字节计数
+- AND 15 与 128 个 scalar 被接受，14 与 129 个 scalar 被拒绝
 
 ##### Scenario: 邮箱枚举保护
 
@@ -238,6 +245,14 @@ The system SHALL upload event batches with an idempotency key and deduplicate by
 - THEN 服务端返回与首次提交一致的确认
 - AND 每个 event ID 在该用户下只存在一份
 
+##### Scenario: 幂等键请求冲突
+
+- GIVEN 同一认证用户已经使用某个幂等键提交一个请求正文
+- WHEN 客户端使用相同幂等键提交不同 request hash 的事件批次
+- THEN 服务端返回 typed `idempotencyConflict`
+- AND 不返回旧批次的成功确认
+- AND 不写入新批次的任何事件
+
 ##### Scenario: 事件归属由会话决定
 
 - GIVEN 请求正文包含与认证用户不同的 localUserID
@@ -262,6 +277,15 @@ The system SHALL return events after a per-user monotonic server sequence checkp
 - WHEN 客户端按 server sequence 拉取
 - THEN 该事件仍出现在 checkpoint 之后
 - AND 同步不依赖客户端时间排序
+
+##### Scenario: 多页 checkpoint 边界
+
+- GIVEN checkpoint 之后的事件数量超过单页上限
+- WHEN 客户端连续分页拉取
+- THEN 每个非空响应的 next checkpoint 等于该页最后一条已返回事件的 server sequence
+- AND 空页保持请求 checkpoint 不变
+- AND hasMore 只在仍有后续已提交事件时为 true
+- AND 连续拉取不会跳过或重复任何 event ID
 
 #### Requirement: 远端事件本地合并
 
@@ -322,6 +346,14 @@ The system SHALL use InnoDB transactions and database constraints to preserve id
 - WHEN 两个事务竞争提交
 - THEN 只有一条 training_events 记录存在
 - AND 两个请求得到一致的已确认语义
+
+##### Scenario: 同一用户并发顺序分配
+
+- GIVEN 同一认证用户有两个包含不同新事件的并发上传事务
+- WHEN 服务端分配同步 sequence
+- THEN 事务通过该用户的 sequence row 串行分配严格递增值
+- AND 较大的 sequence 不会先于较小的 sequence 提交
+- AND checkpoint 拉取不会越过尚未提交的事件
 
 ##### Scenario: 账号删除事务
 
@@ -392,15 +424,16 @@ The system SHALL require a recent password or Apple reauthentication proof for e
 
 #### Requirement: 结构化数据导出
 
-The system SHALL export the authenticated user's account metadata, device sessions, and immutable training events as versioned JSON.
+The system SHALL create a versioned export bundle containing the authenticated user's remote account data and the active profile's local corruption backups.
 
 ##### Scenario: 导出成功
 
 - GIVEN 用户完成近期重新认证
 - WHEN 请求数据导出
-- THEN 返回带 schema version 和生成时间的 JSON
-- AND 只包含该认证用户的数据
-- AND 不包含密码哈希、令牌哈希或邮箱挑战凭据
+- THEN APP 生成带 schema version、生成时间和文件清单的导出 bundle
+- AND 远端 JSON 只包含该认证用户的账号元数据、设备会话和不可变训练事件
+- AND 当前 profile 的损坏历史备份以独立原始附件纳入 bundle 而不自动上传到服务端
+- AND 导出不包含密码哈希、令牌哈希或邮箱挑战凭据
 
 #### Requirement: 账号与本机数据删除
 

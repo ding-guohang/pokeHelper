@@ -139,6 +139,8 @@ all local event IDs
 7. 持久化新 checkpoint。
 8. 触发 Today 与 Review 从完整本地历史刷新。
 
+拉取响应包含 `events`、`nextCheckpoint` 和 `hasMore`。非空页的 `nextCheckpoint` 必须等于该页最后一条实际返回事件的 sequence；空页保持请求 checkpoint。`SyncEngine` 只在整页成功合并后持久化 checkpoint，并循环拉取直到 `hasMore == false`。
+
 触发时机：
 
 - APP 启动且已登录。
@@ -211,6 +213,8 @@ GET    /health
 - 使用 Argon2id，最低参数 `m=19456 KiB, t=2, p=1`。
 - 每个密码使用独立随机 salt。
 - 保存标准 PHC 字符串，登录时若参数落后则成功验证后升级。
+- 密码先执行 Unicode NFC 规范化，再按 Unicode scalar 计数并作为 UTF-8 输入 Argon2id；客户端只做一致的即时提示，服务端始终是最终政策真值。
+- Release 环境从版本化配置指向独立弱密码 blocklist 文件并校验 checksum；测试环境使用固定小型夹具。
 - 登录失败使用相同外部语义；账号与网络信号均进行速率限制。
 
 ### 5.4 邮箱验证与重置
@@ -241,7 +245,7 @@ Apple subject 是身份唯一键。Apple 邮箱不能触发自动账号合并；
 - refresh token：32 字节随机不透明值，30 天有效。
 - 数据库只保存 SHA-256 token hash。
 - 每次 refresh 轮换两种 token。
-- 已使用 refresh token 再出现时撤销整个 session family。
+- refresh token 历史保留 consumed/revoked 状态；已使用 token 再出现时撤销整个 session family。
 - 会话记录设备名称、平台、APP 版本、创建时间、最近活动和撤销时间。
 
 客户端退出时服务端撤销当前 refresh session。离线退出将 refresh token 从活动会话 Keychain item 原子移动到不可用于登录恢复的 pending-revocation Keychain item；界面立即退出并锁定 profile，网络恢复后只使用该 token 调用撤销接口，成功或过期后删除待撤销项。
@@ -257,16 +261,19 @@ Apple subject 是身份唯一键。Apple 邮箱不能触发自动账号合并；
 | `password_credentials` | user ID unique、PHC hash、password changed-at |
 | `email_challenges` | token hash `BINARY(32)`、purpose、expiry、consumed-at |
 | `devices` | user ID、installation device ID、display metadata；用户内唯一 |
-| `sessions` | token family、access/refresh hashes、expiry、revoked-at、recent-auth-at |
-| `training_events` | `server_sequence BIGINT UNSIGNED AUTO_INCREMENT`、user ID、event ID、device ID、payload JSON；`UNIQUE(user_id,event_id)` |
+| `sessions` | token family、current access hash、expiry、revoked-at、recent-auth-at |
+| `refresh_tokens` | session family、refresh hash、expiry、consumed-at、revoked-at；hash 唯一并保留轮换历史 |
+| `user_sync_sequences` | user ID PK、next sequence；按用户加锁分配 |
+| `training_events` | user ID、`server_sequence BIGINT UNSIGNED`、event ID、device ID、payload JSON；`UNIQUE(user_id,event_id)`、`UNIQUE(user_id,server_sequence)` |
 | `idempotency_records` | user ID、key、request hash、response JSON；`UNIQUE(user_id,key)` |
+| `auth_throttles` | 规范化账号/网络信号摘要、窗口、失败次数和 retry-after |
 | `schema_migrations` | version PK、applied-at |
 
 `TrainingEvent` payload 在写入前由 Go DTO 完成大小、schema version、UUID、日期、单位字段和必填字段验证。远端 `user_id` 是独立列并来自会话；payload 中原 `localUserID` 和 `deviceID` 保留用于历史追溯，但不参与授权。
 
-上传批次在一个 InnoDB 事务中完成。重复 event ID 或 idempotency key 映射为成功确认，任何非重复错误使整批回滚。
+上传批次在一个 InnoDB 事务中完成。事务先锁定该用户的 `user_sync_sequences` 行，再仅为新事件分配连续 sequence；同一用户的并发上传因此按提交顺序串行。重复 event ID 映射为成功确认。重复 idempotency key 只有在 request hash 相同时返回原响应；不同 hash 返回 `idempotencyConflict` 且整批不写入。
 
-拉取使用 `server_sequence > checkpoint ORDER BY server_sequence LIMIT ?`。sequence 只定义同步顺序，不替代 `occurredAt` 的学习时间语义。
+拉取使用 `server_sequence > checkpoint ORDER BY server_sequence LIMIT ?`。响应 checkpoint 只能取本页最后一条实际返回事件的 sequence，不能使用用户当前最大 sequence。sequence 只定义同步顺序，不替代 `occurredAt` 的学习时间语义。
 
 ## 7. 数据权利与本地隐私
 
@@ -275,7 +282,7 @@ Apple subject 是身份唯一键。Apple 邮箱不能触发自动账号合并；
 - 密码账号重新提交密码。
 - Apple 账号提交新的 Apple credential。
 
-导出返回带 schema version、生成时间、账号元数据、设备和训练事件的 JSON，不含密码哈希、token hash 或挑战凭据。
+服务端导出返回带 schema version、生成时间、账号元数据、设备和训练事件的 JSON，不含密码哈希、token hash 或挑战凭据。APP 在本机生成最终 export bundle：manifest 引用服务端 JSON，并把当前 profile 的损坏历史备份作为独立原始附件加入；这些备份不会为了导出而上传到服务端。
 
 删除账号在 MySQL 事务内删除全部当前 M1B 数据并撤销会话。APP 随后清除 Keychain，并单独询问本机历史的处理方式：选择保留时，清除远端 acknowledgement、checkpoint 与账号绑定，把事件历史转为新的匿名本机 profile；选择删除时，删除该 profile 的事件、Outbox、checkpoint 和损坏历史备份。不同 profile 不受影响。
 
@@ -303,8 +310,10 @@ Apple subject 是身份唯一键。Apple 邮箱不能触发自动账号合并；
 - refresh rotation、重放撤销和设备会话范围。
 - MySQL 空库/重复迁移。
 - 并发重复事件、幂等响应和事务回滚。
+- 相同 idempotency key 的 request hash 冲突。
+- 同一用户并发 sequence 分配与多页 checkpoint 边界。
 - checkpoint 在 occurredAt 回拨时仍不漏事件。
-- 导出不含凭据、删除无孤立数据。
+- 导出包含本地损坏历史备份但不含凭据、删除无孤立数据。
 
 ### iOS
 
