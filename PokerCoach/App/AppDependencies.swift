@@ -75,18 +75,14 @@ final class AppDependencies {
             storageDirectory: storageDirectory
         )
         return availableContent(
-            eventStore: try FileTrainingEventStore(
-                directory: storageDirectory
-            ),
+            eventStore: try syncTrackingEventStore(in: storageDirectory),
             strategyPack: try developmentStrategyPack(),
             localIdentity: localIdentity,
             strategyContentAvailability: .developmentFixtureAvailable
         )
 #else
         return reviewedContentUnavailable(
-            eventStore: try FileTrainingEventStore(
-                directory: storageDirectory
-            ),
+            eventStore: try syncTrackingEventStore(in: storageDirectory),
             localIdentity: localIdentity
         )
 #endif
@@ -95,6 +91,18 @@ final class AppDependencies {
     static func recoverCorruptedTrainingEvents() throws {
         _ = try recoverCorruptedTrainingEvents(
             in: try startupProfile().directory
+        )
+    }
+
+    /// Local event store that also queues each locally created event for
+    /// upload. The queue lives in the same profile directory, so switching
+    /// accounts switches the pending uploads with it.
+    static func syncTrackingEventStore(
+        in directory: URL
+    ) throws -> SyncTrackingTrainingEventStore {
+        SyncTrackingTrainingEventStore(
+            underlying: try FileTrainingEventStore(directory: directory),
+            outbox: try FileOutboxStore(directory: directory)
         )
     }
 
