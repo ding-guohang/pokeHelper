@@ -35,6 +35,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 mkdir -p "$DATA_DIR"
+DATA_DIR="$(cd "$DATA_DIR" && pwd -P)"
 "$MYSQLD_BIN" --no-defaults --initialize-insecure --datadir="$DATA_DIR" --log-error="$ERROR_LOG"
 "$MYSQLD_BIN" \
   --no-defaults \
@@ -71,9 +72,13 @@ GRANT ALL PRIVILEGES ON `poker_coach_test%`.* TO 'poker_coach_test'@'127.0.0.1';
 FLUSH PRIVILEGES;
 SQL
 
+MYSQL_SERVER_UUID="$("$MYSQL_BIN" --no-defaults --batch --skip-column-names --protocol=socket --socket="$SOCKET_PATH" -uroot -e 'SELECT @@server_uuid')"
+
 export POKER_COACH_ENV=test
 export POKER_COACH_MYSQL_DSN="poker_coach_test:test-only-password@tcp(127.0.0.1:$MYSQL_PORT)/poker_coach_test?charset=utf8mb4&parseTime=true&loc=UTC"
 export POKER_COACH_HTTP_ADDR=127.0.0.1:0
+export POKER_COACH_MYSQL_TEST_DATADIR="$DATA_DIR"
+export POKER_COACH_MYSQL_TEST_SERVER_UUID="$MYSQL_SERVER_UUID"
 export GOCACHE="${GOCACHE:-$TEST_ROOT/go-cache}"
 
 cd "$(dirname "$0")/../Server"

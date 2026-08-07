@@ -1,7 +1,6 @@
 package migrations_test
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"os"
@@ -14,7 +13,6 @@ func TestTrainingEventUploadV1MatchesCanonicalChecksum(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read canonical upload: %v", err)
 	}
-	body = bytes.TrimSuffix(body, []byte{'\n'})
 
 	gotHash := sha256.Sum256(body)
 	const wantHash = "8b2cd9fe4fdaef8dc33e2968809ecc9f37b9646efde5f0bd449ca6e06e2a2345"

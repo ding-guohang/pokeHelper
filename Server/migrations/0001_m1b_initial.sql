@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     PRIMARY KEY (id),
     UNIQUE KEY uq_sessions_token_family (token_family_id),
     UNIQUE KEY uq_sessions_access_token_hash (current_access_token_hash),
+    UNIQUE KEY uq_sessions_user_session_id (user_id, id),
     KEY idx_sessions_user (user_id),
     KEY idx_sessions_user_device (user_id, device_id),
     CONSTRAINT fk_sessions_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
@@ -96,8 +97,9 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
     UNIQUE KEY uq_refresh_tokens_token_hash (token_hash),
     KEY idx_refresh_tokens_user (user_id),
     KEY idx_refresh_tokens_session (session_id),
+    KEY idx_refresh_tokens_user_session (user_id, session_id),
     CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CONSTRAINT fk_refresh_tokens_session FOREIGN KEY (session_id) REFERENCES sessions (id) ON DELETE CASCADE
+    CONSTRAINT fk_refresh_tokens_session FOREIGN KEY (user_id, session_id) REFERENCES sessions (user_id, id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS auth_throttles (
@@ -113,7 +115,7 @@ CREATE TABLE IF NOT EXISTS auth_throttles (
 
 CREATE TABLE IF NOT EXISTS user_sync_sequences (
     user_id BINARY(16) NOT NULL,
-    next_sequence BIGINT UNSIGNED NOT NULL DEFAULT 1,
+    next_sequence BIGINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id),
     CONSTRAINT fk_user_sync_sequences_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -132,7 +134,7 @@ CREATE TABLE IF NOT EXISTS training_events (
     UNIQUE KEY uq_training_events_user_sequence (user_id, server_sequence),
     KEY idx_training_events_user_device (user_id, device_id),
     CONSTRAINT fk_training_events_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CONSTRAINT fk_training_events_device FOREIGN KEY (user_id, device_id) REFERENCES devices (user_id, id) ON DELETE RESTRICT
+    CONSTRAINT fk_training_events_device FOREIGN KEY (user_id, device_id) REFERENCES devices (user_id, id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS idempotency_records (

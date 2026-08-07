@@ -5,10 +5,18 @@ package migrations_test
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/go-sql-driver/mysql"
 
 	"porkhelper/server/migrations"
 	"porkhelper/server/test/mysqltest"
@@ -209,6 +217,180 @@ func TestInitialMigrationDefinesRequiredIndexes(t *testing.T) {
 	}
 }
 
+func TestDeletingAUserDeletesTheCompleteOwnedGraph(t *testing.T) {
+	db := migratedDatabase(t)
+	ctx := context.Background()
+	seedCompleteUserGraph(t, db)
+
+	if _, err := db.ExecContext(ctx, "DELETE FROM users WHERE id = UUID_TO_BIN(?)", testUserID); err != nil {
+		t.Fatalf("delete user: %v", err)
+	}
+
+	userOwnedTables := []string{
+		"auth_identities",
+		"password_credentials",
+		"email_challenges",
+		"devices",
+		"sessions",
+		"refresh_tokens",
+		"user_sync_sequences",
+		"training_events",
+		"idempotency_records",
+	}
+	for _, tableName := range userOwnedTables {
+		var count int
+		query := fmt.Sprintf("SELECT COUNT(*) FROM `%s` WHERE user_id = UUID_TO_BIN(?)", tableName)
+		if err := db.QueryRowContext(ctx, query, testUserID).Scan(&count); err != nil {
+			t.Fatalf("count %s after user deletion: %v", tableName, err)
+		}
+		if count != 0 {
+			t.Errorf("%s rows after user deletion = %d, want 0", tableName, count)
+		}
+	}
+}
+
+func TestRefreshTokenRejectsSessionOwnedByAnotherUser(t *testing.T) {
+	db := migratedDatabase(t)
+	ctx := context.Background()
+
+	mustExec(t, db, `INSERT INTO users (id) VALUES (UUID_TO_BIN(?)), (UUID_TO_BIN(?))`,
+		testUserID, secondUserID)
+	mustExec(t, db, `
+		INSERT INTO devices (id, user_id, installation_id, display_name, platform, app_version)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), 'iPhone', 'iOS', '1.0')`,
+		testDeviceID, testUserID, testInstallationID)
+	mustExec(t, db, `
+		INSERT INTO sessions (
+			id, user_id, device_id, token_family_id, current_access_token_hash,
+			access_expires_at, recent_authenticated_at, last_active_at
+		) VALUES (
+			UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('11', 32)),
+			NOW(3) + INTERVAL 15 MINUTE, NOW(3), NOW(3)
+		)`,
+		testSessionID, testUserID, testDeviceID, testTokenFamilyID)
+
+	_, err := db.ExecContext(ctx, `
+		INSERT INTO refresh_tokens (id, user_id, session_id, token_hash, expires_at)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('22', 32)), NOW(3) + INTERVAL 30 DAY)`,
+		testRefreshID, secondUserID, testSessionID)
+	var mysqlErr *mysql.MySQLError
+	if !errors.As(err, &mysqlErr) || mysqlErr.Number != 1452 {
+		t.Fatalf("cross-user refresh insert error = %v, want MySQL 1452", err)
+	}
+}
+
+func TestUserSyncSequenceStartsAtZero(t *testing.T) {
+	db := migratedDatabase(t)
+	ctx := context.Background()
+
+	mustExec(t, db, "INSERT INTO users (id) VALUES (UUID_TO_BIN(?))", testUserID)
+	mustExec(t, db, "INSERT INTO user_sync_sequences (user_id) VALUES (UUID_TO_BIN(?))", testUserID)
+
+	var got uint64
+	if err := db.QueryRowContext(ctx,
+		"SELECT next_sequence FROM user_sync_sequences WHERE user_id = UUID_TO_BIN(?)",
+		testUserID,
+	).Scan(&got); err != nil {
+		t.Fatalf("read initial sync sequence: %v", err)
+	}
+	if got != 0 {
+		t.Errorf("initial sync sequence = %d, want 0", got)
+	}
+}
+
+func TestMySQLVersionMeets84Baseline(t *testing.T) {
+	db := mysqltest.Database(t)
+
+	var version string
+	if err := db.QueryRow("SELECT VERSION()").Scan(&version); err != nil {
+		t.Fatalf("query MySQL version: %v", err)
+	}
+	major, minor := mysqlVersion(t, version)
+	if major < 8 || (major == 8 && minor < 4) {
+		t.Fatalf("MySQL version = %q, want >= 8.4", version)
+	}
+}
+
+func TestEveryUUIDColumnUsesBinary16(t *testing.T) {
+	db := migratedDatabase(t)
+
+	want := map[string]map[string]bool{
+		"users":                {"id": true},
+		"auth_identities":      {"id": true, "user_id": true},
+		"password_credentials": {"user_id": true},
+		"email_challenges":     {"id": true, "user_id": true},
+		"devices":              {"id": true, "user_id": true, "installation_id": true},
+		"sessions":             {"id": true, "user_id": true, "device_id": true, "token_family_id": true},
+		"refresh_tokens":       {"id": true, "user_id": true, "session_id": true},
+		"user_sync_sequences":  {"user_id": true},
+		"training_events":      {"user_id": true, "event_id": true, "device_id": true},
+		"idempotency_records":  {"user_id": true},
+	}
+
+	rows, err := db.Query(`
+		SELECT table_name, column_name, data_type, character_octet_length
+		FROM information_schema.columns
+		WHERE table_schema = DATABASE()`)
+	if err != nil {
+		t.Fatalf("query UUID column types: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tableName, columnName, dataType string
+		var octetLength sql.NullInt64
+		if err := rows.Scan(&tableName, &columnName, &dataType, &octetLength); err != nil {
+			t.Fatalf("scan UUID column type: %v", err)
+		}
+		columns := want[tableName]
+		if !columns[columnName] {
+			continue
+		}
+		if dataType != "binary" || !octetLength.Valid || octetLength.Int64 != 16 {
+			t.Errorf("%s.%s = %s(%v), want binary(16)", tableName, columnName, dataType, octetLength)
+		}
+		delete(columns, columnName)
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("iterate UUID column types: %v", err)
+	}
+	for tableName, columns := range want {
+		for columnName := range columns {
+			t.Errorf("expected UUID column %s.%s was not found", tableName, columnName)
+		}
+	}
+}
+
+func TestMySQLTestDatabaseRejectsMissingTemporaryServerProof(t *testing.T) {
+	output, err := runDatabaseProofProbe(t, nil)
+	if err == nil {
+		t.Fatalf("proof probe succeeded without temporary-server proof; output:\n%s", output)
+	}
+	if !strings.Contains(output, "requires temporary MySQL server proof") {
+		t.Fatalf("proof probe output = %q, want missing-proof error", output)
+	}
+}
+
+func TestMySQLTestDatabaseRejectsMismatchedTemporaryServerProof(t *testing.T) {
+	output, err := runDatabaseProofProbe(t, map[string]string{
+		"POKER_COACH_MYSQL_TEST_DATADIR":     filepath.Dir(os.Getenv("POKER_COACH_MYSQL_TEST_DATADIR")),
+		"POKER_COACH_MYSQL_TEST_SERVER_UUID": "00000000-0000-0000-0000-000000000000",
+	})
+	if err == nil {
+		t.Fatalf("proof probe succeeded with mismatched temporary-server proof; output:\n%s", output)
+	}
+	if !strings.Contains(output, "temporary MySQL server proof mismatch") {
+		t.Fatalf("proof probe output = %q, want proof-mismatch error", output)
+	}
+}
+
+func TestMySQLTestDatabaseProofProbe(t *testing.T) {
+	if os.Getenv("POKER_COACH_MYSQL_PROOF_PROBE") != "1" {
+		t.Skip("subprocess probe")
+	}
+	mysqltest.Database(t)
+}
+
 func migratedDatabase(t *testing.T) *sql.DB {
 	t.Helper()
 	db := mysqltest.Database(t)
@@ -264,4 +446,116 @@ func indexColumns(t *testing.T, db *sql.DB, tableName, indexName string) ([]stri
 		t.Fatalf("iterate index %s: %v", indexName, err)
 	}
 	return columns, nonUnique
+}
+
+const (
+	testUserID         = "00000000-0000-0000-0000-000000000101"
+	secondUserID       = "00000000-0000-0000-0000-000000000102"
+	testIdentityID     = "00000000-0000-0000-0000-000000000201"
+	testChallengeID    = "00000000-0000-0000-0000-000000000301"
+	testDeviceID       = "00000000-0000-0000-0000-000000000401"
+	testInstallationID = "00000000-0000-0000-0000-000000000402"
+	testSessionID      = "00000000-0000-0000-0000-000000000501"
+	testTokenFamilyID  = "00000000-0000-0000-0000-000000000502"
+	testRefreshID      = "00000000-0000-0000-0000-000000000601"
+	testEventID        = "00000000-0000-0000-0000-000000000701"
+)
+
+func seedCompleteUserGraph(t *testing.T, db *sql.DB) {
+	t.Helper()
+	mustExec(t, db, "INSERT INTO users (id) VALUES (UUID_TO_BIN(?))", testUserID)
+	mustExec(t, db, `
+		INSERT INTO auth_identities (id, user_id, provider, subject)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), 'email', 'user@example.test')`,
+		testIdentityID, testUserID)
+	mustExec(t, db, `
+		INSERT INTO password_credentials (user_id, password_hash, password_changed_at)
+		VALUES (UUID_TO_BIN(?), '$argon2id$test', NOW(3))`,
+		testUserID)
+	mustExec(t, db, `
+		INSERT INTO email_challenges (id, user_id, token_hash, purpose, expires_at)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('33', 32)), 'verifyEmail', NOW(3) + INTERVAL 10 MINUTE)`,
+		testChallengeID, testUserID)
+	mustExec(t, db, `
+		INSERT INTO devices (id, user_id, installation_id, display_name, platform, app_version)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), 'iPhone', 'iOS', '1.0')`,
+		testDeviceID, testUserID, testInstallationID)
+	mustExec(t, db, `
+		INSERT INTO sessions (
+			id, user_id, device_id, token_family_id, current_access_token_hash,
+			access_expires_at, recent_authenticated_at, last_active_at
+		) VALUES (
+			UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('44', 32)),
+			NOW(3) + INTERVAL 15 MINUTE, NOW(3), NOW(3)
+		)`,
+		testSessionID, testUserID, testDeviceID, testTokenFamilyID)
+	mustExec(t, db, `
+		INSERT INTO refresh_tokens (id, user_id, session_id, token_hash, expires_at)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('55', 32)), NOW(3) + INTERVAL 30 DAY)`,
+		testRefreshID, testUserID, testSessionID)
+	mustExec(t, db, "INSERT INTO user_sync_sequences (user_id) VALUES (UUID_TO_BIN(?))", testUserID)
+	mustExec(t, db, `
+		INSERT INTO training_events (user_id, event_id, device_id, server_sequence, occurred_at, payload)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), 1, NOW(3), JSON_OBJECT('schemaVersion', 1))`,
+		testUserID, testEventID, testDeviceID)
+	mustExec(t, db, `
+		INSERT INTO idempotency_records (user_id, idempotency_key, request_hash, response_json)
+		VALUES (UUID_TO_BIN(?), 'account-delete-test', UNHEX(REPEAT('66', 32)), JSON_OBJECT('ok', true))`,
+		testUserID)
+}
+
+func mustExec(t *testing.T, db *sql.DB, query string, args ...any) {
+	t.Helper()
+	if _, err := db.Exec(query, args...); err != nil {
+		t.Fatalf("exec fixture query: %v\n%s", err, query)
+	}
+}
+
+func mysqlVersion(t *testing.T, version string) (int, int) {
+	t.Helper()
+	matches := regexp.MustCompile(`^([0-9]+)\.([0-9]+)`).FindStringSubmatch(version)
+	if len(matches) != 3 {
+		t.Fatalf("parse MySQL version %q", version)
+	}
+	major, err := strconv.Atoi(matches[1])
+	if err != nil {
+		t.Fatalf("parse MySQL major version %q: %v", version, err)
+	}
+	minor, err := strconv.Atoi(matches[2])
+	if err != nil {
+		t.Fatalf("parse MySQL minor version %q: %v", version, err)
+	}
+	return major, minor
+}
+
+func runDatabaseProofProbe(t *testing.T, overrides map[string]string) (string, error) {
+	t.Helper()
+	command := exec.Command(os.Args[0], "-test.run=^TestMySQLTestDatabaseProofProbe$", "-test.count=1")
+	command.Env = append(filteredEnvironment(
+		os.Environ(),
+		"POKER_COACH_MYSQL_TEST_DATADIR",
+		"POKER_COACH_MYSQL_TEST_SERVER_UUID",
+	), "POKER_COACH_MYSQL_PROOF_PROBE=1")
+	for key, value := range overrides {
+		command.Env = append(command.Env, key+"="+value)
+	}
+	output, err := command.CombinedOutput()
+	return string(output), err
+}
+
+func filteredEnvironment(environment []string, keys ...string) []string {
+	filtered := make([]string, 0, len(environment))
+	for _, item := range environment {
+		remove := false
+		for _, key := range keys {
+			if strings.HasPrefix(item, key+"=") {
+				remove = true
+				break
+			}
+		}
+		if !remove {
+			filtered = append(filtered, item)
+		}
+	}
+	return filtered
 }
