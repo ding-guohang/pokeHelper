@@ -3,6 +3,7 @@
 package migrations_test
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"database/sql"
@@ -17,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 
@@ -442,6 +444,11 @@ func TestApplyUpgradesOriginalVersionOneWithoutDataLoss(t *testing.T) {
 	installOriginalVersionOne(t, db)
 	seedCompleteUserGraph(t, db)
 	mustExec(t, db, "INSERT INTO users (id) VALUES (UUID_TO_BIN(?))", secondUserID)
+	invalidRefreshID := "00000000-0000-0000-0000-000000000602"
+	mustExec(t, db, `
+		INSERT INTO refresh_tokens (id, user_id, session_id, token_hash, expires_at)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('77', 32)), NOW(3) + INTERVAL 30 DAY)`,
+		invalidRefreshID, secondUserID, testSessionID)
 
 	if err := migrations.Apply(ctx, db); err != nil {
 		t.Fatalf("Apply() original version 1 upgrade: %v", err)
@@ -472,10 +479,30 @@ func TestApplyUpgradesOriginalVersionOneWithoutDataLoss(t *testing.T) {
 		}
 	}
 
+	for name, id := range map[string]string{
+		"valid":   testRefreshID,
+		"invalid": invalidRefreshID,
+	} {
+		var count int
+		if err := db.QueryRowContext(ctx,
+			"SELECT COUNT(*) FROM refresh_tokens WHERE id = UUID_TO_BIN(?)",
+			id,
+		).Scan(&count); err != nil {
+			t.Fatalf("count %s refresh after upgrade: %v", name, err)
+		}
+		want := 1
+		if name == "invalid" {
+			want = 0
+		}
+		if count != want {
+			t.Errorf("%s refresh count after upgrade = %d, want %d", name, count, want)
+		}
+	}
+
 	_, err = db.ExecContext(ctx, `
 		INSERT INTO refresh_tokens (id, user_id, session_id, token_hash, expires_at)
-		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('77', 32)), NOW(3) + INTERVAL 30 DAY)`,
-		"00000000-0000-0000-0000-000000000602", secondUserID, testSessionID)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('88', 32)), NOW(3) + INTERVAL 30 DAY)`,
+		"00000000-0000-0000-0000-000000000603", secondUserID, testSessionID)
 	var mysqlErr *mysql.MySQLError
 	if !errors.As(err, &mysqlErr) || mysqlErr.Number != 1452 {
 		t.Errorf("cross-user refresh after upgrade error = %v, want MySQL 1452", err)
@@ -497,6 +524,112 @@ func TestApplyUpgradesOriginalVersionOneWithoutDataLoss(t *testing.T) {
 
 	if _, err := db.ExecContext(ctx, "DELETE FROM users WHERE id = UUID_TO_BIN(?)", testUserID); err != nil {
 		t.Errorf("delete upgraded user graph: %v", err)
+	}
+}
+
+func TestApplyResumesAfterCommittedDDLIsInterrupted(t *testing.T) {
+	db := mysqltest.Database(t)
+	installOriginalVersionOne(t, db)
+	seedCompleteUserGraph(t, db)
+
+	blocker, err := db.Conn(context.Background())
+	if err != nil {
+		t.Fatalf("get metadata-lock connection: %v", err)
+	}
+	defer blocker.Close()
+	if _, err := blocker.ExecContext(context.Background(), "LOCK TABLES sessions READ"); err != nil {
+		t.Fatalf("lock sessions table: %v", err)
+	}
+	locked := true
+	defer func() {
+		if locked {
+			_, _ = blocker.ExecContext(context.Background(), "UNLOCK TABLES")
+		}
+	}()
+
+	applyCtx, cancelApply := context.WithCancel(context.Background())
+	applyResult := make(chan error, 1)
+	go func() {
+		applyResult <- migrations.Apply(applyCtx, db)
+	}()
+
+	state, nextStatement, checksum, err := waitForMigrationProgress(db, 2, 5*time.Second)
+	if err != nil {
+		cancelApply()
+		_, _ = blocker.ExecContext(context.Background(), "UNLOCK TABLES")
+		locked = false
+		<-applyResult
+		t.Fatalf("wait for committed migration statement: %v", err)
+	}
+	if state != "applying" || nextStatement != 2 {
+		t.Errorf("migration progress = %s/%d, want applying/2", state, nextStatement)
+	}
+
+	var deleteRule string
+	if err := db.QueryRow(`
+		SELECT delete_rule
+		FROM information_schema.referential_constraints
+		WHERE constraint_schema = DATABASE()
+		  AND constraint_name = 'fk_training_events_device'`).Scan(&deleteRule); err != nil {
+		t.Fatalf("query committed training-events FK: %v", err)
+	}
+	if deleteRule != "CASCADE" {
+		t.Errorf("training-events FK after checkpoint 2 = %q, want CASCADE", deleteRule)
+	}
+
+	cancelApply()
+	var interruptedErr error
+	select {
+	case interruptedErr = <-applyResult:
+	case <-time.After(5 * time.Second):
+		t.Fatal("Apply did not stop after context cancellation")
+	}
+	if interruptedErr == nil {
+		t.Fatal("interrupted Apply returned nil")
+	}
+	if _, err := blocker.ExecContext(context.Background(), "UNLOCK TABLES"); err != nil {
+		t.Fatalf("unlock sessions table: %v", err)
+	}
+	locked = false
+
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("resume Apply: %v", err)
+	}
+	if err := migrations.Apply(context.Background(), db); err != nil {
+		t.Fatalf("repeat resumed Apply: %v", err)
+	}
+
+	var finalState string
+	var finalNextStatement int
+	var finalChecksum []byte
+	if err := db.QueryRow(`
+		SELECT state, next_statement, checksum
+		FROM schema_migrations
+		WHERE version = 2`).Scan(&finalState, &finalNextStatement, &finalChecksum); err != nil {
+		t.Fatalf("read completed migration progress: %v", err)
+	}
+	if finalState != "applied" || finalNextStatement != 7 {
+		t.Errorf("completed migration progress = %s/%d, want applied/7", finalState, finalNextStatement)
+	}
+	if !bytes.Equal(finalChecksum, checksum) {
+		t.Errorf("migration checksum changed across retry: before %x, after %x", checksum, finalChecksum)
+	}
+
+	for tableName, wantCount := range map[string]int{
+		"users":           1,
+		"devices":         1,
+		"sessions":        1,
+		"refresh_tokens":  1,
+		"training_events": 1,
+	} {
+		var gotCount int
+		query := fmt.Sprintf("SELECT COUNT(*) FROM `%s`", tableName)
+		if err := db.QueryRow(query).Scan(&gotCount); err != nil {
+			t.Fatalf("count %s after resumed migration: %v", tableName, err)
+		}
+		if gotCount != wantCount {
+			t.Errorf("%s count after resumed migration = %d, want %d", tableName, gotCount, wantCount)
+		}
 	}
 }
 
@@ -690,6 +823,33 @@ func installOriginalVersionOne(t *testing.T, db *sql.DB) {
 		INSERT INTO schema_migrations (version, name, checksum)
 		VALUES (1, '0001_m1b_initial.sql', UNHEX(?))`,
 		originalChecksum)
+}
+
+func waitForMigrationProgress(db *sql.DB, minimumNext int, timeout time.Duration) (string, int, []byte, error) {
+	deadline := time.Now().Add(timeout)
+	for {
+		var state string
+		var nextStatement int
+		var checksum []byte
+		err := db.QueryRow(`
+			SELECT state, next_statement, checksum
+			FROM schema_migrations
+			WHERE version = 2`).Scan(&state, &nextStatement, &checksum)
+		var mysqlErr *mysql.MySQLError
+		switch {
+		case err == nil && nextStatement >= minimumNext:
+			return state, nextStatement, checksum, nil
+		case errors.As(err, &mysqlErr) && mysqlErr.Number == 1054:
+			// Apply may still be extending a legacy schema_migrations table.
+			time.Sleep(10 * time.Millisecond)
+		case err != nil && !errors.Is(err, sql.ErrNoRows):
+			return "", 0, nil, err
+		case time.Now().After(deadline):
+			return "", 0, nil, fmt.Errorf("timed out waiting for next_statement >= %d", minimumNext)
+		default:
+			time.Sleep(10 * time.Millisecond)
+		}
+	}
 }
 
 func filteredEnvironment(environment []string, keys ...string) []string {

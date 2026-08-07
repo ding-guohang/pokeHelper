@@ -1,7 +1,6 @@
 package migrations
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
 	"database/sql"
@@ -12,18 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/go-sql-driver/mysql"
 )
-
-const createMigrationsTable = `
-CREATE TABLE IF NOT EXISTS schema_migrations (
-    version BIGINT UNSIGNED NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    checksum BINARY(32) NOT NULL,
-    applied_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    PRIMARY KEY (version)
-) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`
 
 type migration struct {
 	version  uint64
@@ -53,46 +41,91 @@ func Apply(ctx context.Context, db *sql.DB) error {
 	if _, err := conn.ExecContext(ctx, createMigrationsTable); err != nil {
 		return fmt.Errorf("create schema_migrations: %w", err)
 	}
+	if err := ensureMigrationMetadata(ctx, conn); err != nil {
+		return err
+	}
 
 	pending, err := loadMigrations()
 	if err != nil {
 		return err
 	}
 	for _, item := range pending {
-		applied, err := migrationApplied(ctx, conn, item)
+		progress, err := readMigrationProgress(ctx, conn, item)
 		if err != nil {
 			return err
 		}
-		if applied {
+		if progress.exists && progress.state == "applied" {
 			continue
 		}
-		for _, statement := range splitStatements(string(item.contents)) {
-			if _, err := conn.ExecContext(ctx, statement); err != nil {
-				return fmt.Errorf("apply migration %04d (%s): %w", item.version, item.name, err)
+		if !progress.exists {
+			if _, err := conn.ExecContext(ctx, `
+				INSERT INTO schema_migrations (version, name, checksum, state, next_statement)
+				VALUES (?, ?, ?, 'applying', 0)`,
+				item.version, item.name, item.checksum[:],
+			); err != nil {
+				return fmt.Errorf("start migration %04d (%s): %w", item.version, item.name, err)
+			}
+			progress = migrationProgress{
+				exists:        true,
+				state:         "applying",
+				nextStatement: 0,
+				checksum:      item.checksum[:],
 			}
 		}
-		if _, err := conn.ExecContext(ctx,
-			"INSERT INTO schema_migrations (version, name, checksum) VALUES (?, ?, ?)",
-			item.version, item.name, item.checksum[:],
-		); err != nil {
-			return fmt.Errorf("record migration %04d (%s): %w", item.version, item.name, err)
+		if progress.state != "applying" {
+			return fmt.Errorf("migration %04d has invalid state %q", item.version, progress.state)
+		}
+		if err := prepareMigration(ctx, conn, item); err != nil {
+			return err
+		}
+
+		statements := splitStatements(string(item.contents))
+		if progress.nextStatement < 0 || progress.nextStatement > len(statements) {
+			return fmt.Errorf(
+				"migration %04d next statement %d exceeds statement count %d",
+				item.version,
+				progress.nextStatement,
+				len(statements),
+			)
+		}
+		for index := progress.nextStatement; index < len(statements); index++ {
+			alreadyApplied, err := migrationStatementAlreadyApplied(ctx, conn, item, index)
+			if err != nil {
+				return err
+			}
+			if !alreadyApplied {
+				if _, err := conn.ExecContext(ctx, statements[index]); err != nil {
+					return fmt.Errorf(
+						"apply migration %04d statement %d (%s): %w",
+						item.version,
+						index,
+						item.name,
+						err,
+					)
+				}
+			}
+			if err := checkpointMigration(ctx, conn, item.version, index); err != nil {
+				return err
+			}
+		}
+		result, err := conn.ExecContext(ctx, `
+			UPDATE schema_migrations
+			SET state = 'applied', next_statement = ?, applied_at = CURRENT_TIMESTAMP(3)
+			WHERE version = ? AND state = 'applying'`,
+			len(statements), item.version,
+		)
+		if err != nil {
+			return fmt.Errorf("complete migration %04d (%s): %w", item.version, item.name, err)
+		}
+		updated, err := result.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("read migration %04d completion result: %w", item.version, err)
+		}
+		if updated != 1 {
+			return fmt.Errorf("complete migration %04d updated %d rows, want 1", item.version, updated)
 		}
 	}
 	return nil
-}
-
-func CurrentVersion(ctx context.Context, db *sql.DB) (uint64, error) {
-	var version uint64
-	err := db.QueryRowContext(ctx, "SELECT COALESCE(MAX(version), 0) FROM schema_migrations").Scan(&version)
-	if err == nil {
-		return version, nil
-	}
-
-	var mysqlErr *mysql.MySQLError
-	if errors.As(err, &mysqlErr) && mysqlErr.Number == 1146 {
-		return 0, nil
-	}
-	return 0, fmt.Errorf("read schema version: %w", err)
 }
 
 func loadMigrations() ([]migration, error) {
@@ -134,24 +167,6 @@ func loadMigrations() ([]migration, error) {
 		}
 	}
 	return items, nil
-}
-
-func migrationApplied(ctx context.Context, conn *sql.Conn, item migration) (bool, error) {
-	var storedChecksum []byte
-	err := conn.QueryRowContext(ctx,
-		"SELECT checksum FROM schema_migrations WHERE version = ?",
-		item.version,
-	).Scan(&storedChecksum)
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, nil
-	}
-	if err != nil {
-		return false, fmt.Errorf("check migration %04d: %w", item.version, err)
-	}
-	if !bytes.Equal(storedChecksum, item.checksum[:]) {
-		return false, fmt.Errorf("migration %04d checksum does not match applied schema", item.version)
-	}
-	return true, nil
 }
 
 func splitStatements(contents string) []string {
