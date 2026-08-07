@@ -62,6 +62,16 @@ func Database(t testing.TB) *sql.DB {
 		t.Fatalf("create isolated schema: %v", err)
 	}
 	t.Cleanup(func() {
+		expectedDatadir := os.Getenv("POKER_COACH_MYSQL_TEST_DATADIR")
+		expectedServerUUID := os.Getenv("POKER_COACH_MYSQL_TEST_SERVER_UUID")
+		if expectedDatadir == "" || expectedServerUUID == "" {
+			t.Errorf("mysqltest refusing to drop isolated schema: temporary MySQL server proof is missing")
+			return
+		}
+		if err := verifyTemporaryServer(adminDB, expectedDatadir, expectedServerUUID); err != nil {
+			t.Errorf("mysqltest refusing to drop isolated schema: %v", err)
+			return
+		}
 		if _, err := adminDB.Exec("DROP DATABASE `" + schemaName + "`"); err != nil {
 			t.Errorf("drop isolated schema: %v", err)
 		}

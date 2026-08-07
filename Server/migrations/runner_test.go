@@ -4,7 +4,9 @@ package migrations_test
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
@@ -42,8 +44,8 @@ func TestApplyMigratesAnEmptySchema(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentVersion() after Apply: %v", err)
 	}
-	if after != 1 {
-		t.Errorf("CurrentVersion() after Apply = %d, want 1", after)
+	if after != 2 {
+		t.Errorf("CurrentVersion() after Apply = %d, want 2", after)
 	}
 }
 
@@ -62,8 +64,8 @@ func TestApplyIsIdempotent(t *testing.T) {
 	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM schema_migrations").Scan(&count); err != nil {
 		t.Fatalf("count schema_migrations: %v", err)
 	}
-	if count != 1 {
-		t.Errorf("schema_migrations count = %d, want 1", count)
+	if count != 2 {
+		t.Errorf("schema_migrations count = %d, want 2", count)
 	}
 }
 
@@ -384,11 +386,118 @@ func TestMySQLTestDatabaseRejectsMismatchedTemporaryServerProof(t *testing.T) {
 	}
 }
 
+func TestMySQLTestDatabaseCleanupReprovesBeforeDrop(t *testing.T) {
+	db := mysqltest.Database(t)
+	output, err := runDatabaseProofProbeMode(t, "cleanup-mismatch", map[string]string{
+		"POKER_COACH_MYSQL_TEST_DATADIR":     os.Getenv("POKER_COACH_MYSQL_TEST_DATADIR"),
+		"POKER_COACH_MYSQL_TEST_SERVER_UUID": os.Getenv("POKER_COACH_MYSQL_TEST_SERVER_UUID"),
+	})
+	if err == nil {
+		t.Errorf("cleanup probe succeeded after proof changed; output:\n%s", output)
+	}
+	if !strings.Contains(output, "refusing to drop isolated schema") {
+		t.Errorf("cleanup probe output = %q, want safe cleanup failure", output)
+	}
+
+	matches := regexp.MustCompile(`MYSQLTEST_PROBE_SCHEMA=([a-z0-9_]+)`).FindStringSubmatch(output)
+	if len(matches) != 2 {
+		t.Fatalf("cleanup probe did not report its schema; output:\n%s", output)
+	}
+	var schemaCount int
+	if err := db.QueryRow(
+		"SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name = ?",
+		matches[1],
+	).Scan(&schemaCount); err != nil {
+		t.Fatalf("query cleanup probe schema: %v", err)
+	}
+	if schemaCount != 1 {
+		t.Errorf("cleanup probe schema count = %d, want 1 because DROP must be refused", schemaCount)
+	}
+}
+
 func TestMySQLTestDatabaseProofProbe(t *testing.T) {
-	if os.Getenv("POKER_COACH_MYSQL_PROOF_PROBE") != "1" {
+	mode := os.Getenv("POKER_COACH_MYSQL_PROOF_PROBE")
+	if mode == "" {
 		t.Skip("subprocess probe")
 	}
-	mysqltest.Database(t)
+	db := mysqltest.Database(t)
+	if mode == "cleanup-mismatch" {
+		var schemaName string
+		if err := db.QueryRow("SELECT DATABASE()").Scan(&schemaName); err != nil {
+			t.Fatalf("query cleanup probe schema: %v", err)
+		}
+		fmt.Printf("MYSQLTEST_PROBE_SCHEMA=%s\n", schemaName)
+		if err := os.Setenv(
+			"POKER_COACH_MYSQL_TEST_SERVER_UUID",
+			"00000000-0000-0000-0000-000000000000",
+		); err != nil {
+			t.Fatalf("change cleanup proof: %v", err)
+		}
+	}
+}
+
+func TestApplyUpgradesOriginalVersionOneWithoutDataLoss(t *testing.T) {
+	db := mysqltest.Database(t)
+	ctx := context.Background()
+	installOriginalVersionOne(t, db)
+	seedCompleteUserGraph(t, db)
+	mustExec(t, db, "INSERT INTO users (id) VALUES (UUID_TO_BIN(?))", secondUserID)
+
+	if err := migrations.Apply(ctx, db); err != nil {
+		t.Fatalf("Apply() original version 1 upgrade: %v", err)
+	}
+	version, err := migrations.CurrentVersion(ctx, db)
+	if err != nil {
+		t.Fatalf("CurrentVersion() after upgrade: %v", err)
+	}
+	if version != 2 {
+		t.Fatalf("CurrentVersion() after upgrade = %d, want 2", version)
+	}
+
+	for tableName, wantCount := range map[string]int{
+		"users":               2,
+		"devices":             1,
+		"sessions":            1,
+		"refresh_tokens":      1,
+		"user_sync_sequences": 1,
+		"training_events":     1,
+	} {
+		var gotCount int
+		query := fmt.Sprintf("SELECT COUNT(*) FROM `%s`", tableName)
+		if err := db.QueryRowContext(ctx, query).Scan(&gotCount); err != nil {
+			t.Fatalf("count %s after upgrade: %v", tableName, err)
+		}
+		if gotCount != wantCount {
+			t.Errorf("%s count after upgrade = %d, want %d", tableName, gotCount, wantCount)
+		}
+	}
+
+	_, err = db.ExecContext(ctx, `
+		INSERT INTO refresh_tokens (id, user_id, session_id, token_hash, expires_at)
+		VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), UUID_TO_BIN(?), UNHEX(REPEAT('77', 32)), NOW(3) + INTERVAL 30 DAY)`,
+		"00000000-0000-0000-0000-000000000602", secondUserID, testSessionID)
+	var mysqlErr *mysql.MySQLError
+	if !errors.As(err, &mysqlErr) || mysqlErr.Number != 1452 {
+		t.Errorf("cross-user refresh after upgrade error = %v, want MySQL 1452", err)
+	}
+
+	thirdUserID := "00000000-0000-0000-0000-000000000103"
+	mustExec(t, db, "INSERT INTO users (id) VALUES (UUID_TO_BIN(?))", thirdUserID)
+	mustExec(t, db, "INSERT INTO user_sync_sequences (user_id) VALUES (UUID_TO_BIN(?))", thirdUserID)
+	var sequence uint64
+	if err := db.QueryRowContext(ctx,
+		"SELECT next_sequence FROM user_sync_sequences WHERE user_id = UUID_TO_BIN(?)",
+		thirdUserID,
+	).Scan(&sequence); err != nil {
+		t.Fatalf("read sequence default after upgrade: %v", err)
+	}
+	if sequence != 0 {
+		t.Errorf("sequence default after upgrade = %d, want 0", sequence)
+	}
+
+	if _, err := db.ExecContext(ctx, "DELETE FROM users WHERE id = UUID_TO_BIN(?)", testUserID); err != nil {
+		t.Errorf("delete upgraded user graph: %v", err)
+	}
 }
 
 func migratedDatabase(t *testing.T) *sql.DB {
@@ -529,18 +638,58 @@ func mysqlVersion(t *testing.T, version string) (int, int) {
 }
 
 func runDatabaseProofProbe(t *testing.T, overrides map[string]string) (string, error) {
+	return runDatabaseProofProbeMode(t, "verify", overrides)
+}
+
+func runDatabaseProofProbeMode(t *testing.T, mode string, overrides map[string]string) (string, error) {
 	t.Helper()
-	command := exec.Command(os.Args[0], "-test.run=^TestMySQLTestDatabaseProofProbe$", "-test.count=1")
+	command := exec.Command(
+		os.Args[0],
+		"-test.run=^TestMySQLTestDatabaseProofProbe$",
+		"-test.count=1",
+		"-test.v",
+	)
 	command.Env = append(filteredEnvironment(
 		os.Environ(),
 		"POKER_COACH_MYSQL_TEST_DATADIR",
 		"POKER_COACH_MYSQL_TEST_SERVER_UUID",
-	), "POKER_COACH_MYSQL_PROOF_PROBE=1")
+	), "POKER_COACH_MYSQL_PROOF_PROBE="+mode)
 	for key, value := range overrides {
 		command.Env = append(command.Env, key+"="+value)
 	}
 	output, err := command.CombinedOutput()
 	return string(output), err
+}
+
+func installOriginalVersionOne(t *testing.T, db *sql.DB) {
+	t.Helper()
+	const originalChecksum = "757b0e6e59e6d58979530268cbda204d133ead45d6f58c1d369017a4574220ad"
+	contents, err := os.ReadFile("testdata/0001_m1b_initial_9569ffc.sql")
+	if err != nil {
+		t.Fatalf("read original version 1 fixture: %v", err)
+	}
+	checksum := sha256.Sum256(contents)
+	if got := hex.EncodeToString(checksum[:]); got != originalChecksum {
+		t.Fatalf("original version 1 fixture checksum = %s, want %s", got, originalChecksum)
+	}
+
+	mustExec(t, db, `
+		CREATE TABLE schema_migrations (
+			version BIGINT UNSIGNED NOT NULL,
+			name VARCHAR(255) NOT NULL,
+			checksum BINARY(32) NOT NULL,
+			applied_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+			PRIMARY KEY (version)
+		) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`)
+	for _, statement := range strings.Split(string(contents), ";") {
+		if statement = strings.TrimSpace(statement); statement != "" {
+			mustExec(t, db, statement)
+		}
+	}
+	mustExec(t, db, `
+		INSERT INTO schema_migrations (version, name, checksum)
+		VALUES (1, '0001_m1b_initial.sql', UNHEX(?))`,
+		originalChecksum)
 }
 
 func filteredEnvironment(environment []string, keys ...string) []string {
