@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"encoding/hex"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 	"unicode"
@@ -15,10 +17,12 @@ import (
 type ErrorCode string
 
 const (
-	ValidationFailed     ErrorCode = "validationFailed"
-	ChallengeInvalid     ErrorCode = "challengeInvalid"
-	AuthenticationFailed ErrorCode = "authenticationFailed"
-	RateLimited          ErrorCode = "rateLimited"
+	ValidationFailed         ErrorCode = "validationFailed"
+	ChallengeInvalid         ErrorCode = "challengeInvalid"
+	AuthenticationFailed     ErrorCode = "authenticationFailed"
+	RateLimited              ErrorCode = "rateLimited"
+	ReauthenticationRequired ErrorCode = "reauthenticationRequired"
+	IdentityConflict         ErrorCode = "identityConflict"
 )
 
 type Error struct {
@@ -60,6 +64,24 @@ func (id ID) String() string {
 		id[8:10],
 		id[10:16],
 	)
+}
+
+func newRandomID(random io.Reader) (ID, error) {
+	var id ID
+	if _, err := io.ReadFull(random, id[:]); err != nil {
+		return ID{}, fmt.Errorf("auth: generate id: %w", err)
+	}
+	return id, nil
+}
+
+func parseID(value string) (ID, error) {
+	decoded, err := hex.DecodeString(strings.ReplaceAll(value, "-", ""))
+	if err != nil || len(decoded) != 16 {
+		return ID{}, &Error{Code: ValidationFailed}
+	}
+	var id ID
+	copy(id[:], decoded)
+	return id, nil
 }
 
 type DeviceMetadata struct {

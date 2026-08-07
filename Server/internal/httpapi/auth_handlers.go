@@ -104,6 +104,10 @@ func writeAuthError(response http.ResponseWriter, err error, requestID string) {
 		writeTypedError(response, http.StatusBadRequest, string(authError.Code), requestID)
 	case auth.AuthenticationFailed:
 		writeTypedError(response, http.StatusUnauthorized, string(authError.Code), requestID)
+	case auth.ReauthenticationRequired:
+		writeTypedError(response, http.StatusUnauthorized, string(authError.Code), requestID)
+	case auth.IdentityConflict:
+		writeTypedError(response, http.StatusConflict, string(authError.Code), requestID)
 	case auth.RateLimited:
 		seconds := int64((authError.RetryAfter + time.Second - 1) / time.Second)
 		if seconds < 1 {

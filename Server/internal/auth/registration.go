@@ -157,9 +157,5 @@ func (s *Service) VerifyEmail(ctx context.Context, rawToken string) error {
 }
 
 func (s *Service) randomID() (ID, error) {
-	var id ID
-	if _, err := io.ReadFull(s.random, id[:]); err != nil {
-		return ID{}, fmt.Errorf("auth: generate id: %w", err)
-	}
-	return id, nil
+	return newRandomID(s.random)
 }

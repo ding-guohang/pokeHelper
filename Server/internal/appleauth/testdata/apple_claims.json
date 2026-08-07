@@ -1,0 +1,10 @@
+{
+  "iss": "https://appleid.apple.com",
+  "aud": "com.porkhelper.PokerCoach",
+  "sub": "001234.fedcba9876543210fedcba9876543210.1234",
+  "email": "player@example.test",
+  "email_verified": "true",
+  "is_private_email": "false",
+  "auth_time": 1786096800,
+  "nonce_supported": true
+}

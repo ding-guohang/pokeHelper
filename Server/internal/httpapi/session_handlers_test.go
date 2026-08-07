@@ -253,6 +253,7 @@ type sessionStoreDouble struct {
 	mutex sync.Mutex
 
 	principal       session.Principal
+	principalHook   func() session.Principal
 	authenticateErr error
 
 	devices      []session.DeviceSession
@@ -277,6 +278,9 @@ func (s *sessionStoreDouble) AuthenticateAccess(
 ) (session.Principal, error) {
 	if s.authenticateErr != nil {
 		return session.Principal{}, s.authenticateErr
+	}
+	if s.principalHook != nil {
+		return s.principalHook(), nil
 	}
 	return s.principal, nil
 }
