@@ -34,6 +34,11 @@ targets:
       properties:
         CFBundleDisplayName: 手牌教练
         UILaunchScreen: {}
+        NSAppTransportSecurity:
+          # Permits http only to loopback and .local addresses, which is what a
+          # locally hosted development service and the end-to-end harness need.
+          # Arbitrary loads stay disabled; the release gate asserts that.
+          NSAllowsLocalNetworking: true
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft

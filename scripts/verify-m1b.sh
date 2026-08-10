@@ -95,6 +95,9 @@ for destination in "$iphone_destination" "$ipad_destination"; do
     -only-testing:PokerCoachUITests/AnonymousAccountEntryTests
 done
 
+echo "==> Live client/server contract loop"
+bash scripts/test-live-m1b.sh
+
 echo "==> Release secret gate"
 bash scripts/check-m1b-release-secrets.sh
 

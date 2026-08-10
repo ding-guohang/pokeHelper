@@ -91,7 +91,7 @@ func buildHandlers(settings config.Config, db *sql.DB) (httpapi.Handlers, error)
 	if err != nil {
 		return httpapi.Handlers{}, err
 	}
-	mailer, err := buildMailer(settings)
+	mailer, mailbox, err := buildMailer(settings)
 	if err != nil {
 		return httpapi.Handlers{}, err
 	}
@@ -152,6 +152,11 @@ func buildHandlers(settings config.Config, db *sql.DB) (httpapi.Handlers, error)
 		Upload:  sync.NewUploadService(syncStore),
 		Pull:    sync.NewPullService(syncStore),
 		Session: sessionManager,
+		Development: httpapi.NewDevelopmentMailboxHandler(
+			settings.Environment,
+			mailbox,
+			nil,
+		),
 	}, nil
 }
 
@@ -166,11 +171,16 @@ func loadBlocklist() (password.Blocklist, error) {
 
 // buildMailer refuses to fall back to logging message bodies in production:
 // a verification link written to a log is a credential in a log.
-func buildMailer(settings config.Config) (mail.Mailer, error) {
+func buildMailer(
+	settings config.Config,
+) (mail.Mailer, *mail.DevelopmentMailbox, error) {
 	if settings.Environment == config.Production {
-		return mail.NewSMTPMailer(string(settings.Environment), os.LookupEnv, nil)
+		mailer, err := mail.NewSMTPMailer(string(settings.Environment), os.LookupEnv, nil)
+		return mailer, nil, err
 	}
-	return mail.NewDevelopmentMailer(string(settings.Environment), &mail.DevelopmentMailbox{})
+	mailbox := &mail.DevelopmentMailbox{}
+	mailer, err := mail.NewDevelopmentMailer(string(settings.Environment), mailbox)
+	return mailer, mailbox, err
 }
 
 func buildAppleVerifier(settings config.Config) (*appleauth.Verifier, error) {

@@ -140,6 +140,19 @@ bash scripts/check-m1b-release-secrets.sh --sources-only   # 跳过产物扫描�
 | `/v1/auth/reauth` 完全没有限流 → 被盗会话可全速爆破明文密码，且每次 19 MiB Argon2 |`account.Service` 接入限流：哈希前先检查预算，失败计数，成功清零 |
 | `logOut()` 用 `try?` 吞掉 Keychain 故障却谎报成功 → 下次启动自动登录回去 | 故障如实上报，状态不置为 anonymous |
 
+## 真实跨语言回路（tasks.md 要求，此前缺失）
+
+`scripts/test-live-m1b.sh` + `PokerCoachTests/LiveServerSyncContractTests.swift` 现在让**生产客户端类型**对着**真实 Go 服务**和**真实 MySQL** 跑完整流程：注册 → 验证 → 登录 → 上传 → 拉取 → 双设备收敛 → 重认证 → 导出。除时钟外无任何替身。
+
+它的缺席正是四个 P0 缺陷能全部通过门禁的原因。已用反向测试验证有牙齿：把 UUID 大小写宽容改回严格，该回路产生 5 处失败。
+
+两个实现细节值得记：
+
+- **验证码通过开发专用邮箱端点获取。** `GET /v1/dev/mailbox` 由 `NewDevelopmentMailboxHandler` 在 production 下返回 nil——不是藏在开关后面，而是在生产进程里根本不存在。密钥门禁断言该 gating 仍在，且 router 未无条件挂载任何 `v1/dev/` 路由。
+- **服务地址通过宿主机文件传递，不用环境变量。** `xcodebuild` 只把 `TEST_RUNNER_` 前缀变量转发给 UI test runner，不转发给宿主在 App 内的单元测试。第一版就是这么写的，结果 4 个测试**全部静默跳过而脚本报告成功**——正是这个脚本要防的失效。现在脚本显式检查"有测试被跳过"和"确实执行了测试"并失败。
+
+ATS 增加了 `NSAllowsLocalNetworking`（仅放开回环与 .local 的 http），密钥门禁断言 `NSAllowsArbitraryLoads` 未被启用。
+
 ## 修复记录：三个曾经形同虚设的检查
 
 ### Release 门禁的三条 marker 永远不可能命中

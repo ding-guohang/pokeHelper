@@ -18,6 +18,10 @@ type Handlers struct {
 	Upload  *sync.UploadService
 	Pull    *sync.PullService
 	Session *session.Manager
+
+	// Development-only routes. Nil in production, which is what keeps them
+	// from existing there at all rather than sitting behind a flag.
+	Development http.Handler
 }
 
 // NewRouter composes every feature handler into one entry point.
@@ -38,7 +42,7 @@ func NewRouter(handlers Handlers, newRequestID func() string) http.Handler {
 		}{Status: "ok"})
 	})
 
-	return firstMatch{
+	mounted := firstMatch{
 		health,
 		NewAuthHandler(handlers.Auth, newRequestID),
 		NewSessionHandler(handlers.Session, newRequestID),
@@ -46,6 +50,10 @@ func NewRouter(handlers Handlers, newRequestID func() string) http.Handler {
 		NewAccountHandler(handlers.Account, handlers.Session, newRequestID),
 		NewSyncHandler(handlers.Upload, handlers.Pull, handlers.Session, newRequestID),
 	}
+	if handlers.Development != nil {
+		mounted = append(mounted, handlers.Development)
+	}
+	return mounted
 }
 
 // firstMatch serves the request with the first mux that has a pattern for it.

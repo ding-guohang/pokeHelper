@@ -65,6 +65,21 @@ for guard in POKER_COACH_THROTTLE_SECRET POKER_COACH_APPLE_CLIENT_ID; do
   fi
 done
 
+# The development mailbox exposes verification tokens. It must not merely be
+# discouraged in production — it must not be constructed there.
+if ! grep -Fq 'environment == config.Production' Server/internal/httpapi/development_mailbox.go; then
+  fail "the development mailbox route is no longer gated on the environment"
+fi
+if grep -Fq 'v1/dev/' Server/internal/httpapi/router.go; then
+  fail "a development route is mounted unconditionally in the router"
+fi
+
+# ATS may relax loopback for the local development service, but never
+# arbitrary loads.
+if grep -Fq 'NSAllowsArbitraryLoads' project.yml; then
+  fail "project.yml disables App Transport Security for arbitrary hosts"
+fi
+
 if [[ "${1:-}" != "--sources-only" ]]; then
   echo "==> Scan the Release app bundle"
   derived_data="$(mktemp -d "${TMPDIR:-/tmp}/pokercoach-release-scan.XXXXXX")"
