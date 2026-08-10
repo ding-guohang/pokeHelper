@@ -11,10 +11,20 @@ enum StrategyPackFixture {
         case missingResource(String)
     }
 
+    /// The scenario ID carried by `valid-pack.json`. Tests assert against it
+    /// when a validation error is expected to name the offending scenario.
+    static let scenarioID = "btn-check"
+
+    static let defaultCurriculum = [
+        CurriculumNode(id: "postflop-cbet", title: "翻牌持续下注", prerequisiteNodeIDs: []),
+    ]
+
     static func pack(
         reviewStatus: ReviewStatus = .testFixture,
         reviewedBy: String? = nil,
-        reviewedAt: Date? = nil
+        reviewedAt: Date? = nil,
+        curriculum: [CurriculumNode] = defaultCurriculum,
+        scenarioNodeID: String = "postflop-cbet"
     ) throws -> StrategyPack {
         let source = try loadedValidPack()
         return StrategyPack(
@@ -27,7 +37,10 @@ enum StrategyPackFixture {
                 reviewedBy: reviewedBy,
                 reviewedAt: reviewedAt
             ),
-            scenarios: source.scenarios
+            curriculum: curriculum,
+            scenarios: source.scenarios.map {
+                $0.replacingCurriculumNodeID(with: scenarioNodeID)
+            }
         )
     }
 
@@ -41,6 +54,25 @@ enum StrategyPackFixture {
         return try StrategyPackLoader().load(
             data: Data(contentsOf: url),
             expectedSHA256: nil
+        )
+    }
+}
+
+private extension DecisionScenario {
+    func replacingCurriculumNodeID(with nodeID: String) -> DecisionScenario {
+        DecisionScenario(
+            id: id,
+            title: title,
+            abilityDimension: abilityDimension,
+            curriculumNodeID: nodeID,
+            heroSeatOffsetFromButton: heroSeatOffsetFromButton,
+            heroCards: heroCards,
+            board: board,
+            decision: decision,
+            options: options,
+            rangeCells: rangeCells,
+            assumptions: assumptions,
+            explanation: explanation
         )
     }
 }

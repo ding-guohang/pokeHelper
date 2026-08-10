@@ -4,8 +4,26 @@
     "schemaVersion": 1,
     "contentVersion": "2026.08.07-dev.2",
     "reviewStatus": "testFixture",
-    "generatedSource": "deterministic-ui-test-fixture"
+    "generatedSource": "deterministic-ui-test-fixture",
+    "reviewedBy": null
   },
+  "curriculum": [
+    {
+      "id": "bet-sizing",
+      "title": "下注尺度",
+      "prerequisiteNodeIDs": []
+    },
+    {
+      "id": "preflop-range",
+      "title": "翻前范围",
+      "prerequisiteNodeIDs": []
+    },
+    {
+      "id": "flop-cbet",
+      "title": "flop-cbet",
+      "prerequisiteNodeIDs": []
+    }
+  ],
   "scenarios": [
     {
       "id": "cash-bet-sizing",
@@ -96,7 +114,8 @@
         "futurePlan": "过牌后在改善权益或对手继续示弱时延迟下注；小注被跟后谨慎选择转牌二次开火。",
         "gtoBaseline": "开发演示基线保留三个非零频率行动，所有频率合计 100%。",
         "exploitCondition": "仅当对手对小注过度弃牌时增加 2.17BB 下注；没有该读牌时保持开发演示基线。"
-      }
+      },
+      "curriculumNodeID": "bet-sizing"
     },
     {
       "id": "cash-preflop-range",
@@ -185,7 +204,8 @@
         "futurePlan": "跟注后根据翻牌范围优势继续；三下注被跟后在有利高张牌面保持主动。",
         "gtoBaseline": "开发演示基线保留跟注与三下注的混合频率，所有行动频率合计 100%。",
         "exploitCondition": "仅当 HJ 对三下注过度弃牌时提高三下注频率；没有该读牌时保持开发演示基线。"
-      }
+      },
+      "curriculumNodeID": "preflop-range"
     },
     {
       "id": "cash-flop-cbet",
@@ -265,7 +285,8 @@
         "futurePlan": "被跟注后在形成顺子听牌或对手继续示弱的转牌选择二次开火，否则控制底池。",
         "gtoBaseline": "开发演示基线以 2.17BB 持续下注为主，同时用过牌保护后续街范围。",
         "exploitCondition": "仅当 BB 对翻牌小注过度弃牌时提高持续下注频率；没有该读牌时保持开发演示基线。"
-      }
+      },
+      "curriculumNodeID": "flop-cbet"
     }
   ]
 }

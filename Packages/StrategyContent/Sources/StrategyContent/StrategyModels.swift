@@ -43,6 +43,25 @@ public struct StrategyPackManifest: Codable, Sendable {
     }
 }
 
+/// A node in the cash-game curriculum tree.
+///
+/// Node membership is a property of the content, not of a training event.
+/// An event already records the scenario it answered, so its node is looked up
+/// through that scenario. Putting the node on the event instead would mean
+/// changing the cross-language upload contract in `Contracts/`, which is
+/// byte-frozen and asserted from both the Swift and Go sides.
+public struct CurriculumNode: Codable, Hashable, Sendable, Identifiable {
+    public let id: String
+    public let title: String
+    public let prerequisiteNodeIDs: [String]
+
+    public init(id: String, title: String, prerequisiteNodeIDs: [String]) {
+        self.id = id
+        self.title = title
+        self.prerequisiteNodeIDs = prerequisiteNodeIDs
+    }
+}
+
 public struct StrategyOption: Codable, Hashable, Sendable {
     public let action: DecisionAction
     public let frequencyBasisPoints: Int
@@ -76,6 +95,9 @@ public struct DecisionScenario: Codable, Sendable, Identifiable {
     public let id: String
     public let title: String
     public let abilityDimension: String
+    /// Not optional on purpose: a pack that predates the curriculum should fail
+    /// to decode rather than silently land every scenario in a default node.
+    public let curriculumNodeID: String
     public let heroSeatOffsetFromButton: Int
     public let heroCards: [Card]
     public let board: [Card]
@@ -84,11 +106,50 @@ public struct DecisionScenario: Codable, Sendable, Identifiable {
     public let rangeCells: [RangeCell]
     public let assumptions: SolverAssumptions
     public let explanation: StructuredExplanation
+
+    public init(
+        id: String,
+        title: String,
+        abilityDimension: String,
+        curriculumNodeID: String,
+        heroSeatOffsetFromButton: Int,
+        heroCards: [Card],
+        board: [Card],
+        decision: BettingDecisionContext,
+        options: [StrategyOption],
+        rangeCells: [RangeCell],
+        assumptions: SolverAssumptions,
+        explanation: StructuredExplanation
+    ) {
+        self.id = id
+        self.title = title
+        self.abilityDimension = abilityDimension
+        self.curriculumNodeID = curriculumNodeID
+        self.heroSeatOffsetFromButton = heroSeatOffsetFromButton
+        self.heroCards = heroCards
+        self.board = board
+        self.decision = decision
+        self.options = options
+        self.rangeCells = rangeCells
+        self.assumptions = assumptions
+        self.explanation = explanation
+    }
 }
 
 public struct StrategyPack: Codable, Sendable {
     public let manifest: StrategyPackManifest
+    public let curriculum: [CurriculumNode]
     public let scenarios: [DecisionScenario]
+
+    public init(
+        manifest: StrategyPackManifest,
+        curriculum: [CurriculumNode],
+        scenarios: [DecisionScenario]
+    ) {
+        self.manifest = manifest
+        self.curriculum = curriculum
+        self.scenarios = scenarios
+    }
 }
 
 public enum StrategyPackLoadingError: Error, Equatable {
@@ -113,6 +174,10 @@ public enum StrategyPackValidationError: Error, Equatable {
     case missingReviewedAt
     case missingReviewedBy
     case emptyScenarios
+    case unknownCurriculumNode(scenarioID: String, nodeID: String)
+    case unknownPrerequisite(nodeID: String, prerequisiteID: String)
+    case cyclicCurriculum(nodeIDs: [String])
+    case duplicateCurriculumNodeID(String)
 }
 
 public enum StrategyPackLookupError: Error, Equatable {

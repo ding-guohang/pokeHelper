@@ -50,12 +50,19 @@ enum ContractEventFixture {
             "contentVersion": "2026.08.06",
             "reviewStatus": "testFixture",
             "generatedSource": "contract-fixture",
+            "reviewedBy": null,
             "reviewedAt": null
           },
+          "curriculum": [{
+            "id": "bet-sizing",
+            "title": "下注尺度",
+            "prerequisiteNodeIDs": []
+          }],
           "scenarios": [{
             "id": "scenario-1",
             "title": "大盲位",
             "abilityDimension": "bet-sizing",
+            "curriculumNodeID": "bet-sizing",
             "heroSeatOffsetFromButton": 0,
             "heroCards": ["As", "Kh"],
             "board": ["Qs", "Jh", "2c"],

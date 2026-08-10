@@ -1,3 +1,4 @@
+import StrategyContent
 import XCTest
 import TrainingDomain
 @testable import PokerCoach
@@ -60,7 +61,8 @@ final class ReviewViewModelTests: XCTestCase {
         let event = DashboardFixture.developmentBetSizingEvent()
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
-            reducer: PlayerModelReducer()
+            reducer: PlayerModelReducer(),
+            installedContent: [event.strategyPackID: .testFixture]
         )
 
         await viewModel.refresh()
@@ -73,6 +75,57 @@ final class ReviewViewModelTests: XCTestCase {
         XCTAssertNotEqual(
             viewModel.contentDisclosure(for: historyEvent),
             historyEvent.strategyPackID
+        )
+    }
+
+    func testUnverifiedHistoryIsDisclosedAsUnreviewed() async throws {
+        let event = DashboardFixture.developmentBetSizingEvent()
+        let viewModel = ReviewViewModel(
+            eventStore: InMemoryTrainingEventStore(events: [event]),
+            reducer: PlayerModelReducer(),
+            installedContent: [event.strategyPackID: .unverifiedDraft]
+        )
+
+        await viewModel.refresh()
+
+        let historyEvent = try XCTUnwrap(viewModel.history.first)
+        XCTAssertEqual(
+            viewModel.contentDisclosure(for: historyEvent),
+            "未经策略审核"
+        )
+    }
+
+    func testReviewedHistoryCarriesNoDisclosure() async throws {
+        let event = DashboardFixture.developmentBetSizingEvent()
+        let viewModel = ReviewViewModel(
+            eventStore: InMemoryTrainingEventStore(events: [event]),
+            reducer: PlayerModelReducer(),
+            installedContent: [event.strategyPackID: .reviewed]
+        )
+
+        await viewModel.refresh()
+
+        let historyEvent = try XCTUnwrap(viewModel.history.first)
+        XCTAssertNil(viewModel.contentDisclosure(for: historyEvent))
+    }
+
+    // A history entry whose pack is no longer installed must not render bare.
+    // Silence there reads as "nothing to disclose", which is the opposite of
+    // what an unresolvable provenance means.
+    func testHistoryFromAnUninstalledPackDisclosesUnknownProvenance() async throws {
+        let event = DashboardFixture.developmentBetSizingEvent()
+        let viewModel = ReviewViewModel(
+            eventStore: InMemoryTrainingEventStore(events: [event]),
+            reducer: PlayerModelReducer(),
+            installedContent: [:]
+        )
+
+        await viewModel.refresh()
+
+        let historyEvent = try XCTUnwrap(viewModel.history.first)
+        XCTAssertEqual(
+            viewModel.contentDisclosure(for: historyEvent),
+            "内容来源未知"
         )
     }
 

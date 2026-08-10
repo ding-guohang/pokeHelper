@@ -174,6 +174,7 @@ func heroSeatOffsetOutsideTableIsRejected(
         id: sourceScenario.id,
         title: sourceScenario.title,
         abilityDimension: sourceScenario.abilityDimension,
+        curriculumNodeID: sourceScenario.curriculumNodeID,
         heroSeatOffsetFromButton: sourceScenario.heroSeatOffsetFromButton,
         heroCards: sourceScenario.heroCards,
         board: sourceScenario.board,
@@ -197,6 +198,7 @@ func heroSeatOffsetOutsideTableIsRejected(
     )
     let invalidPack = StrategyPack(
         manifest: loadedPack.manifest,
+        curriculum: loadedPack.curriculum,
         scenarios: [invalidRaiseScenario]
     )
 
@@ -303,7 +305,7 @@ func heroSeatOffsetOutsideTableIsRejected(
     let data = try fixture("valid-pack.json")
     let pack = try StrategyPackLoader().load(
         data: data,
-        expectedSHA256: "6b14c519a3fec910d7d2ccfffe629a556a08be5fadc1762641aa4b79f30580d1"
+        expectedSHA256: "54ce4ff01141ab2d5e2cdcba706eee8caf6547570da6f418ef275b53fabb3ffb"
     )
 
     #expect(pack.manifest.id == "cash-6max-100bb-dev")

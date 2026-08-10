@@ -121,12 +121,19 @@ enum DecisionSessionFixture {
             "contentVersion": "\(contentVersion)",
             "reviewStatus": "testFixture",
             "generatedSource": "\(generatedSource)",
+            "reviewedBy": null,
             "reviewedAt": null
           },
+          "curriculum": [{
+            "id": "\(abilityDimension)",
+            "title": "\(abilityDimension)",
+            "prerequisiteNodeIDs": []
+          }],
           "scenarios": [{
             "id": "\(scenarioID)",
             "title": "\(scenarioTitle)",
             "abilityDimension": "\(abilityDimension)",
+            "curriculumNodeID": "\(abilityDimension)",
             "heroSeatOffsetFromButton": 0,
             "heroCards": ["As", "Kh"],
             "board": ["Qs", "Jh", "2c"],

@@ -163,7 +163,9 @@ struct FeedbackPresentation {
         contentVersion = manifest?.contentVersion ?? "未知版本"
         reviewStatusText = switch manifest?.reviewStatus {
         case .testFixture:
-            "开发/未审核"
+            "开发演示"
+        case .unverifiedDraft:
+            "未经策略审核"
         case .reviewed:
             "已审核"
         case .retired:
@@ -174,6 +176,8 @@ struct FeedbackPresentation {
         provenanceBadge = switch manifest?.reviewStatus {
         case .testFixture:
             StrategyContentMetadata.developmentDisclosure
+        case .unverifiedDraft:
+            StrategyContentMetadata.unverifiedDisclosure
         case .reviewed:
             "已审核 · \(manifest?.contentVersion ?? "")"
         case .retired:

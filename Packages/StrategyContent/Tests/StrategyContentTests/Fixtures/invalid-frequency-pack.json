@@ -6,38 +6,73 @@
     "reviewStatus": "testFixture",
     "generatedSource": "unit-test-fixture"
   },
+  "curriculum": [
+    {
+      "id": "postflop-cbet",
+      "title": "postflop-cbet",
+      "prerequisiteNodeIDs": []
+    }
+  ],
   "scenarios": [
     {
       "id": "btn-check",
       "title": "Button checks the flop",
       "abilityDimension": "postflop-cbet",
       "heroSeatOffsetFromButton": 0,
-      "heroCards": ["As", "Kh"],
-      "board": ["2c", "7d", "Jh"],
+      "heroCards": [
+        "As",
+        "Kh"
+      ],
+      "board": [
+        "2c",
+        "7d",
+        "Jh"
+      ],
       "decision": {
-        "pot": {"centiBB": 750},
-        "effectiveStack": {"centiBB": 10000},
-        "amountToCall": {"centiBB": 0},
+        "pot": {
+          "centiBB": 750
+        },
+        "effectiveStack": {
+          "centiBB": 10000
+        },
+        "amountToCall": {
+          "centiBB": 0
+        },
         "minimumRaiseTo": null,
-        "configuredBetSizes": [{"centiBB": 500}]
+        "configuredBetSizes": [
+          {
+            "centiBB": 500
+          }
+        ]
       },
       "options": [
         {
-          "action": {"kind": "check"},
+          "action": {
+            "kind": "check"
+          },
           "frequencyBasisPoints": 4000,
-          "ev": {"milliBB": 125}
+          "ev": {
+            "milliBB": 125
+          }
         },
         {
-          "action": {"kind": "bet", "toCentiBB": 500},
+          "action": {
+            "kind": "bet",
+            "toCentiBB": 500
+          },
           "frequencyBasisPoints": 5000,
-          "ev": {"milliBB": 140}
+          "ev": {
+            "milliBB": 140
+          }
         }
       ],
       "rangeCells": [],
       "assumptions": {
         "gameType": "cash",
         "tableSize": 6,
-        "effectiveStack": {"centiBB": 10000},
+        "effectiveStack": {
+          "centiBB": 10000
+        },
         "rakeDescription": "5% capped",
         "allowedBetSizeDescription": "500 centiBB"
       },
@@ -49,7 +84,8 @@
         "futurePlan": "Invalid fixture.",
         "gtoBaseline": "Invalid fixture.",
         "exploitCondition": null
-      }
+      },
+      "curriculumNodeID": "postflop-cbet"
     }
   ]
 }

@@ -94,6 +94,11 @@ enum FeedbackFixture {
         let reviewedAtJSON = reviewStatus == "reviewed"
             ? "\"2026-08-06T00:00:00Z\""
             : "null"
+        // reviewed content is rejected without a reviewer, so the fixture has
+        // to name one for exactly the statuses that require it.
+        let reviewedByJSON = reviewStatus == "reviewed"
+            ? "\"Meow Ding\""
+            : "null"
         let json = """
         {
           "manifest": {
@@ -102,12 +107,19 @@ enum FeedbackFixture {
             "contentVersion": "\(contentVersion)",
             "reviewStatus": "\(reviewStatus)",
             "generatedSource": "feedback-unit-test",
+            "reviewedBy": \(reviewedByJSON),
             "reviewedAt": \(reviewedAtJSON)
           },
+          "curriculum": [{
+            "id": "flop-cbet",
+            "title": "翻牌持续下注",
+            "prerequisiteNodeIDs": []
+          }],
           "scenarios": [{
             "id": "mixed-feedback",
             "title": "混合策略反馈",
             "abilityDimension": "flop-cbet",
+            "curriculumNodeID": "flop-cbet",
             "heroSeatOffsetFromButton": 0,
             "heroCards": ["As", "Kd"],
             "board": ["7c", "8h", "2s"],

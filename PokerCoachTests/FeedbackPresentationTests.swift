@@ -54,7 +54,7 @@ final class FeedbackPresentationTests: XCTestCase {
         XCTAssertEqual(presentation.betSizeTreeText, "2.17BB, 4.88BB")
         XCTAssertEqual(presentation.generatedSource, "feedback-unit-test")
         XCTAssertEqual(presentation.contentVersion, "1.2.3")
-        XCTAssertEqual(presentation.reviewStatusText, "开发/未审核")
+        XCTAssertEqual(presentation.reviewStatusText, "开发演示")
     }
 
     func testExploitAdjustmentRequiresAnExplicitCondition() {

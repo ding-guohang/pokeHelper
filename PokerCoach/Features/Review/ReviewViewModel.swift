@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import StrategyContent
 import TrainingDomain
 
 @MainActor
@@ -27,6 +28,8 @@ final class ReviewViewModel {
     private let reducer: PlayerModelReducer
     private let planner: TrainingPlanner
     private let catalog: [TrainingCatalogItem]
+    /// Review status of each installed pack, keyed by pack ID.
+    private let installedContent: [String: ReviewStatus]
     private let now: @MainActor () -> Date
 
     init(
@@ -36,6 +39,7 @@ final class ReviewViewModel {
         catalog: [TrainingCatalogItem] = [],
         strategyContentAvailability: StrategyContentAvailability =
             .reviewedContentUnavailable,
+        installedContent: [String: ReviewStatus] = [:],
         now: @escaping @MainActor () -> Date = Date.init
     ) {
         self.eventStore = eventStore
@@ -43,6 +47,7 @@ final class ReviewViewModel {
         self.planner = planner
         self.catalog = catalog
         self.strategyContentAvailability = strategyContentAvailability
+        self.installedContent = installedContent
         self.now = now
     }
 
@@ -76,10 +81,18 @@ final class ReviewViewModel {
         return suggestedTraining?.catalogItem.scenarioID
     }
 
+    /// Disclosure for one history entry, resolved from the review status of
+    /// the pack that produced it.
+    ///
+    /// Returns a disclosure — never nil — when the pack is not installed. A
+    /// history entry whose provenance cannot be established has to say so:
+    /// falling back to nil would render `unverifiedDraft` history with no
+    /// label at all, which reads as endorsement.
     func contentDisclosure(for event: TrainingEvent) -> String? {
-        StrategyContentMetadata.disclosure(
-            forStrategyPackID: event.strategyPackID
-        )
+        guard let reviewStatus = installedContent[event.strategyPackID] else {
+            return StrategyContentMetadata.unknownProvenanceDisclosure
+        }
+        return StrategyContentMetadata.disclosure(forReviewStatus: reviewStatus)
     }
 
     private static func isWeakerFirst(
