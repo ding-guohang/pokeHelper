@@ -6,7 +6,10 @@
 - **APP 模型测试：** XCTest
 - **端到端 UI 测试：** XCUITest
 - **项目生成：** `xcodegen generate`
+- **服务端测试：** Go 标准 testing，集成测试用 `integration` build tag
 - **M1A 总验证：** `bash scripts/verify-m1a.sh`
+- **M1B 总验证：** `bash scripts/verify-m1b.sh`
+- **隔离数据库：** 集成测试只允许连接 `scripts/test-server-mysql.sh` 启动的临时 mysqld，禁止依赖既有服务或 schema
 - **当前状态：** M1A 已建立包测试、APP 模型测试和 iPhone/iPad UI 测试；实际通过情况以总验证脚本的当次输出为准
 
 ## 测试组织

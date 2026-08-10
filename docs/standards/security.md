@@ -25,9 +25,15 @@
 - 客户端输入执行大小、格式和 schema version 校验。
 - 内容包下载后验证 checksum，再解码和语义校验。
 
+## Release 门禁
+
+- `bash scripts/check-m1b-release-secrets.sh` 在每次 M1B 验证中执行，扫描已跟踪源码与 Release 产物。
+- Release 产物不得包含开发策略 fixture、测试令牌、SMTP 口令、Apple 测试材料或认证绕过。
+- 生产环境缺少限流密钥、Apple client ID 或 SMTP 配置时必须启动失败，不得回落到开发实现。
+- 删除账号不清除登录限流记录：那些记录按信号 HMAC 键控、不含凭据，清除会让攻击者通过删号重置限流。
+
 ## 用户权利
 
 - 支持数据导出、账号删除和设备会话管理。
 - 个人牌谱与能力画像默认私有。
 - 删除流程覆盖主数据、对象存储和异步任务残留。
-

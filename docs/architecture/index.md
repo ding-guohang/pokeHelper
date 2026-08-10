@@ -6,7 +6,7 @@
 - **项目类型：** 绿地原生 iOS/iPadOS 教学 APP，包含独立同步后端
 - **客户端技术栈：** SwiftUI、Swift 6.2.3、Xcode 26.2、XcodeGen、Swift Package Manager
 - **服务端技术栈：** Go、MySQL 8.4+ InnoDB、HTTPS 增量同步 API、对象存储
-- **当前阶段：** M1A 离线现金局教练纵向切片已实现并进入最终评审收口；M1B 独立账号与同步尚未开始
+- **当前阶段：** M1A 离线现金局教练纵向切片已完成；M1B 独立账号与同步已实现，服务端位于 `Server/`
 - **源码入口：** SwiftUI APP 位于 `PokerCoach/`，领域包位于 `Packages/`，工程真值为 `project.yml`
 
 ## 模块结构
@@ -20,7 +20,7 @@
 | StrategyContent | `Packages/StrategyContent/` | 版本化课程、场景、频率、EV 和求解假设 |
 | TrainingDomain | `Packages/TrainingDomain/` | 评分、训练事件、能力画像和每日计划 |
 | SwiftUI App | `PokerCoach/` | iPhone/iPad 的今日、学习、训练和复盘体验 |
-| Sync Backend | 后续 M1B 确定 | 独立身份、事件同步、内容分发和用户数据治理 |
+| Sync Backend | `Server/` | 独立身份、设备会话、事件同步和用户数据治理 |
 
 ## 分层与依赖关系
 

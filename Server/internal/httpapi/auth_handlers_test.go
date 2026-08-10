@@ -510,7 +510,10 @@ func TestNetworkThrottleIsGenericAndDoesNotTrustForwardedFor(t *testing.T) {
 		request := httptest.NewRequest(http.MethodPost, "/v1/auth/password-reset/request",
 			bytes.NewBufferString(payload))
 		request.RemoteAddr = "192.0.2.44:7000"
-		request.Header.Set("X-Forwarded-For", "198.51.100."+string(rune('a'+index)))
+		// Distinct *valid* addresses. Invalid placeholders would make this
+		// test pass even if the handler started honouring the header, because
+		// they would be rejected on parse rather than ignored on principle.
+		request.Header.Set("X-Forwarded-For", fmt.Sprintf("198.51.100.%d", index+10))
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, request)
 		if response.Code != http.StatusAccepted {
