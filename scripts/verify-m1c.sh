@@ -38,11 +38,30 @@ xcodebuild test \
 echo "==> Re-import the core content and confirm it is byte-identical"
 swift build --package-path Packages/StrategyTooling >/dev/null
 importer="$(find Packages/StrategyTooling/.build -name strategy-import -type f -perm +111 | head -1)"
-"$importer" \
-  --export Content/exports/core-6max-100bb.json \
-  --content-version "$(plutil -extract manifest.contentVersion raw PokerCoach/Resources/CoreStrategyPack.json)" \
-  --review-status "$(plutil -extract manifest.reviewStatus raw PokerCoach/Resources/CoreStrategyPack.json)" \
-  --output "$scratch/core.json" >/dev/null
+core_pack="PokerCoach/Resources/CoreStrategyPack.json"
+manifest_field() {
+  plutil -extract "manifest.$1" raw "$core_pack" 2>/dev/null || true
+}
+
+# Review attribution has to be carried through, not dropped: the validator
+# refuses `reviewed` content without a named reviewer and a review time, so a
+# re-import that omitted them would fail on content that is perfectly fine.
+reimport_args=(
+  --export Content/exports/core-6max-100bb.json
+  --content-version "$(manifest_field contentVersion)"
+  --review-status "$(manifest_field reviewStatus)"
+  --output "$scratch/core.json"
+)
+reviewed_by="$(manifest_field reviewedBy)"
+reviewed_at="$(manifest_field reviewedAt)"
+if [[ -n "$reviewed_by" && "$reviewed_by" != "<null>" ]]; then
+  reimport_args+=(--reviewed-by "$reviewed_by")
+fi
+if [[ -n "$reviewed_at" && "$reviewed_at" != "<null>" ]]; then
+  reimport_args+=(--reviewed-at "$reviewed_at")
+fi
+
+"$importer" "${reimport_args[@]}" >/dev/null
 if ! cmp -s "$scratch/core.json" PokerCoach/Resources/CoreStrategyPack.json; then
   echo "FAIL: the shipped core pack does not match a fresh import of its export" >&2
   echo "      edit Content/exports/ and re-import; never hand-edit the pack" >&2

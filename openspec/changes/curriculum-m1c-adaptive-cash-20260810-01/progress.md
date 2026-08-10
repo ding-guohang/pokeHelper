@@ -21,7 +21,7 @@
 | 11 计划优先级与入选原因 | 完成 | | 偏离 7：不用严格字典序 |
 | 12 诊断蓝图与进度 | 完成 | | |
 | 13 生成核心集导出 | 完成 | | 6 个节点，等待人工审核 |
-| 14 人工审核闸门 | **等待所有者签字** | | 见 Content/review/ |
+| 14 人工审核闸门 | 完成 | | Meow Ding 于 2026-08-10 签字 |
 | 15 生成未审核深度内容 | 完成 | | 5 个节点 |
 | 17 随包内容加载 | 完成 | | 见下方说明 |
 | 18 内容更新机制 | 完成 | | 服务端端点按 design 推迟 |
@@ -373,3 +373,38 @@ CO 面对 BTN 的 7.5BB 3bet 只继续 **23.54%**。BTN 冒 7.5BB 去赢 4BB，�
 
 为算出最小防守频率，`SolverNode` 增加 `facingRaiseTo`——底池与应跟金额两个数
 无法反推加注方冒了多少（英雄的前置投入未知）。
+
+
+### 签字后：门禁自己抓到了一个只有此刻才会暴露的缺陷
+
+内容定版为 `reviewed` 后第一次跑 `verify-m1c.sh`，在「重新导入并逐字节比对」那步失败：
+
+```
+import failed: invalidPack(StrategyPackValidationError.missingReviewedAt)
+```
+
+门禁的重新导入只传了 `--content-version` 与 `--review-status`，**没有把审核署名传下去**。
+内容是 `unverifiedDraft` 时这一步一直是绿的，因为草稿本来就不需要署名。
+
+这不是坏事：**校验器连在我自己的门禁里都拒绝了无署名的 `reviewed`**。那道锁是真的，
+不是只对外生效。修复是把 `reviewedBy` / `reviewedAt` 从随包 manifest 读出来带过去。
+
+### AC 1 从条件断言改为无条件断言
+
+签字前 `testPrefersTheMostTrustedStatusPresent` 写成「若存在 reviewed 则检查 reviewed
+分支」，这样它在签字前后都成立。现在 reviewed 内容真的存在，该把验收条件钉死：
+`testBundledContentIsReviewedAndTrainable` 无条件要求随包内容为 `reviewed` 且
+可用性为 `reviewedContentAvailable`。核心集若被退回 `unverifiedDraft`，这里会红，
+而不是悄悄产出一个上不了架的构建。
+
+另加 `testReviewedContentCarriesItsAttribution`：`reviewed` 必须带审核人与审核时间。
+
+### 里程碑状态
+
+`bash scripts/verify-m1c.sh` 全绿，其中：
+
+```
+==> Content gate: store channel passes (reviewed content is installed)
+```
+
+`reviewedContentAvailable` 第一次在生产路径被真实构造——这是 M1C 存在的理由。

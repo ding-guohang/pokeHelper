@@ -53,20 +53,42 @@ final class BundledContentLoaderTests: XCTestCase {
         )
     }
 
-    // The whole point of the trust ordering: a build carrying both kinds trains
-    // against the reviewed one.
-    func testPrefersTheMostTrustedStatusPresent() throws {
+    // M1C's first acceptance criterion. This was a conditional while no
+    // reviewed content existed; it is unconditional now that some does, so
+    // regressing the core pack to unverifiedDraft fails here rather than
+    // quietly shipping a build that cannot reach the App Store.
+    func testBundledContentIsReviewedAndTrainable() throws {
+        let loaded = try BundledContentLoader(bundle: .main).loadPreferredPack()
+
+        XCTAssertEqual(loaded.pack.manifest.reviewStatus, .reviewed)
+        XCTAssertEqual(loaded.availability, .reviewedContentAvailable)
+        XCTAssertTrue(loaded.availability.canStartTraining)
+    }
+
+    // Reviewed content has to name who reviewed it and when. The validator
+    // enforces this on load; asserting it here means a pack that lost its
+    // attribution fails as a missing signature rather than as a decode error.
+    func testReviewedContentCarriesItsAttribution() throws {
+        let loaded = try BundledContentLoader(bundle: .main).loadPreferredPack()
+        let manifest = loaded.pack.manifest
+
+        let reviewer = try XCTUnwrap(manifest.reviewedBy)
+        XCTAssertFalse(reviewer.trimmingCharacters(in: .whitespaces).isEmpty)
+        XCTAssertNotNil(manifest.reviewedAt)
+    }
+
+    // The dogfooding build still carries unverified content alongside it, and
+    // the trust ordering has to prefer the reviewed pack for training.
+    func testPrefersReviewedContentOverUnverifiedWhenBothArePresent() throws {
         let loaded = try BundledContentLoader(bundle: .main).loadPreferredPack()
         let statuses = Set(loaded.installedContent.values)
 
-        if statuses.contains(.reviewed) {
-            XCTAssertEqual(loaded.pack.manifest.reviewStatus, .reviewed)
-            XCTAssertEqual(loaded.availability, .reviewedContentAvailable)
-        } else if statuses.contains(.unverifiedDraft) {
-            XCTAssertEqual(loaded.pack.manifest.reviewStatus, .unverifiedDraft)
-            XCTAssertEqual(loaded.availability, .unverifiedContentAvailable)
-        } else {
-            XCTAssertEqual(loaded.availability, .developmentFixtureAvailable)
+        if statuses.contains(.unverifiedDraft) {
+            XCTAssertEqual(
+                loaded.pack.manifest.reviewStatus,
+                .reviewed,
+                "同时存在两种内容时必须训练已审核的那份"
+            )
         }
     }
 
