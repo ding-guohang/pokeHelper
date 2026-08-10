@@ -39,7 +39,7 @@ The system SHALL reject a strategy decision node that violates card uniqueness, 
 
 ## Requirement: 审核状态约束
 
-The system SHALL distinguish `testFixture`, `reviewed`, and `retired` strategy content.
+The system SHALL distinguish `testFixture`, `unverifiedDraft`, `reviewed`, and `retired` strategy content; SHALL require both a reviewer identity and a review time on `reviewed` content; and SHALL NOT present content of any other status as verified poker advice.
 
 ### Scenario: 已审核内容缺少审核时间
 
@@ -47,9 +47,42 @@ The system SHALL distinguish `testFixture`, `reviewed`, and `retired` strategy c
 - WHEN validator 校验
 - THEN 策略包被拒绝
 
+### Scenario: 已审核内容缺少审核人
+
+- GIVEN review status 为 `reviewed`、reviewed-at 非空、但 reviewed-by 为空
+- WHEN validator 校验
+- THEN 策略包被拒绝
+- AND 错误指明缺失的是审核人而非其他 manifest 字段
+
+### Scenario: 已审核内容元数据齐备
+
+- GIVEN review status 为 `reviewed`，reviewed-by 与 reviewed-at 均非空，且场景通过语义校验
+- WHEN validator 校验
+- THEN 策略包被接受
+- AND 反馈界面可以读到审核人与审核时间
+
 ### Scenario: 开发内容展示
 
 - GIVEN APP 使用 `testFixture` 内容
 - WHEN 用户查看训练或反馈
 - THEN 界面明确显示“开发演示数据”
 - AND 不把数据描述为已审核扑克建议
+
+### Scenario: 未审核内容必须披露
+
+- GIVEN APP 使用 `unverifiedDraft` 内容
+- WHEN 用户查看训练、反馈或能力画像
+- THEN 界面明确显示“未经策略审核”
+- AND 不把数据描述为已审核扑克建议
+- AND 该提示与 `testFixture` 的“开发演示数据”是两条不同的文案
+
+## Requirement: 内容版本不可原地修改
+
+The system SHALL treat a published content version as immutable and SHALL record the pack ID and content version on every training event.
+
+### Scenario: 内容升级后历史仍可追溯
+
+- GIVEN 本机已有使用 content version `2026.08.06` 作答的训练事件
+- WHEN 安装 content version `2026.09.01` 的内容包
+- THEN 既有事件记录的 pack ID 与 content version 仍为 `2026.08.06` 的取值
+- AND 复盘界面对该条历史显示 `2026.08.06`
