@@ -69,6 +69,25 @@ public struct MasteryEvaluator: Sendable {
         let window = nodeEvents.suffix(Self.recentWindow)
         let verySure = window.filter { $0.submission.confidence == .verySure }
 
+        // Repetition exists to consolidate what you got wrong. A node never
+        // failed has nothing to consolidate, so requiring repetitions there
+        // made a flawless player permanently unable to master anything.
+        let hasSomethingToRepeat = scheduler.schedule(
+            forNode: nodeID,
+            events: nodeEvents
+        ) != nil
+        let repetitionRequired = hasSomethingToRepeat ? Self.repetitionRequirement : 0
+
+        // Transfer asks whether the skill survives unfamiliar spots, which a
+        // node cannot ask more times than it has scenarios. Capping by the
+        // content stops a thin node from being permanently unmasterable; Learn
+        // separately excludes such nodes from the progress denominator, because
+        // mastery demonstrated over one scenario is not the same claim.
+        let scenarioCount = pack.scenarios.count {
+            $0.curriculumNodeID == nodeID
+        }
+        let transferRequired = min(Self.transferRequirement, scenarioCount)
+
         let signals = [
             MasterySignal(
                 kind: .sample,
@@ -91,12 +110,15 @@ public struct MasteryEvaluator: Sendable {
             MasterySignal(
                 kind: .repetition,
                 actual: scheduler.completedRepetitionCount(events: nodeEvents),
-                required: Self.repetitionRequirement
+                required: repetitionRequired
             ),
             MasterySignal(
                 kind: .transfer,
-                actual: Self.transferPassCount(in: nodeEvents),
-                required: Self.transferRequirement
+                actual: Self.transferPassCount(
+                    in: nodeEvents,
+                    limit: transferRequired
+                ),
+                required: transferRequired
             ),
         ]
 
@@ -109,14 +131,17 @@ public struct MasteryEvaluator: Sendable {
     /// Transfer asks whether the skill survives an unfamiliar spot, so only the
     /// first answer to a given scenario counts. Repeat attempts measure recall
     /// of that particular hand instead.
-    private static func transferPassCount(in nodeEvents: [TrainingEvent]) -> Int {
+    private static func transferPassCount(
+        in nodeEvents: [TrainingEvent],
+        limit: Int
+    ) -> Int {
         var seen: Set<String> = []
         var firstEncounters: [TrainingEvent] = []
         for event in nodeEvents where seen.insert(event.scenarioID).inserted {
             firstEncounters.append(event)
         }
         return firstEncounters
-            .suffix(transferRequirement)
+            .suffix(limit)
             .count { RepetitionScheduler.isPass($0.grade.quality) }
     }
 }

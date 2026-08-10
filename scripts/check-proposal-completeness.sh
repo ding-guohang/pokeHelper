@@ -8,10 +8,15 @@
 # and scenario it forgot to carry over -- silently, with no diff to review,
 # because the proposal reads as a complete and coherent document on its own.
 #
-# This script fails when a Requirement or Scenario present in the current spec
-# is absent from the proposal. Carrying a heading over unchanged is the whole
-# point; a genuine removal must be declared under "Removed Capabilities" and
-# listed in ALLOW_REMOVED below.
+# Headings alone are not enough: keeping a heading and gutting what sits under
+# it deletes the same behaviour. But a Modified Capability is expected to
+# rewrite some text -- that is what "modified" means -- so demanding every
+# original line survive verbatim reports every intentional edit as a loss.
+#
+# The body checks are therefore the two that cannot be a legitimate edit: a
+# block must not shrink, and a Requirement must still state a SHALL. Replacing
+# a body with a placeholder fails both; rewording a SHALL or swapping a
+# scenario's assertion fails neither.
 #
 # Usage: bash scripts/check-proposal-completeness.sh <change-id>
 
@@ -37,34 +42,86 @@ import re
 import sys
 
 repo_root = pathlib.Path(sys.argv[1])
-proposal_text = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8")
-
-# Capabilities the proposal declares it is changing in place. Only these are
-# checked: a new capability has no prior spec, and a removed one is meant to
-# lose its requirements.
-modified_section = re.search(
-    r"^### Modified Capabilities\s*\n(.*?)(?=^###? )",
-    proposal_text,
-    re.MULTILINE | re.DOTALL,
-)
-if modified_section is None:
-    print("proposal has no '### Modified Capabilities' section; nothing to check")
-    sys.exit(0)
-
-capabilities = re.findall(r"^- `([^`]+)`", modified_section.group(1), re.MULTILINE)
-if not capabilities:
-    print("no modified capabilities listed; nothing to check")
-    sys.exit(0)
-
-# Headings carry one more '#' in a proposal than in a spec, so compare on kind
-# and name rather than name alone. Demoting a Requirement to a Scenario keeps
-# the name but discards the SHALL statement, which is the part that binds.
-proposal_headings = set(
-    re.findall(r"^#{4,5} (Requirement|Scenario): (.+)$", proposal_text, re.MULTILINE)
-)
+proposal_path = pathlib.Path(sys.argv[2])
+proposal_text = proposal_path.read_text(encoding="utf-8")
 
 failures = []
-for capability in capabilities:
+
+
+def named_list(section_title):
+    """Capability names listed under a `### <title>` heading.
+
+    The section runs to the next heading of any depth or to end of file, so a
+    section placed last in the document is still read. Bullet formatting is
+    matched loosely: a proposal that writes ``- **name** —`` instead of
+    ``- `name` —`` must not silently turn the whole check off.
+    """
+    match = re.search(
+        rf"^### {re.escape(section_title)}\s*\n(.*?)(?=^#|\Z)",
+        proposal_text,
+        re.MULTILINE | re.DOTALL,
+    )
+    if match is None:
+        return None
+
+    names = []
+    for line in match.group(1).splitlines():
+        bullet = re.match(r"^-\s+(.+)$", line.strip())
+        if bullet is None:
+            continue
+        # Strip backticks, bold markers and any trailing prose after a dash.
+        label = re.split(r"\s+[—–-]\s+", bullet.group(1), maxsplit=1)[0]
+        label = label.strip().strip("`*_ ")
+        if label and label.lower() not in {"无", "none", "n/a"}:
+            names.append(label)
+    return names
+
+
+modified = named_list("Modified Capabilities")
+removed = named_list("Removed Capabilities") or []
+
+if modified is None:
+    failures.append(
+        "proposal has no '### Modified Capabilities' section. Write it with "
+        "'无' when nothing is modified; a missing section cannot be told apart "
+        "from a forgotten one."
+    )
+    modified = []
+
+
+def blocks(text, requirement_prefix, scenario_prefix):
+    """Maps (kind, name) to the non-blank body lines beneath each heading."""
+    found = {}
+    current = None
+    for line in text.splitlines():
+        requirement = re.match(rf"^{requirement_prefix} (Requirement|Scenario): (.+)$", line)
+        scenario = re.match(rf"^{scenario_prefix} (Requirement|Scenario): (.+)$", line)
+        heading = requirement or scenario
+        if heading is not None:
+            current = (heading.group(1), heading.group(2).strip())
+            found[current] = []
+            continue
+        if line.startswith("#"):
+            current = None
+            continue
+        if current is not None and line.strip():
+            found[current].append(" ".join(line.split()))
+    return found
+
+
+def capability_section(name):
+    match = re.search(
+        rf"^### Capability: {re.escape(name)}\s*\n(.*?)(?=^### |\Z)",
+        proposal_text,
+        re.MULTILINE | re.DOTALL,
+    )
+    return match.group(1) if match else None
+
+
+for capability in modified:
+    if capability in removed:
+        continue
+
     spec_path = repo_root / "openspec" / "specs" / capability / "spec.md"
     if not spec_path.exists():
         failures.append(
@@ -73,39 +130,75 @@ for capability in capabilities:
         )
         continue
 
-    spec_text = spec_path.read_text(encoding="utf-8")
-    for line_number, line in enumerate(spec_text.splitlines(), start=1):
-        heading = re.match(r"^#{2,3} (Requirement|Scenario): (.+)$", line)
-        if heading is None:
-            continue
-        kind, name = heading.group(1), heading.group(2)
-        if (kind, name) not in proposal_headings:
+    section = capability_section(capability)
+    if section is None:
+        failures.append(
+            f"{capability}: listed as modified but the proposal has no "
+            f"'### Capability: {capability}' section, so archive would replace "
+            f"its spec with nothing"
+        )
+        continue
+
+    # Headings are scoped to this capability's own section. Collected globally,
+    # a requirement carried over under one capability would satisfy another.
+    proposed = blocks(section, "####", "#####")
+    existing = blocks(spec_path.read_text(encoding="utf-8"), "##", "###")
+
+    for (kind, name), body in existing.items():
+        if (kind, name) not in proposed:
             demoted = any(
                 other_kind != kind and other_name == name
-                for other_kind, other_name in proposal_headings
+                for other_kind, other_name in proposed
             )
             detail = (
-                f"appears in the proposal as a {'Scenario' if kind == 'Requirement' else 'Requirement'} "
+                f"appears as a {'Scenario' if kind == 'Requirement' else 'Requirement'} "
                 f"instead, which drops its original binding"
                 if demoted
-                else "is missing from the proposal and would be deleted at archive"
+                else "is missing and would be deleted at archive"
             )
+            failures.append(f"{capability}: {kind} “{name}” {detail}")
+            continue
+
+        proposed_body = proposed[(kind, name)]
+
+        if len(proposed_body) < len(body):
             failures.append(
-                f"{capability}: {kind} “{name}” "
-                f"(openspec/specs/{capability}/spec.md:{line_number}) {detail}"
+                f"{capability}: {kind} “{name}” kept its heading but its body "
+                f"shrank from {len(body)} lines to {len(proposed_body)}"
             )
+            continue
+
+        if kind == "Requirement" and not any("SHALL" in line for line in proposed_body):
+            failures.append(
+                f"{capability}: Requirement “{name}” no longer states a SHALL, "
+                f"so archive would replace a binding requirement with prose"
+            )
+            continue
+
+        if kind == "Scenario":
+            def bullets(lines):
+                return sum(
+                    1 for line in lines
+                    if re.match(r"^- (GIVEN|WHEN|THEN|AND) ", line)
+                )
+
+            if bullets(proposed_body) < bullets(body):
+                failures.append(
+                    f"{capability}: Scenario “{name}” dropped "
+                    f"{bullets(body) - bullets(proposed_body)} GIVEN/WHEN/THEN line(s)"
+                )
 
 if failures:
     print("Modified capabilities drop existing behavior:\n", file=sys.stderr)
     for failure in failures:
         print(f"  - {failure}", file=sys.stderr)
     print(
-        "\nCarry each heading into the proposal verbatim, or declare the removal "
-        "under '### Removed Capabilities' with a migration path.",
+        "\nCarry each heading and its body into the proposal, or declare the "
+        "removal under '### Removed Capabilities'.",
         file=sys.stderr,
     )
     sys.exit(1)
 
-checked = ", ".join(capabilities)
-print(f"modified capabilities preserve all existing requirements and scenarios: {checked}")
+checked = ", ".join(modified) if modified else "(none)"
+print(f"modified capabilities preserve every existing requirement and scenario, none gutted: {checked}")
 PYTHON

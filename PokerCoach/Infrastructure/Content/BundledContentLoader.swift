@@ -29,25 +29,52 @@ struct BundledContentLoader {
         "DevStrategyPack",
     ]
 
-    private let bundle: Bundle
+    /// One bundled resource: its bytes and the digest recorded beside it.
+    struct Resource {
+        let name: String
+        let data: Data
+        let recordedSHA256: String?
+    }
+
+    /// Resource lookup, injected rather than reading a Bundle directly.
+    ///
+    /// A loader that can only read `Bundle.main` cannot be tested against a
+    /// corrupt pack, a retired pack, or an empty bundle — which left the
+    /// "a corrupt reviewed pack must not fall through to a lesser one" branch,
+    /// the safety-critical one, with no coverage at all.
+    private let resource: (String) -> Resource?
+
+    init(resource: @escaping (String) -> Resource?) {
+        self.resource = resource
+    }
 
     init(bundle: Bundle) {
-        self.bundle = bundle
+        self.init { name in
+            guard let url = bundle.url(forResource: name, withExtension: "json"),
+                  let data = try? Data(contentsOf: url)
+            else {
+                return nil
+            }
+            let checksum = bundle
+                .url(forResource: name, withExtension: "sha256")
+                .flatMap { try? String(contentsOf: $0, encoding: .utf8) }
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            return Resource(name: name, data: data, recordedSHA256: checksum)
+        }
     }
 
     func loadPreferredPack() throws -> LoadedContent {
         var packs: [StrategyPack] = []
 
         for name in Self.resourceNames {
-            guard let url = bundle.url(forResource: name, withExtension: "json") else {
+            guard let found = resource(name) else {
                 continue
             }
-            let data = try Data(contentsOf: url)
             do {
                 packs.append(
                     try StrategyPackLoader().load(
-                        data: data,
-                        expectedSHA256: expectedChecksum(for: name)
+                        data: found.data,
+                        expectedSHA256: found.recordedSHA256
                     )
                 )
             } catch {
@@ -59,9 +86,17 @@ struct BundledContentLoader {
             }
         }
 
-        guard let preferred = packs.min(by: {
-            Self.trustRank($0.manifest.reviewStatus) < Self.trustRank($1.manifest.reviewStatus)
-        }) else {
+        // Retired content is kept for history and never trained against, so it
+        // is not a candidate. Selecting it and then reporting "not trainable"
+        // used to trip an assertion in the composition root and abort at
+        // launch, when the no-content screen exists for exactly this case.
+        guard let preferred = packs
+            .filter({ $0.manifest.reviewStatus != .retired })
+            .min(by: {
+                Self.trustRank($0.manifest.reviewStatus)
+                    < Self.trustRank($1.manifest.reviewStatus)
+            })
+        else {
             throw LoadError.noContentInBundle
         }
 
@@ -73,16 +108,6 @@ struct BundledContentLoader {
                 uniquingKeysWith: { first, _ in first }
             )
         )
-    }
-
-    /// Checksum recorded beside the pack at import time, when one shipped.
-    private func expectedChecksum(for name: String) -> String? {
-        guard let url = bundle.url(forResource: name, withExtension: "sha256"),
-              let recorded = try? String(contentsOf: url, encoding: .utf8)
-        else {
-            return nil
-        }
-        return recorded.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private static func trustRank(_ status: ReviewStatus) -> Int {
@@ -101,7 +126,7 @@ struct BundledContentLoader {
         case .reviewed: .reviewedContentAvailable
         case .unverifiedDraft: .unverifiedContentAvailable
         case .testFixture: .developmentFixtureAvailable
-        // Retired content is kept for history, never trained against.
+        // Unreachable: retired packs are filtered out before selection.
         case .retired: .reviewedContentUnavailable
         }
     }

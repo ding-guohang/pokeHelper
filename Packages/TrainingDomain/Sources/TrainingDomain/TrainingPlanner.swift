@@ -4,12 +4,27 @@ public struct TrainingCatalogItem: Identifiable, Equatable, Codable, Sendable {
     public let id: String
     public let scenarioID: String
     public let abilityDimension: String
+    /// The curriculum node this scenario belongs to.
+    ///
+    /// Separate from `abilityDimension` because they are different namespaces:
+    /// several nodes can exercise one dimension. Repetition is scheduled per
+    /// node, so matching due repetitions against the dimension silently never
+    /// matched at all in the shipped content, where every scenario is
+    /// `preflop-range` but nodes are `preflop-rfi` and `preflop-vs-3bet`.
+    public let curriculumNodeID: String
     public let estimatedMinutes: Int
 
-    public init(id: String, scenarioID: String, abilityDimension: String, estimatedMinutes: Int) {
+    public init(
+        id: String,
+        scenarioID: String,
+        abilityDimension: String,
+        curriculumNodeID: String,
+        estimatedMinutes: Int
+    ) {
         self.id = id
         self.scenarioID = scenarioID
         self.abilityDimension = abilityDimension
+        self.curriculumNodeID = curriculumNodeID
         self.estimatedMinutes = estimatedMinutes
     }
 }
@@ -73,7 +88,7 @@ public struct TrainingPlanner: Sendable {
     public func makePlan(
         profile: PlayerProfile,
         catalog: [TrainingCatalogItem],
-        dueRepetitionDimensions: Set<String> = [],
+        dueRepetitionNodeIDs: Set<String> = [],
         pathDimensions: Set<String> = [],
         now: Date
     ) -> DailyPlan {
@@ -82,7 +97,7 @@ public struct TrainingPlanner: Sendable {
                 makePlanItem(
                     for: $0,
                     profile: profile,
-                    isRepetitionDue: dueRepetitionDimensions.contains($0.abilityDimension),
+                    isRepetitionDue: dueRepetitionNodeIDs.contains($0.curriculumNodeID),
                     isOnPath: pathDimensions.contains($0.abilityDimension),
                     now: now
                 )

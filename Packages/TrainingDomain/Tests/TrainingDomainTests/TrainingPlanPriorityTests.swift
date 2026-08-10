@@ -24,6 +24,15 @@ struct TrainingPlanPriorityTests {
         })
     }
 
+    /// Node IDs are deliberately not equal to ability dimensions.
+    ///
+    /// Shipped content has several nodes per dimension. A fixture that set the
+    /// two fields to the same string is why the planner spent a milestone
+    /// comparing one namespace against the other with every test green.
+    private static func node(for dimension: String) -> String {
+        "node-\(dimension)"
+    }
+
     private func catalog(
         _ entries: [(id: String, dimension: String, minutes: Int)]
     ) -> [TrainingCatalogItem] {
@@ -32,6 +41,7 @@ struct TrainingPlanPriorityTests {
                 id: $0.id,
                 scenarioID: "scenario-\($0.id)",
                 abilityDimension: $0.dimension,
+                curriculumNodeID: Self.node(for: $0.dimension),
                 estimatedMinutes: $0.minutes
             )
         }
@@ -53,11 +63,11 @@ struct TrainingPlanPriorityTests {
                 (id: "z-due", dimension: "alpha", minutes: 5),
                 (id: "a-not-due", dimension: "beta", minutes: 5),
             ]),
-            dueRepetitionDimensions: ["alpha"],
+            dueRepetitionNodeIDs: [Self.node(for: "alpha")],
             now: now
         )
 
-        #expect(plan.items.map(\.id) == ["z-due", "a-not-due"])
+        #expect(plan.items.map { $0.id } == ["z-due", "a-not-due"])
         #expect(plan.items[0].priority > plan.items[1].priority)
     }
 
@@ -71,7 +81,7 @@ struct TrainingPlanPriorityTests {
                 (id: "alpha-item", dimension: "alpha", minutes: 5),
                 (id: "beta-item", dimension: "beta", minutes: 5),
             ]),
-            dueRepetitionDimensions: ["beta"],
+            dueRepetitionNodeIDs: [Self.node(for: "beta")],
             now: now
         )
 
@@ -102,7 +112,7 @@ struct TrainingPlanPriorityTests {
             return planner.makePlan(
                 profile: profile,
                 catalog: catalog([(id: "alpha-item", dimension: "alpha", minutes: 5)]),
-                dueRepetitionDimensions: due ? ["alpha"] : [],
+                dueRepetitionNodeIDs: due ? [Self.node(for: "alpha")] : [],
                 pathDimensions: onPath ? ["alpha"] : [],
                 now: now
             ).items.first?.reason
@@ -162,7 +172,7 @@ struct TrainingPlanPriorityTests {
             now: now
         )
 
-        #expect(plan.items.map(\.id) == ["long"])
+        #expect(plan.items.map { $0.id } == ["long"])
     }
 
     @Test("空 catalog 得到空计划")

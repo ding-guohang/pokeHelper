@@ -107,6 +107,13 @@ struct AppBootstrapView: View {
         }
         .task {
             bootstrap.loadIfNeeded()
+            // Content updates run at launch. With no source configured this
+            // reports noCandidate, but the path is live: leaving it uncalled is
+            // how the whole update capability shipped passing its tests and
+            // unreachable from the product.
+            if case let .content(dependencies) = bootstrap.state {
+                await dependencies.checkForContentUpdate()
+            }
         }
     }
 

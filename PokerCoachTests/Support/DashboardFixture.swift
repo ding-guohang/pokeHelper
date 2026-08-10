@@ -13,18 +13,21 @@ struct DashboardFixture {
             id: "cash-bet-sizing",
             scenarioID: "cash-bet-sizing",
             abilityDimension: "bet-sizing",
+            curriculumNodeID: "node-bet-sizing",
             estimatedMinutes: 4
         ),
         TrainingCatalogItem(
             id: "cash-preflop-range",
             scenarioID: "cash-preflop-range",
             abilityDimension: "preflop-range",
+            curriculumNodeID: "node-preflop-range",
             estimatedMinutes: 2
         ),
         TrainingCatalogItem(
             id: "cash-flop-cbet",
             scenarioID: "cash-flop-cbet",
             abilityDimension: "flop-cbet",
+            curriculumNodeID: "node-flop-cbet",
             estimatedMinutes: 2
         ),
     ]

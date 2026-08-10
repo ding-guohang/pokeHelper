@@ -114,7 +114,10 @@ public enum ContentAudit {
                 .filter { $0.key != "fold" }
                 .values
                 .reduce(0, +)
-            continued += reach / 10_000 * continuing
+            // Multiply before dividing: the other order truncates a hand whose
+            // combinations times open weight fall below 10,000 down to zero
+            // contribution while still counting it in the denominator.
+            continued += reach * continuing / 10_000
         }
         guard opened > 0 else { return 0 }
         return continued * 10_000 / opened

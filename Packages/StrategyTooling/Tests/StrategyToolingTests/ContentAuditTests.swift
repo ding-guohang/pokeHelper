@@ -23,12 +23,14 @@ struct ContentAuditTests {
     // blunder on EV.
     @Test("固定手牌的 options 频率必须等于该手牌的范围表格子")
     func optionFrequenciesMatchTheHeroHandsRangeCell() throws {
-        for node in try coreExport().nodes {
+        for (pack, node) in try allNodes() {
             guard let cell = ContentAudit.rangeCell(
                 forHeroHand: node.heroCards,
                 in: node.rangeCells
             ) else {
-                Issue.record("\(node.id)：范围表里没有覆盖英雄手牌的格子")
+                Issue.record(
+                    Comment(rawValue: "\(pack)/\(node.id)：范围表里没有覆盖英雄手牌的格子")
+                )
                 continue
             }
 
@@ -37,7 +39,7 @@ struct ContentAuditTests {
                 let weight = cell.actionWeightsBasisPoints[key] ?? 0
                 #expect(
                     weight == action.frequencyBasisPoints,
-                    Comment(rawValue: "\(node.id)：\(key) 在 options 里是 "
+                    Comment(rawValue: "\(pack)/\(node.id)：\(key) 在 options 里是 "
                         + "\(action.frequencyBasisPoints)，在 \(cell.handClass) "
                         + "的范围表里是 \(weight)")
                 )
@@ -50,19 +52,30 @@ struct ContentAuditTests {
     // the range table has to actually weigh that much.
     @Test("解释里声明的整段频率必须等于范围表的组合加权")
     func proseFrequencyMatchesTheRangeTable() throws {
-        for node in try coreExport().nodes {
+        for (pack, node) in try allNodes() {
+            // A node answering a raise states its continuation elsewhere; an
+            // opening node without a percentage in its conclusion is a node
+            // whose claim nobody can check, which is worse than a wrong one.
+            guard node.facingRaiseTo == nil else { continue }
             guard let stated = ContentAudit.statedFrequencyBasisPoints(
                 in: node.explanation.conclusion
             ) else {
+                Issue.record(
+                    Comment(rawValue: "\(pack)/\(node.id)：结论里没有百分比，整段频率无从校验")
+                )
                 continue
             }
 
             let actual = ContentAudit.combinationWeightedBasisPoints(node.rangeCells)
             let drift = abs(actual - stated)
 
+            // 25 basis points, against observed drift of 1 to 6. The previous
+            // 100 left enough slack to add an entire offsuit hand class -- 12
+            // combinations at full weight is 90 basis points -- without the
+            // rule noticing.
             #expect(
-                drift <= 100,
-                Comment(rawValue: "\(node.id)：解释声明 \(Double(stated) / 100)%，"
+                drift <= 25,
+                Comment(rawValue: "\(pack)/\(node.id)：解释声明 \(Double(stated) / 100)%，"
                     + "范围表实际 \(Double(actual) / 100)%")
             )
         }
@@ -73,19 +86,20 @@ struct ContentAuditTests {
     // offset 1, which a six-handed table renders as SB.
     @Test("场景标题里的位置必须与 heroSeatOffsetFromButton 解析结果一致")
     func titlesAgreeWithTheResolvedPosition() throws {
-        let export = try coreExport()
-        for node in export.nodes {
+        for (pack, export, node) in try allNodesWithExport() {
             let resolved = try TablePosition(
                 tableSize: export.tableSize,
                 heroSeatOffsetFromButton: node.heroSeatOffsetFromButton
             )
             guard let claimed = ContentAudit.positionMentioned(in: node.title) else {
-                Issue.record("\(node.id)：标题没有写明位置，无法校验")
+                Issue.record(
+                    Comment(rawValue: "\(pack)/\(node.id)：标题没有写明位置，无法校验")
+                )
                 continue
             }
             #expect(
                 claimed == resolved.label,
-                Comment(rawValue: "\(node.id)：标题写 \(claimed)，offset "
+                Comment(rawValue: "\(pack)/\(node.id)：标题写 \(claimed)，offset "
                     + "\(node.heroSeatOffsetFromButton) 在 \(export.tableSize) "
                     + "人桌解析为 \(resolved.label)")
             )
@@ -96,18 +110,25 @@ struct ContentAuditTests {
     // uses has to appear in it, or the declaration describes a different game.
     @Test("场景使用的尺度必须出现在声明的下注树里")
     func everySizingAppearsInTheDeclaredBetTree() throws {
-        let export = try coreExport()
-        let declared = ContentAudit.declaredSizesBB(export.allowedBetSizeDescription)
+        for (pack, export, node) in try allNodesWithExport() {
+            let declared = ContentAudit.declaredSizesBB(
+                export.allowedBetSizeDescription
+            )
+            // facingRaiseTo is checked alongside the action sizes: it feeds the
+            // minimum-defence calculation, so a value outside the declared tree
+            // silently changes what that gate demands.
+            var used = node.actions.compactMap {
+                ContentAudit.targetCentiBB($0.action)
+            }
+            if let facing = node.facingRaiseTo {
+                used.append(facing.centiBB)
+            }
 
-        for node in export.nodes {
-            for action in node.actions {
-                guard let toCentiBB = ContentAudit.targetCentiBB(action.action) else {
-                    continue
-                }
+            for toCentiBB in used {
                 let sizeBB = Double(toCentiBB) / 100
                 #expect(
                     declared.contains(where: { abs($0 - sizeBB) < 0.01 }),
-                    Comment(rawValue: "\(node.id)：使用了 \(sizeBB)BB，"
+                    Comment(rawValue: "\(pack)/\(node.id)：使用了 \(sizeBB)BB，"
                         + "但声明的下注树是 \(export.allowedBetSizeDescription)")
                 )
             }
@@ -144,7 +165,7 @@ struct ContentAuditTests {
     // the chart calls both correct — the content contradicts itself.
     @Test("混合策略手牌的各行动 EV 必须接近")
     func mixedHandsHaveComparableExpectedValues() throws {
-        for node in try coreExport().nodes {
+        for (pack, node) in try allNodes() {
             let played = node.actions.filter { $0.frequencyBasisPoints > 0 }
             guard played.count > 1 else { continue }
 
@@ -159,7 +180,7 @@ struct ContentAuditTests {
             // second best — which is not what a mixed strategy means.
             #expect(
                 lossRateBasisPoints <= 10,
-                Comment(rawValue: "\(node.id)：混合行动的 EV 差为 \(spread) milliBB，"
+                Comment(rawValue: "\(pack)/\(node.id)：混合行动的 EV 差为 \(spread) milliBB，"
                     + "折合 \(lossRateBasisPoints) bp，超过 acceptable 的上限")
             )
         }
@@ -171,18 +192,24 @@ struct ContentAuditTests {
     @Test("越靠后的位置开池必须越宽")
     func openingRangesWidenWithPosition() throws {
         let export = try coreExport()
-        // Order of action preflop, from first to act to last.
-        let seatOrder = ["UTG", "HJ", "CO", "BTN"]
 
-        let widths = try seatOrder.map { position -> (String, Int) in
-            let node = try #require(
-                export.nodes.first { $0.id == "rfi-\(position.lowercased())" },
-                Comment(rawValue: "缺少 \(position) 的开池节点")
-            )
-            return (
-                position,
-                ContentAudit.combinationWeightedBasisPoints(node.rangeCells)
-            )
+        // Derived from the export, not a hardcoded list: the previous literal
+        // named four seats while five RFI nodes shipped, so SB could open
+        // narrower than UTG unnoticed. The blinds are excluded because they act
+        // last preflop and their ranges are not comparable to the others.
+        let opening = export.nodes
+            .filter { $0.curriculumNodeID == "preflop-rfi" }
+            .filter { $0.heroSeatOffsetFromButton >= 3 || $0.heroSeatOffsetFromButton == 0 }
+            .sorted { lhs, rhs in
+                // Action order preflop: UTG(3) → HJ(4) → CO(5) → BTN(0).
+                let order = { (seat: Int) in seat == 0 ? 99 : seat }
+                return order(lhs.heroSeatOffsetFromButton) < order(rhs.heroSeatOffsetFromButton)
+            }
+
+        #expect(opening.count >= 4, "开池节点少于 4 个，单调性无从检验")
+
+        let widths = opening.map {
+            ($0.id, ContentAudit.combinationWeightedBasisPoints($0.rangeCells))
         }
 
         for (earlier, later) in zip(widths, widths.dropFirst()) {
@@ -203,6 +230,21 @@ struct ContentAuditTests {
         let export = try coreExport()
 
         for node in export.nodes {
+            // Declaring the raise faced is mandatory whenever there is one.
+            // As a plain optional it could be deleted to switch this whole rule
+            // off, with no other observable effect anywhere.
+            //
+            // Owing more than one big blind is what distinguishes facing a
+            // raise from merely owing the blind: amounts are centi-BB, so 100
+            // is exactly one big blind and an unopened pot never exceeds it.
+            let bigBlind = 100
+            if node.amountToCall.centiBB > bigBlind, node.facingRaiseTo == nil {
+                Issue.record(
+                    Comment(rawValue: "\(node.id)：应跟金额大于 0 却没有声明 "
+                        + "facingRaiseTo，最小防守频率无从计算")
+                )
+                continue
+            }
             guard let facingRaiseTo = node.facingRaiseTo else { continue }
             guard let opening = export.nodes.first(where: {
                 $0.curriculumNodeID == "preflop-rfi"
@@ -214,6 +256,13 @@ struct ContentAuditTests {
 
             let risked = facingRaiseTo.centiBB
             let attacked = node.pot.centiBB - risked
+            // Nothing else cross-checks the declared pot, and shrinking it
+            // drives the required defence toward zero.
+            #expect(
+                attacked > 0,
+                Comment(rawValue: "\(node.id)：底池 \(node.pot.centiBB) 不大于"
+                    + " 面对的加注 \(risked)，最小防守频率会退化为 0")
+            )
             // A pure bluff risks `risked` to win `attacked`, so it breaks even
             // at risked/(risked+attacked) folds. Defence has to cover the rest.
             let minimumContinueBasisPoints =
@@ -233,18 +282,55 @@ struct ContentAuditTests {
         }
     }
 
-    private func coreExport() throws -> SolverExport {
-        let url = URL(filePath: #filePath)
+    /// Every shipped export, not just the core one. The depth pack rides on
+    /// Debug and Dogfood and was previously subject to none of these rules.
+    private func allNodes() throws -> [(String, SolverNode)] {
+        try exports().flatMap { entry in
+            entry.export.nodes.map { (entry.name, $0) }
+        }
+    }
+
+    private func allNodesWithExport() throws -> [(String, SolverExport, SolverNode)] {
+        try exports().flatMap { entry in
+            entry.export.nodes.map { (entry.name, entry.export, $0) }
+        }
+    }
+
+    /// Every shipped export. Enumerated from disk rather than listed, so a new
+    /// export cannot be added without these rules applying to it — which is how
+    /// the postflop pack shipped subject to none of them.
+    private func exports() throws -> [(name: String, export: SolverExport)] {
+        let directory = repositoryRoot().appending(path: "Content/exports")
+        let names = try FileManager.default
+            .contentsOfDirectory(atPath: directory.path())
+            .filter { $0.hasSuffix(".json") }
+            .map { String($0.dropLast(5)) }
+            .sorted()
+
+        #expect(!names.isEmpty, "Content/exports 下没有任何导出")
+        return try names.map { (name: $0, export: try load($0)) }
+    }
+
+    private func repositoryRoot() -> URL {
+        URL(filePath: #filePath)
             .deletingLastPathComponent()   // StrategyToolingTests
             .deletingLastPathComponent()   // Tests
             .deletingLastPathComponent()   // StrategyTooling
             .deletingLastPathComponent()   // Packages
             .deletingLastPathComponent()   // repository root
-            .appending(path: "Content/exports/core-6max-100bb.json")
+    }
 
-        return try PackBuilder.makeDecoder().decode(
+    private func coreExport() throws -> SolverExport {
+        try load("core-6max-100bb")
+    }
+
+    private func load(_ name: String) throws -> SolverExport {
+        try PackBuilder.makeDecoder().decode(
             SolverExport.self,
-            from: try Data(contentsOf: url)
+            from: try Data(
+                contentsOf: repositoryRoot()
+                    .appending(path: "Content/exports/\(name).json")
+            )
         )
     }
 }

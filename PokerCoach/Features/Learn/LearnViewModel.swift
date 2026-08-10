@@ -16,6 +16,15 @@ struct CurriculumNodePresentation: Identifiable, Equatable {
     /// it cannot be trained and must not drag the progress denominator down.
     var isContentUnavailable: Bool { practisableScenarioCount == 0 }
 
+    /// A node with too few scenarios to demonstrate transfer.
+    ///
+    /// Mastery over a single scenario is memorising one hand, not learning the
+    /// spot, so such a node is reported as content-limited rather than being
+    /// counted — either as masterable or as a permanent shortfall.
+    var hasInsufficientContentForMastery: Bool {
+        practisableScenarioCount < MasteryEvaluator.transferRequirement
+    }
+
     var isMastered: Bool { mastery.isMastered }
 }
 
@@ -43,11 +52,11 @@ final class LearnViewModel {
     /// no content are excluded: leaving them in would make the number fall
     /// whenever content ships without them, which reads as regression.
     var masteryProgressDenominator: Int {
-        nodes.count { !$0.isContentUnavailable }
+        nodes.count { !$0.hasInsufficientContentForMastery }
     }
 
     var masteredCount: Int {
-        nodes.count { !$0.isContentUnavailable && $0.isMastered }
+        nodes.count { !$0.hasInsufficientContentForMastery && $0.isMastered }
     }
 
     /// Nodes the daily plan may draw from.

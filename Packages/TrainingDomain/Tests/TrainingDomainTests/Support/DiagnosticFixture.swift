@@ -54,6 +54,7 @@ enum DiagnosticFixture {
                 id: "item-\(index)",
                 scenarioID: "\(dimension)-s0-t1-k1",
                 abilityDimension: dimension,
+                curriculumNodeID: dimension,
                 estimatedMinutes: 2
             )
         }

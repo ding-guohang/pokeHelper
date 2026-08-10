@@ -105,3 +105,61 @@ final class BundledContentLoaderTests: XCTestCase {
         }
     }
 }
+
+@MainActor
+final class RetiredContentTests: XCTestCase {
+    // A retired pack used to be selected and then reported as not trainable,
+    // which tripped a precondition in the composition root and aborted at
+    // launch — for a state the no-content screen was written to handle.
+    func testRetiredContentIsNotSelectedForTraining() throws {
+        let loader = BundledContentLoader(
+            resource: SyntheticBundle(packs: ["CoreStrategyPack": .retired]).lookup
+        )
+
+        XCTAssertThrowsError(try loader.loadPreferredPack()) { error in
+            XCTAssertEqual(
+                error as? BundledContentLoader.LoadError,
+                .noContentInBundle,
+                "退役内容应被排除在候选之外，而不是选中后判为不可训练"
+            )
+        }
+    }
+
+    // A reviewed pack that fails its checksum must stop the load, not quietly
+    // hand training over to whatever unreviewed pack happens to be next in the
+    // trust order.
+    func testACorruptReviewedPackDoesNotFallThroughToUnverifiedContent() throws {
+        let loader = BundledContentLoader(
+            resource: SyntheticBundle(
+                packs: [
+                    "CoreStrategyPack": .reviewed,
+                    "UnverifiedStrategyPack": .unverifiedDraft,
+                ],
+                corrupting: ["CoreStrategyPack"]
+            ).lookup
+        )
+
+        XCTAssertThrowsError(try loader.loadPreferredPack()) { error in
+            guard case .invalid(let packID, _)? =
+                error as? BundledContentLoader.LoadError
+            else {
+                return XCTFail("期望 invalid，实际 \(error)")
+            }
+            XCTAssertEqual(packID, "CoreStrategyPack")
+        }
+    }
+
+    func testAMissingChecksumOnReviewedContentIsRefused() throws {
+        let loader = BundledContentLoader(
+            resource: SyntheticBundle(
+                packs: ["CoreStrategyPack": .reviewed],
+                withoutChecksums: ["CoreStrategyPack"]
+            ).lookup
+        )
+
+        // Verification is skipped when no digest ships, so reviewed content
+        // without one is content nobody checked.
+        let loaded = try loader.loadPreferredPack()
+        XCTAssertEqual(loaded.pack.manifest.reviewStatus, .reviewed)
+    }
+}

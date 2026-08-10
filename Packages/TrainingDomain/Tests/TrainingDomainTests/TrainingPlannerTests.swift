@@ -23,8 +23,8 @@ import Testing
     let plan = TrainingPlanner().makePlan(
         profile: .init(abilities: [:]),
         catalog: [
-            .init(id: "unseen-b", scenarioID: "scenario-b", abilityDimension: "unseen", estimatedMinutes: 5),
-            .init(id: "unseen-a", scenarioID: "scenario-a", abilityDimension: "unseen", estimatedMinutes: 5),
+            .init(id: "unseen-b", scenarioID: "scenario-b", abilityDimension: "unseen", curriculumNodeID: "node-unseen", estimatedMinutes: 5),
+            .init(id: "unseen-a", scenarioID: "scenario-a", abilityDimension: "unseen", curriculumNodeID: "node-unseen", estimatedMinutes: 5),
         ],
         now: Date(timeIntervalSince1970: 1_800_000_000)
     )

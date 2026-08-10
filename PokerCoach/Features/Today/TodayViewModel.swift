@@ -105,6 +105,15 @@ final class TodayViewModel {
     func skipDiagnostic() {
         hasSkippedDiagnostic = true
     }
+
+    /// The next unanswered diagnostic question, or nil when there is nothing
+    /// left to ask.
+    func startDiagnostic() -> String? {
+        guard canStartTraining else {
+            return nil
+        }
+        return diagnostic?.remaining.first?.scenarioID
+    }
     let strategyContentAvailability: StrategyContentAvailability
 
     var contentDisclosureText: String {
@@ -160,7 +169,7 @@ final class TodayViewModel {
             // Repetition is due per curriculum node, which only the content can
             // resolve. Without a pack the plan simply ranks without that term
             // rather than guessing at one.
-            let dueDimensions = pack.map { pack in
+            let dueNodeIDs = pack.map { pack in
                 Set(
                     RepetitionScheduler()
                         .dueRepetitions(events: events, pack: pack, now: now())
@@ -171,7 +180,7 @@ final class TodayViewModel {
             let plan = planner.makePlan(
                 profile: profile,
                 catalog: catalog,
-                dueRepetitionDimensions: dueDimensions,
+                dueRepetitionNodeIDs: dueNodeIDs,
                 now: now()
             )
             primaryItem = plan.items.first

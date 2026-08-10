@@ -56,6 +56,9 @@ struct TodayView: View {
                         }
                     }
                 case .loaded:
+                    if viewModel.showsDiagnosticEntry {
+                        diagnosticEntry
+                    }
                     if let primaryItem = viewModel.primaryItem {
                         primaryTraining(primaryItem)
                         supportingTraining
@@ -73,6 +76,44 @@ struct TodayView: View {
         .navigationDestination(item: $selectedScenarioID) { scenarioID in
             DecisionSessionView(viewModel: makeSessionViewModel(scenarioID))
         }
+    }
+
+    /// The initial diagnostic. Offered, never required: skipping hides the
+    /// prompt but leaves the entry, because the product promise is "open it and
+    /// train", not "be diagnosed or nothing".
+    @ViewBuilder
+    private var diagnosticEntry: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("能力诊断", systemImage: "chart.bar.doc.horizontal")
+                .font(.headline)
+            if let progress = viewModel.diagnosticProgressText {
+                Text("进度 \(progress)")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("today.diagnostic.progress")
+            }
+            if viewModel.showsDiagnosticPrompt {
+                Text("先花几分钟做一遍诊断，今日计划会更贴合你的弱点。")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+            HStack {
+                Button("开始诊断") {
+                    selectedScenarioID = viewModel.startDiagnostic()
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("today.diagnostic.start")
+
+                if viewModel.showsDiagnosticPrompt {
+                    Button("以后再说") {
+                        viewModel.skipDiagnostic()
+                    }
+                    .accessibilityIdentifier("today.diagnostic.skip")
+                }
+            }
+        }
+        .padding()
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private func primaryTraining(_ item: DailyPlanItem) -> some View {

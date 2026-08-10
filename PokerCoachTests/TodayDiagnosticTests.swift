@@ -113,3 +113,55 @@ final class TodayDiagnosticTests: XCTestCase {
         )
     }
 }
+
+@MainActor
+final class TodayRepetitionTests: XCTestCase {
+    // The reason this test exists: the app fed curriculum node IDs into a
+    // parameter the planner compared against ability dimensions. Both fixtures
+    // set the two fields to the same string, so every domain test passed while
+    // the due-repetition bonus never fired in any build.
+    //
+    // The pack below keeps the namespaces distinct, as shipped content does.
+    func testDueRepetitionReachesThePlanFromTheApp() async throws {
+        let pack = RepetitionAppFixture.pack
+        let events = [
+            RepetitionAppFixture.event(
+                scenarioID: "s-turn-1",
+                quality: .blunder,
+                daysAfterEpoch: 0
+            ),
+        ]
+        let viewModel = TodayViewModel(
+            eventStore: InMemoryTrainingEventStore(events: events),
+            reducer: PlayerModelReducer(),
+            planner: TrainingPlanner(),
+            catalog: RepetitionAppFixture.catalog,
+            strategyContentAvailability: .reviewedContentAvailable,
+            strategyProvider: InMemoryStrategyPackProvider(pack: pack),
+            now: { RepetitionAppFixture.epoch.addingTimeInterval(5 * 86_400) }
+        )
+
+        await viewModel.refresh()
+
+        let item = try XCTUnwrap(
+            viewModel.primaryItem,
+            "计划为空，无法判断复练是否进入排序"
+        )
+        let other = try XCTUnwrap(viewModel.supportingItems.first)
+
+        // The two catalog entries share an ability dimension and differ only by
+        // node, and "flop-item" sorts before "turn-item", so a tie would put
+        // flop first. Turn winning means the due bonus actually reached the
+        // ranking rather than the two namespaces silently missing each other.
+        XCTAssertEqual(
+            item.curriculumNodeIDForTesting,
+            "turn-barrel",
+            "到期复练没有进入排序：很可能又把节点 ID 与能力维度混为一谈了"
+        )
+        XCTAssertGreaterThan(item.priority, other.priority)
+    }
+}
+
+extension DailyPlanItem {
+    var curriculumNodeIDForTesting: String { catalogItem.curriculumNodeID }
+}

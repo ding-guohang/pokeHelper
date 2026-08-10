@@ -53,6 +53,7 @@ enum DiagnosticContentFixture {
             id: "item-\($0.offset)",
             scenarioID: "\($0.element)-s0-t1-k1",
             abilityDimension: $0.element,
+                curriculumNodeID: "node-" + $0.element,
             estimatedMinutes: 2
         )
     }

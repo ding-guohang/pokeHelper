@@ -62,6 +62,34 @@ final class AppDependencies {
     /// foreground, and network-restored signals.
     let pendingRevocation: PendingRevocationProcessor
 
+    /// Applies content updates. Present even while no source can offer one, so
+    /// the path from launch to `checkForUpdate()` exists and is exercised
+    /// rather than being written and left dormant.
+    private(set) var contentUpdate: ContentUpdateCoordinator?
+
+    /// Installs the content update path. Separate from `init` because it needs
+    /// the resolved pack, which only the content-available constructor has.
+    func installContentUpdate(
+        pack: StrategyPack,
+        availability: StrategyContentAvailability,
+        source: any ContentUpdateSource = BundledOnlyContentSource()
+    ) {
+        contentUpdate = ContentUpdateCoordinator(
+            current: pack,
+            availability: availability,
+            source: source
+        )
+    }
+
+    /// Checks for newer content. Called on launch; safe to call repeatedly.
+    @discardableResult
+    func checkForContentUpdate() async -> ContentUpdateOutcome {
+        guard let contentUpdate else {
+            return .noCandidate
+        }
+        return (try? await contentUpdate.checkForUpdate()) ?? .noCandidate
+    }
+
     /// Assembles the account, profile, and sync layers. Without it each layer
     /// works in isolation and none of them runs in the product.
     private(set) var syncCoordinator: SyncCoordinator?
@@ -137,7 +165,17 @@ final class AppDependencies {
         // First production path that constructs a trainable availability. Until
         // M1C there was no bundled content at all, so this branch could only
         // ever report reviewedContentUnavailable.
-        let loaded = try BundledContentLoader(bundle: .main).loadPreferredPack()
+        // A bundle with no trainable content is a shippable state -- the
+        // "未安装已审核策略内容" screen exists for it -- so it must not abort.
+        guard let loaded = try? BundledContentLoader(bundle: .main).loadPreferredPack()
+        else {
+            let dependencies = reviewedContentUnavailable(
+                eventStore: try syncTrackingEventStore(in: storageDirectory),
+                localIdentity: localIdentity
+            )
+            dependencies.installSyncCoordinator(root: try liveProfileRoot())
+            return dependencies
+        }
         let dependencies = availableContent(
             eventStore: try syncTrackingEventStore(in: storageDirectory),
             strategyPack: loaded.pack,
@@ -287,7 +325,7 @@ final class AppDependencies {
             strategyContentAvailability.canStartTraining,
             "Available strategy content requires a trainable availability"
         )
-        return AppDependencies(
+        let dependencies = AppDependencies(
             eventStore: eventStore,
             strategyProvider: InMemoryStrategyPackProvider(
                 pack: strategyPack
@@ -301,6 +339,11 @@ final class AppDependencies {
                 strategyPack.manifest.id: strategyPack.manifest.reviewStatus,
             ]
         )
+        dependencies.installContentUpdate(
+            pack: strategyPack,
+            availability: strategyContentAvailability
+        )
+        return dependencies
     }
 
     func makeDecisionSessionViewModel(
@@ -378,6 +421,7 @@ enum RuntimeTrainingCatalog {
                 id: scenario.id,
                 scenarioID: scenario.id,
                 abilityDimension: scenario.abilityDimension,
+                curriculumNodeID: scenario.curriculumNodeID,
                 estimatedMinutes: estimatedMinutes
             )
         }

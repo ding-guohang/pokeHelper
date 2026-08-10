@@ -28,8 +28,11 @@ enum PlayerProfileFixture {
 
 enum TrainingCatalogFixture {
     static let items = [
-        TrainingCatalogItem(id: "bet-sizing-002", scenarioID: "scenario-2", abilityDimension: "bet-sizing", estimatedMinutes: 5),
-        TrainingCatalogItem(id: "preflop-range-001", scenarioID: "scenario-3", abilityDimension: "preflop-range", estimatedMinutes: 5),
-        TrainingCatalogItem(id: "bet-sizing-001", scenarioID: "scenario-1", abilityDimension: "bet-sizing", estimatedMinutes: 5),
+        TrainingCatalogItem(id: "bet-sizing-002", scenarioID: "scenario-2", abilityDimension: "bet-sizing",
+                curriculumNodeID: "node-" + "bet-sizing", estimatedMinutes: 5),
+        TrainingCatalogItem(id: "preflop-range-001", scenarioID: "scenario-3", abilityDimension: "preflop-range",
+                curriculumNodeID: "node-" + "preflop-range", estimatedMinutes: 5),
+        TrainingCatalogItem(id: "bet-sizing-001", scenarioID: "scenario-1", abilityDimension: "bet-sizing",
+                curriculumNodeID: "node-" + "bet-sizing", estimatedMinutes: 5),
     ]
 }

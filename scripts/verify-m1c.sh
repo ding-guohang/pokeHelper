@@ -11,6 +11,8 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
+change_id="curriculum-m1c-adaptive-cash-20260810-01"
+
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
@@ -34,6 +36,18 @@ xcodebuild test \
   -scheme PokerCoach \
   -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
   -only-testing:PokerCoachTests >/dev/null
+
+echo "==> Test the M1C surfaces through the UI"
+# Included deliberately: a UI test is the only thing that distinguishes a view
+# model whose output is rendered from one whose output nothing reads, which is
+# how the diagnostic shipped computed and invisible.
+#
+# Scoped to the iPhone destination and to M1C's own class; the iPad layout test
+# belongs to verify-m1a.sh, which runs it against an iPad.
+xcodebuild test \
+  -scheme PokerCoach \
+  -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+  -only-testing:PokerCoachUITests/M1CSurfaceTests >/dev/null
 
 echo "==> Re-import the core content and confirm it is byte-identical"
 swift build --package-path Packages/StrategyTooling >/dev/null
@@ -82,25 +96,54 @@ app_for() {
   find "$scratch/$1/Build/Products" -name PokerCoach.app -maxdepth 3 | head -1
 }
 
-echo "==> Content gate: each channel carries what it is allowed to"
-for config in Debug Dogfood; do
+echo "==> Each configuration stamps the channel it is supposed to"
+# Without this nothing ties a configuration to its channel: setting
+# PC_CONTENT_CHANNEL to dogfood in Release.xcconfig, or deleting the line, used
+# to leave every check downstream green.
+expected_channel() {
+  case "$1" in
+    Debug) echo debug ;;
+    Dogfood) echo dogfood ;;
+    Release) echo store ;;
+  esac
+}
+for config in Debug Dogfood Release; do
+  actual="$(plutil -extract PCContentChannel raw "$(app_for "$config")/Info.plist" 2>/dev/null || true)"
+  expected="$(expected_channel "$config")"
+  if [[ "$actual" != "$expected" ]]; then
+    echo "FAIL: $config produced channel '${actual:-<missing>}', expected '$expected'" >&2
+    exit 1
+  fi
+done
+
+echo "==> Content gate: every channel carries only what it is allowed to"
+for config in Debug Dogfood Release; do
   bash scripts/check-release-content.sh "$(app_for "$config")"
 done
 
-# The store channel is expected to fail while the core pack is unreviewed.
-# Asserting the specific outcome either way keeps this honest: a green run
-# must not silently mean "nobody looked".
-store_app="$(app_for Release)"
-if bash scripts/check-release-content.sh "$store_app" >/dev/null 2>&1; then
-  echo "==> Content gate: store channel passes (reviewed content is installed)"
-else
-  echo "==> Content gate: store channel correctly blocked (core content is not yet reviewed)"
-fi
-
 echo "==> Content gate: rejects unverified content on the store channel"
+# The unverified pack is synthesised rather than borrowed from the dogfooding
+# build. Relying on a configuration to happen to carry unverified content makes
+# the probe stop probing the day that content is removed -- and report success
+# while doing it.
 probe="$scratch/probe.app"
-cp -R "$(app_for Dogfood)" "$probe"
+cp -R "$(app_for Release)" "$probe"
 plutil -replace PCContentChannel -string store "$probe/Info.plist"
+python3 - "$probe" <<'PYTHON'
+import json
+import pathlib
+import sys
+
+app = pathlib.Path(sys.argv[1])
+pack = json.loads((app / "CoreStrategyPack.json").read_text())
+pack["manifest"]["id"] = "probe-unverified"
+pack["manifest"]["reviewStatus"] = "unverifiedDraft"
+pack["manifest"]["reviewedBy"] = None
+pack["manifest"]["reviewedAt"] = None
+(app / "ProbeStrategyPack.json").write_text(
+    json.dumps(pack, ensure_ascii=False)
+)
+PYTHON
 if bash scripts/check-release-content.sh "$probe" >/dev/null 2>&1; then
   echo "FAIL: the store channel accepted unverifiedDraft content" >&2
   exit 1
@@ -108,33 +151,58 @@ fi
 
 echo "==> Content gate: fails closed when the channel marker is missing"
 unmarked="$scratch/unmarked.app"
-cp -R "$(app_for Dogfood)" "$unmarked"
+cp -R "$(app_for Release)" "$unmarked"
 plutil -remove PCContentChannel "$unmarked/Info.plist"
 if bash scripts/check-release-content.sh "$unmarked" >/dev/null 2>&1; then
   echo "FAIL: a build with no PCContentChannel was allowed through" >&2
   exit 1
 fi
 
-echo "==> Content gate: accepts an all-reviewed store build"
-reviewed="$scratch/reviewed.app"
-cp -R "$(app_for Release)" "$reviewed"
-plutil -replace PCContentChannel -string store "$reviewed/Info.plist"
-python3 - "$reviewed/CoreStrategyPack.json" <<'PYTHON'
+echo "==> Content gate: rejects a pack that does not match its own digest"
+# Rewriting an EV leaves the review status intact, so a gate reading only the
+# manifest passes a pack that would misgrade every answer.
+tampered="$scratch/tampered.app"
+cp -R "$(app_for Release)" "$tampered"
+python3 - "$tampered/CoreStrategyPack.json" <<'PYTHON'
 import json
 import sys
 
 path = sys.argv[1]
 pack = json.load(open(path))
-pack["manifest"]["reviewStatus"] = "reviewed"
-pack["manifest"]["reviewedBy"] = "verify-m1c probe"
-pack["manifest"]["reviewedAt"] = "2026-08-10T00:00:00Z"
+pack["scenarios"][0]["options"][0]["ev"]["milliBB"] = 999_999
 json.dump(pack, open(path, "w"), ensure_ascii=False)
 PYTHON
-bash scripts/check-release-content.sh "$reviewed" >/dev/null
+if bash scripts/check-release-content.sh "$tampered" >/dev/null 2>&1; then
+  echo "FAIL: a pack whose bytes no longer match its digest was accepted" >&2
+  exit 1
+fi
+
+echo "==> Content gate: rejects unverified content under any filename"
+# The Release xcconfig excludes unverified content by filename. If this gate
+# also keyed on filenames the two would fail open together on a rename.
+renamed="$scratch/renamed.app"
+cp -R "$probe" "$renamed"
+mv "$renamed/ProbeStrategyPack.json" "$renamed/depth-6max-100bb.json"
+if bash scripts/check-release-content.sh "$renamed" >/dev/null 2>&1; then
+  echo "FAIL: renaming the unverified pack defeated the gate" >&2
+  exit 1
+fi
 
 echo "==> The frozen event contract is untouched"
-if ! git diff --quiet HEAD -- Contracts/; then
-  echo "FAIL: M1C must not change Contracts/" >&2
+# Compared across the change's whole commit range, not working tree against
+# HEAD: the latter goes blind the moment an edit is committed, which is exactly
+# when it matters.
+change_base="$(
+  git log --diff-filter=A --format=%H \
+    -- "openspec/changes/$change_id/proposal.md" | tail -1
+)"
+if [[ -z "$change_base" ]]; then
+  echo "FAIL: cannot locate the commit that introduced this change's proposal" >&2
+  exit 1
+fi
+if ! git diff --quiet "$change_base^..HEAD" -- Contracts/; then
+  echo "FAIL: this change must not touch Contracts/" >&2
+  git diff --stat "$change_base^..HEAD" -- Contracts/ >&2
   exit 1
 fi
 # The .sha256 file holds a bare digest, so compare it directly rather than
@@ -147,6 +215,6 @@ if [[ "$recorded" != "$actual" ]]; then
 fi
 
 echo "==> Proposal preserves every existing requirement"
-bash scripts/check-proposal-completeness.sh curriculum-m1c-adaptive-cash-20260810-01 >/dev/null
+bash scripts/check-proposal-completeness.sh "$change_id"
 
 echo "==> M1C verification passed"

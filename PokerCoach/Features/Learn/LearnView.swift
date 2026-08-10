@@ -35,7 +35,7 @@ struct LearnView: View {
         }
         .navigationTitle("学习")
         .accessibilityIdentifier("learn.tree")
-        .task { await load() }
+        .onAppear { Task { await load() } }
     }
 
     @ViewBuilder
@@ -79,11 +79,19 @@ struct LearnView: View {
         .onTapGesture {
             expandedNodeID = expandedNodeID == node.id ? nil : node.id
         }
+        // Applied to the label rather than the row: an identifier on a
+        // container propagates to its children and overwrites theirs, which is
+        // how the mastery signal rows lost their own identifiers.
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("learn.node.\(node.id)")
     }
 
+    /// Rebuilt on every appearance rather than once.
+    ///
+    /// Mastery is derived from the event history, so a tree cached at first
+    /// appearance shows the same numbers for the life of the process no matter
+    /// how much the user trains.
     private func load() async {
-        guard viewModel == nil else { return }
         guard let pack = try? await dependencies.strategyProvider.pack() else {
             return
         }

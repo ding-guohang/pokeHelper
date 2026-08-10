@@ -126,13 +126,15 @@ struct NodeMasteryTests {
 
         #expect(mastery.isMastered == false)
         #expect(mastery.signals.allSatisfy { $0.actual == 0 })
-        // Calibration is vacuously satisfied here — nobody claimed certainty,
-        // so there is nothing miscalibrated. The four counted signals are what
-        // must be unmet.
-        for kind in [MasterySignal.Kind.sample, .recentStability, .repetition, .transfer] {
+        // Calibration and repetition are vacuously satisfied here: nobody
+        // claimed certainty, and nothing has been failed, so there is neither
+        // miscalibration nor anything to consolidate. The three counted signals
+        // are what must be unmet.
+        for kind in [MasterySignal.Kind.sample, .recentStability, .transfer] {
             #expect(mastery.signal(kind).satisfied == false)
         }
         #expect(mastery.signal(.confidenceCalibration).satisfied)
+        #expect(mastery.signal(.repetition).required == 0)
     }
 
     // Mastery is read off the deduplicated event set, so it must not depend on
@@ -167,5 +169,72 @@ struct NodeMasteryTests {
 
         #expect(mastery.signal(.sample).actual == 0)
         #expect(mastery.isMastered == false)
+    }
+}
+
+@Suite("掌握判定的内容与历史边界")
+struct NodeMasteryBoundaryTests {
+    private let evaluator = MasteryEvaluator()
+
+    // A user who never makes a mistake had nothing to consolidate, so demanding
+    // completed repetitions made flawless play permanently unrewardable.
+    @Test("从不犯错的用户也能掌握")
+    func aFlawlessHistoryCanReachMastery() throws {
+        let pack = MasteryFixture.pack()
+        let events = (0 ..< 20).map { index in
+            CurriculumFixture.event(
+                scenarioID: MasteryFixture.scenarioID(index),
+                quality: .excellent,
+                daysAfterEpoch: Double(index)
+            )
+        }
+
+        let mastery = evaluator.evaluate(
+            nodeID: MasteryFixture.nodeID,
+            events: events,
+            pack: pack
+        )
+
+        #expect(mastery.signal(.repetition).required == 0)
+        #expect(mastery.isMastered)
+    }
+
+    // Once a node has been failed the requirement returns.
+    @Test("一旦答错过就必须完成复练")
+    func afailedNodeStillRequiresRepetitions() throws {
+        let mastery = evaluator.evaluate(
+            nodeID: MasteryFixture.nodeID,
+            events: MasteryFixture.allSignalsSatisfied(completedRepetitions: 0),
+            pack: MasteryFixture.pack()
+        )
+
+        #expect(mastery.signal(.repetition).required == 2)
+        #expect(mastery.isMastered == false)
+    }
+
+    // Transfer cannot be demonstrated over more scenarios than a node has, so
+    // requiring three of them made a one-scenario node unmasterable forever.
+    @Test("迁移要求不超过节点可用场景数")
+    func transferRequirementIsCappedByAvailableContent() throws {
+        let pack = CurriculumFixture.pack(
+            scenarios: [("only-one", "thin-node")],
+            nodes: [("thin-node", [])]
+        )
+        let events = (0 ..< 20).map { index in
+            CurriculumFixture.event(
+                scenarioID: "only-one",
+                quality: .excellent,
+                daysAfterEpoch: Double(index)
+            )
+        }
+
+        let mastery = evaluator.evaluate(
+            nodeID: "thin-node",
+            events: events,
+            pack: pack
+        )
+
+        #expect(mastery.signal(.transfer).required == 1)
+        #expect(mastery.signal(.transfer).satisfied)
     }
 }

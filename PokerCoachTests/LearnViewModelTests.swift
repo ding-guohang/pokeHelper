@@ -34,8 +34,18 @@ final class LearnViewModelTests: XCTestCase {
 
         let river = try XCTUnwrap(viewModel.nodes.first { $0.id == "river-bluff-catch" })
         XCTAssertTrue(river.isContentUnavailable)
-        XCTAssertEqual(viewModel.masteryProgressDenominator, viewModel.nodes.count - 1)
         XCTAssertFalse(viewModel.plannableNodeIDs.contains("river-bluff-catch"))
+
+        // The denominator counts nodes that could actually be mastered. That
+        // excludes the empty node and also flop-cbet, which has two scenarios
+        // against a transfer requirement of three: mastery demonstrated over
+        // fewer scenarios than that is memorising hands, not learning the spot.
+        let turnBarrel = try XCTUnwrap(viewModel.nodes.first { $0.id == "turn-barrel" })
+        XCTAssertFalse(turnBarrel.hasInsufficientContentForMastery)
+        let flopCbet = try XCTUnwrap(viewModel.nodes.first { $0.id == "flop-cbet" })
+        XCTAssertEqual(flopCbet.practisableScenarioCount, 2)
+        XCTAssertTrue(flopCbet.hasInsufficientContentForMastery)
+        XCTAssertEqual(viewModel.masteryProgressDenominator, 1)
     }
 
     // GIVEN 某节点未掌握

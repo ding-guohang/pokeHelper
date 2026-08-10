@@ -4,4 +4,4 @@ PC_CONTENT_CHANNEL = store
 
 // A store release carries reviewed content only. The gate reads the
 // channel back out of the built Info.plist and enforces that.
-EXCLUDED_SOURCE_FILE_NAMES = DevStrategyPack.json UnverifiedStrategyPack.json UnverifiedStrategyPack.sha256
+EXCLUDED_SOURCE_FILE_NAMES = DevStrategyPack.json

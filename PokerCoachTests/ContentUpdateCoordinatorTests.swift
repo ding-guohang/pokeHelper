@@ -143,3 +143,59 @@ private struct StubContentUpdateSource: ContentUpdateSource {
 
     func fetchCandidate() async throws -> ContentUpdateOffer? { offer }
 }
+
+@MainActor
+final class ContentUpdateReachabilityTests: XCTestCase {
+    // The coordinator previously had zero production callers: 130 lines and
+    // nine green tests describing behaviour no build could reach. These assert
+    // the path from the composition root exists.
+    func testDependenciesInstallTheCoordinator() throws {
+        let dependencies = AppDependencies.availableContent(
+            eventStore: InMemoryTrainingEventStore(events: []),
+            strategyPack: try ContentUpdateFixture.pack(contentVersion: "2026.08.10"),
+            strategyContentAvailability: .reviewedContentAvailable
+        )
+
+        XCTAssertNotNil(
+            dependencies.contentUpdate,
+            "内容更新没有接进依赖组装，能力在 App 里不可达"
+        )
+    }
+
+    func testCheckingForUpdatesReportsNoCandidateWithTheBundledOnlySource() async throws {
+        let dependencies = AppDependencies.availableContent(
+            eventStore: InMemoryTrainingEventStore(events: []),
+            strategyPack: try ContentUpdateFixture.pack(contentVersion: "2026.08.10"),
+            strategyContentAvailability: .reviewedContentAvailable
+        )
+
+        let outcome = await dependencies.checkForContentUpdate()
+
+        XCTAssertEqual(outcome, .noCandidate)
+    }
+
+    // Availability must follow the adopted pack. It was asserted only on the
+    // rejection path, where the code is guaranteed not to touch it, so the
+    // whole mapping could have been a constant.
+    func testAdoptingAnUnverifiedPackDowngradesAvailability() async throws {
+        let coordinator = ContentUpdateCoordinator(
+            current: try ContentUpdateFixture.pack(contentVersion: "2026.08.06"),
+            availability: .reviewedContentAvailable,
+            source: StubUpdateSource(
+                offer: try ContentUpdateFixture.unverifiedOffer(
+                    contentVersion: "2026.09.01"
+                )
+            )
+        )
+
+        let outcome = try await coordinator.checkForUpdate()
+
+        XCTAssertEqual(outcome, .adopted(contentVersion: "2026.09.01"))
+        XCTAssertEqual(coordinator.availability, .unverifiedContentAvailable)
+    }
+}
+
+private struct StubUpdateSource: ContentUpdateSource {
+    let offer: ContentUpdateOffer?
+    func fetchCandidate() async throws -> ContentUpdateOffer? { offer }
+}

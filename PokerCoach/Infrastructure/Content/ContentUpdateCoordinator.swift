@@ -21,6 +21,15 @@ protocol ContentUpdateSource: Sendable {
     func fetchCandidate() async throws -> ContentUpdateOffer?
 }
 
+/// The source used while content ships only inside the app bundle.
+///
+/// Offering nothing is the truthful answer today, and it keeps the update path
+/// live rather than dormant: the coordinator runs on every launch, so the day
+/// an endpoint exists only this type is replaced.
+struct BundledOnlyContentSource: ContentUpdateSource {
+    func fetchCandidate() async throws -> ContentUpdateOffer? { nil }
+}
+
 enum ContentUpdateOutcome: Sendable, Equatable {
     case adopted(contentVersion: String)
     case ignored(IgnoreReason)

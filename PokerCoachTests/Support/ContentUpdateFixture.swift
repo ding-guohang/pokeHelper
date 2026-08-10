@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import StrategyContent
 @testable import PokerCoach
@@ -19,7 +20,27 @@ enum ContentUpdateFixture {
         )
     }
 
-    static func encodedPack(contentVersion: String) throws -> Data {
+    /// An offer whose pack is unverifiedDraft, for checking that availability
+    /// follows the pack that was actually adopted.
+    static func unverifiedOffer(contentVersion: String) throws -> ContentUpdateOffer {
+        let data = try encodedPack(
+            contentVersion: contentVersion,
+            reviewStatus: "unverifiedDraft"
+        )
+        let digest = SHA256.hash(data: data)
+            .map { String(format: "%02x", $0) }
+            .joined()
+        return ContentUpdateOffer(
+            data: data,
+            declaredSHA256: digest,
+            contentVersion: contentVersion
+        )
+    }
+
+    static func encodedPack(
+        contentVersion: String,
+        reviewStatus: String? = nil
+    ) throws -> Data {
         guard let url = Bundle.main.url(
             forResource: "CoreStrategyPack",
             withExtension: "json"
@@ -32,6 +53,16 @@ enum ContentUpdateFixture {
         ) as! [String: Any]
         var manifest = root["manifest"] as! [String: Any]
         manifest["contentVersion"] = contentVersion
+        if let reviewStatus {
+            manifest["reviewStatus"] = reviewStatus
+            if reviewStatus == "reviewed" {
+                manifest["reviewedBy"] = "fixture"
+                manifest["reviewedAt"] = "2026-08-10T00:00:00Z"
+            } else {
+                manifest["reviewedBy"] = NSNull()
+                manifest["reviewedAt"] = NSNull()
+            }
+        }
         root["manifest"] = manifest
 
         return try JSONSerialization.data(
