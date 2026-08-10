@@ -49,7 +49,7 @@ The system SHALL rank training catalog items using weakness, high-confidence err
 
 ## Requirement: 今日与复盘使用真实历史
 
-The system SHALL update Today and Review from the local event store after a completed decision.
+The system SHALL update Today and Review from the active profile's local event store after a completed or synchronized decision.
 
 ### Scenario: 决策完成后刷新
 
@@ -57,3 +57,14 @@ The system SHALL update Today and Review from the local event store after a comp
 - WHEN 返回今日或进入复盘
 - THEN 页面样本量和能力信息反映该事件
 - AND 今日主训练可以指向该弱项
+
+## Requirement: 跨设备历史确定性归约
+
+The system SHALL derive the active user's ability profile from the deduplicated union of locally created and synchronized TrainingEvents.
+
+### Scenario: 远端事件进入画像
+
+- GIVEN 同一账号的另一设备完成训练并同步
+- WHEN 当前设备拉取并合并该事件
+- THEN Today 与 Review 的样本和能力画像包含该事件
+- AND 相同 event ID 的重复拉取不改变结果
