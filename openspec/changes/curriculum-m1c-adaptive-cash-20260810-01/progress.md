@@ -22,7 +22,9 @@
 | 12 诊断蓝图与进度 | 完成 | | |
 | 13 生成核心集导出 | 完成 | | 6 个节点，等待人工审核 |
 | 14 人工审核闸门 | **等待所有者签字** | | 见 Content/review/ |
-| 15、17–23 | 未开始 | | |
+| 15 生成未审核深度内容 | 完成 | | 5 个节点 |
+| 17 随包内容加载 | 完成 | | 见下方说明 |
+| 18–23 | 未开始 | | |
 
 ## 偏离计划的决策
 
@@ -203,3 +205,14 @@ fixture 里任何「看起来随机但需要稳定」的取值，都不能来自
 第一次生成时我把 stderr 重定向到 `/dev/null`，于是 CLI 的用法错误被吞掉，
 产出了一个**空文件**而命令看起来成功。这与本轮反复出现的失效模式同源：
 不要把可能携带失败原因的输出丢掉。
+
+
+### `reviewedContentAvailable` 目前仍然构造不出来，这是对的
+
+Task 17 打通了随包加载，但 `CoreStrategyPack` 的状态仍是 `unverifiedDraft`，
+所以 `BundledContentLoader` 给出的是 `.unverifiedContentAvailable`。
+AC 1（Release 构建走通 `reviewedContentAvailable`）**在 Task 14 人工签字之前
+无法满足，也不应该满足**。
+
+`testPrefersTheMostTrustedStatusPresent` 写成条件断言而不是硬断言 reviewed：
+它在签字前后都成立，签字后自动开始检查 reviewed 分支。

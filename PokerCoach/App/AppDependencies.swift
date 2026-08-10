@@ -134,9 +134,16 @@ final class AppDependencies {
             strategyContentAvailability: .developmentFixtureAvailable
         )
 #else
-        let dependencies = reviewedContentUnavailable(
+        // First production path that constructs a trainable availability. Until
+        // M1C there was no bundled content at all, so this branch could only
+        // ever report reviewedContentUnavailable.
+        let loaded = try BundledContentLoader(bundle: .main).loadPreferredPack()
+        let dependencies = availableContent(
             eventStore: try syncTrackingEventStore(in: storageDirectory),
-            localIdentity: localIdentity
+            strategyPack: loaded.pack,
+            localIdentity: localIdentity,
+            strategyContentAvailability: loaded.availability,
+            installedContent: loaded.installedContent
         )
 #endif
         dependencies.installSyncCoordinator(root: try liveProfileRoot())
@@ -273,7 +280,8 @@ final class AppDependencies {
         eventStore: any TrainingEventStore,
         strategyPack: StrategyPack,
         localIdentity: LocalIdentity = .preview,
-        strategyContentAvailability: StrategyContentAvailability
+        strategyContentAvailability: StrategyContentAvailability,
+        installedContent: [String: ReviewStatus]? = nil
     ) -> AppDependencies {
         precondition(
             strategyContentAvailability.canStartTraining,
@@ -289,7 +297,7 @@ final class AppDependencies {
             ),
             localIdentity: localIdentity,
             strategyContentAvailability: strategyContentAvailability,
-            installedContent: [
+            installedContent: installedContent ?? [
                 strategyPack.manifest.id: strategyPack.manifest.reviewStatus,
             ]
         )
