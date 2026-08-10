@@ -3,6 +3,11 @@ import PokerCore
 
 public enum ReviewStatus: String, Codable, Sendable {
     case testFixture
+    /// Content that is internally consistent and safe to train against, but
+    /// whose frequencies and EVs no human has checked against a solver. It
+    /// exists so generated content can carry an honest label: calling it
+    /// `reviewed` would assert a verification nobody performed.
+    case unverifiedDraft
     case reviewed
     case retired
 }
@@ -13,7 +18,29 @@ public struct StrategyPackManifest: Codable, Sendable {
     public let contentVersion: String
     public let reviewStatus: ReviewStatus
     public let generatedSource: String
+    /// Who signed off on the strategy. Required on `reviewed` content and
+    /// absent elsewhere — `reviewed` with nobody accountable for it is the
+    /// precise false guarantee `unverifiedDraft` exists to prevent.
+    public let reviewedBy: String?
     public let reviewedAt: Date?
+
+    public init(
+        id: String,
+        schemaVersion: Int,
+        contentVersion: String,
+        reviewStatus: ReviewStatus,
+        generatedSource: String,
+        reviewedBy: String?,
+        reviewedAt: Date?
+    ) {
+        self.id = id
+        self.schemaVersion = schemaVersion
+        self.contentVersion = contentVersion
+        self.reviewStatus = reviewStatus
+        self.generatedSource = generatedSource
+        self.reviewedBy = reviewedBy
+        self.reviewedAt = reviewedAt
+    }
 }
 
 public struct StrategyOption: Codable, Hashable, Sendable {
@@ -84,6 +111,7 @@ public enum StrategyPackValidationError: Error, Equatable {
     case duplicateAction(scenarioID: String)
     case emptyGeneratedSource
     case missingReviewedAt
+    case missingReviewedBy
     case emptyScenarios
 }
 

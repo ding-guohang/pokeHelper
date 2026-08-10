@@ -18,9 +18,20 @@ public struct StrategyPackValidator: Sendable {
             throw StrategyPackValidationError.emptyGeneratedSource
         }
 
-        if pack.manifest.reviewStatus == .reviewed,
-           pack.manifest.reviewedAt == nil {
-            throw StrategyPackValidationError.missingReviewedAt
+        if pack.manifest.reviewStatus == .reviewed {
+            guard pack.manifest.reviewedAt != nil else {
+                throw StrategyPackValidationError.missingReviewedAt
+            }
+            // A blank reviewer makes the same claim as a missing one, and is
+            // what an automated step would leave behind if it filled the field
+            // only to get past this check.
+            guard let reviewedBy = pack.manifest.reviewedBy,
+                  !reviewedBy
+                      .trimmingCharacters(in: .whitespacesAndNewlines)
+                      .isEmpty
+            else {
+                throw StrategyPackValidationError.missingReviewedBy
+            }
         }
 
         guard !pack.scenarios.isEmpty else {

@@ -263,6 +263,7 @@ func heroSeatOffsetOutsideTableIsRejected(
     let data = try mutatedValidPack { root in
         updateManifest(in: &root) { manifest in
             manifest["reviewStatus"] = "reviewed"
+            manifest["reviewedBy"] = "Meow Ding"
             manifest["reviewedAt"] = "2026-08-06T08:30:00Z"
         }
     }
@@ -270,6 +271,7 @@ func heroSeatOffsetOutsideTableIsRejected(
     let pack = try StrategyPackLoader().load(data: data, expectedSHA256: nil)
 
     #expect(pack.manifest.reviewedAt != nil)
+    #expect(pack.manifest.reviewedBy == "Meow Ding")
 }
 
 @Test func emptyPackIsRejected() throws {
