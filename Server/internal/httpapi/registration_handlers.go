@@ -24,6 +24,7 @@ func NewRegistrationHandler(
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /v1/auth/register", handler.register)
 	mux.HandleFunc("POST /v1/auth/verify-email", handler.verifyEmail)
+	mux.HandleFunc("POST /v1/auth/resend-verification", handler.resendVerification)
 	return mux
 }
 
@@ -35,6 +36,27 @@ func (h *registrationHandler) register(response http.ResponseWriter, request *ht
 		return
 	}
 	accepted, err := h.service.Register(requestContext(request), input)
+	if err != nil {
+		writeAuthError(response, err, requestID)
+		return
+	}
+	writeJSON(response, http.StatusAccepted, accepted)
+}
+
+func (h *registrationHandler) resendVerification(
+	response http.ResponseWriter,
+	request *http.Request,
+) {
+	requestID := requestID(request, h.newRequestID)
+	var input struct {
+		Email string `json:"email"`
+	}
+	if err := decodeJSON(request, &input); err != nil {
+		writeTypedError(response, http.StatusBadRequest, string(auth.ValidationFailed), requestID)
+		return
+	}
+
+	accepted, err := h.service.ResendVerification(requestContext(request), input.Email)
 	if err != nil {
 		writeAuthError(response, err, requestID)
 		return

@@ -31,6 +31,7 @@ func (a *AuthAdapter) Issue(
 		DeviceID:    device.DeviceID,
 		DisplayName: device.DisplayName,
 		Platform:    device.Platform,
+		AppVersion:  device.AppVersion,
 	}, now)
 	if err != nil {
 		return auth.SessionTokens{}, err

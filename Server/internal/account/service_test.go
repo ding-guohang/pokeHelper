@@ -295,3 +295,105 @@ func assertCode(t *testing.T, err error, want account.ErrorCode) {
 		t.Errorf("code = %q, want %q", accountError.Code, want)
 	}
 }
+
+// A stolen access token must not become a password oracle. Without a throttle,
+// reauth allows unlimited Argon2 guesses at wire speed.
+func TestReauthenticationIsThrottled(t *testing.T) {
+	fixture := newFixture(t)
+	throttle := &throttleDouble{}
+	fixture.service = account.NewService(
+		fixture.store,
+		password.NewHasher(nil),
+		verifierDouble{fixture: fixture},
+		func() time.Time { return now },
+		account.WithThrottle(throttle),
+	)
+
+	_, err := fixture.service.Reauthenticate(
+		context.Background(),
+		principal(now),
+		account.ReauthenticationProof{Password: "wrong-password-entirely"},
+	)
+
+	assertCode(t, err, account.AuthenticationFailed)
+	if throttle.checks != 1 {
+		t.Errorf("checked %d times, want the budget consulted before hashing", throttle.checks)
+	}
+	if throttle.consumed != 1 {
+		t.Errorf("consumed %d attempts, want a failure to count", throttle.consumed)
+	}
+}
+
+func TestAnExhaustedBudgetRefusesBeforeHashing(t *testing.T) {
+	fixture := newFixture(t)
+	throttle := &throttleDouble{checkErr: &account.Error{Code: account.AuthenticationFailed}}
+	fixture.service = account.NewService(
+		fixture.store,
+		password.NewHasher(nil),
+		verifierDouble{fixture: fixture},
+		func() time.Time { return now },
+		account.WithThrottle(throttle),
+	)
+
+	_, err := fixture.service.Reauthenticate(
+		context.Background(),
+		principal(now),
+		account.ReauthenticationProof{Password: fixture.password},
+	)
+
+	if err == nil {
+		t.Fatal("an exhausted budget must refuse the attempt")
+	}
+	if fixture.store.markCalls != 0 {
+		t.Error("a refused attempt must not refresh the window")
+	}
+}
+
+func TestASuccessfulProofClearsTheBudget(t *testing.T) {
+	fixture := newFixture(t)
+	throttle := &throttleDouble{}
+	fixture.service = account.NewService(
+		fixture.store,
+		password.NewHasher(nil),
+		verifierDouble{fixture: fixture},
+		func() time.Time { return now },
+		account.WithThrottle(throttle),
+	)
+
+	if _, err := fixture.service.Reauthenticate(
+		context.Background(),
+		principal(now),
+		account.ReauthenticationProof{Password: fixture.password},
+	); err != nil {
+		t.Fatalf("reauthenticate: %v", err)
+	}
+
+	if throttle.cleared != 1 {
+		t.Errorf("cleared %d times, want a success to reset the budget", throttle.cleared)
+	}
+	if throttle.consumed != 0 {
+		t.Error("a success must not count against the budget")
+	}
+}
+
+type throttleDouble struct {
+	checks   int
+	consumed int
+	cleared  int
+	checkErr error
+}
+
+func (t *throttleDouble) Check(_ context.Context, _ string, _ string) error {
+	t.checks++
+	return t.checkErr
+}
+
+func (t *throttleDouble) Consume(_ context.Context, _ string, _ string) error {
+	t.consumed++
+	return nil
+}
+
+func (t *throttleDouble) ClearAccount(_ context.Context, _ string) error {
+	t.cleared++
+	return nil
+}

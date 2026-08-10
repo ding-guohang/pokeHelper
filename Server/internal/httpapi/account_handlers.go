@@ -57,7 +57,7 @@ func (h *accountHandler) reauthenticate(
 		return
 	}
 
-	at, err := h.service.Reauthenticate(request.Context(), principal, proof)
+	at, err := h.service.Reauthenticate(requestContext(request), principal, proof)
 	if err != nil {
 		writeAccountError(response, err, requestID)
 		return

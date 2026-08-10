@@ -37,3 +37,18 @@ enum APIError: Error, Equatable, Sendable {
         }
     }
 }
+
+extension APIError {
+    /// True when the server judged the request itself unacceptable, so
+    /// resending identical bytes cannot succeed. Transport failures and 5xx
+    /// are excluded: those are worth retrying unchanged.
+    var isServerRefusal: Bool {
+        switch self {
+        case .validationFailed, .identityConflict:
+            true
+        case .offline, .timedOut, .unauthorized, .reauthenticationRequired,
+             .rateLimited, .server, .malformedResponse:
+            false
+        }
+    }
+}

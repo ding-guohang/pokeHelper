@@ -93,15 +93,26 @@ if [[ "${1:-}" != "--sources-only" ]]; then
     # `set -o pipefail` — make a genuine hit look like a miss, turning every
     # check below into a no-op.
     binary_strings="$(strings "$bundle/PokerCoach" 2>/dev/null || true)"
+
+    # Markers must be things that can actually appear in a compiled Swift
+    # binary. An earlier version scanned for a compilation-condition name and
+    # for a Go-only environment variable; neither can ever be emitted here, so
+    # those checks passed no matter what the build contained.
     for marker in \
-      'DEVELOPMENT_STRATEGY_FIXTURES' \
-      'apple-identity-token' \
-      'POKER_COACH_SMTP_PASSWORD'
+      '仅开发演示数据请勿用于真实决策' \
+      'DevStrategyPack' \
+      'X-Debug-Bypass-Auth'
     do
       if grep -Fq -- "$marker" <<<"$binary_strings"; then
         fail "the Release binary contains the development marker $marker"
       fi
     done
+
+    # Proof the scan can see into this binary at all. Without it a change that
+    # silently produced empty output would make every marker check vacuous.
+    if ! grep -Fq -- 'PokerCoach' <<<"$binary_strings"; then
+      fail "the binary scan produced no readable strings, so its checks prove nothing"
+    fi
   fi
 
   echo "==> Scan the Go production binary"

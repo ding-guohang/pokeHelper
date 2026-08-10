@@ -18,6 +18,10 @@ final class AppDependencies {
     let deviceID: UUID
     let accountSession: AccountSessionController
 
+    /// Bumped whenever local history changes, so Today and Review reload after
+    /// a remote merge rather than showing a stale reduction.
+    private(set) var eventStoreRevision: Int
+
     init(
         eventStore: any TrainingEventStore,
         strategyProvider: any StrategyPackProviding,
@@ -45,11 +49,16 @@ final class AppDependencies {
             credentials: KeychainCredentialStore(vault: KeychainVault()),
             api: RemoteAccountAPI(client: APIClient(baseURL: AppDependencies.accountServiceBaseURL))
         )
+        self.eventStoreRevision = 0
     }
 
     /// Revokes tokens parked by an offline logout. Driven by launch,
     /// foreground, and network-restored signals.
     let pendingRevocation: PendingRevocationProcessor
+
+    /// Assembles the account, profile, and sync layers. Without it each layer
+    /// works in isolation and none of them runs in the product.
+    private(set) var syncCoordinator: SyncCoordinator?
 
     /// Builds the account stack. Training never depends on it: with no account
     /// and no network the controller simply stays anonymous.
@@ -71,6 +80,35 @@ final class AppDependencies {
         )
     }
 
+    /// Installs the coordinator that drives profile switching and sync.
+    ///
+    /// Kept out of `init` because it needs the fully built dependencies and a
+    /// storage root, and because tests construct dependencies without it.
+    func installSyncCoordinator(root: URL) {
+        let profiles = ActiveProfileController(
+            associations: ProfileAssociationStore(directory: root),
+            directories: ProfileDirectoryProvider(root: root)
+        )
+        syncCoordinator = SyncCoordinator(
+            account: accountSession,
+            profiles: profiles,
+            root: root,
+            makeEngine: { [weak self] profile in
+                guard let self else {
+                    throw AppDependencyError.libraryDirectoryUnavailable
+                }
+                return try AppDependencies.makeSyncEngine(
+                    store: try AppDependencies.syncTrackingEventStore(in: profile.directory),
+                    directory: profile.directory,
+                    authorizer: self.accountSession.authorizer,
+                    onHistoryChanged: { [weak self] in
+                        await MainActor.run { self?.eventStoreRevision += 1 }
+                    }
+                )
+            }
+        )
+    }
+
     static func live() throws -> AppDependencies {
         let profile = try startupProfile()
         let storageDirectory = profile.directory
@@ -83,18 +121,26 @@ final class AppDependencies {
         try resetTrainingEventsIfRequested(
             storageDirectory: storageDirectory
         )
-        return availableContent(
+        let dependencies = availableContent(
             eventStore: try syncTrackingEventStore(in: storageDirectory),
             strategyPack: try developmentStrategyPack(),
             localIdentity: localIdentity,
             strategyContentAvailability: .developmentFixtureAvailable
         )
 #else
-        return reviewedContentUnavailable(
+        let dependencies = reviewedContentUnavailable(
             eventStore: try syncTrackingEventStore(in: storageDirectory),
             localIdentity: localIdentity
         )
 #endif
+        dependencies.installSyncCoordinator(root: try liveProfileRoot())
+        return dependencies
+    }
+
+    /// Root of the profile layout. Exposed so the coordinator can be installed
+    /// against the same directory startup resolved from.
+    static func liveProfileRoot() throws -> URL {
+        try liveStorageDirectory()
     }
 
     static func recoverCorruptedTrainingEvents() throws {

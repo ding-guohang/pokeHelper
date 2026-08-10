@@ -52,7 +52,7 @@ func ValidateUpload(command UploadCommand) error {
 
 func validateEvent(event Event) error {
 	for _, id := range []string{event.ID, event.LocalUserID, event.DeviceID} {
-		if !isLowercaseHyphenatedUUID(id) {
+		if !isHyphenatedUUID(id) {
 			return &Error{Code: ValidationFailed}
 		}
 	}
@@ -78,7 +78,13 @@ func ValidatePullLimit(limit int) error {
 	return nil
 }
 
-func isLowercaseHyphenatedUUID(value string) bool {
+// isHyphenatedUUID accepts either casing.
+//
+// Foundation encodes UUID in uppercase and Go's convention is lowercase.
+// Rejecting one of them would mean no iOS client could ever upload, so the
+// wire accepts both and UUIDBytes normalizes. The canonical-body check still
+// pins the exact bytes a given client sent, so idempotent replay is unaffected.
+func isHyphenatedUUID(value string) bool {
 	if len(value) != 36 {
 		return false
 	}
@@ -89,7 +95,7 @@ func isLowercaseHyphenatedUUID(value string) bool {
 				return false
 			}
 		default:
-			if !strings.ContainsRune("0123456789abcdef", character) {
+			if !strings.ContainsRune("0123456789abcdefABCDEF", character) {
 				return false
 			}
 		}
@@ -99,10 +105,13 @@ func isLowercaseHyphenatedUUID(value string) bool {
 
 // UUIDBytes decodes a validated lowercase hyphenated UUID.
 func UUIDBytes(value string) ([]byte, error) {
-	if !isLowercaseHyphenatedUUID(value) {
+	if !isHyphenatedUUID(value) {
 		return nil, &Error{Code: ValidationFailed}
 	}
-	decoded, err := hex.DecodeString(strings.ReplaceAll(value, "-", ""))
+	// Normalized so the same identifier written in either casing maps to one
+	// row; the unique keys are on the decoded binary value.
+	compact := strings.ToLower(strings.ReplaceAll(value, "-", ""))
+	decoded, err := hex.DecodeString(compact)
 	if err != nil {
 		return nil, &Error{Code: ValidationFailed}
 	}

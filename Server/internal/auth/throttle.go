@@ -23,6 +23,11 @@ const (
 	networkSignalDomain   signalDomain = "network"
 	invalidAccountDomain  signalDomain = "invalid-account"
 	challengeSignalDomain signalDomain = "challenge"
+	// signupSignalDomain counts unauthenticated requests that merely name an
+	// address — registration and reset requests. It is deliberately separate
+	// from accountSignalDomain: sharing that key would let anyone who knows a
+	// victim's email lock them out of login by submitting signup forms.
+	signupSignalDomain signalDomain = "signup"
 
 	throttleWindow = 15 * time.Minute
 	accountLimit   = uint32(5)
@@ -143,6 +148,23 @@ func (t *Throttle) ConsumeInvalidAccount(
 		normalizeInvalidAccountSignal(rawAccountSignal),
 		networkSignal,
 	)
+}
+
+// ConsumeSignup counts an attempt against the address-naming bucket.
+func (t *Throttle) ConsumeSignup(
+	ctx context.Context,
+	accountSignal string,
+	networkSignal string,
+) error {
+	return t.consume(ctx, signupSignalDomain, accountSignal, networkSignal)
+}
+
+func (t *Throttle) CheckSignup(
+	ctx context.Context,
+	accountSignal string,
+	networkSignal string,
+) error {
+	return t.check(ctx, signupSignalDomain, accountSignal, networkSignal)
 }
 
 func (t *Throttle) ConsumeChallenge(

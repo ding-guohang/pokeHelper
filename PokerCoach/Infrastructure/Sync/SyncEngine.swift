@@ -23,6 +23,11 @@ actor SyncEngine {
     private let pullLimit = 100
     private let uploadLimit = 100
 
+    /// A batch the server refuses is retried this many times before being set
+    /// aside. Retrying forever would block every later event and, because
+    /// upload runs before pull, would also stop this device receiving anything.
+    private let maxBatchRejections = 3
+
     init(
         store: SyncTrackingTrainingEventStore,
         outbox: FileOutboxStore,
@@ -84,14 +89,28 @@ actor SyncEngine {
                 return uploadedAnything
             }
 
-            let acknowledgement = try await authorizer.authorize { accessToken in
-                try await self.api.upload(
-                    UploadBatch(
-                        idempotencyKey: batch.idempotencyKey,
-                        body: batch.requestBody
-                    ),
-                    accessToken: accessToken
+            let acknowledgement: UploadAcknowledgement
+            do {
+                acknowledgement = try await authorizer.authorize { accessToken in
+                    try await self.api.upload(
+                        UploadBatch(
+                            idempotencyKey: batch.idempotencyKey,
+                            body: batch.requestBody
+                        ),
+                        accessToken: accessToken
+                    )
+                }
+            } catch let error as APIError where error.isServerRefusal {
+                // The server judged this batch invalid, so resending the same
+                // bytes will always fail the same way.
+                let setAside = try await outbox.quarantineRejectedBatch(
+                    batch,
+                    maxRejections: maxBatchRejections
                 )
+                if setAside.isEmpty {
+                    throw error
+                }
+                continue
             }
 
             try await outbox.acknowledge(batch, eventIDs: Set(acknowledgement.acceptedEventIDs))

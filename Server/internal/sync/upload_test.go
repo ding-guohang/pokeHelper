@@ -58,8 +58,11 @@ func TestValidationRejectsOutOfBoundsAndMalformedUploads(t *testing.T) {
 		"missing idempotency key": func(c *sync.UploadCommand) { c.IdempotencyKey = "" },
 		"wrong schema version":    func(c *sync.UploadCommand) { c.Body.SchemaVersion = 2 },
 		"empty batch":             func(c *sync.UploadCommand) { c.Body.Events = nil },
-		"uppercase uuid": func(c *sync.UploadCommand) {
-			c.Body.Events[0].ID = "00000000-0000-0000-0000-00000000000A"
+		"malformed uuid": func(c *sync.UploadCommand) {
+			c.Body.Events[0].ID = "00000000-0000-0000-0000-00000000000g"
+		},
+		"short uuid": func(c *sync.UploadCommand) {
+			c.Body.Events[0].ID = "00000000-0000-0000-0000-0000000000"
 		},
 		"missing dimension": func(c *sync.UploadCommand) {
 			c.Body.Events[0].AbilityDimension = ""
@@ -81,6 +84,41 @@ func TestValidationRejectsOutOfBoundsAndMalformedUploads(t *testing.T) {
 				t.Fatal("expected rejection")
 			}
 		})
+	}
+}
+
+// Foundation encodes UUID in uppercase and Go's convention is lowercase.
+// Rejecting either would mean one of the two clients could never upload.
+func TestValidationAcceptsBothUUIDCasings(t *testing.T) {
+	for name, id := range map[string]string{
+		"lowercase": "a1b2c3d4-0000-4000-8000-00000000000f",
+		"uppercase": "A1B2C3D4-0000-4000-8000-00000000000F",
+	} {
+		t.Run(name, func(t *testing.T) {
+			command := cloneCommand(t, contractCommand(t))
+			command.Body.Events[0].ID = id
+			command.RawBody = mustCanonical(t, command.Body)
+
+			if err := sync.ValidateUpload(command); err != nil {
+				t.Fatalf("%s identifier rejected: %v", name, err)
+			}
+		})
+	}
+}
+
+// Both casings must land on the same row, or one client could duplicate
+// another's event just by writing it differently.
+func TestBothUUIDCasingsDecodeToTheSameBytes(t *testing.T) {
+	lower, err := sync.UUIDBytes("a1b2c3d4-0000-4000-8000-00000000000f")
+	if err != nil {
+		t.Fatalf("decode lowercase: %v", err)
+	}
+	upper, err := sync.UUIDBytes("A1B2C3D4-0000-4000-8000-00000000000F")
+	if err != nil {
+		t.Fatalf("decode uppercase: %v", err)
+	}
+	if string(lower) != string(upper) {
+		t.Error("the same identifier in two casings decoded to different bytes")
 	}
 }
 

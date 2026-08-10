@@ -61,15 +61,20 @@ final class AccountSessionControllerTests: XCTestCase {
         XCTAssertEqual(harness.api.registerCalls, 0)
     }
 
-    func testVerifyEmailAuthenticatesAndStoresTheSession() async throws {
+    // Verification confirms the address; it does not sign anyone in. The server
+    // answers 204, so expecting a session here would fail on an empty body —
+    // which is exactly how the client and server drifted apart.
+    func testVerifyEmailConfirmsTheAddressWithoutIssuingASession() async throws {
         let harness = Harness()
         await harness.controller.register(email: "player@example.test", password: validPassword)
 
         await harness.controller.verifyEmail(token: "verification-token")
 
-        XCTAssertEqual(harness.controller.state, .authenticated(harness.expectedSummary))
+        XCTAssertEqual(harness.controller.state, .anonymous)
+        XCTAssertEqual(harness.controller.verifiedEmail, "player@example.test")
+        XCTAssertNil(harness.controller.failure)
         let stored = try await harness.credentials.loadActive()
-        XCTAssertNotNil(stored, "a verified account must persist its session")
+        XCTAssertNil(stored, "verification alone must not persist a session")
     }
 
     func testResendVerificationKeepsAwaitingState() async {
@@ -328,9 +333,8 @@ private final class AccountAPIDouble: StubAccountAPI, @unchecked Sendable {
         registerCalls += 1
     }
 
-    override func verifyEmail(token: String) async throws -> StoredSession {
+    override func verifyEmail(token: String) async throws {
         try failIfConfigured()
-        return .fixture()
     }
 
     override func resendVerification(email: String) async throws {

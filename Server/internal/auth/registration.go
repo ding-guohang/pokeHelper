@@ -78,7 +78,9 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (Accepted, 
 		return Accepted{}, err
 	}
 	if s.throttle != nil {
-		if err := s.throttle.Consume(ctx, email.Canonical, NetworkSignal(ctx)); err != nil {
+		// Counted against the signup bucket, not the login bucket: an
+		// unauthenticated caller must not be able to lock the owner out.
+		if err := s.throttle.ConsumeSignup(ctx, email.Canonical, NetworkSignal(ctx)); err != nil {
 			return Accepted{}, err
 		}
 	}
@@ -158,4 +160,69 @@ func (s *Service) VerifyEmail(ctx context.Context, rawToken string) error {
 
 func (s *Service) randomID() (ID, error) {
 	return newRandomID(s.random)
+}
+
+// ResendVerification issues a fresh verification email for an account that has
+// not been verified yet.
+//
+// Like registration, it always reports accepted: telling the caller whether the
+// address exists or is already verified would be an enumeration oracle.
+func (s *Service) ResendVerification(ctx context.Context, rawEmail string) (Accepted, error) {
+	accepted := Accepted{Accepted: true}
+
+	email, err := NormalizeEmail(rawEmail)
+	if err != nil {
+		if s.throttle != nil {
+			if throttleErr := s.throttle.ConsumeInvalidAccount(
+				ctx,
+				rawEmail,
+				NetworkSignal(ctx),
+			); throttleErr != nil {
+				return Accepted{}, throttleErr
+			}
+		}
+		return accepted, nil
+	}
+	if s.throttle != nil {
+		if err := s.throttle.ConsumeSignup(ctx, email.Canonical, NetworkSignal(ctx)); err != nil {
+			return Accepted{}, err
+		}
+	}
+
+	challengeID, err := s.randomID()
+	if err != nil {
+		return Accepted{}, err
+	}
+	tokenBytes := make([]byte, 32)
+	if _, err := io.ReadFull(s.random, tokenBytes); err != nil {
+		return Accepted{}, fmt.Errorf("auth: generate verification token: %w", err)
+	}
+	rawToken := base64.RawURLEncoding.EncodeToString(tokenBytes)
+	tokenHash := sha256.Sum256([]byte(rawToken))
+	now := s.now().UTC()
+
+	delivery, created, err := s.store.CreateVerificationChallenge(ctx, email.Canonical, PasswordResetChallenge{
+		ChallengeID: challengeID,
+		TokenHash:   tokenHash,
+		Purpose:     verificationPurpose,
+		IssuedAt:    now,
+		ExpiresAt:   now.Add(24 * time.Hour),
+	})
+	if err != nil {
+		return Accepted{}, fmt.Errorf("auth: create verification challenge: %w", err)
+	}
+	if !created {
+		return accepted, nil
+	}
+
+	if err := s.mailer.Deliver(ctx, mail.Message{
+		To:      delivery.DisplayEmail,
+		Subject: "验证你的手牌教练账号",
+		Body:    rawToken,
+	}); err != nil {
+		// Delivery failure must not change the response, or the difference
+		// would itself reveal that the address exists.
+		return accepted, nil
+	}
+	return accepted, nil
 }

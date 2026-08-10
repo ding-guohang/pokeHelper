@@ -4,13 +4,19 @@ import TrainingDomain
 
 /// Builds the exact event captured in `Contracts/training-event-upload-v1.json`.
 ///
+/// The identifiers deliberately contain hex letters. The original fixture used
+/// UUIDs made only of digits, which made a byte-exact comparison blind to
+/// letter casing — and Foundation encodes UUID in uppercase while Go's
+/// convention is lowercase. That blind spot let a mismatch reach the wire
+/// unnoticed, so the fixture now exercises the characters that can differ.
+///
 /// The grade comes from the real scorer rather than being hand-written, so the
 /// canonical bytes this fixture produces can only match the shared contract if
 /// the domain really does grade a pure check that way.
 @MainActor
 enum ContractEventFixture {
     static func make(
-        id: UUID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+        id: UUID = UUID(uuidString: "a1b2c3d4-0000-4000-8000-00000000000f")!
     ) -> TrainingEvent {
         let scenario = pack().scenarios[0]
         let submission = DecisionSubmission(
@@ -23,8 +29,8 @@ enum ContractEventFixture {
         )
         return TrainingEvent(
             id: id,
-            localUserID: UUID(uuidString: "10000000-0000-0000-0000-000000000001")!,
-            deviceID: UUID(uuidString: "20000000-0000-0000-0000-000000000001")!,
+            localUserID: UUID(uuidString: "1abcdef0-0000-4000-8000-00000000000a")!,
+            deviceID: UUID(uuidString: "2bcdef01-0000-4000-8000-00000000000b")!,
             occurredAt: Date(timeIntervalSince1970: 1_786_060_800),
             scenarioID: "scenario-1",
             strategyPackID: "cash-pack",

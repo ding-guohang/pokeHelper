@@ -116,6 +116,44 @@ bash scripts/check-m1b-release-secrets.sh --sources-only   # 跳过产物扫描�
 
 跑 `-run` 过滤时务必核对实际执行的用例数：本轮出现过一次 `-run Apple` 把测试名不含 "Apple" 的两个用例静默过滤掉的情况。
 
+## 评审发现的产品级缺陷（已修）
+
+四路并行评审独立收敛到同一结论：**门禁全绿，但没有一个用户能登录。** 详见 `review.md`。
+
+根因是一句话：每一侧的测试都用自己的替身，**没有任何测试带着真实数据穿过 Swift↔Go 边界**。tasks.md 要求的 `LiveServerSyncContractTests` 与 `test-live-m1b.sh` 未被创建，那条回路本该在第一秒抓到下面全部四条。
+
+| 缺陷 | 修复 |
+|---|---|
+| iOS 送 `device.appVersion`，Go 无该字段且 `DisallowUnknownFields` → 登录与 Apple 登录必返 400 | `auth.DeviceMetadata` 增加 `AppVersion` 并贯通到 `devices.app_version` |
+| Swift 把 UUID 编码为大写，服务端只收小写 → 任何上传必被拒 | 服务端两种大小写都接受，`UUIDBytes` 归一化后入库 |
+| `verify-email` 返回 204，iOS 却解码 token 对 → 验证必失败 | iOS 改为不解码；验证只确认地址，不签发会话 |
+| `/v1/auth/resend-verification` 无服务端路由 → 404 | 新增该端点，枚举安全，并作废此前未消费的验证挑战 |
+| `SyncEngine`、`ActiveProfileController`、`onAccountDeleted` 只在测试里被构造 → 上线后永不同步、账号共用同一档案、删除本机数据是空操作 | 新增 `SyncCoordinator` 组装三层，并由 `SyncCoordinatorTests` 断言**应用被装配**而非零件可用 |
+
+配套：一次被服务端拒绝的批次原本会**永久卡死上传与拉取**（upload 先于 pull，抛错即中止），现在重试三次后隔离该批次，事件留在盘上并可上报。
+
+## 评审发现的安全缺陷（已修）
+
+| 缺陷 | 修复 |
+|---|---|
+| 注册与重置请求消费的是**登录**限流键 → 知道邮箱即可用 6 个未认证请求永久锁死账号，且受害者无法登录来清除 | 新增 `signup` 域，与登录预算分离；`TestSignupTrafficCannotLockTheOwnerOutOfLogin` 锁住该属性 |
+| `/v1/auth/reauth` 完全没有限流 → 被盗会话可全速爆破明文密码，且每次 19 MiB Argon2 |`account.Service` 接入限流：哈希前先检查预算，失败计数，成功清零 |
+| `logOut()` 用 `try?` 吞掉 Keychain 故障却谎报成功 → 下次启动自动登录回去 | 故障如实上报，状态不置为 anonymous |
+
+## 修复记录：三个曾经形同虚设的检查
+
+### Release 门禁的三条 marker 永远不可能命中
+
+`DEVELOPMENT_STRATEGY_FIXTURES` 是编译条件名，不进二进制；`POKER_COACH_SMTP_PASSWORD` 只存在于 Go；`apple-identity-token` 只在 xctest bundle。我此前修好了 SIGPIPE 那个 bug，却没验证 marker 本身能否命中——**修复恢复了机制，却让三个空操作看起来在工作**。现改为可真实出现在 Swift 二进制里的 marker，并加了一条"扫描确实读到了内容"的自证断言。
+
+### UI 套件从不被门禁执行，且只对 iPhone 成立
+
+`AnonymousAccountEntryTests` 不在任何 `-only-testing` 列表里。纳入门禁后第一次在 iPad 上跑就失败了——它假设有 TabBar，而 iPad 用 `NavigationSplitView`。现已按布局适配并在两个机型上执行。
+
+### 契约 fixture 对大小写完全盲视
+
+`training-event-upload-v1.json` 原来的 UUID 只含数字，所以两侧的逐字节断言看不见大小写差异——这正是大写 UUID 能一路走到线上的原因。fixture 已换成含十六进制字母的标识符，并新增 `TestTheSharedContractFixtureExercisesHexLetters` 防止再次退化。
+
 ## 修复记录：两个曾经形同虚设的检查
 
 ### `strings | grep -q` 在 pipefail 下会把命中变成未命中

@@ -19,6 +19,22 @@ cd "$repository_root"
 
 iphone_destination="${M1B_IPHONE_DESTINATION:-platform=iOS Simulator,name=iPhone 16 Pro,OS=latest}"
 
+# Matches verify-m1a.sh: prefer the M4 iPad, fall back to M5, fail loudly
+# rather than skipping the tablet.
+if [[ -n "${M1B_IPAD_DESTINATION:-}" ]]; then
+  ipad_destination="$M1B_IPAD_DESTINATION"
+else
+  available_devices="$(xcrun simctl list devices available)"
+  if grep -Fq "iPad Pro 13-inch (M4) (" <<<"$available_devices"; then
+    ipad_destination="platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=latest"
+  elif grep -Fq "iPad Pro 13-inch (M5) (" <<<"$available_devices"; then
+    ipad_destination="platform=iOS Simulator,name=iPad Pro 13-inch (M5),OS=latest"
+  else
+    echo "error: no available iPad Pro 13-inch (M4) or (M5) simulator was found" >&2
+    exit 1
+  fi
+fi
+
 echo "==> M1A regression"
 bash scripts/verify-m1a.sh
 
@@ -66,6 +82,18 @@ xcodebuild test \
   -scheme PokerCoach \
   -destination "$iphone_destination" \
   "${only_testing[@]}"
+
+# The account UI suites are named separately because they are the only evidence
+# that signing in never blocks training. An earlier version of this script
+# listed unit suites only, so they were silently never run.
+echo "==> iOS account UI tests on iPhone and iPad"
+for destination in "$iphone_destination" "$ipad_destination"; do
+  xcodebuild test \
+    -project PokerCoach.xcodeproj \
+    -scheme PokerCoach \
+    -destination "$destination" \
+    -only-testing:PokerCoachUITests/AnonymousAccountEntryTests
+done
 
 echo "==> Release secret gate"
 bash scripts/check-m1b-release-secrets.sh

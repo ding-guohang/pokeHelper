@@ -10,6 +10,10 @@ actor FileOutboxStore: OutboxStore {
     private struct State: Codable, Sendable {
         var queued: [UUID]
         var inFlight: OutboxBatch?
+        /// Events the server refused repeatedly. Kept out of the queue so one
+        /// bad batch cannot stop every later event, and kept on record so the
+        /// loss is reportable rather than silent.
+        var quarantined: [UUID] = []
     }
 
     private let file: URL
@@ -91,6 +95,41 @@ actor FileOutboxStore: OutboxStore {
         return batch
     }
 
+    /// Records that the server refused this batch on its own terms.
+    ///
+    /// A batch the server will never accept would otherwise block the queue
+    /// forever, and because upload runs before pull it would also stop the
+    /// device receiving anything. After `maxRejections` the batch is set aside
+    /// so the rest of the history keeps moving; the events stay on disk and are
+    /// reported so the failure is visible rather than silent.
+    func quarantineRejectedBatch(
+        _ batch: OutboxBatch,
+        maxRejections: Int
+    ) throws -> [UUID] {
+        var current = try state()
+        guard var inFlight = current.inFlight,
+              inFlight.idempotencyKey == batch.idempotencyKey
+        else {
+            return []
+        }
+
+        inFlight.rejectionCount += 1
+        if inFlight.rejectionCount < maxRejections {
+            current.inFlight = inFlight
+            try save(current)
+            return []
+        }
+
+        current.inFlight = nil
+        current.quarantined.append(contentsOf: inFlight.eventIDs)
+        try save(current)
+        return inFlight.eventIDs
+    }
+
+    func quarantinedEventIDs() throws -> [UUID] {
+        try state().quarantined
+    }
+
     func acknowledge(_ batch: OutboxBatch, eventIDs: Set<UUID>) throws {
         var current = try state()
         guard current.inFlight?.idempotencyKey == batch.idempotencyKey else {
@@ -111,7 +150,9 @@ actor FileOutboxStore: OutboxStore {
         localEventIDs: [UUID],
         acknowledged: Set<UUID>
     ) throws -> [UUID] {
-        let known = try pendingEventIDs().union(acknowledged)
+        let known = try pendingEventIDs()
+            .union(acknowledged)
+            .union(try state().quarantined)
         let missing = localEventIDs.filter { !known.contains($0) }
         guard !missing.isEmpty else {
             return []
@@ -127,7 +168,7 @@ actor FileOutboxStore: OutboxStore {
             let data = try? Data(contentsOf: file),
             let decoded = try? JSONDecoder().decode(State.self, from: data)
         else {
-            return State(queued: [], inFlight: nil)
+            return State(queued: [], inFlight: nil, quarantined: [])
         }
         return decoded
     }

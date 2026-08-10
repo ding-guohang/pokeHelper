@@ -122,8 +122,12 @@ func TestSuccessfulLoginIssuesAtServiceTimeAndClearsOnlyAccountThrottle(t *testi
 	).Scan(&networkRows); err != nil {
 		t.Fatalf("count network throttles: %v", err)
 	}
-	if accountRows != 0 || networkRows != 1 {
-		t.Fatalf("throttle rows after login = account %d network %d, want 0/1",
+	// Registration now counts against a separate signup bucket, which is also
+	// network-independent and therefore indistinguishable from the login bucket
+	// by shape alone. What matters is that a successful login cleared its own
+	// bucket and left the network bucket standing.
+	if accountRows != 1 || networkRows != 1 {
+		t.Fatalf("throttle rows after login = account-shaped %d network %d, want 1/1",
 			accountRows, networkRows)
 	}
 }
@@ -142,7 +146,10 @@ func TestMalformedStoredPHCIsAuthenticationFailedAndConsumesQuota(t *testing.T) 
 
 	// GIVEN an unblocked identity whose stored PHC is malformed
 	// WHEN login is attempted four times below the account limit
-	for attempt := 1; attempt <= 4; attempt++ {
+	// Five failures, not four: registration used to consume one of the login
+	// budget's attempts, which is exactly the coupling that let a stranger lock
+	// an account out. The budget now belongs to login alone.
+	for attempt := 1; attempt <= 5; attempt++ {
 		response := serveAccessJSON(t, handler, "/v1/auth/login",
 			payload, "203.0.113.80:5000", "malformed-phc")
 
@@ -154,7 +161,7 @@ func TestMalformedStoredPHCIsAuthenticationFailedAndConsumesQuota(t *testing.T) 
 		}
 	}
 
-	// WHEN the next malformed credential failure reaches the sixth account event
+	// WHEN the next malformed credential failure exhausts the login budget
 	blocked := serveAccessJSON(t, handler, "/v1/auth/login",
 		payload, "203.0.113.80:5000", "malformed-blocked")
 
@@ -875,4 +882,37 @@ func accessSequentialBytes(length int) []byte {
 		values[index] = byte(index + 1)
 	}
 	return values
+}
+
+// Registration and password-reset requests are unauthenticated and name an
+// address anybody can guess. If they shared the login budget, six form
+// submissions would lock the owner out — and the owner could never log in to
+// clear it, making the lockout self-sustaining.
+func TestSignupTrafficCannotLockTheOwnerOutOfLogin(t *testing.T) {
+	handler, mailer, _, issuer := accessHandler(t)
+	const email = "victim@example.test"
+	registerForAccess(t, handler, mailer, email, true)
+
+	// Far beyond the login budget, from a stranger who knows only the address.
+	for attempt := 0; attempt < 12; attempt++ {
+		serveAccessJSON(t, handler, "/v1/auth/register",
+			`{"email":"`+email+`","password":"fifteen characters"}`,
+			"198.51.100.7:9000", "signup-flood")
+		serveAccessJSON(t, handler, "/v1/auth/password-reset/request",
+			`{"email":"`+email+`"}`,
+			"198.51.100.7:9000", "reset-flood")
+	}
+
+	// The owner, on their own network, can still sign in.
+	response := serveAccessJSON(t, handler, "/v1/auth/login",
+		`{"email":"`+email+`","password":"fifteen characters",`+
+			`"device":{"deviceID":"device-9","displayName":"Phone","platform":"ios"}}`,
+		"203.0.113.11:5000", "owner-login")
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("owner login = %d %s, want 200", response.Code, response.Body.String())
+	}
+	if issuer.issueCount() == 0 {
+		t.Error("the owner must receive a session")
+	}
 }

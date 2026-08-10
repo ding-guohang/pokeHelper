@@ -88,6 +88,7 @@ type DeviceMetadata struct {
 	DeviceID    string `json:"deviceID"`
 	DisplayName string `json:"displayName"`
 	Platform    string `json:"platform"`
+	AppVersion  string `json:"appVersion"`
 }
 
 type SessionTokens struct {

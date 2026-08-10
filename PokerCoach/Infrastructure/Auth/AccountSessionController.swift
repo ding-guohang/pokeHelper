@@ -29,6 +29,8 @@ final class AccountSessionController {
     private(set) var state: AccountSessionState = .anonymous
     private(set) var failure: AccountFailure?
     private(set) var needsReauthentication = false
+    /// Set once an address is confirmed, so the sign-in form can prefill it.
+    private(set) var verifiedEmail: String?
     private(set) var isBusy = false
 
     @ObservationIgnored
@@ -98,10 +100,15 @@ final class AccountSessionController {
         }
     }
 
+    /// Confirms the address. The server issues no session here, so the user
+    /// lands back on sign-in with a verified account.
     func verifyEmail(token: String) async {
         await run {
-            let session = try await self.api.verifyEmail(token: token)
-            try await self.adopt(session, email: self.pendingEmail)
+            // Read before changing state: pendingEmail is derived from it.
+            let confirmed = self.pendingEmail
+            try await self.api.verifyEmail(token: token)
+            self.verifiedEmail = confirmed
+            self.state = .anonymous
         }
     }
 
@@ -195,17 +202,44 @@ final class AccountSessionController {
 
     /// Signs out. If the network is unavailable the refresh token is parked for
     /// later revocation, so the session still ends immediately on this device.
+    ///
+    /// Secure-storage failure is surfaced rather than swallowed. Reporting a
+    /// completed sign-out while the credential is still readable would let the
+    /// next launch silently restore the session — the exact situation a user
+    /// handing over their phone believes they have prevented.
     func logOut() async {
         failure = nil
-        let active = try? await credentials.loadActive()
-        if let active {
+        let active: StoredSession?
+        do {
+            active = try await credentials.loadActive()
+        } catch {
+            report(error)
+            return
+        }
+
+        guard let active else {
+            needsReauthentication = false
+            state = .anonymous
+            return
+        }
+
+        do {
+            try await api.logOut(refreshToken: active.refreshToken)
+            try await credentials.clearActive()
+        } catch let error as CredentialStoreError {
+            report(error)
+            return
+        } catch {
+            // The server is unreachable. Park the token so it can still be
+            // revoked later, and fail loudly if even that cannot be written.
             do {
-                try await api.logOut(refreshToken: active.refreshToken)
-                try? await credentials.clearActive()
+                try await credentials.moveRefreshToPendingRevocation()
             } catch {
-                try? await credentials.moveRefreshToPendingRevocation()
+                report(error)
+                return
             }
         }
+
         needsReauthentication = false
         state = .anonymous
     }

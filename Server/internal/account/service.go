@@ -6,22 +6,51 @@ import (
 	"fmt"
 	"time"
 
+	"porkhelper/server/internal/auth"
+
 	"porkhelper/server/internal/appleauth"
 	"porkhelper/server/internal/password"
 	"porkhelper/server/internal/session"
 )
+
+// NetworkSignal reuses the auth package's request-scoped network identity so
+// both throttles see the same signal.
+func NetworkSignal(ctx context.Context) string {
+	return auth.NetworkSignal(ctx)
+}
 
 // AppleVerifier validates an Apple identity token against an expected nonce.
 type AppleVerifier interface {
 	Verify(context.Context, string, string) (appleauth.Claims, error)
 }
 
+// Throttle limits reauthentication attempts.
+//
+// Without one, a stolen access token can brute-force the account password at
+// wire speed — turning a contained session compromise into a credential
+// compromise — and each attempt costs a full Argon2 hash, so it doubles as a
+// cheap denial-of-service.
+type Throttle interface {
+	Check(context.Context, string, string) error
+	Consume(context.Context, string, string) error
+	ClearAccount(context.Context, string) error
+}
+
 type Service struct {
-	store  Store
-	hasher password.Hasher
-	apple  AppleVerifier
-	now    func() time.Time
-	window time.Duration
+	store    Store
+	hasher   password.Hasher
+	apple    AppleVerifier
+	now      func() time.Time
+	window   time.Duration
+	throttle Throttle
+}
+
+type ServiceOption func(*Service)
+
+func WithThrottle(throttle Throttle) ServiceOption {
+	return func(service *Service) {
+		service.throttle = throttle
+	}
 }
 
 func NewService(
@@ -29,17 +58,22 @@ func NewService(
 	hasher password.Hasher,
 	apple AppleVerifier,
 	now func() time.Time,
+	options ...ServiceOption,
 ) *Service {
 	if now == nil {
 		now = time.Now
 	}
-	return &Service{
+	service := &Service{
 		store:  store,
 		hasher: hasher,
 		apple:  apple,
 		now:    now,
 		window: RecentAuthWindow,
 	}
+	for _, option := range options {
+		option(service)
+	}
+	return service
 }
 
 // Reauthenticate proves the account holder is present and refreshes the
@@ -61,13 +95,27 @@ func (s *Service) Reauthenticate(
 		return time.Time{}, err
 	}
 
+	// Keyed by the user, because that is what a stolen token targets. Checked
+	// before any hashing so a refused attempt costs nothing.
+	if s.throttle != nil {
+		if err := s.throttle.Check(ctx, principal.UserID, NetworkSignal(ctx)); err != nil {
+			return time.Time{}, err
+		}
+	}
+
 	switch method {
 	case "password":
 		if err := s.verifyPassword(ctx, principal.UserID, proof.Password); err != nil {
-			return time.Time{}, err
+			return time.Time{}, s.recordFailure(ctx, principal.UserID, err)
 		}
 	case "apple":
 		if err := s.verifyApple(ctx, principal.UserID, proof); err != nil {
+			return time.Time{}, s.recordFailure(ctx, principal.UserID, err)
+		}
+	}
+
+	if s.throttle != nil {
+		if err := s.throttle.ClearAccount(ctx, principal.UserID); err != nil {
 			return time.Time{}, err
 		}
 	}
@@ -109,6 +157,18 @@ func (s *Service) Delete(ctx context.Context, principal session.Principal) error
 		return err
 	}
 	return s.store.Delete(ctx, principal.UserID)
+}
+
+// recordFailure counts a failed proof, preferring the throttle's own error
+// (which carries retry-after) when the attempt exhausted the budget.
+func (s *Service) recordFailure(ctx context.Context, userID string, cause error) error {
+	if s.throttle == nil {
+		return cause
+	}
+	if err := s.throttle.Consume(ctx, userID, NetworkSignal(ctx)); err != nil {
+		return err
+	}
+	return cause
 }
 
 func (s *Service) verifyPassword(

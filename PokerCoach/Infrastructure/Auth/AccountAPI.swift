@@ -3,7 +3,7 @@ import Foundation
 /// Every account operation the app performs against the sync service.
 protocol AccountAPI: Sendable {
     func register(email: String, password: String) async throws
-    func verifyEmail(token: String) async throws -> StoredSession
+    func verifyEmail(token: String) async throws
     func resendVerification(email: String) async throws
     func login(
         email: String,
@@ -138,13 +138,15 @@ struct RemoteAccountAPI: AccountAPI {
         )
     }
 
-    func verifyEmail(token: String) async throws -> StoredSession {
-        let tokens: SessionTokensDTO = try await client.send(
+    /// Verification only confirms the address; the server answers 204 and the
+    /// user signs in afterwards. Decoding a session here would fail on the
+    /// empty body.
+    func verifyEmail(token: String) async throws {
+        try await client.sendWithoutResponse(
             "POST",
             "v1/auth/verify-email",
             body: TokenBody(token: token)
         )
-        return tokens.session(email: nil)
     }
 
     func resendVerification(email: String) async throws {

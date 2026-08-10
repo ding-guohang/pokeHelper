@@ -12,6 +12,16 @@ type Store interface {
 	ConsumeEmailChallenge(context.Context, [32]byte, time.Time) error
 	LookupLoginCredential(context.Context, string) (LoginCredential, error)
 	UpgradePasswordCredential(context.Context, ID, string, string, time.Time) error
+	// CreateVerificationChallenge re-issues an email verification challenge for
+	// an account that exists but is not yet verified. Reports created=false for
+	// an unknown or already-verified address so the caller stays
+	// enumeration-safe.
+	CreateVerificationChallenge(
+		context.Context,
+		string,
+		PasswordResetChallenge,
+	) (PasswordResetDelivery, bool, error)
+
 	CreatePasswordResetChallenge(
 		context.Context,
 		string,

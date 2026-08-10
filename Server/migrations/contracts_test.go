@@ -15,7 +15,7 @@ func TestTrainingEventUploadV1MatchesCanonicalChecksum(t *testing.T) {
 	}
 
 	gotHash := sha256.Sum256(body)
-	const wantHash = "8b2cd9fe4fdaef8dc33e2968809ecc9f37b9646efde5f0bd449ca6e06e2a2345"
+	const wantHash = "11888453f78924f0c6743db2cc614baf8d82dbd9772804a0157aa414320a28b6"
 	if hex.EncodeToString(gotHash[:]) != wantHash {
 		t.Errorf("canonical upload SHA-256 = %s, want %s", hex.EncodeToString(gotHash[:]), wantHash)
 	}

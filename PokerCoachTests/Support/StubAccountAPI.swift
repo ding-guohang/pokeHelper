@@ -9,7 +9,7 @@ import Foundation
 class StubAccountAPI: AccountAPI, @unchecked Sendable {
     func register(email: String, password: String) async throws {}
 
-    func verifyEmail(token: String) async throws -> StoredSession { .fixture() }
+    func verifyEmail(token: String) async throws {}
 
     func resendVerification(email: String) async throws {}
 

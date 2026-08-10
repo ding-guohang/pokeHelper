@@ -137,9 +137,11 @@ final class FileOutboxStoreTests: XCTestCase {
             .appending(path: "Contracts", directoryHint: .isDirectory)
     }
 
-    private func contractEvent(
-        id: UUID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
-    ) -> TrainingEvent {
+    private func contractEvent() -> TrainingEvent {
+        ContractEventFixture.make()
+    }
+
+    private func contractEvent(id: UUID) -> TrainingEvent {
         ContractEventFixture.make(id: id)
     }
 }

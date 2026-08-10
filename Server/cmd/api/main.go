@@ -140,9 +140,15 @@ func buildHandlers(settings config.Config, db *sql.DB) (httpapi.Handlers, error)
 	syncStore := mysqlstore.NewSyncStore(db)
 
 	return httpapi.Handlers{
-		Auth:    authService,
-		Apple:   appleService,
-		Account: account.NewService(mysqlstore.NewAccountStore(db), hasher, appleVerifier, time.Now),
+		Auth:  authService,
+		Apple: appleService,
+		Account: account.NewService(
+			mysqlstore.NewAccountStore(db),
+			hasher,
+			appleVerifier,
+			time.Now,
+			account.WithThrottle(throttle),
+		),
 		Upload:  sync.NewUploadService(syncStore),
 		Pull:    sync.NewPullService(syncStore),
 		Session: sessionManager,

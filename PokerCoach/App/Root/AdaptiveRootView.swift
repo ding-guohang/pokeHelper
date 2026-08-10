@@ -61,10 +61,18 @@ struct AdaptiveRootView: View {
         .task {
             await dependencies.accountSession.restore()
             await dependencies.pendingRevocation.process(trigger: .launch)
+            await dependencies.syncCoordinator?.start()
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
-            Task { await dependencies.pendingRevocation.process(trigger: .foreground) }
+            Task {
+                await dependencies.pendingRevocation.process(trigger: .foreground)
+                await dependencies.syncCoordinator?.synchronize(reason: .foreground)
+            }
+        }
+        .onChange(of: dependencies.accountSession.state) { _, _ in
+            // Signing in claims the anonymous profile; signing out locks it.
+            Task { await dependencies.syncCoordinator?.accountStateChanged() }
         }
     }
 

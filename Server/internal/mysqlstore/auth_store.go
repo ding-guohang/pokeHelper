@@ -273,6 +273,72 @@ func (s *AuthStore) CreatePasswordResetChallenge(
 	return delivery, true, nil
 }
 
+// CreateVerificationChallenge mirrors CreatePasswordResetChallenge but targets
+// accounts that are not yet verified, so a user who lost the first email can
+// ask for another without revealing whether the address exists.
+func (s *AuthStore) CreateVerificationChallenge(
+	ctx context.Context,
+	canonicalEmail string,
+	challenge auth.PasswordResetChallenge,
+) (delivery auth.PasswordResetDelivery, created bool, err error) {
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("begin verification resend: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	var userID []byte
+	err = tx.QueryRowContext(ctx, `
+		SELECT user_id, display_email
+		FROM auth_identities
+		WHERE provider = 'email' AND subject = ? AND email_verified = FALSE`,
+		canonicalEmail,
+	).Scan(&userID, &delivery.DisplayEmail)
+	if errors.Is(err, sql.ErrNoRows) {
+		if err = tx.Commit(); err != nil {
+			return auth.PasswordResetDelivery{}, false, fmt.Errorf("commit hidden resend: %w", err)
+		}
+		return auth.PasswordResetDelivery{}, false, nil
+	}
+	if err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("find unverified identity: %w", err)
+	}
+
+	// Superseding the outstanding challenge keeps exactly one live token, so a
+	// resend cannot widen the window by leaving older tokens usable.
+	if _, err = tx.ExecContext(ctx, `
+		UPDATE email_challenges
+		SET consumed_at = ?
+		WHERE user_id = ?
+		  AND purpose = 'verifyEmail'
+		  AND consumed_at IS NULL`,
+		challenge.IssuedAt,
+		userID,
+	); err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("supersede verification challenges: %w", err)
+	}
+	if _, err = tx.ExecContext(ctx, `
+		INSERT INTO email_challenges (
+			id, user_id, token_hash, purpose, attempt_count, expires_at
+		) VALUES (?, ?, ?, ?, 0, ?)`,
+		challenge.ChallengeID[:],
+		userID,
+		challenge.TokenHash[:],
+		challenge.Purpose,
+		challenge.ExpiresAt,
+	); err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("insert verification challenge: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return auth.PasswordResetDelivery{}, false, fmt.Errorf("commit verification resend: %w", err)
+	}
+	return delivery, true, nil
+}
+
 func (s *AuthStore) ReplacePassword(
 	ctx context.Context,
 	tokenHash [32]byte,

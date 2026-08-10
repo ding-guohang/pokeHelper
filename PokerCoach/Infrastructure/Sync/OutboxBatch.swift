@@ -18,6 +18,9 @@ struct OutboxBatch: Codable, Sendable, Equatable {
     let requestHash: String
     let createdAt: Date
     var state: State
+    /// How many times the server has rejected this batch outright. A retryable
+    /// failure (offline, timeout, 5xx) does not count.
+    var rejectionCount: Int = 0
 }
 
 protocol OutboxStore: Sendable {

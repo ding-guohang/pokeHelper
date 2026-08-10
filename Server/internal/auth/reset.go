@@ -32,7 +32,9 @@ func (s *Service) RequestPasswordReset(
 		return Accepted{}, err
 	}
 	if s.throttle != nil {
-		if err := s.throttle.Consume(ctx, email.Canonical, NetworkSignal(ctx)); err != nil {
+		// Counted against the signup bucket, not the login bucket: an
+		// unauthenticated caller must not be able to lock the owner out.
+		if err := s.throttle.ConsumeSignup(ctx, email.Canonical, NetworkSignal(ctx)); err != nil {
 			return Accepted{}, err
 		}
 	}
