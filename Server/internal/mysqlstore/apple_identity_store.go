@@ -75,7 +75,7 @@ func (s *AppleIdentityStore) ResolveAppleIdentity(
 		email,
 		identity.EmailVerified,
 	); err != nil {
-		if isDuplicateAppleSubject(err) {
+		if isDuplicateKey(err) {
 			// Another request created the same subject first; adopt its user
 			// instead of failing, so a concurrent first sign-in is idempotent.
 			_ = tx.Rollback()
@@ -143,7 +143,7 @@ func (s *AppleIdentityStore) LinkAppleIdentity(
 		email,
 		identity.EmailVerified,
 	); err != nil {
-		if isDuplicateAppleSubject(err) {
+		if isDuplicateKey(err) {
 			_ = tx.Rollback()
 			err = nil
 			return &auth.Error{Code: auth.IdentityConflict}
@@ -216,7 +216,8 @@ func nullableEmail(canonical string) sql.NullString {
 	return sql.NullString{String: canonical, Valid: true}
 }
 
-func isDuplicateAppleSubject(err error) bool {
+// isDuplicateKey reports a MySQL unique-constraint violation.
+func isDuplicateKey(err error) bool {
 	var mysqlError *mysql.MySQLError
 	return errors.As(err, &mysqlError) && mysqlError.Number == 1062
 }

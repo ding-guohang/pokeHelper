@@ -42,3 +42,20 @@ func writeJSON(response http.ResponseWriter, status int, value any) {
 	response.WriteHeader(status)
 	_, _ = response.Write(body)
 }
+
+// decodeJSONBytes decodes an already-read body. Used where the raw bytes must
+// be retained, such as idempotent uploads that hash exactly what was sent.
+func decodeJSONBytes(body []byte, destination any) error {
+	decoder := json.NewDecoder(bytes.NewReader(body))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(destination); err != nil {
+		return err
+	}
+	if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		if err == nil {
+			return errors.New("httpapi: multiple JSON values")
+		}
+		return err
+	}
+	return nil
+}
