@@ -94,6 +94,24 @@ final class AppDependencies {
         )
     }
 
+    /// Synchronization stack for a profile. Training never waits on it: every
+    /// failure leaves the local history untouched and retries later.
+    static func makeSyncEngine(
+        store: SyncTrackingTrainingEventStore,
+        directory: URL,
+        authorizer: SessionAuthorizer,
+        onHistoryChanged: @escaping @Sendable () async -> Void
+    ) throws -> SyncEngine {
+        SyncEngine(
+            store: store,
+            outbox: try FileOutboxStore(directory: directory),
+            state: try FileSyncStateStore(directory: directory),
+            api: RemoteSyncAPI(baseURL: accountServiceBaseURL),
+            authorizer: authorizer,
+            onHistoryChanged: onHistoryChanged
+        )
+    }
+
     /// Local event store that also queues each locally created event for
     /// upload. The queue lives in the same profile directory, so switching
     /// accounts switches the pending uploads with it.
