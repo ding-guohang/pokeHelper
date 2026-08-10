@@ -23,7 +23,7 @@
 | 8 可恢复 Outbox | 完成 | `51e811f` |
 | 9 服务端事务化同步 | 完成 | `ae48f1b` |
 | 10 iOS SyncEngine 与收敛 | 完成 | `8d40593` |
-| 11 服务端重认证/导出/删除 | 未开始 | — |
+| 11 服务端重认证/导出/删除 | 完成 | 待填 |
 | 12 iOS 设备/导出/删除/离线退出 | 未开始 | — |
 | 13 双设备 E2E 与 Release 门禁 | 未开始 | — |
 
@@ -68,18 +68,18 @@ M1A 把事件日志放在 `Library/PokerCoach/training-events.jsonl`、身份放
 
 要求：键按字典序、无空白、时间为 UTC RFC 3339 毫秒精度带 `Z`。Go 侧靠**结构体字段按字母序声明**实现（`encoding/json` 按声明顺序输出）——重排 `sync.Event` 的字段会静默破坏所有幂等重试。
 
-## 服务端尚无组合根
+## 组合根
 
-`Server/cmd/` 目前只有 `migrate`。以下 handler 构造器都已实现并各自带测试，但**没有任何可执行程序挂载它们**：
+Task 11 补齐了 `httpapi/router.go` 与 `cmd/api/main.go`，服务现在可以真实启动。各 feature 仍各自持有构造器以保持独立可测，`NewRouter` 用 `firstMatch` 回落链把它们串起来（Go 的 `ServeMux` 无法直接合并）。
 
-| 构造器 | 路由 |
+生产环境强制要求的环境变量（缺失即启动失败，不做静默降级）：
+
+| 变量 | 缺失后果 |
 |---|---|
-| `httpapi.NewAuthHandler` | `/v1/auth/register`、`verify-email`、`login`、`password-reset/*` |
-| `httpapi.NewSessionHandler` | `/v1/auth/refresh`、`logout`、`/v1/sessions`（列出与撤销） |
-| `httpapi.NewAppleHandler` | `/v1/auth/apple`、`/v1/auth/apple/link` |
-| `httpapi.NewSyncHandler` | `/v1/sync/events`（上传与拉取） |
-
-Task 11 的文件清单包含 `httpapi/router.go` 与 `cmd/api/main.go`，届时统一挂载。在那之前服务无法真实启动，端到端只能靠各自的 handler 测试覆盖。
+| `POKER_COACH_MYSQL_DSN` | 生产必填（config 已有校验） |
+| `POKER_COACH_THROTTLE_SECRET` | 缺失会导致每次重启重置全部限流窗口 |
+| `POKER_COACH_APPLE_CLIENT_ID` | Apple 令牌的 audience 校验失去意义 |
+| SMTP 全套 | 生产不允许回落到开发邮件器（否则验证链接会写进日志） |
 
 ## 承接的遗留项（Task 13 最终评审前需决断）
 
