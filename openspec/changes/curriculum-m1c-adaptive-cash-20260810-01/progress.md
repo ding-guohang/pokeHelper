@@ -26,7 +26,9 @@
 | 17 随包内容加载 | 完成 | | 见下方说明 |
 | 18 内容更新机制 | 完成 | | 服务端端点按 design 推迟 |
 | 19 能力树界面 | 完成 | | UI 测试留到 Task 23 |
-| 20–23 | 未开始 | | |
+| 21 三种构建类别 | 完成 | | |
+| 22 内容审核状态门禁 | 完成 | | **store 频道当前为红，等签字** |
+| 20、23 | 未开始 | | |
 
 ## 偏离计划的决策
 
@@ -218,3 +220,18 @@ AC 1（Release 构建走通 `reviewedContentAvailable`）**在 Task 14 人工签
 
 `testPrefersTheMostTrustedStatusPresent` 写成条件断言而不是硬断言 reviewed：
 它在签字前后都成立，签字后自动开始检查 reviewed 分支。
+
+
+### 发布门禁当前是红的，而且这正是它该有的状态
+
+`bash scripts/check-release-content.sh <Release 产物>` 现在输出：
+
+```
+FAIL: channel 'store' forbids 'unverifiedDraft' but cash-6max-100bb-core carries it
+```
+
+因为 `CoreStrategyPack` 还是 `unverifiedDraft`，等 Task 14 人工签字。Debug 与
+Dogfood 两个频道通过，商店发布被挡住——AC 1 与 AC 10 在签字前本来就不该同时成立。
+
+三条探针都实测过：store 塞未审核内容 → 拒绝；缺 `PCContentChannel` → 失败而非放行；
+全 reviewed → 通过。只有通过路径的门禁与恒真无异，所以失败路径必须被真实触发过一次。

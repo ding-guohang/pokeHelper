@@ -2,3 +2,4 @@
 .worktrees/
 **/.build/
 PokerCoach.xcodeproj/
+.build-channel/

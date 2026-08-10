@@ -1,0 +1,7 @@
+#include "Release.xcconfig"
+
+PC_CONTENT_CHANNEL = dogfood
+
+// Release drops the unverified pack; a dogfooding build is precisely the one
+// that needs it, so only the development fixture stays excluded here.
+EXCLUDED_SOURCE_FILE_NAMES = DevStrategyPack.json

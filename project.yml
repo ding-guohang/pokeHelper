@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.porkhelper
 configs:
   Debug: debug
+  Dogfood: release
   Release: release
 packages:
   PokerCore:
@@ -24,6 +25,7 @@ targets:
         buildPhase: resources
     configFiles:
       Debug: Config/Debug.xcconfig
+      Dogfood: Config/Dogfood.xcconfig
       Release: Config/Release.xcconfig
     dependencies:
       - package: PokerCore
@@ -33,6 +35,10 @@ targets:
       path: PokerCoach/Info.plist
       properties:
         CFBundleDisplayName: 手牌教练
+        # Which content this build is allowed to carry. Stamped into the
+        # product so the release gate reads it from the artifact rather than
+        # trusting a flag its caller has to remember to pass.
+        PCContentChannel: $(PC_CONTENT_CHANNEL)
         UILaunchScreen: {}
         NSAppTransportSecurity:
           # Permits http only to loopback and .local addresses, which is what a
