@@ -14,6 +14,10 @@ final class AppDependencies {
     let planner: TrainingPlanner
     let localTrainingCatalog: [TrainingCatalogItem]
     let strategyContentAvailability: StrategyContentAvailability
+    /// Review status of each installed pack, keyed by pack ID. Review reads it
+    /// to disclose the provenance of a history entry, which it can only do for
+    /// packs that are actually present.
+    let installedContent: [String: ReviewStatus]
     let localUserID: UUID
     let deviceID: UUID
     let accountSession: AccountSessionController
@@ -31,6 +35,7 @@ final class AppDependencies {
         localTrainingCatalog: [TrainingCatalogItem],
         localIdentity: LocalIdentity,
         strategyContentAvailability: StrategyContentAvailability,
+        installedContent: [String: ReviewStatus] = [:],
         accountSession: AccountSessionController? = nil
     ) {
         self.eventStore = eventStore
@@ -42,6 +47,7 @@ final class AppDependencies {
         localUserID = localIdentity.localUserID
         deviceID = localIdentity.deviceID
         self.strategyContentAvailability = strategyContentAvailability
+        self.installedContent = installedContent
         let session = accountSession
             ?? AppDependencies.makeAccountSession(localIdentity: localIdentity)
         self.accountSession = session
@@ -282,7 +288,10 @@ final class AppDependencies {
                 from: strategyPack
             ),
             localIdentity: localIdentity,
-            strategyContentAvailability: strategyContentAvailability
+            strategyContentAvailability: strategyContentAvailability,
+            installedContent: [
+                strategyPack.manifest.id: strategyPack.manifest.reviewStatus,
+            ]
         )
     }
 

@@ -1,4 +1,5 @@
 import SwiftUI
+import StrategyContent
 import TrainingDomain
 
 struct ReviewView: View {
@@ -20,7 +21,8 @@ struct ReviewView: View {
             planner: dependencies.planner,
             catalog: dependencies.localTrainingCatalog,
             strategyContentAvailability:
-                dependencies.strategyContentAvailability
+                dependencies.strategyContentAvailability,
+            installedContent: dependencies.installedContent
         ))
     }
 

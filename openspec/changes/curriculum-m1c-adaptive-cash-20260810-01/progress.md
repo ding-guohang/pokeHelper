@@ -10,7 +10,7 @@
 | 1 审核状态与审核元数据 | 完成 | `d96de5b` | |
 | 2 能力树进入内容模型 | 完成 | 见下方偏离 1 | 合并了 Task 3 的部分内容 |
 | 3 fixture 补齐新字段 | 完成 | 同上 | 实际涉及 6 处，计划只预估到 2 处 |
-| 16 披露文案与可用性状态 | 完成 | 提前执行，见偏离 2 | |
+| 16 披露文案与可用性状态 | 完成 | `9a7c0b3` + 接线提交 | 提前执行，见偏离 2 |
 | 4–15、17–23 | 未开始 | | |
 
 ## 偏离计划的决策
@@ -67,11 +67,18 @@ App 目标构建不过，任何 App 测试都跑不了。所以 Task 16 必须�
 能一次列全（本次：3 个 Swift fixture + 3 个 JSON 资源）。分散地等编译器和运行时逐个报错，
 每轮 App 测试要等 3–8 分钟。
 
+## 已验证
+
+`bash scripts/verify-m1a.sh` 通过（含 iPhone 与 iPad UI 测试、Release 构建、
+`DevStrategyPack.json` 排除断言）。App 单元测试 193 条全绿。
+
 ## 承接给后续 Task 的遗留项
 
 1. 三个手写 pack fixture 改 `throws`（见上）。
-2. `AppDependencies` 尚未把 `installedContent` 传给 `ReviewViewModel`——目前生产路径
-   下复盘界面对所有历史条目显示「内容来源未知」。Task 17 接入随包内容加载时必须一并接上，
-   否则会把一个正确的兜底变成常态。
+2. ~~`AppDependencies` 尚未把 `installedContent` 传给 `ReviewViewModel`~~ —— 已接上。
+   这条遗留项是被 `CashCoachHappyPathTests` 抓出来的：单元测试全绿，但 UI 测试走真实
+   依赖组装，复盘页显示「内容来源未知」而不是「开发演示数据」。**这正是把兜底写成
+   显式文案而不是 nil 的价值**——若返回 nil，界面只是少一行字，UI 测试的
+   `waitForExistence` 也会失败，但看日志无法一眼判断是「渲染慢」还是「逻辑错」。
 3. `valid-pack.json` 的黄金 checksum 硬编码在 `StrategyPackTests.matchingChecksumAllowsLoading`
    里（现为 `54ce4ff0…`）。改动该 fixture 字节必须同步更新。
