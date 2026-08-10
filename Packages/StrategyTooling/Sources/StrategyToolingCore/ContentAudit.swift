@@ -82,6 +82,44 @@ public enum ContentAudit {
         return hands
     }
 
+    /// How much of the range that opened continues when facing a raise, in
+    /// basis points of the opening range.
+    ///
+    /// Weighted by the opening frequency of each hand: a hand opened half the
+    /// time reaches this node half as often, and counting it whole would report
+    /// a defence that does not exist.
+    public static func continuationBasisPoints(
+        facing: [SolverRangeCell],
+        openedWith opening: [SolverRangeCell]
+    ) -> Int {
+        var openWeights: [String: Int] = [:]
+        for cell in opening {
+            let aggression = cell.actionWeightsBasisPoints
+                .filter { $0.key != "fold" }
+                .values
+                .reduce(0, +)
+            for hand in expand(cell.handClass) {
+                openWeights[hand] = aggression
+            }
+        }
+
+        var opened = 0
+        var continued = 0
+        for (hand, weight) in openWeights where weight > 0 {
+            let reach = combinations(of: hand) * weight
+            opened += reach
+
+            let response = facing.first { expand($0.handClass).contains(hand) }
+            let continuing = (response?.actionWeightsBasisPoints ?? [:])
+                .filter { $0.key != "fold" }
+                .values
+                .reduce(0, +)
+            continued += reach / 10_000 * continuing
+        }
+        guard opened > 0 else { return 0 }
+        return continued * 10_000 / opened
+    }
+
     /// The hand class covering a concrete two-card holding, e.g. Ad Kc → AKo.
     public static func rangeCell(
         forHeroHand cards: [String],

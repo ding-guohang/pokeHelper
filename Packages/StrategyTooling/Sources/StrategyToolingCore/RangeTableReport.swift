@@ -21,14 +21,57 @@ public struct RangeTableReport: Sendable {
         ]
 
         for node in export.nodes {
+            let heroHand = ContentAudit.handClass(for: node.heroCards) ?? "?"
+
+            // For a node answering a raise, the meaningful denominator is the
+            // range that actually reached it, not all 1,326 starting hands.
+            // Reporting the latter understates defence by a factor of four and
+            // hides whether the minimum defence frequency is met.
+            let opening = node.facingRaiseTo == nil ? nil : export.nodes.first {
+                $0.curriculumNodeID == "preflop-rfi"
+                    && $0.heroSeatOffsetFromButton == node.heroSeatOffsetFromButton
+            }
+            let rangeWide = opening.map {
+                ContentAudit.continuationBasisPoints(
+                    facing: node.rangeCells,
+                    openedWith: $0.rangeCells
+                )
+            } ?? ContentAudit.combinationWeightedBasisPoints(node.rangeCells)
+            let rangeWideLabel = opening == nil
+                ? "整段范围加权开池率"
+                : "开池范围中的继续率"
+
             lines.append("── \(node.id) · \(node.title)")
             lines.append("   能力节点：\(node.curriculumNodeID)")
             lines.append("   位置：按钮位后第 \(node.heroSeatOffsetFromButton) 座")
-            lines.append("   行动频率：")
+            lines.append(
+                "   英雄手牌：\(node.heroCards.joined(separator: " "))（\(heroHand)）"
+            )
+            lines.append(
+                "   \(rangeWideLabel)："
+                    + String(format: "%.2f%%", Double(rangeWide) / 100)
+            )
+            if let facingRaiseTo = node.facingRaiseTo {
+                let risked = facingRaiseTo.centiBB
+                let attacked = node.pot.centiBB - risked
+                let minimum = attacked * 10_000 / (risked + attacked)
+                lines.append(
+                    "   面对加注至 \(Self.bb(risked))，最小防守频率 "
+                        + String(format: "%.2f%%", Double(minimum) / 100)
+                )
+            }
+            // Labelled as the hero's hand, not the range. The previous wording
+            // read "行动频率" beside a 100% raise, which looks like a claim
+            // about the whole opening range rather than about AKo.
+            lines.append("   \(heroHand) 这手牌的行动频率：")
             for action in node.actions {
                 let percent = Double(action.frequencyBasisPoints) / 100
+                var label = Self.describe(action.action)
+                if case .call = action.action, let facing = node.facingRaiseTo {
+                    label += "（总投入至 \(Self.bb(facing.centiBB))）"
+                }
                 lines.append(
-                    "     \(Self.describe(action.action))  "
+                    "     \(label)  "
                         + String(format: "%.2f%%", percent)
                         + "  EV \(Self.describeEV(action.ev.milliBB))"
                 )
@@ -61,7 +104,9 @@ public struct RangeTableReport: Sendable {
         switch action {
         case .fold: "弃牌"
         case .check: "过牌"
-        case let .call(to): "跟注至 \(bb(to.centiBB))"
+        // The associated value of a call is what is owed, not a target total:
+        // legalActions() builds it as .call(to: amountToCall).
+        case let .call(to): "补跟 \(bb(to.centiBB))"
         case let .bet(to): "下注至 \(bb(to.centiBB))"
         case let .raise(to): "加注至 \(bb(to.centiBB))"
         case let .allIn(to): "全下至 \(bb(to.centiBB))"

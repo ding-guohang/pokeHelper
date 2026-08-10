@@ -1282,7 +1282,7 @@
           },
           "frequencyBasisPoints": 6000,
           "ev": {
-            "milliBB": 2
+            "milliBB": 0
           }
         },
         {
@@ -2559,6 +2559,9 @@
           "centiBB": 1650
         }
       ],
+      "facingRaiseTo": {
+        "centiBB": 750
+      },
       "actions": [
         {
           "action": {
@@ -2567,7 +2570,7 @@
           },
           "frequencyBasisPoints": 8000,
           "ev": {
-            "milliBB": 110
+            "milliBB": 112
           }
         },
         {
@@ -2577,7 +2580,7 @@
           },
           "frequencyBasisPoints": 2000,
           "ev": {
-            "milliBB": 60
+            "milliBB": 106
           }
         },
         {
@@ -2592,24 +2595,31 @@
       ],
       "rangeCells": [
         {
-          "handClass": "77",
+          "handClass": "66",
           "actionWeightsBasisPoints": {
             "call": 6000,
             "fold": 4000
+          }
+        },
+        {
+          "handClass": "77",
+          "actionWeightsBasisPoints": {
+            "call": 8000,
+            "fold": 2000
           }
         },
         {
           "handClass": "88",
           "actionWeightsBasisPoints": {
-            "call": 6000,
-            "fold": 4000
+            "call": 8000,
+            "fold": 2000
           }
         },
         {
           "handClass": "99",
           "actionWeightsBasisPoints": {
-            "call": 6000,
-            "fold": 4000
+            "call": 8000,
+            "fold": 2000
           }
         },
         {
@@ -2648,15 +2658,54 @@
           "handClass": "A5s",
           "actionWeightsBasisPoints": {
             "call": 2000,
-            "fold": 3000,
-            "raise": 5000
+            "fold": 2000,
+            "raise": 6000
+          }
+        },
+        {
+          "handClass": "A6s",
+          "actionWeightsBasisPoints": {
+            "call": 4000,
+            "fold": 2000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "A7s",
+          "actionWeightsBasisPoints": {
+            "call": 4000,
+            "fold": 2000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "A8s",
+          "actionWeightsBasisPoints": {
+            "call": 4000,
+            "fold": 2000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "A9s",
+          "actionWeightsBasisPoints": {
+            "call": 4000,
+            "fold": 2000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "AJo",
+          "actionWeightsBasisPoints": {
+            "call": 3000,
+            "fold": 7000
           }
         },
         {
           "handClass": "AJs",
           "actionWeightsBasisPoints": {
-            "call": 6000,
-            "fold": 4000
+            "call": 8000,
+            "fold": 2000
           }
         },
         {
@@ -2675,8 +2724,8 @@
         {
           "handClass": "AQo",
           "actionWeightsBasisPoints": {
-            "call": 4000,
-            "fold": 6000
+            "call": 5000,
+            "fold": 5000
           }
         },
         {
@@ -2689,22 +2738,64 @@
         {
           "handClass": "ATs",
           "actionWeightsBasisPoints": {
-            "call": 5000,
-            "fold": 5000
+            "call": 7000,
+            "fold": 3000
+          }
+        },
+        {
+          "handClass": "J9s",
+          "actionWeightsBasisPoints": {
+            "call": 4000,
+            "fold": 6000
           }
         },
         {
           "handClass": "JTs",
           "actionWeightsBasisPoints": {
-            "call": 5000,
-            "fold": 5000
+            "call": 7000,
+            "fold": 3000
+          }
+        },
+        {
+          "handClass": "KJs",
+          "actionWeightsBasisPoints": {
+            "call": 8000,
+            "fold": 2000
           }
         },
         {
           "handClass": "KQs",
           "actionWeightsBasisPoints": {
+            "call": 9000,
+            "fold": 1000
+          }
+        },
+        {
+          "handClass": "KTs",
+          "actionWeightsBasisPoints": {
+            "call": 6000,
+            "fold": 4000
+          }
+        },
+        {
+          "handClass": "QJs",
+          "actionWeightsBasisPoints": {
             "call": 7000,
             "fold": 3000
+          }
+        },
+        {
+          "handClass": "QTs",
+          "actionWeightsBasisPoints": {
+            "call": 5000,
+            "fold": 5000
+          }
+        },
+        {
+          "handClass": "T9s",
+          "actionWeightsBasisPoints": {
+            "call": 5000,
+            "fold": 5000
           }
         }
       ],

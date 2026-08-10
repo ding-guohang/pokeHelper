@@ -153,11 +153,12 @@ struct ContentAuditTests {
             let pot = node.pot.centiBB * 10
             let lossRateBasisPoints = spread * 10_000 / max(pot, 1)
 
-            // 100 basis points is where DecisionScorer stops calling an answer
-            // acceptable, so a mix whose spread exceeds it grades one of its own
-            // actions as a mistake.
+            // 10 basis points is the top of DecisionScorer's `excellent` band.
+            // A mix whose spread exceeds it has the app telling a user that the
+            // chart-sanctioned line they picked was merely acceptable — i.e.
+            // second best — which is not what a mixed strategy means.
             #expect(
-                lossRateBasisPoints <= 100,
+                lossRateBasisPoints <= 10,
                 Comment(rawValue: "\(node.id)：混合行动的 EV 差为 \(spread) milliBB，"
                     + "折合 \(lossRateBasisPoints) bp，超过 acceptable 的上限")
             )
@@ -189,6 +190,45 @@ struct ContentAuditTests {
                 later.1 > earlier.1,
                 Comment(rawValue: "\(later.0) 开 \(Double(later.1) / 100)%，"
                     + "不比更早的 \(earlier.0) 的 \(Double(earlier.1) / 100)% 宽")
+            )
+        }
+    }
+
+    // Facing a raise, folding more than the pot odds justify hands the raiser a
+    // profit with any two cards. This is the one check that would have caught
+    // the review's headline finding: CO continued 23.54% against a three-bet
+    // that needed 34.78%, making a pure bluff worth +1.29BB.
+    @Test("面对加注的继续率不得低于最小防守频率")
+    func defenceMeetsTheMinimumDefenceFrequency() throws {
+        let export = try coreExport()
+
+        for node in export.nodes {
+            guard let facingRaiseTo = node.facingRaiseTo else { continue }
+            guard let opening = export.nodes.first(where: {
+                $0.curriculumNodeID == "preflop-rfi"
+                    && $0.heroSeatOffsetFromButton == node.heroSeatOffsetFromButton
+            }) else {
+                Issue.record("\(node.id)：找不到同位置的开池节点，无法计算继续率")
+                continue
+            }
+
+            let risked = facingRaiseTo.centiBB
+            let attacked = node.pot.centiBB - risked
+            // A pure bluff risks `risked` to win `attacked`, so it breaks even
+            // at risked/(risked+attacked) folds. Defence has to cover the rest.
+            let minimumContinueBasisPoints =
+                attacked * 10_000 / (risked + attacked)
+
+            let continued = ContentAudit.continuationBasisPoints(
+                facing: node.rangeCells,
+                openedWith: opening.rangeCells
+            )
+
+            #expect(
+                continued >= minimumContinueBasisPoints,
+                Comment(rawValue: "\(node.id)：继续率 \(Double(continued) / 100)%，"
+                    + "低于最小防守频率 \(Double(minimumContinueBasisPoints) / 100)%；"
+                    + "对手可以用任意两张牌加注获利")
             )
         }
     }

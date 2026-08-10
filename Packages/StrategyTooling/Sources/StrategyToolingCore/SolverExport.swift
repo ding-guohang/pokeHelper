@@ -121,6 +121,13 @@ public struct SolverNode: Codable, Sendable {
     public let amountToCall: BBAmount
     public let minimumRaiseTo: BBAmount?
     public let configuredBetSizes: [BBAmount]
+    /// The raise the hero is facing, as a total. Present only on nodes that
+    /// answer a raise.
+    ///
+    /// Needed because minimum-defence frequency depends on what the raiser
+    /// risked, and that cannot be recovered from the pot and the amount owed
+    /// alone — those two leave the hero's prior investment unknown.
+    public let facingRaiseTo: BBAmount?
     public let actions: [SolverAction]
     public let rangeCells: [SolverRangeCell]
     public let explanation: SolverExplanation
@@ -137,6 +144,7 @@ public struct SolverNode: Codable, Sendable {
         amountToCall: BBAmount,
         minimumRaiseTo: BBAmount?,
         configuredBetSizes: [BBAmount],
+        facingRaiseTo: BBAmount? = nil,
         actions: [SolverAction],
         rangeCells: [SolverRangeCell],
         explanation: SolverExplanation
@@ -152,6 +160,7 @@ public struct SolverNode: Codable, Sendable {
         self.amountToCall = amountToCall
         self.minimumRaiseTo = minimumRaiseTo
         self.configuredBetSizes = configuredBetSizes
+        self.facingRaiseTo = facingRaiseTo
         self.actions = actions
         self.rangeCells = rangeCells
         self.explanation = explanation

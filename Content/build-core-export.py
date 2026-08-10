@@ -119,22 +119,36 @@ RFI = {
 }
 
 # --- CO facing a BTN 3bet --------------------------------------------------
+# Defence has to clear the minimum defence frequency. Facing a 7.5BB three-bet
+# into a 4BB pot, a pure bluff breaks even at 65.22% folds, so continuing less
+# than 34.78% of the opening range hands the button a profit with any two cards.
 VS_3BET = {}
 for hand in expand("AA-QQ"):
     VS_3BET[hand] = {"raise": 10000}
 for hand in expand("JJ-TT"):
     VS_3BET[hand] = {"call": 7000, "raise": 3000}
+for hand in expand("99-77"):
+    VS_3BET[hand] = {"call": 8000, "fold": 2000}
+VS_3BET["66"] = {"call": 6000, "fold": 4000}
 VS_3BET["AKs"] = {"raise": 10000}
 VS_3BET["AKo"] = {"call": 4000, "raise": 6000}
 VS_3BET["AQs"] = {"call": 8000, "raise": 2000}
-VS_3BET["AQo"] = {"call": 4000, "fold": 6000}
-VS_3BET["A5s"] = {"call": 2000, "raise": 5000, "fold": 3000}
-VS_3BET["KQs"] = {"call": 7000, "fold": 3000}
-for hand in expand("99-77"):
-    VS_3BET[hand] = {"call": 6000, "fold": 4000}
-VS_3BET["JTs"] = {"call": 5000, "fold": 5000}
-VS_3BET["AJs"] = {"call": 6000, "fold": 4000}
-VS_3BET["ATs"] = {"call": 5000, "fold": 5000}
+VS_3BET["AQo"] = {"call": 5000, "fold": 5000}
+VS_3BET["AJs"] = {"call": 8000, "fold": 2000}
+VS_3BET["ATs"] = {"call": 7000, "fold": 3000}
+for hand in expand("A9s-A6s"):
+    VS_3BET[hand] = {"call": 4000, "raise": 4000, "fold": 2000}
+VS_3BET["A5s"] = {"call": 2000, "raise": 6000, "fold": 2000}
+VS_3BET["KQs"] = {"call": 9000, "fold": 1000}
+VS_3BET["KJs"] = {"call": 8000, "fold": 2000}
+VS_3BET["KTs"] = {"call": 6000, "fold": 4000}
+VS_3BET["QJs"] = {"call": 7000, "fold": 3000}
+VS_3BET["QTs"] = {"call": 5000, "fold": 5000}
+VS_3BET["JTs"] = {"call": 7000, "fold": 3000}
+VS_3BET["J9s"] = {"call": 4000, "fold": 6000}
+VS_3BET["T9s"] = {"call": 5000, "fold": 5000}
+VS_3BET["AQo"] = {"call": 5000, "fold": 5000}
+VS_3BET["AJo"] = {"call": 3000, "fold": 7000}
 for hand, weights in VS_3BET.items():
     total = sum(weights.values())
     if total < 10000:
@@ -179,10 +193,11 @@ def rfi_node(position, hero_cards, hero_hand, ev_raise):
     weight = cells[hero_hand]
     is_sb = position == "SB"
     size = OPEN_SB if is_sb else OPEN
-    # A mixed hand is mixed because the two lines are worth the same. Giving it
-    # a wide EV gap would mark one of them an error while the chart calls both
-    # correct.
-    ev = ev_raise if weight == 10000 else 2
+    # A mixed hand is mixed because the lines are worth the same. In equilibrium
+    # it is indifferent against folding, which is the zero baseline, so any gap
+    # at all would have the scorer rank one chart-sanctioned line below the
+    # other.
+    ev = ev_raise if weight == 10000 else 0
 
     return collections.OrderedDict(
         id=f"rfi-{position.lower()}",
@@ -248,16 +263,20 @@ nodes = [
         amountToCall={"centiBB": THREE_BET - CO_OPEN_INVESTED},
         minimumRaiseTo={"centiBB": THREE_BET * 2 - CO_OPEN_INVESTED},
         configuredBetSizes=[{"centiBB": FOUR_BET}],
+        facingRaiseTo={"centiBB": THREE_BET},
         actions=[
             collections.OrderedDict(
                 action={"kind": "call", "toCentiBB": THREE_BET - CO_OPEN_INVESTED},
                 frequencyBasisPoints=vs3bet_weights.get("call", 0),
-                ev={"milliBB": 110},
+                ev={"milliBB": 112},
             ),
             collections.OrderedDict(
                 action={"kind": "raise", "toCentiBB": FOUR_BET},
                 frequencyBasisPoints=vs3bet_weights.get("raise", 0),
-                ev={"milliBB": 60},
+                # Within the excellent band of the call: a mix means the lines
+                # are worth the same, and a visible gap would have the scorer
+                # call one of them second best.
+                ev={"milliBB": 106},
             ),
             collections.OrderedDict(
                 action={"kind": "fold"},

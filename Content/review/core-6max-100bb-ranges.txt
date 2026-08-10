@@ -7,7 +7,9 @@
 ── rfi-utg · UTG 位翻前开池
    能力节点：preflop-rfi
    位置：按钮位后第 3 座
-   行动频率：
+   英雄手牌：Ad Kc（AKo）
+   整段范围加权开池率：15.59%
+   AKo 这手牌的行动频率：
      加注至 2.50BB  100.00%  EV 0.190BB
      弃牌  0.00%  EV 0.000BB
    范围表：
@@ -62,7 +64,9 @@
 ── rfi-hj · HJ 位翻前开池
    能力节点：preflop-rfi
    位置：按钮位后第 4 座
-   行动频率：
+   英雄手牌：Ad Tc（ATo）
+   整段范围加权开池率：19.81%
+   ATo 这手牌的行动频率：
      加注至 2.50BB  100.00%  EV 0.040BB
      弃牌  0.00%  EV 0.000BB
    范围表：
@@ -123,7 +127,9 @@
 ── rfi-co · CO 位翻前开池
    能力节点：preflop-rfi
    位置：按钮位后第 5 座
-   行动频率：
+   英雄手牌：Ah 5h（A5s）
+   整段范围加权开池率：24.85%
+   A5s 这手牌的行动频率：
      加注至 2.50BB  100.00%  EV 0.150BB
      弃牌  0.00%  EV 0.000BB
    范围表：
@@ -198,8 +204,10 @@
 ── rfi-btn · BTN 位翻前开池
    能力节点：preflop-rfi
    位置：按钮位后第 0 座
-   行动频率：
-     加注至 2.50BB  60.00%  EV 0.002BB
+   英雄手牌：9d 8c（98o）
+   整段范围加权开池率：46.33%
+   98o 这手牌的行动频率：
+     加注至 2.50BB  60.00%  EV 0.000BB
      弃牌  40.00%  EV 0.000BB
    范围表：
      22       raise 100.00%
@@ -308,7 +316,9 @@
 ── rfi-sb · SB 位翻前开池
    能力节点：preflop-rfi
    位置：按钮位后第 1 座
-   行动频率：
+   英雄手牌：Ad 7c（A7o）
+   整段范围加权开池率：42.74%
+   A7o 这手牌的行动频率：
      加注至 3.00BB  100.00%  EV 0.090BB
      弃牌  0.00%  EV 0.000BB
    范围表：
@@ -405,27 +415,42 @@
 ── vs3bet-co-vs-btn · CO 开池面对 BTN 3bet
    能力节点：preflop-vs-3bet
    位置：按钮位后第 5 座
-   行动频率：
-     跟注至 5.00BB  80.00%  EV 0.110BB
-     加注至 16.50BB  20.00%  EV 0.060BB
+   英雄手牌：Ah Qh（AQs）
+   开池范围中的继续率：36.40%
+   面对加注至 7.50BB，最小防守频率 34.78%
+   AQs 这手牌的行动频率：
+     补跟 5.00BB（总投入至 7.50BB）  80.00%  EV 0.112BB
+     加注至 16.50BB  20.00%  EV 0.106BB
      弃牌  0.00%  EV 0.000BB
    范围表：
-     77       call 60.00%  fold 40.00%
-     88       call 60.00%  fold 40.00%
-     99       call 60.00%  fold 40.00%
-     A5s      call 20.00%  fold 30.00%  raise 50.00%
+     66       call 60.00%  fold 40.00%
+     77       call 80.00%  fold 20.00%
+     88       call 80.00%  fold 20.00%
+     99       call 80.00%  fold 20.00%
+     A5s      call 20.00%  fold 20.00%  raise 60.00%
+     A6s      call 40.00%  fold 20.00%  raise 40.00%
+     A7s      call 40.00%  fold 20.00%  raise 40.00%
+     A8s      call 40.00%  fold 20.00%  raise 40.00%
+     A9s      call 40.00%  fold 20.00%  raise 40.00%
      AA       raise 100.00%
-     AJs      call 60.00%  fold 40.00%
+     AJo      call 30.00%  fold 70.00%
+     AJs      call 80.00%  fold 20.00%
      AKo      call 40.00%  raise 60.00%
      AKs      raise 100.00%
-     AQo      call 40.00%  fold 60.00%
+     AQo      call 50.00%  fold 50.00%
      AQs      call 80.00%  raise 20.00%
-     ATs      call 50.00%  fold 50.00%
+     ATs      call 70.00%  fold 30.00%
+     J9s      call 40.00%  fold 60.00%
      JJ       call 70.00%  raise 30.00%
-     JTs      call 50.00%  fold 50.00%
+     JTs      call 70.00%  fold 30.00%
+     KJs      call 80.00%  fold 20.00%
      KK       raise 100.00%
-     KQs      call 70.00%  fold 30.00%
+     KQs      call 90.00%  fold 10.00%
+     KTs      call 60.00%  fold 40.00%
+     QJs      call 70.00%  fold 30.00%
      QQ       raise 100.00%
+     QTs      call 50.00%  fold 50.00%
+     T9s      call 50.00%  fold 50.00%
      TT       call 70.00%  raise 30.00%
 
 审核提示：确认每张范围表的行动与频率符合你的策略判断。
