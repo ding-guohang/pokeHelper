@@ -1,6 +1,8 @@
 # 评审报告：sync-m1b-identity-sync-20260807-01
 
-四路并行评审（代码质量、规格合规、项目规范、安全专项）。结论：**不通过，需重大修改。**
+四路并行评审（代码质量、规格合规、项目规范、安全专项）。
+
+初次结论为**不通过，需重大修改**；修复后复核为**有条件通过**。处置与已知缺口见文末。
 
 ## 为什么全绿的门禁没拦住
 
@@ -51,10 +53,39 @@ tasks.md 第 514/521/524 行明确要求建 `PokerCoachTests/LiveServerSyncContr
 16. `SystemAppleAuthorizationClient` 用 `@unchecked Sendable` 掩盖了真正无保护的可变状态（`continuation`、`rawNonce` 跨 async 与 delegate 回调无锁读写）。另两处 `@unchecked` 都有 `NSLock` 保护且注释说明，只有这处没有。
 17. `e2e` 的 `pullAll` 用 `map[string]bool` 累积，**结构上无法检测重复事件**——而"每个事件只出现一次"正是它要证明的。
 
+## 处置
+
+初次评审结论为**不通过**。以下为复核后的状态。
+
+| 项 | 状态 | 证据 |
+|---|---|---|
+| P0-1..4 客户端/服务端契约断裂 | 已修 | `92f8dc0`；`internal/httpapi/cross_language_contract_test.go` |
+| P0-5 iOS 组装缺口 | 已修 | `92f8dc0`；`SyncCoordinatorTests` 断言应用被装配 |
+| P0 连带 毒批次永久卡死 | 已修 | 隔离 + 按半数拆分（`88f446c`） |
+| P1-6..8 安全三项 | 已修 | `92f8dc0`；`TestSignupTrafficCannotLockTheOwnerOutOfLogin` 等 |
+| P2-12 Release marker 空操作 | 已修 | `92f8dc0`；改为可真实出现的 marker + 自证断言 |
+| P2-13 UI 套件不被执行 | 已修 | 纳入门禁并适配 iPad 布局（此前只对 iPhone 成立） |
+| P2-14 超限批次未覆盖 | 已修 | `88f446c`；新增 `batchTooLarge` 与边界用例 |
+| P3-15 导出经 Double 往返 | **未修** | 见下 |
+| P3-16 `@unchecked Sendable` 掩盖无保护状态 | **未修** | 见下 |
+| P3-17 e2e `pullAll` 无法检测重复 | 已修 | 活体回路改用计数断言 |
+| **缺失的真实跨语言回路** | 已补 | `f6a98b3`；反向验证：退回 UUID 严格小写产生 5 处失败 |
+
+`bash scripts/verify-m1b.sh` 全绿，含该回路。
+
 ## 结论
 
+- [x] **有条件通过** — P0 与 P1 全部修复并有反向验证；以下已知缺口须在 M1C 前处理
 - [ ] 通过 — 可归档
-- [ ] 有条件通过
-- [x] **不通过 — 需重大修改**
+- [ ] 不通过
 
-P0 全部修复并由真实跨语言回路验证之前，不得归档。
+### 归档时明确接受的已知缺口
+
+按用户决定，本次不处理，记录以免丢失：
+
+1. **同步路径没有独立的 `email_verified` 门禁——已查证不是漏洞。** 全仓只有两条签发会话的路径：`auth/login.go:85`（被 `:52` 的 `!credential.Verified` 挡住）与 `auth/apple_service.go:130`（Apple 登录不涉及邮箱验证，Apple 本身即验证方，账号以其 subject 新建，不存在可绕过的未验证状态）。因此未验证账号拿不到 bearer 会话，同步路径无从进入。评审此项的有效部分是纵深防御观察：该保证由登录路径传递而来，同步层不独立强制。若将来新增签发会话的路径，必须重新检查这一不变量。
+2. **密码重置后既有刷新会话全部失效**只对假替身断言过 reason 字符串，没有"两个真实会话、重置后两个 refresh token 均失效"的 DB 级验证。
+3. **Today/Review 在远端事件合并后刷新**只在 reducer 层断言，没有 ViewModel 层测试。
+4. **导出事件经 `Double` 往返**（`AnyCodableValue`）。当前 centi-BB/milli-BB/bp 量级都在 2^53 内不会损坏，但机制违反 `coding.md:16`，且其注释谎称保持原样。对应测试的 fixture 里一个数字都没有。
+5. **`SystemAppleAuthorizationClient` 的 `@unchecked Sendable`** 掩盖了 `continuation`/`rawNonce` 的无锁跨域读写；同文件的 `ASAuthorizationController` 未持有强引用且未设 `presentationContextProvider`，continuation 可能泄漏挂起。
+6. 其余 WEAK 场景清单见评审正文，多数需要新增被测能力而非补断言。

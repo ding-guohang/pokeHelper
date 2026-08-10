@@ -95,6 +95,15 @@ Task 11 补齐了 `httpapi/router.go` 与 `cmd/api/main.go`，服务现在可以
 4. **`AccountServiceBaseURL` 默认指向 `https://127.0.0.1:8443`** —— M1B 不含生产部署（计划明确排除），Info.plist 的同名键可覆盖。**上架前必须替换。**
 5. **按 profile 路由的覆盖范围** —— 事件存储、Outbox、sync state（checkpoint 与 acknowledgement）、corruption backups 均已随 profile 目录切换；pending revocation 存放在 Keychain 单一保管库中，按安装而非按 profile，因为它代表"这台设备待撤销的令牌"，与用哪个档案训练无关。
 
+## 归档时接受的已知缺口
+
+见 `review.md` 文末。其中最需要注意的两条：
+
+- **导出事件经 `Double` 往返**（`AnyCodableValue`）。当前量级不损坏，但机制违反 `coding.md:16`，且注释谎称保持原样。
+- **`SystemAppleAuthorizationClient` 的 `@unchecked Sendable`** 掩盖了无锁的跨域可变状态，且 `ASAuthorizationController` 未持强引用、未设 `presentationContextProvider`。
+
+「同步路径缺少 `email_verified` 门禁」已查证**不是漏洞**：只有 login（有 `Verified` 检查）和 Apple 登录（Apple 即验证方）两条签发会话的路径。新增第三条路径时须重新检查该不变量。
+
 ## 验证命令
 
 M1B 全部门禁收敛到一条命令：
