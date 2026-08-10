@@ -4,7 +4,8 @@
     "schemaVersion": 1,
     "contentVersion": "1.0.0",
     "reviewStatus": "testFixture",
-    "generatedSource": "unit-test-fixture"
+    "generatedSource": "unit-test-fixture",
+    "origin": "fixture"
   },
   "curriculum": [
     {

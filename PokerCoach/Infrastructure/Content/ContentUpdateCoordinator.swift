@@ -93,18 +93,34 @@ final class ContentUpdateCoordinator {
             return .rejected(.invalidPack)
         }
 
+        // Retired content is never trained against. The bundled loader already
+        // filters it out; adopting it here would install a pack that reports
+        // "no content" and halts training.
+        guard pack.manifest.reviewStatus != .retired else {
+            return .rejected(.invalidPack)
+        }
+
         currentPack = pack
-        availability = Self.availability(for: pack.manifest.reviewStatus)
+        availability = Self.availability(
+            for: pack.manifest.reviewStatus,
+            origin: pack.manifest.origin
+        )
         return .adopted(contentVersion: pack.manifest.contentVersion)
     }
 
     private static func availability(
-        for status: ReviewStatus
+        for status: ReviewStatus,
+        origin: ContentOrigin
     ) -> StrategyContentAvailability {
-        switch status {
+        if origin == .generativeModel, status == .reviewed {
+            return .modelAuthoredContentAvailable
+        }
+
+        return switch status {
         case .reviewed: .reviewedContentAvailable
         case .unverifiedDraft: .unverifiedContentAvailable
         case .testFixture: .developmentFixtureAvailable
+        // Unreachable: refused above.
         case .retired: .reviewedContentUnavailable
         }
     }

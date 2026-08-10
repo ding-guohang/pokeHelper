@@ -107,6 +107,7 @@ enum FeedbackFixture {
             "contentVersion": "\(contentVersion)",
             "reviewStatus": "\(reviewStatus)",
             "generatedSource": "feedback-unit-test",
+            "origin": "fixture",
             "reviewedBy": \(reviewedByJSON),
             "reviewedAt": \(reviewedAtJSON)
           },

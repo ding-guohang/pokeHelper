@@ -121,6 +121,7 @@ enum DecisionSessionFixture {
             "contentVersion": "\(contentVersion)",
             "reviewStatus": "testFixture",
             "generatedSource": "\(generatedSource)",
+            "origin": "fixture",
             "reviewedBy": null,
             "reviewedAt": null
           },

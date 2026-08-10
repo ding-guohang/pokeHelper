@@ -50,6 +50,7 @@ enum ContractEventFixture {
             "contentVersion": "2026.08.06",
             "reviewStatus": "testFixture",
             "generatedSource": "contract-fixture",
+            "origin": "fixture",
             "reviewedBy": null,
             "reviewedAt": null
           },

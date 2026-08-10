@@ -53,7 +53,7 @@ struct DeterminismTests {
     /// Pinned so a change in encoding shows up as a failing assertion rather
     /// than as two runs that agree with each other but not with what shipped.
     static let goldenChecksum =
-        "9f1668290563dbfe8cbd3eeb4abf8ea09f0451b084c9979421dfd6faf9ef959c"
+        "333d4049c428f5e2e29fc39aaeaa28cd92306f3b9470a99305018276593e314f"
 
     // MARK: - Harness
 
@@ -96,6 +96,7 @@ struct DeterminismTests {
             "--export", export.path(),
             "--content-version", "2026.08.10",
             "--review-status", "unverifiedDraft",
+            "--origin", "fixture",
             "--output", output.path(),
         ]
         let errorPipe = Pipe()

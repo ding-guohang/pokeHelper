@@ -62,7 +62,7 @@ final class ReviewViewModelTests: XCTestCase {
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
-            installedContent: [event.strategyPackID: .testFixture]
+            installedContent: [event.strategyPackID: (.testFixture, .fixture)]
         )
 
         await viewModel.refresh()
@@ -83,7 +83,7 @@ final class ReviewViewModelTests: XCTestCase {
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
-            installedContent: [event.strategyPackID: .unverifiedDraft]
+            installedContent: [event.strategyPackID: (.unverifiedDraft, .fixture)]
         )
 
         await viewModel.refresh()
@@ -100,7 +100,7 @@ final class ReviewViewModelTests: XCTestCase {
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
-            installedContent: [event.strategyPackID: .reviewed]
+            installedContent: [event.strategyPackID: (.reviewed, .fixture)]
         )
 
         await viewModel.refresh()

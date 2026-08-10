@@ -25,6 +25,7 @@ enum LearnFixture {
                 contentVersion: "2026.08.10",
                 reviewStatus: .unverifiedDraft,
                 generatedSource: "learn-fixture",
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: nil
             ),

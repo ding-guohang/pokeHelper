@@ -12,12 +12,29 @@ public enum ReviewStatus: String, Codable, Sendable {
     case retired
 }
 
+/// Where a pack's frequencies, EVs and ranges actually came from.
+///
+/// Separate from `ReviewStatus` because origin and endorsement are different
+/// claims. `implicit-contracts.md` requires strategy truth to come from
+/// versioned structured content and deterministic computation; a human review
+/// raises confidence in content but cannot change where its numbers originated,
+/// so review alone must not silence the disclosure.
+public enum ContentOrigin: String, Codable, Sendable {
+    /// Produced by a solver whose run is recorded in the manifest.
+    case solver
+    /// Authored by a generative model. Always disclosed, however reviewed.
+    case generativeModel
+    /// Hand-written for tests and demonstrations.
+    case fixture
+}
+
 public struct StrategyPackManifest: Codable, Sendable {
     public let id: String
     public let schemaVersion: Int
     public let contentVersion: String
     public let reviewStatus: ReviewStatus
     public let generatedSource: String
+    public let origin: ContentOrigin
     /// Who signed off on the strategy. Required on `reviewed` content and
     /// absent elsewhere — `reviewed` with nobody accountable for it is the
     /// precise false guarantee `unverifiedDraft` exists to prevent.
@@ -30,6 +47,7 @@ public struct StrategyPackManifest: Codable, Sendable {
         contentVersion: String,
         reviewStatus: ReviewStatus,
         generatedSource: String,
+        origin: ContentOrigin,
         reviewedBy: String?,
         reviewedAt: Date?
     ) {
@@ -38,6 +56,7 @@ public struct StrategyPackManifest: Codable, Sendable {
         self.contentVersion = contentVersion
         self.reviewStatus = reviewStatus
         self.generatedSource = generatedSource
+        self.origin = origin
         self.reviewedBy = reviewedBy
         self.reviewedAt = reviewedAt
     }

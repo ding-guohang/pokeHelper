@@ -17,6 +17,7 @@ struct PackBuilderTests {
             from: export,
             contentVersion: "2026.08.10",
             reviewStatus: .unverifiedDraft,
+            origin: .fixture,
             reviewedBy: nil,
             reviewedAt: nil
         )
@@ -46,6 +47,7 @@ struct PackBuilderTests {
             from: export,
             contentVersion: "2026.08.10",
             reviewStatus: .unverifiedDraft,
+            origin: .fixture,
             reviewedBy: nil,
             reviewedAt: nil
         )
@@ -68,6 +70,7 @@ struct PackBuilderTests {
                 from: export,
                 contentVersion: "2026.08.10",
                 reviewStatus: .reviewed,
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: Date(timeIntervalSince1970: 1_786_000_000)
             )
@@ -97,6 +100,7 @@ struct PackBuilderTests {
                 from: export,
                 contentVersion: "2026.08.10",
                 reviewStatus: .unverifiedDraft,
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: nil
             )
@@ -123,6 +127,7 @@ struct PackBuilderTests {
                 from: export,
                 contentVersion: "2026.08.10",
                 reviewStatus: .unverifiedDraft,
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: nil,
                 to: directory.appending(path: "pack.json")
@@ -151,6 +156,7 @@ struct PackBuilderTests {
             from: export,
             contentVersion: "2026.08.10",
             reviewStatus: .unverifiedDraft,
+            origin: .fixture,
             reviewedBy: nil,
             reviewedAt: nil,
             to: output
@@ -182,6 +188,7 @@ struct PackBuilderTests {
                 from: export,
                 contentVersion: "2026.08.10",
                 reviewStatus: .unverifiedDraft,
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: nil
             )
@@ -228,6 +235,7 @@ struct PackBuilderTests {
                 from: export,
                 contentVersion: "2026.08.10",
                 reviewStatus: .unverifiedDraft,
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: nil
             )

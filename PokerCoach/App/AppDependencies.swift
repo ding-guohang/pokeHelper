@@ -17,7 +17,7 @@ final class AppDependencies {
     /// Review status of each installed pack, keyed by pack ID. Review reads it
     /// to disclose the provenance of a history entry, which it can only do for
     /// packs that are actually present.
-    let installedContent: [String: ReviewStatus]
+    let installedContent: [String: (ReviewStatus, ContentOrigin)]
     let localUserID: UUID
     let deviceID: UUID
     let accountSession: AccountSessionController
@@ -35,7 +35,7 @@ final class AppDependencies {
         localTrainingCatalog: [TrainingCatalogItem],
         localIdentity: LocalIdentity,
         strategyContentAvailability: StrategyContentAvailability,
-        installedContent: [String: ReviewStatus] = [:],
+        installedContent: [String: (ReviewStatus, ContentOrigin)] = [:],
         accountSession: AccountSessionController? = nil
     ) {
         self.eventStore = eventStore
@@ -319,7 +319,7 @@ final class AppDependencies {
         strategyPack: StrategyPack,
         localIdentity: LocalIdentity = .preview,
         strategyContentAvailability: StrategyContentAvailability,
-        installedContent: [String: ReviewStatus]? = nil
+        installedContent: [String: (ReviewStatus, ContentOrigin)]? = nil
     ) -> AppDependencies {
         precondition(
             strategyContentAvailability.canStartTraining,
@@ -336,7 +336,10 @@ final class AppDependencies {
             localIdentity: localIdentity,
             strategyContentAvailability: strategyContentAvailability,
             installedContent: installedContent ?? [
-                strategyPack.manifest.id: strategyPack.manifest.reviewStatus,
+                strategyPack.manifest.id: (
+                    strategyPack.manifest.reviewStatus,
+                    strategyPack.manifest.origin
+                ),
             ]
         )
         dependencies.installContentUpdate(

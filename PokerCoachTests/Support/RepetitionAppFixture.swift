@@ -18,6 +18,7 @@ enum RepetitionAppFixture {
             contentVersion: "2026.08.10",
             reviewStatus: .reviewed,
             generatedSource: "repetition-fixture",
+            origin: .fixture,
             reviewedBy: "fixture",
             reviewedAt: Date(timeIntervalSince1970: 1_786_000_000)
         ),

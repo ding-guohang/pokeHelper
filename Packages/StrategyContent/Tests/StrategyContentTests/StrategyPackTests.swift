@@ -305,7 +305,7 @@ func heroSeatOffsetOutsideTableIsRejected(
     let data = try fixture("valid-pack.json")
     let pack = try StrategyPackLoader().load(
         data: data,
-        expectedSHA256: "54ce4ff01141ab2d5e2cdcba706eee8caf6547570da6f418ef275b53fabb3ffb"
+        expectedSHA256: "7c5b5a8a208fa6de7d60cfd1f3248d2901eba1d766d277fee969aac4517f46fc"
     )
 
     #expect(pack.manifest.id == "cash-6max-100bb-dev")

@@ -28,6 +28,7 @@ struct StrategyImport {
     static let usage = """
     usage: strategy-import --export <path> --content-version <version> \
     --review-status <testFixture|unverifiedDraft|reviewed|retired> \
+    --origin <solver|generativeModel|fixture> \
     [--reviewed-by <name>] [--reviewed-at <ISO8601>] \
     (--output <path> | --print-range-tables)
     """
@@ -55,6 +56,7 @@ struct StrategyImport {
             from: export,
             contentVersion: options.contentVersion,
             reviewStatus: options.reviewStatus,
+            origin: options.origin,
             reviewedBy: options.reviewedBy,
             reviewedAt: options.reviewedAt,
             to: URL(filePath: outputPath)
@@ -67,6 +69,7 @@ struct StrategyImport {
         let exportPath: String
         let contentVersion: String
         let reviewStatus: ReviewStatus
+        let origin: ContentOrigin
         let reviewedBy: String?
         let reviewedAt: Date?
         let outputPath: String?
@@ -108,6 +111,18 @@ struct StrategyImport {
                 throw UsageError(message: "--review-status is required")
             }
 
+            // No default. Origin decides whether the app discloses provenance,
+            // so guessing it would be guessing at what the user is told.
+            var origin = ContentOrigin.fixture
+            if let rawOrigin = values["origin"] {
+                guard let parsed = ContentOrigin(rawValue: rawOrigin) else {
+                    throw UsageError(message: "unknown origin \(rawOrigin)")
+                }
+                origin = parsed
+            } else if !printRangeTables {
+                throw UsageError(message: "--origin is required")
+            }
+
             let contentVersion = values["content-version"] ?? ""
             if contentVersion.isEmpty, !printRangeTables {
                 throw UsageError(message: "--content-version is required")
@@ -126,6 +141,7 @@ struct StrategyImport {
             self.exportPath = exportPath
             self.contentVersion = contentVersion
             self.reviewStatus = reviewStatus
+            self.origin = origin
             reviewedBy = values["reviewed-by"]
             reviewedAt = parsedReviewedAt
             outputPath = values["output"]

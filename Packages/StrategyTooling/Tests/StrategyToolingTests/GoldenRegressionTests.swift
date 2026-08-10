@@ -129,6 +129,7 @@ enum GoldenFixture {
                 contentVersion: "2026.08.10",
                 reviewStatus: .unverifiedDraft,
                 generatedSource: "golden-fixture",
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: nil
             ),

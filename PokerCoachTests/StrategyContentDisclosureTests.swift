@@ -47,19 +47,38 @@ final class StrategyContentDisclosureTests: XCTestCase {
     // 披露由审核状态决定，不由 pack ID 决定。
     func testDisclosureIsDerivedFromReviewStatus() {
         XCTAssertEqual(
-            StrategyContentMetadata.disclosure(forReviewStatus: .testFixture),
+            StrategyContentMetadata.disclosure(forReviewStatus: .testFixture, origin: .fixture),
             "开发演示数据"
         )
         XCTAssertEqual(
-            StrategyContentMetadata.disclosure(forReviewStatus: .unverifiedDraft),
+            StrategyContentMetadata.disclosure(forReviewStatus: .unverifiedDraft, origin: .fixture),
             "未经策略审核"
         )
         XCTAssertEqual(
-            StrategyContentMetadata.disclosure(forReviewStatus: .retired),
+            StrategyContentMetadata.disclosure(forReviewStatus: .retired, origin: .fixture),
             "已停用内容"
         )
         XCTAssertNil(
-            StrategyContentMetadata.disclosure(forReviewStatus: .reviewed)
+            StrategyContentMetadata.disclosure(forReviewStatus: .reviewed, origin: .fixture)
+        )
+    }
+
+    // Human review does not silence provenance: model-authored strategy is
+    // disclosed however thoroughly it was checked, because review says someone
+    // looked, not that the numbers came from a solver.
+    func testModelAuthoredContentIsDisclosedEvenWhenReviewed() {
+        XCTAssertEqual(
+            StrategyContentMetadata.disclosure(
+                forReviewStatus: .reviewed,
+                origin: .generativeModel
+            ),
+            "非求解器产出，已人工审核"
+        )
+        XCTAssertNil(
+            StrategyContentMetadata.disclosure(
+                forReviewStatus: .reviewed,
+                origin: .solver
+            )
         )
     }
 
@@ -67,7 +86,9 @@ final class StrategyContentDisclosureTests: XCTestCase {
     // tell demonstration data from unverified strategy from retired content.
     func testEveryUnreviewedStatusHasItsOwnWording() {
         let disclosures = [ReviewStatus.testFixture, .unverifiedDraft, .retired]
-            .compactMap { StrategyContentMetadata.disclosure(forReviewStatus: $0) }
+            .compactMap {
+                StrategyContentMetadata.disclosure(forReviewStatus: $0, origin: .fixture)
+            }
 
         XCTAssertEqual(disclosures.count, 3)
         XCTAssertEqual(Set(disclosures).count, 3, "两种未审核状态共用了同一条文案")

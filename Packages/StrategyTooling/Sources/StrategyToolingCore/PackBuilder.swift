@@ -26,6 +26,7 @@ public struct PackBuilder: Sendable {
         from export: SolverExport,
         contentVersion: String,
         reviewStatus: ReviewStatus,
+        origin: ContentOrigin,
         reviewedBy: String?,
         reviewedAt: Date?
     ) throws -> StrategyPack {
@@ -36,6 +37,7 @@ public struct PackBuilder: Sendable {
                 contentVersion: contentVersion,
                 reviewStatus: reviewStatus,
                 generatedSource: Self.provenance(for: export),
+                origin: origin,
                 reviewedBy: reviewedBy,
                 reviewedAt: reviewedAt
             ),
@@ -66,6 +68,7 @@ public struct PackBuilder: Sendable {
         from export: SolverExport,
         contentVersion: String,
         reviewStatus: ReviewStatus,
+        origin: ContentOrigin,
         reviewedBy: String?,
         reviewedAt: Date?,
         to url: URL
@@ -74,6 +77,7 @@ public struct PackBuilder: Sendable {
             from: export,
             contentVersion: contentVersion,
             reviewStatus: reviewStatus,
+            origin: origin,
             reviewedBy: reviewedBy,
             reviewedAt: reviewedAt
         )

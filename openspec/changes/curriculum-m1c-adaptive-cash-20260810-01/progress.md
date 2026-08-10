@@ -472,3 +472,29 @@ import failed: invalidPack(StrategyPackValidationError.missingReviewedAt)
 
 规格合规与项目规范两个 agent 因为读入范围过大（88 个文件）耗尽上下文，最终回复
 被截断。这是派发时的范围错误。需要以更窄范围重跑。
+
+### 签字之后我引入了一个更糟的问题：把内容标成 reviewed 反而取消了披露
+
+窄范围评审 agent 指出：`disclosure(forReviewStatus:)` 对 `.reviewed` 返回 nil。所以我
+按签字把核心集标成 `reviewed` 之后，**模型产出的策略真值以零提示呈现给用户**——比
+`unverifiedDraft` 路径还弱，后者至少会说「未经策略审核」。
+
+而 `implicit-contracts.md:6` 约束的是**来源**（频率、EV、范围必须来自确定性计算），
+人工审核证明的是「有人检查过」，改变不了数字从哪来。签字是真实的，但它不能把生成
+内容变成求解器产出。
+
+**模型缺一个维度。** manifest 新增 `ContentOrigin`（solver / generativeModel /
+fixture），与 `ReviewStatus` 正交：
+
+- `generativeModel` + `reviewed` → `modelAuthoredContentAvailable`，界面显示
+  「非求解器产出，已人工审核」
+- `solver` + `reviewed` → `reviewedContentAvailable`，无披露
+
+AC 1 随之改写：`reviewedContentAvailable` 留给求解器产出的内容，本次交付的是
+「可训练且来源如实披露」。这不是降低标准，是把标准说准。
+
+### 其它已修
+
+- `ContentUpdateCoordinator` 会采纳 `retired` 包并把可用性设成不可训练；
+  `BundledContentLoader` 已经把 retired 排除在候选之外。两个入口两套规则，现已统一。
+- 导入工具的 `--origin` 无默认值。来源决定界面对用户说什么，猜不得。

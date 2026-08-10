@@ -29,7 +29,8 @@ final class ReviewViewModel {
     private let planner: TrainingPlanner
     private let catalog: [TrainingCatalogItem]
     /// Review status of each installed pack, keyed by pack ID.
-    private let installedContent: [String: ReviewStatus]
+    /// Review status and origin of each installed pack, keyed by pack ID.
+    private let installedContent: [String: (ReviewStatus, ContentOrigin)]
     private let now: @MainActor () -> Date
 
     init(
@@ -39,7 +40,7 @@ final class ReviewViewModel {
         catalog: [TrainingCatalogItem] = [],
         strategyContentAvailability: StrategyContentAvailability =
             .reviewedContentUnavailable,
-        installedContent: [String: ReviewStatus] = [:],
+        installedContent: [String: (ReviewStatus, ContentOrigin)] = [:],
         now: @escaping @MainActor () -> Date = Date.init
     ) {
         self.eventStore = eventStore
@@ -89,10 +90,13 @@ final class ReviewViewModel {
     /// falling back to nil would render `unverifiedDraft` history with no
     /// label at all, which reads as endorsement.
     func contentDisclosure(for event: TrainingEvent) -> String? {
-        guard let reviewStatus = installedContent[event.strategyPackID] else {
+        guard let installed = installedContent[event.strategyPackID] else {
             return StrategyContentMetadata.unknownProvenanceDisclosure
         }
-        return StrategyContentMetadata.disclosure(forReviewStatus: reviewStatus)
+        return StrategyContentMetadata.disclosure(
+            forReviewStatus: installed.0,
+            origin: installed.1
+        )
     }
 
     private static func isWeakerFirst(

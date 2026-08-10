@@ -68,6 +68,7 @@ enum DiagnosticFixture {
                 contentVersion: "2026.08.10",
                 reviewStatus: .testFixture,
                 generatedSource: "diagnostic-fixture",
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: nil
             ),

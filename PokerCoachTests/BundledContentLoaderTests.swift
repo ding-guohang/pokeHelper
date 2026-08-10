@@ -53,16 +53,25 @@ final class BundledContentLoaderTests: XCTestCase {
         )
     }
 
-    // M1C's first acceptance criterion. This was a conditional while no
-    // reviewed content existed; it is unconditional now that some does, so
-    // regressing the core pack to unverifiedDraft fails here rather than
-    // quietly shipping a build that cannot reach the App Store.
-    func testBundledContentIsReviewedAndTrainable() throws {
+    // M1C's first acceptance criterion, as it stands after the review.
+    //
+    // The bundled pack is reviewed but model-authored, so it resolves to
+    // modelAuthoredContentAvailable rather than reviewedContentAvailable. That
+    // is deliberate: implicit-contracts.md constrains where strategy truth
+    // comes from, and a human sign-off does not change a number's origin. The
+    // fully-reviewed state arrives with solver-derived content.
+    func testBundledContentIsTrainableAndDisclosesItsProvenance() throws {
         let loaded = try BundledContentLoader(bundle: .main).loadPreferredPack()
 
         XCTAssertEqual(loaded.pack.manifest.reviewStatus, .reviewed)
-        XCTAssertEqual(loaded.availability, .reviewedContentAvailable)
+        XCTAssertEqual(loaded.pack.manifest.origin, .generativeModel)
+        XCTAssertEqual(loaded.availability, .modelAuthoredContentAvailable)
         XCTAssertTrue(loaded.availability.canStartTraining)
+        XCTAssertEqual(
+            loaded.availability.disclosureText,
+            "非求解器产出，已人工审核",
+            "模型产出的策略必须始终披露来源，无论审核多充分"
+        )
     }
 
     // Reviewed content has to name who reviewed it and when. The validator
@@ -81,7 +90,7 @@ final class BundledContentLoaderTests: XCTestCase {
     // the trust ordering has to prefer the reviewed pack for training.
     func testPrefersReviewedContentOverUnverifiedWhenBothArePresent() throws {
         let loaded = try BundledContentLoader(bundle: .main).loadPreferredPack()
-        let statuses = Set(loaded.installedContent.values)
+        let statuses = Set(loaded.installedContent.values.map { $0.0 })
 
         if statuses.contains(.unverifiedDraft) {
             XCTAssertEqual(

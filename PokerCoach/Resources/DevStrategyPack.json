@@ -5,6 +5,7 @@
     "contentVersion": "2026.08.07-dev.2",
     "reviewStatus": "testFixture",
     "generatedSource": "deterministic-ui-test-fixture",
+    "origin": "fixture",
     "reviewedBy": null
   },
   "curriculum": [

@@ -53,6 +53,7 @@ enum ContentUpdateFixture {
         ) as! [String: Any]
         var manifest = root["manifest"] as! [String: Any]
         manifest["contentVersion"] = contentVersion
+        manifest["origin"] = manifest["origin"] ?? "fixture"
         if let reviewStatus {
             manifest["reviewStatus"] = reviewStatus
             if reviewStatus == "reviewed" {

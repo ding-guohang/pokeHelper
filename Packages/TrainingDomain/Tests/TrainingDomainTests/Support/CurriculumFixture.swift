@@ -25,6 +25,7 @@ enum CurriculumFixture {
                 contentVersion: contentVersion,
                 reviewStatus: .testFixture,
                 generatedSource: "curriculum-fixture",
+                origin: .fixture,
                 reviewedBy: nil,
                 reviewedAt: nil
             ),

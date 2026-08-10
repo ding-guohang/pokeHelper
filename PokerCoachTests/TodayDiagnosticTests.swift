@@ -143,11 +143,11 @@ final class TodayRepetitionTests: XCTestCase {
 
         await viewModel.refresh()
 
-        let item = try XCTUnwrap(
-            viewModel.primaryItem,
-            "计划为空，无法判断复练是否进入排序"
-        )
-        let other = try XCTUnwrap(viewModel.supportingItems.first)
+        guard let item = viewModel.primaryItem,
+              let other = viewModel.supportingItems.first
+        else {
+            return XCTFail("计划为空，无法判断复练是否进入排序")
+        }
 
         // The two catalog entries share an ability dimension and differ only by
         // node, and "flop-item" sorts before "turn-item", so a tie would put

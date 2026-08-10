@@ -64,6 +64,7 @@ reimport_args=(
   --export Content/exports/core-6max-100bb.json
   --content-version "$(manifest_field contentVersion)"
   --review-status "$(manifest_field reviewStatus)"
+  --origin "$(manifest_field origin)"
   --output "$scratch/core.json"
 )
 reviewed_by="$(manifest_field reviewedBy)"

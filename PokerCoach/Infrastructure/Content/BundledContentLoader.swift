@@ -17,7 +17,7 @@ struct BundledContentLoader {
         let availability: StrategyContentAvailability
         /// Review status of every pack found, keyed by pack ID. Review reads it
         /// to disclose the provenance of a history entry.
-        let installedContent: [String: ReviewStatus]
+        let installedContent: [String: (ReviewStatus, ContentOrigin)]
     }
 
     /// Resource names, most trustworthy first. The order is also the preference
@@ -102,9 +102,14 @@ struct BundledContentLoader {
 
         return LoadedContent(
             pack: preferred,
-            availability: Self.availability(for: preferred.manifest.reviewStatus),
+            availability: Self.availability(
+                for: preferred.manifest.reviewStatus,
+                origin: preferred.manifest.origin
+            ),
             installedContent: Dictionary(
-                packs.map { ($0.manifest.id, $0.manifest.reviewStatus) },
+                packs.map {
+                    ($0.manifest.id, ($0.manifest.reviewStatus, $0.manifest.origin))
+                },
                 uniquingKeysWith: { first, _ in first }
             )
         )
@@ -120,9 +125,17 @@ struct BundledContentLoader {
     }
 
     private static func availability(
-        for status: ReviewStatus
+        for status: ReviewStatus,
+        origin: ContentOrigin
     ) -> StrategyContentAvailability {
-        switch status {
+        // Model-authored content is disclosed however thoroughly it was
+        // reviewed: review establishes that someone checked, not that the
+        // numbers came from a solver.
+        if origin == .generativeModel, status == .reviewed {
+            return .modelAuthoredContentAvailable
+        }
+
+        return switch status {
         case .reviewed: .reviewedContentAvailable
         case .unverifiedDraft: .unverifiedContentAvailable
         case .testFixture: .developmentFixtureAvailable

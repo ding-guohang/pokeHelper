@@ -34,6 +34,7 @@ enum StrategyPackFixture {
                 contentVersion: source.manifest.contentVersion,
                 reviewStatus: reviewStatus,
                 generatedSource: source.manifest.generatedSource,
+                origin: .fixture,
                 reviewedBy: reviewedBy,
                 reviewedAt: reviewedAt
             ),

@@ -42,7 +42,12 @@ M1C 是让产品第一次真正可用的里程碑：把内容送进 App，并让
   同类缺陷，而翻后策略依赖牌面结构，没有求解器输出就无法做对。`unverifiedDraft` 状态
   与其界面披露仍然实现并受测，只是当前没有内容处于该状态。
 
-这样 M1C 能真正交付 roadmap 为其定义的「已审核内容」，商店发布门禁可以变绿，`docs/product/scope-and-milestones.md:26` 不需要修改。我不会把未经人工审核的生成内容标成 `reviewed`——`docs/standards/strategy-content.md:8` 要求 `reviewed` 具备审核元数据，伪造它等于把一个虚假保证烧进数据里。
+内容的**来源**与**审核状态**在 manifest 中分开记录。`implicit-contracts.md:6` 约束的是
+策略真值从哪来，而人工审核证明的是有人检查过——后者无法改变前者。因此模型产出的内容
+即使标为 `reviewed`，界面仍然显示「非求解器产出，已人工审核」；完全无披露的
+`reviewedContentAvailable` 留给求解器产出的内容。
+
+这样 M1C 能交付经人工审核、来源如实披露的内容，商店发布门禁可以变绿，`docs/product/scope-and-milestones.md:26` 不需要修改。我不会把未经人工审核的生成内容标成 `reviewed`——`docs/standards/strategy-content.md:8` 要求 `reviewed` 具备审核元数据，伪造它等于把一个虚假保证烧进数据里。
 
 ## 已确定的设计约束
 
@@ -631,7 +636,7 @@ The system SHALL provide one command that verifies packages, app models, iPhone 
 
 ## Acceptance Criteria
 
-1. 商店发布构建随包内置经审核签字的核心集内容，首次离线启动即可训练，`reviewedContentAvailable` 在生产代码中被真实构造。
+1. 商店发布构建随包内置经审核签字的核心集内容，首次离线启动即可训练。内容来源与审核状态分开记录：模型产出的策略即便已人工审核也始终披露来源，`reviewedContentAvailable` 保留给求解器产出的内容。
 2. 求解器导出可经导入工具产出通过全部语义校验的策略包；输出与输入逐条对应；跨进程两次导入字节相同并等于签入的黄金 checksum。
 3. 内容升级运行黄金回归；跨越 quality 边界的变化使回归失败并逐条报告。
 4. 初始诊断 12 题可完成、可跳过、可中断后继续；跳过后今日计划仍非空且维度均衡。
