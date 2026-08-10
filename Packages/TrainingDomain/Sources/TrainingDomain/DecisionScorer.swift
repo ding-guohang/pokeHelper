@@ -34,6 +34,28 @@ public struct DecisionGrade: Codable, Sendable {
     public let score: Int
     public let quality: DecisionQuality
     public let isStrategicallyAvailable: Bool
+
+    public init(
+        selectedAction: DecisionAction,
+        selectedFrequencyBasisPoints: Int,
+        selectedEV: EVAmount,
+        bestEV: EVAmount,
+        evLoss: EVAmount,
+        lossRateBasisPoints: Int,
+        score: Int,
+        quality: DecisionQuality,
+        isStrategicallyAvailable: Bool
+    ) {
+        self.selectedAction = selectedAction
+        self.selectedFrequencyBasisPoints = selectedFrequencyBasisPoints
+        self.selectedEV = selectedEV
+        self.bestEV = bestEV
+        self.evLoss = evLoss
+        self.lossRateBasisPoints = lossRateBasisPoints
+        self.score = score
+        self.quality = quality
+        self.isStrategicallyAvailable = isStrategicallyAvailable
+    }
 }
 
 public enum DecisionScoringError: Error, Equatable {
