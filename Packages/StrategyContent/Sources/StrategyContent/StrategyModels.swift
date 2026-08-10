@@ -66,6 +66,12 @@ public struct StrategyOption: Codable, Hashable, Sendable {
     public let action: DecisionAction
     public let frequencyBasisPoints: Int
     public let ev: EVAmount
+
+    public init(action: DecisionAction, frequencyBasisPoints: Int, ev: EVAmount) {
+        self.action = action
+        self.frequencyBasisPoints = frequencyBasisPoints
+        self.ev = ev
+    }
 }
 
 public struct SolverAssumptions: Codable, Hashable, Sendable {
@@ -74,6 +80,20 @@ public struct SolverAssumptions: Codable, Hashable, Sendable {
     public let effectiveStack: BBAmount
     public let rakeDescription: String
     public let allowedBetSizeDescription: String
+
+    public init(
+        gameType: String,
+        tableSize: Int,
+        effectiveStack: BBAmount,
+        rakeDescription: String,
+        allowedBetSizeDescription: String
+    ) {
+        self.gameType = gameType
+        self.tableSize = tableSize
+        self.effectiveStack = effectiveStack
+        self.rakeDescription = rakeDescription
+        self.allowedBetSizeDescription = allowedBetSizeDescription
+    }
 }
 
 public struct StructuredExplanation: Codable, Hashable, Sendable {
@@ -84,11 +104,34 @@ public struct StructuredExplanation: Codable, Hashable, Sendable {
     public let futurePlan: String
     public let gtoBaseline: String
     public let exploitCondition: String?
+
+    public init(
+        conclusion: String,
+        rangeReasoning: String,
+        boardReasoning: String,
+        opponentReasoning: String,
+        futurePlan: String,
+        gtoBaseline: String,
+        exploitCondition: String?
+    ) {
+        self.conclusion = conclusion
+        self.rangeReasoning = rangeReasoning
+        self.boardReasoning = boardReasoning
+        self.opponentReasoning = opponentReasoning
+        self.futurePlan = futurePlan
+        self.gtoBaseline = gtoBaseline
+        self.exploitCondition = exploitCondition
+    }
 }
 
 public struct RangeCell: Codable, Hashable, Sendable {
     public let handClass: String
     public let actionWeightsBasisPoints: [String: Int]
+
+    public init(handClass: String, actionWeightsBasisPoints: [String: Int]) {
+        self.handClass = handClass
+        self.actionWeightsBasisPoints = actionWeightsBasisPoints
+    }
 }
 
 public struct DecisionScenario: Codable, Sendable, Identifiable {

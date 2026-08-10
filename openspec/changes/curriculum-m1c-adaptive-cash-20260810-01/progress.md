@@ -11,7 +11,10 @@
 | 2 能力树进入内容模型 | 完成 | 见下方偏离 1 | 合并了 Task 3 的部分内容 |
 | 3 fixture 补齐新字段 | 完成 | 同上 | 实际涉及 6 处，计划只预估到 2 处 |
 | 16 披露文案与可用性状态 | 完成 | `9a7c0b3` + 接线提交 | 提前执行，见偏离 2 |
-| 4–15、17–23 | 未开始 | | |
+| 4 建立 StrategyTooling 包 | 完成 | | 未加入 project.yml，不进 App |
+| 5 导入的输入输出对应 | 完成 | | 偏离 5：不重述频率规则 |
+| 6 跨进程导入确定性 | 完成 | | 反例已实证，见下方「假红」 |
+| 7–15、17–23 | 未开始 | | |
 
 ## 偏离计划的决策
 
@@ -45,6 +48,13 @@ App 目标构建不过，任何 App 测试都跑不了。所以 Task 16 必须�
 要拆开的混淆。改为 `testFixture → 开发演示`、`unverifiedDraft → 未经策略审核`，
 并有测试断言两条文案不相同——共用一条横幅会让「显示了披露」这个断言通过，
 却告诉用户错误的信息。
+
+### 5. 导入工具不重述内容规则
+
+计划让 `PackBuilder` 抛 `frequencyTotalMismatch(scenarioID:actual:)`。改为
+`invalidPack(StrategyPackValidationError)`——直接透出 `StrategyPackValidator`
+的 typed error。频率总和等于 10,000 这类规则只应有一份实现；导入器抄一份，
+就多了一处会与 App 实际加载的模型漂移的地方。错误里仍然带场景 ID 与实际总和。
 
 ## 坑
 
@@ -82,3 +92,25 @@ App 目标构建不过，任何 App 测试都跑不了。所以 Task 16 必须�
    `waitForExistence` 也会失败，但看日志无法一眼判断是「渲染慢」还是「逻辑错」。
 3. `valid-pack.json` 的黄金 checksum 硬编码在 `StrategyPackTests.matchingChecksumAllowsLoading`
    里（现为 `54ce4ff0…`）。改动该 fixture 字节必须同步更新。
+
+### 同一轮里被「假红」骗了两次
+
+验证确定性测试能否抓到字典乱序时，我摘掉 `.sortedKeys` 跑了 10 次，10 次全「过」。
+结论看起来是「这条测试没用」，实际上：
+
+1. **第一次假红**：`swift test --filter 跨进程字节一致` 用的是 `@Test` 的显示名，
+   而 `--filter` 匹配的是函数名。输出是 `warning: No matching test cases were run`
+   加上 `Executed 0 tests ... passed`——我的 `grep -q passed` 把它读成了成功。
+2. **第二次假红**：换成函数名后 8/8 失败，看起来对了。但失败原因是
+   `strategy-import 不在 ...`——`Bundle.main.bundleURL` 在 `swift test` 下指向
+   工具链的测试运行器目录，不是构建产物目录。测试从没真正跑过导入。
+
+两次都得到了「符合预期」的结论，两次都什么都没验证。
+
+**规避方式**：验证一条测试的红/绿时，不要只看退出码或 `passed` 字样，必须断言
+**执行数**，并且**读失败信息本身**确认失败原因就是你想要的那个原因。本次最终的
+判据是：反例下第二个进程的 sha256 每次都不同（`7077…`/`e6ad…`/`7c36…`），
+而设了 `SWIFT_DETERMINISTIC_HASHING=1` 的第一个进程稳定不变——这才是
+「字典顺序随哈希种子漂移」的直接证据。
+
+`DeterminismTests.importerBinary()` 因此在找不到可执行文件时**抛错而不是跳过**。
