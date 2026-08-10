@@ -38,7 +38,9 @@ M1C 是让产品第一次真正可用的里程碑：把内容送进 App，并让
 本次内容由我生成，分两档交付：
 
 - **核心集**（6-max 100BB 翻前 RFI 与 3bet 范围，属公开成熟策略）由仓库所有者逐表审核签字，manifest 记录 `reviewedBy` 与 `reviewedAt`，状态为 `reviewed`。审核单位是范围表而非逐题。
-- **其余深度内容**状态为 `unverifiedDraft`，界面强制披露「未经策略审核」。
+- **翻后深度内容不在本次交付范围内。** 生成后经机械审计发现它带有核心集当初被驳回的
+  同类缺陷，而翻后策略依赖牌面结构，没有求解器输出就无法做对。`unverifiedDraft` 状态
+  与其界面披露仍然实现并受测，只是当前没有内容处于该状态。
 
 这样 M1C 能真正交付 roadmap 为其定义的「已审核内容」，商店发布门禁可以变绿，`docs/product/scope-and-milestones.md:26` 不需要修改。我不会把未经人工审核的生成内容标成 `reviewed`——`docs/standards/strategy-content.md:8` 要求 `reviewed` 具备审核元数据，伪造它等于把一个虚假保证烧进数据里。
 
@@ -385,6 +387,8 @@ The system SHALL distinguish `testFixture`, `unverifiedDraft`, `reviewed`, and `
 - AND 不把数据描述为已审核扑克建议
 
 ##### Scenario: 未审核内容必须披露
+
+<!-- 当前没有内容处于该状态；行为由单元测试与发布门禁探针覆盖。 -->
 
 - GIVEN APP 使用 `unverifiedDraft` 内容
 - WHEN 用户查看训练、反馈或能力画像
