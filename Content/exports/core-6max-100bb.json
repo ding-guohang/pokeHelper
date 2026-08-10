@@ -1,0 +1,805 @@
+{
+  "packID": "cash-6max-100bb-core",
+  "generatedSource": "claude-authored preflop baseline",
+  "exportedAt": "2026-08-10T00:00:00Z",
+  "gameType": "NLHE cash",
+  "tableSize": 6,
+  "effectiveStack": {
+    "centiBB": 10000
+  },
+  "rakeDescription": "5% capped at 3BB",
+  "allowedBetSizeDescription": "2.5BB open, 3x 3bet, 2.2x 4bet",
+  "curriculum": [
+    {
+      "id": "preflop-rfi",
+      "title": "翻前开池",
+      "prerequisiteNodeIDs": []
+    },
+    {
+      "id": "preflop-vs-3bet",
+      "title": "面对 3bet",
+      "prerequisiteNodeIDs": [
+        "preflop-rfi"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "rfi-lj",
+      "title": "LJ 位翻前开池",
+      "abilityDimension": "preflop-range",
+      "curriculumNodeID": "preflop-rfi",
+      "heroSeatOffsetFromButton": 3,
+      "heroCards": [
+        "Ad",
+        "Kc"
+      ],
+      "board": [],
+      "pot": {
+        "centiBB": 150
+      },
+      "amountToCall": {
+        "centiBB": 100
+      },
+      "minimumRaiseTo": {
+        "centiBB": 200
+      },
+      "configuredBetSizes": [
+        {
+          "centiBB": 250
+        }
+      ],
+      "actions": [
+        {
+          "action": {
+            "kind": "raise",
+            "toCentiBB": 250
+          },
+          "frequencyBasisPoints": 1500,
+          "ev": {
+            "milliBB": 210
+          }
+        },
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "frequencyBasisPoints": 8500,
+          "ev": {
+            "milliBB": 0
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AA-TT",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKs-AJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKo-AQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "99-77",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KJs",
+          "actionWeightsBasisPoints": {
+            "raise": 6000,
+            "fold": 4000
+          }
+        },
+        {
+          "handClass": "QJs",
+          "actionWeightsBasisPoints": {
+            "raise": 5000,
+            "fold": 5000
+          }
+        },
+        {
+          "handClass": "JTs",
+          "actionWeightsBasisPoints": {
+            "raise": 5000,
+            "fold": 5000
+          }
+        },
+        {
+          "handClass": "ATs",
+          "actionWeightsBasisPoints": {
+            "raise": 8000,
+            "fold": 2000
+          }
+        }
+      ],
+      "explanation": {
+        "conclusion": "LJ 位以 2.5BB 开池，开池频率约 15%。",
+        "rangeReasoning": "LJ 位后面还有 3 个位置要过，范围随位置靠后放宽。",
+        "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
+        "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
+        "futurePlan": "被 3bet 后按对应的应对范围继续。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "exploitCondition": null
+      }
+    },
+    {
+      "id": "rfi-hj",
+      "title": "HJ 位翻前开池",
+      "abilityDimension": "preflop-range",
+      "curriculumNodeID": "preflop-rfi",
+      "heroSeatOffsetFromButton": 2,
+      "heroCards": [
+        "Ad",
+        "Kc"
+      ],
+      "board": [],
+      "pot": {
+        "centiBB": 150
+      },
+      "amountToCall": {
+        "centiBB": 100
+      },
+      "minimumRaiseTo": {
+        "centiBB": 200
+      },
+      "configuredBetSizes": [
+        {
+          "centiBB": 250
+        }
+      ],
+      "actions": [
+        {
+          "action": {
+            "kind": "raise",
+            "toCentiBB": 250
+          },
+          "frequencyBasisPoints": 1900,
+          "ev": {
+            "milliBB": 250
+          }
+        },
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "frequencyBasisPoints": 8100,
+          "ev": {
+            "milliBB": 0
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AA-99",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKs-ATs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKo-AJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KQs-KJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "88-66",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "QJs",
+          "actionWeightsBasisPoints": {
+            "raise": 8000,
+            "fold": 2000
+          }
+        },
+        {
+          "handClass": "JTs",
+          "actionWeightsBasisPoints": {
+            "raise": 8000,
+            "fold": 2000
+          }
+        },
+        {
+          "handClass": "T9s",
+          "actionWeightsBasisPoints": {
+            "raise": 5000,
+            "fold": 5000
+          }
+        },
+        {
+          "handClass": "KTs",
+          "actionWeightsBasisPoints": {
+            "raise": 6000,
+            "fold": 4000
+          }
+        }
+      ],
+      "explanation": {
+        "conclusion": "HJ 位以 2.5BB 开池，开池频率约 19%。",
+        "rangeReasoning": "HJ 位后面还有 2 个位置要过，范围随位置靠后放宽。",
+        "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
+        "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
+        "futurePlan": "被 3bet 后按对应的应对范围继续。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "exploitCondition": null
+      }
+    },
+    {
+      "id": "rfi-co",
+      "title": "CO 位翻前开池",
+      "abilityDimension": "preflop-range",
+      "curriculumNodeID": "preflop-rfi",
+      "heroSeatOffsetFromButton": 1,
+      "heroCards": [
+        "Ad",
+        "Kc"
+      ],
+      "board": [],
+      "pot": {
+        "centiBB": 150
+      },
+      "amountToCall": {
+        "centiBB": 100
+      },
+      "minimumRaiseTo": {
+        "centiBB": 200
+      },
+      "configuredBetSizes": [
+        {
+          "centiBB": 250
+        }
+      ],
+      "actions": [
+        {
+          "action": {
+            "kind": "raise",
+            "toCentiBB": 250
+          },
+          "frequencyBasisPoints": 2700,
+          "ev": {
+            "milliBB": 330
+          }
+        },
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "frequencyBasisPoints": 7300,
+          "ev": {
+            "milliBB": 0
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AA-66",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKs-A9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKo-ATo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KQs-KTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "55-22",
+          "actionWeightsBasisPoints": {
+            "raise": 7000,
+            "fold": 3000
+          }
+        },
+        {
+          "handClass": "QJs-QTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "JTs-J9s",
+          "actionWeightsBasisPoints": {
+            "raise": 9000,
+            "fold": 1000
+          }
+        },
+        {
+          "handClass": "T9s",
+          "actionWeightsBasisPoints": {
+            "raise": 9000,
+            "fold": 1000
+          }
+        },
+        {
+          "handClass": "98s",
+          "actionWeightsBasisPoints": {
+            "raise": 7000,
+            "fold": 3000
+          }
+        },
+        {
+          "handClass": "KJo",
+          "actionWeightsBasisPoints": {
+            "raise": 6000,
+            "fold": 4000
+          }
+        }
+      ],
+      "explanation": {
+        "conclusion": "CO 位以 2.5BB 开池，开池频率约 27%。",
+        "rangeReasoning": "CO 位后面还有 1 个位置要过，范围随位置靠后放宽。",
+        "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
+        "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
+        "futurePlan": "被 3bet 后按对应的应对范围继续。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "exploitCondition": null
+      }
+    },
+    {
+      "id": "rfi-btn",
+      "title": "BTN 位翻前开池",
+      "abilityDimension": "preflop-range",
+      "curriculumNodeID": "preflop-rfi",
+      "heroSeatOffsetFromButton": 0,
+      "heroCards": [
+        "Ad",
+        "Kc"
+      ],
+      "board": [],
+      "pot": {
+        "centiBB": 150
+      },
+      "amountToCall": {
+        "centiBB": 100
+      },
+      "minimumRaiseTo": {
+        "centiBB": 200
+      },
+      "configuredBetSizes": [
+        {
+          "centiBB": 250
+        }
+      ],
+      "actions": [
+        {
+          "action": {
+            "kind": "raise",
+            "toCentiBB": 250
+          },
+          "frequencyBasisPoints": 4400,
+          "ev": {
+            "milliBB": 520
+          }
+        },
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "frequencyBasisPoints": 5600,
+          "ev": {
+            "milliBB": 0
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AA-22",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKs-A2s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKo-A8o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KQs-K5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KQo-KTo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "QJs-Q8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "QJo-QTo",
+          "actionWeightsBasisPoints": {
+            "raise": 9000,
+            "fold": 1000
+          }
+        },
+        {
+          "handClass": "JTs-J8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "T9s-T8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "98s-87s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "76s-65s",
+          "actionWeightsBasisPoints": {
+            "raise": 9000,
+            "fold": 1000
+          }
+        },
+        {
+          "handClass": "J9o",
+          "actionWeightsBasisPoints": {
+            "raise": 6000,
+            "fold": 4000
+          }
+        }
+      ],
+      "explanation": {
+        "conclusion": "BTN 位以 2.5BB 开池，开池频率约 44%。",
+        "rangeReasoning": "BTN 位后面还有 5 个位置要过，范围随位置靠后放宽。",
+        "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
+        "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
+        "futurePlan": "被 3bet 后按对应的应对范围继续。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "exploitCondition": null
+      }
+    },
+    {
+      "id": "rfi-sb",
+      "title": "SB 位翻前开池",
+      "abilityDimension": "preflop-range",
+      "curriculumNodeID": "preflop-rfi",
+      "heroSeatOffsetFromButton": 4,
+      "heroCards": [
+        "Ad",
+        "Kc"
+      ],
+      "board": [],
+      "pot": {
+        "centiBB": 150
+      },
+      "amountToCall": {
+        "centiBB": 100
+      },
+      "minimumRaiseTo": {
+        "centiBB": 200
+      },
+      "configuredBetSizes": [
+        {
+          "centiBB": 250
+        }
+      ],
+      "actions": [
+        {
+          "action": {
+            "kind": "raise",
+            "toCentiBB": 250
+          },
+          "frequencyBasisPoints": 4000,
+          "ev": {
+            "milliBB": 300
+          }
+        },
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "frequencyBasisPoints": 6000,
+          "ev": {
+            "milliBB": 0
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AA-22",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKs-A2s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "AKo-A7o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KQs-K7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KQo-KTo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "QJs-Q8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "JTs-J8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "T9s-T8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "98s-87s",
+          "actionWeightsBasisPoints": {
+            "raise": 9000,
+            "fold": 1000
+          }
+        },
+        {
+          "handClass": "76s",
+          "actionWeightsBasisPoints": {
+            "raise": 7000,
+            "fold": 3000
+          }
+        }
+      ],
+      "explanation": {
+        "conclusion": "SB 位以 2.5BB 开池，开池频率约 40%。",
+        "rangeReasoning": "SB 位后面还有 4 个位置要过，范围随位置靠后放宽。",
+        "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
+        "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
+        "futurePlan": "被 3bet 后按对应的应对范围继续。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "exploitCondition": null
+      }
+    },
+    {
+      "id": "vs3bet-co-vs-btn",
+      "title": "CO 开池面对 BTN 3bet",
+      "abilityDimension": "preflop-range",
+      "curriculumNodeID": "preflop-vs-3bet",
+      "heroSeatOffsetFromButton": 1,
+      "heroCards": [
+        "Ah",
+        "Qh"
+      ],
+      "board": [],
+      "pot": {
+        "centiBB": 1350
+      },
+      "amountToCall": {
+        "centiBB": 600
+      },
+      "minimumRaiseTo": {
+        "centiBB": 1500
+      },
+      "configuredBetSizes": [
+        {
+          "centiBB": 2600
+        }
+      ],
+      "actions": [
+        {
+          "action": {
+            "kind": "call",
+            "toCentiBB": 600
+          },
+          "frequencyBasisPoints": 5500,
+          "ev": {
+            "milliBB": 120
+          }
+        },
+        {
+          "action": {
+            "kind": "raise",
+            "toCentiBB": 2600
+          },
+          "frequencyBasisPoints": 1500,
+          "ev": {
+            "milliBB": 140
+          }
+        },
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "frequencyBasisPoints": 3000,
+          "ev": {
+            "milliBB": 0
+          }
+        }
+      ],
+      "rangeCells": [
+        {
+          "handClass": "AA-QQ",
+          "actionWeightsBasisPoints": {
+            "fourbet": 10000
+          }
+        },
+        {
+          "handClass": "JJ-TT",
+          "actionWeightsBasisPoints": {
+            "call": 7000,
+            "fourbet": 3000
+          }
+        },
+        {
+          "handClass": "AKs",
+          "actionWeightsBasisPoints": {
+            "fourbet": 10000
+          }
+        },
+        {
+          "handClass": "AKo",
+          "actionWeightsBasisPoints": {
+            "call": 4000,
+            "fourbet": 6000
+          }
+        },
+        {
+          "handClass": "AQs",
+          "actionWeightsBasisPoints": {
+            "call": 8000,
+            "fourbet": 2000
+          }
+        },
+        {
+          "handClass": "AQo",
+          "actionWeightsBasisPoints": {
+            "call": 5000,
+            "fold": 5000
+          }
+        },
+        {
+          "handClass": "A5s",
+          "actionWeightsBasisPoints": {
+            "call": 3000,
+            "fourbet": 5000,
+            "fold": 2000
+          }
+        },
+        {
+          "handClass": "KQs",
+          "actionWeightsBasisPoints": {
+            "call": 8000,
+            "fold": 2000
+          }
+        },
+        {
+          "handClass": "99-77",
+          "actionWeightsBasisPoints": {
+            "call": 8000,
+            "fold": 2000
+          }
+        },
+        {
+          "handClass": "JTs",
+          "actionWeightsBasisPoints": {
+            "call": 7000,
+            "fold": 3000
+          }
+        }
+      ],
+      "explanation": {
+        "conclusion": "面对 BTN 的 3bet，以跟注为主、少量 4bet，其余弃牌。",
+        "rangeReasoning": "跟注范围保留有位置劣势但摊牌价值好的牌，4bet 取最强牌与少量阻断牌。",
+        "boardReasoning": "翻前无公共牌。",
+        "opponentReasoning": "假设 BTN 用标准 3bet 范围，不针对性调整。",
+        "futurePlan": "跟注后进入翻后有位劣势的锅，按翻牌节点继续。",
+        "gtoBaseline": "基线为跟注、4bet 与弃牌的三向混合。",
+        "exploitCondition": null
+      }
+    }
+  ]
+}

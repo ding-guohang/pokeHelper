@@ -93,14 +93,24 @@ struct StrategyImport {
             guard let exportPath = values["export"] else {
                 throw UsageError(message: "--export is required")
             }
-            guard let contentVersion = values["content-version"] else {
-                throw UsageError(message: "--content-version is required")
-            }
-            guard let rawStatus = values["review-status"] else {
+
+            // Printing range tables reads the export and writes nothing, so it
+            // needs neither a content version nor a review status. Demanding
+            // them would force the reviewer to name a status before they have
+            // reviewed anything.
+            var reviewStatus = ReviewStatus.unverifiedDraft
+            if let rawStatus = values["review-status"] {
+                guard let parsed = ReviewStatus(rawValue: rawStatus) else {
+                    throw UsageError(message: "unknown review status \(rawStatus)")
+                }
+                reviewStatus = parsed
+            } else if !printRangeTables {
                 throw UsageError(message: "--review-status is required")
             }
-            guard let reviewStatus = ReviewStatus(rawValue: rawStatus) else {
-                throw UsageError(message: "unknown review status \(rawStatus)")
+
+            let contentVersion = values["content-version"] ?? ""
+            if contentVersion.isEmpty, !printRangeTables {
+                throw UsageError(message: "--content-version is required")
             }
 
             var parsedReviewedAt: Date?

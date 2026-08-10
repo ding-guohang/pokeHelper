@@ -41,7 +41,13 @@ public struct RangeTableReport: Sendable {
                     .sorted { $0.key < $1.key }
                     .map { "\($0.key) \(String(format: "%.2f%%", Double($0.value) / 100))" }
                     .joined(separator: "  ")
-                lines.append("     \(cell.handClass.padding(toLength: 6, withPad: " ", startingAt: 0)) \(weights)")
+                // Pad without truncating: padding(toLength:) shortens anything
+                // longer than the target, which silently rewrote "AKo-AQo" as
+                // "AKo-AQ" — a different range.
+                let label = cell.handClass.count >= 8
+                    ? cell.handClass
+                    : cell.handClass + String(repeating: " ", count: 8 - cell.handClass.count)
+                lines.append("     \(label) \(weights)")
             }
             lines.append("")
         }
