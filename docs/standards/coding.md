@@ -46,3 +46,11 @@
 - 只记录**从代码和 tasks.md 读不出来**的信息。能从代码直接看出的结构不要重复。
 - `.superpowers/` 等工具工作区属于缓存，可以随时丢弃；执行记录属于交付物，必须提交。二者不要混放。
 - 交接的判定标准：接手方只靠 `progress.md`、`tasks.md` 和 `git log` 就能继续，不需要任何对话历史。
+
+## 规格演进
+
+归档时，proposal 中的 Requirement 块会**整块替换** `openspec/specs/` 中的同名块，不是增量合并。
+
+- 列为 Modified Capability 的能力，必须从 `openspec/specs/<name>/spec.md` 的**现有原文**出发扩写，未变更的 Requirement 与 Scenario 也要原样带上。凭印象重写会静默删除已上线的行为，而提案本身读起来完整自洽，评审时看不出来。
+- 真要删除某条行为，写进 `### Removed Capabilities` 并给出迁移路径，不能靠「没带过来」来表达。
+- 提交提案前跑 `bash scripts/check-proposal-completeness.sh <change-id>`。它按 (种类, 名字) 配对比对——只比名字会放过「Requirement 被降级为 Scenario」这种丢掉 SHALL 约束的情况。
