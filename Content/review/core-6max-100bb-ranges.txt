@@ -1,125 +1,432 @@
 策略包：cash-6max-100bb-core
-来源：claude-authored preflop baseline, frequencies calibrated to published 6-max 100bb benchmarks
+来源：claude-authored preflop charts; every frequency derived from the range tables rather than stated independently
 牌桌：NLHE cash · 6 人 · 有效筹码 100BB
 抽水：5% capped at 3BB
-允许尺度：2.5BB open (3BB from SB), 3x 3bet, 2.2x 4bet
+允许尺度：2.5BB open (3BB from SB), 7.5BB 3bet, 16.5BB 4bet
 
-── rfi-lj · LJ 位翻前开池
+── rfi-utg · UTG 位翻前开池
    能力节点：preflop-rfi
    位置：按钮位后第 3 座
    行动频率：
-     加注至 2.50BB  17.60%  EV 0.210BB
-     弃牌  82.40%  EV 0.000BB
+     加注至 2.50BB  100.00%  EV 0.190BB
+     弃牌  0.00%  EV 0.000BB
    范围表：
-     99-77    fold 0.00%  raise 100.00%
-     AA-TT    fold 0.00%  raise 100.00%
-     AKo-AQo  fold 0.00%  raise 100.00%
-     AKs-AJs  fold 0.00%  raise 100.00%
-     ATs      fold 20.00%  raise 80.00%
-     JTs      fold 50.00%  raise 50.00%
-     KJs      fold 40.00%  raise 60.00%
-     KQs      fold 0.00%  raise 100.00%
-     QJs      fold 50.00%  raise 50.00%
+     22       fold 50.00%  raise 50.00%
+     33       fold 50.00%  raise 50.00%
+     44       fold 50.00%  raise 50.00%
+     55       fold 50.00%  raise 50.00%
+     66       raise 100.00%
+     77       raise 100.00%
+     87s      fold 70.00%  raise 30.00%
+     88       raise 100.00%
+     98s      fold 50.00%  raise 50.00%
+     99       raise 100.00%
+     A2s      fold 50.00%  raise 50.00%
+     A3s      fold 50.00%  raise 50.00%
+     A4s      fold 50.00%  raise 50.00%
+     A5s      fold 50.00%  raise 50.00%
+     A6s      fold 50.00%  raise 50.00%
+     A7s      fold 50.00%  raise 50.00%
+     A8s      raise 100.00%
+     A9s      raise 100.00%
+     AA       raise 100.00%
+     AJo      raise 100.00%
+     AJs      raise 100.00%
+     AKo      raise 100.00%
+     AKs      raise 100.00%
+     AQo      raise 100.00%
+     AQs      raise 100.00%
+     ATo      fold 60.00%  raise 40.00%
+     ATs      raise 100.00%
+     J8s      fold 70.00%  raise 30.00%
+     J9s      raise 100.00%
+     JJ       raise 100.00%
+     JTs      raise 100.00%
+     K8s      fold 60.00%  raise 40.00%
+     K9s      raise 100.00%
+     KJo      fold 70.00%  raise 30.00%
+     KJs      raise 100.00%
+     KK       raise 100.00%
+     KQo      raise 100.00%
+     KQs      raise 100.00%
+     KTs      raise 100.00%
+     Q8s      fold 70.00%  raise 30.00%
+     Q9s      raise 100.00%
+     QJs      raise 100.00%
+     QQ       raise 100.00%
+     QTs      raise 100.00%
+     T8s      fold 70.00%  raise 30.00%
+     T9s      raise 100.00%
+     TT       raise 100.00%
 
 ── rfi-hj · HJ 位翻前开池
    能力节点：preflop-rfi
-   位置：按钮位后第 2 座
+   位置：按钮位后第 4 座
    行动频率：
-     加注至 2.50BB  21.40%  EV 0.250BB
-     弃牌  78.60%  EV 0.000BB
+     加注至 2.50BB  100.00%  EV 0.040BB
+     弃牌  0.00%  EV 0.000BB
    范围表：
-     88-66    fold 0.00%  raise 100.00%
-     AA-99    fold 0.00%  raise 100.00%
-     AKo-AJo  fold 0.00%  raise 100.00%
-     AKs-ATs  fold 0.00%  raise 100.00%
-     JTs      fold 20.00%  raise 80.00%
-     KQs-KJs  fold 0.00%  raise 100.00%
-     KTs      fold 40.00%  raise 60.00%
-     QJs      fold 20.00%  raise 80.00%
-     T9s      fold 50.00%  raise 50.00%
+     22       fold 40.00%  raise 60.00%
+     33       fold 40.00%  raise 60.00%
+     44       raise 100.00%
+     55       raise 100.00%
+     66       raise 100.00%
+     76s      fold 70.00%  raise 30.00%
+     77       raise 100.00%
+     87s      fold 50.00%  raise 50.00%
+     88       raise 100.00%
+     98s      raise 100.00%
+     99       raise 100.00%
+     A2s      raise 100.00%
+     A3s      raise 100.00%
+     A4s      raise 100.00%
+     A5s      raise 100.00%
+     A6s      raise 100.00%
+     A7s      raise 100.00%
+     A8s      raise 100.00%
+     A9o      fold 50.00%  raise 50.00%
+     A9s      raise 100.00%
+     AA       raise 100.00%
+     AJo      raise 100.00%
+     AJs      raise 100.00%
+     AKo      raise 100.00%
+     AKs      raise 100.00%
+     AQo      raise 100.00%
+     AQs      raise 100.00%
+     ATo      raise 100.00%
+     ATs      raise 100.00%
+     J8s      fold 50.00%  raise 50.00%
+     J9s      raise 100.00%
+     JJ       raise 100.00%
+     JTs      raise 100.00%
+     K5s      fold 50.00%  raise 50.00%
+     K6s      fold 50.00%  raise 50.00%
+     K7s      fold 50.00%  raise 50.00%
+     K8s      raise 100.00%
+     K9s      raise 100.00%
+     KJo      fold 40.00%  raise 60.00%
+     KJs      raise 100.00%
+     KK       raise 100.00%
+     KQo      raise 100.00%
+     KQs      raise 100.00%
+     KTs      raise 100.00%
+     Q8s      fold 40.00%  raise 60.00%
+     Q9s      raise 100.00%
+     QJo      fold 60.00%  raise 40.00%
+     QJs      raise 100.00%
+     QQ       raise 100.00%
+     QTs      raise 100.00%
+     T8s      fold 50.00%  raise 50.00%
+     T9s      raise 100.00%
+     TT       raise 100.00%
 
 ── rfi-co · CO 位翻前开池
    能力节点：preflop-rfi
-   位置：按钮位后第 1 座
+   位置：按钮位后第 5 座
    行动频率：
-     加注至 2.50BB  27.80%  EV 0.330BB
-     弃牌  72.20%  EV 0.000BB
+     加注至 2.50BB  100.00%  EV 0.150BB
+     弃牌  0.00%  EV 0.000BB
    范围表：
-     55-22    fold 30.00%  raise 70.00%
-     98s      fold 30.00%  raise 70.00%
-     AA-66    fold 0.00%  raise 100.00%
-     AKo-ATo  fold 0.00%  raise 100.00%
-     AKs-A9s  fold 0.00%  raise 100.00%
-     JTs-J9s  fold 10.00%  raise 90.00%
-     KJo      fold 40.00%  raise 60.00%
-     KQs-KTs  fold 0.00%  raise 100.00%
-     QJs-QTs  fold 0.00%  raise 100.00%
-     T9s      fold 10.00%  raise 90.00%
+     22       raise 100.00%
+     33       raise 100.00%
+     44       raise 100.00%
+     55       raise 100.00%
+     65s      fold 50.00%  raise 50.00%
+     66       raise 100.00%
+     76s      fold 40.00%  raise 60.00%
+     77       raise 100.00%
+     86s      fold 60.00%  raise 40.00%
+     87s      raise 100.00%
+     88       raise 100.00%
+     97s      fold 50.00%  raise 50.00%
+     98s      raise 100.00%
+     99       raise 100.00%
+     A2s      raise 100.00%
+     A3s      raise 100.00%
+     A4s      raise 100.00%
+     A5s      raise 100.00%
+     A6s      raise 100.00%
+     A7s      raise 100.00%
+     A8s      raise 100.00%
+     A9o      fold 40.00%  raise 60.00%
+     A9s      raise 100.00%
+     AA       raise 100.00%
+     AJo      raise 100.00%
+     AJs      raise 100.00%
+     AKo      raise 100.00%
+     AKs      raise 100.00%
+     AQo      raise 100.00%
+     AQs      raise 100.00%
+     ATo      raise 100.00%
+     ATs      raise 100.00%
+     J7s      fold 50.00%  raise 50.00%
+     J8s      raise 100.00%
+     J9s      raise 100.00%
+     JJ       raise 100.00%
+     JTo      fold 50.00%  raise 50.00%
+     JTs      raise 100.00%
+     K2s      fold 50.00%  raise 50.00%
+     K3s      fold 50.00%  raise 50.00%
+     K4s      fold 50.00%  raise 50.00%
+     K5s      fold 50.00%  raise 50.00%
+     K6s      fold 50.00%  raise 50.00%
+     K7s      raise 100.00%
+     K8s      raise 100.00%
+     K9s      raise 100.00%
+     KJo      raise 100.00%
+     KJs      raise 100.00%
+     KK       raise 100.00%
+     KQo      raise 100.00%
+     KQs      raise 100.00%
+     KTo      fold 50.00%  raise 50.00%
+     KTs      raise 100.00%
+     Q5s      fold 50.00%  raise 50.00%
+     Q6s      fold 50.00%  raise 50.00%
+     Q7s      fold 50.00%  raise 50.00%
+     Q8s      raise 100.00%
+     Q9s      raise 100.00%
+     QJo      raise 100.00%
+     QJs      raise 100.00%
+     QQ       raise 100.00%
+     QTo      fold 60.00%  raise 40.00%
+     QTs      raise 100.00%
+     T7s      fold 60.00%  raise 40.00%
+     T8s      raise 100.00%
+     T9s      raise 100.00%
+     TT       raise 100.00%
 
 ── rfi-btn · BTN 位翻前开池
    能力节点：preflop-rfi
    位置：按钮位后第 0 座
    行动频率：
-     加注至 2.50BB  43.50%  EV 0.520BB
-     弃牌  56.50%  EV 0.000BB
+     加注至 2.50BB  60.00%  EV 0.002BB
+     弃牌  40.00%  EV 0.000BB
    范围表：
-     76s-65s  fold 10.00%  raise 90.00%
-     98s-87s  fold 0.00%  raise 100.00%
-     AA-22    fold 0.00%  raise 100.00%
-     AKo-A8o  fold 0.00%  raise 100.00%
-     AKs-A2s  fold 0.00%  raise 100.00%
-     J9o      fold 40.00%  raise 60.00%
-     JTs-J8s  fold 0.00%  raise 100.00%
-     KQo-KTo  fold 0.00%  raise 100.00%
-     KQs-K5s  fold 0.00%  raise 100.00%
-     QJo-QTo  fold 10.00%  raise 90.00%
-     QJs-Q8s  fold 0.00%  raise 100.00%
-     T9s-T8s  fold 0.00%  raise 100.00%
+     22       raise 100.00%
+     33       raise 100.00%
+     44       raise 100.00%
+     53s      fold 70.00%  raise 30.00%
+     54s      raise 100.00%
+     55       raise 100.00%
+     64s      fold 60.00%  raise 40.00%
+     65s      raise 100.00%
+     66       raise 100.00%
+     75s      raise 100.00%
+     76o      fold 70.00%  raise 30.00%
+     76s      raise 100.00%
+     77       raise 100.00%
+     85s      fold 60.00%  raise 40.00%
+     86s      raise 100.00%
+     87o      fold 60.00%  raise 40.00%
+     87s      raise 100.00%
+     88       raise 100.00%
+     95s      fold 60.00%  raise 40.00%
+     96s      raise 100.00%
+     97s      raise 100.00%
+     98o      fold 40.00%  raise 60.00%
+     98s      raise 100.00%
+     99       raise 100.00%
+     A2o      raise 100.00%
+     A2s      raise 100.00%
+     A3o      raise 100.00%
+     A3s      raise 100.00%
+     A4o      raise 100.00%
+     A4s      raise 100.00%
+     A5o      raise 100.00%
+     A5s      raise 100.00%
+     A6o      raise 100.00%
+     A6s      raise 100.00%
+     A7o      raise 100.00%
+     A7s      raise 100.00%
+     A8o      raise 100.00%
+     A8s      raise 100.00%
+     A9o      raise 100.00%
+     A9s      raise 100.00%
+     AA       raise 100.00%
+     AJo      raise 100.00%
+     AJs      raise 100.00%
+     AKo      raise 100.00%
+     AKs      raise 100.00%
+     AQo      raise 100.00%
+     AQs      raise 100.00%
+     ATo      raise 100.00%
+     ATs      raise 100.00%
+     J5s      fold 60.00%  raise 40.00%
+     J6s      raise 100.00%
+     J7s      raise 100.00%
+     J8o      fold 60.00%  raise 40.00%
+     J8s      raise 100.00%
+     J9o      raise 100.00%
+     J9s      raise 100.00%
+     JJ       raise 100.00%
+     JTo      raise 100.00%
+     JTs      raise 100.00%
+     K2s      raise 100.00%
+     K3s      raise 100.00%
+     K4s      raise 100.00%
+     K5o      fold 60.00%  raise 40.00%
+     K5s      raise 100.00%
+     K6o      fold 60.00%  raise 40.00%
+     K6s      raise 100.00%
+     K7o      raise 100.00%
+     K7s      raise 100.00%
+     K8o      raise 100.00%
+     K8s      raise 100.00%
+     K9o      raise 100.00%
+     K9s      raise 100.00%
+     KJo      raise 100.00%
+     KJs      raise 100.00%
+     KK       raise 100.00%
+     KQo      raise 100.00%
+     KQs      raise 100.00%
+     KTo      raise 100.00%
+     KTs      raise 100.00%
+     Q2s      fold 50.00%  raise 50.00%
+     Q3s      fold 50.00%  raise 50.00%
+     Q4s      raise 100.00%
+     Q5s      raise 100.00%
+     Q6s      raise 100.00%
+     Q7s      raise 100.00%
+     Q8o      fold 60.00%  raise 40.00%
+     Q8s      raise 100.00%
+     Q9o      raise 100.00%
+     Q9s      raise 100.00%
+     QJo      raise 100.00%
+     QJs      raise 100.00%
+     QQ       raise 100.00%
+     QTo      raise 100.00%
+     QTs      raise 100.00%
+     T5s      fold 70.00%  raise 30.00%
+     T6s      raise 100.00%
+     T7s      raise 100.00%
+     T8o      fold 60.00%  raise 40.00%
+     T8s      raise 100.00%
+     T9o      raise 100.00%
+     T9s      raise 100.00%
+     TT       raise 100.00%
 
 ── rfi-sb · SB 位翻前开池
    能力节点：preflop-rfi
-   位置：按钮位后第 4 座
+   位置：按钮位后第 1 座
    行动频率：
-     加注至 3.00BB  42.00%  EV 0.180BB
-     弃牌  58.00%  EV 0.000BB
+     加注至 3.00BB  100.00%  EV 0.090BB
+     弃牌  0.00%  EV 0.000BB
    范围表：
+     22       raise 100.00%
+     33       raise 100.00%
+     44       raise 100.00%
      53s      fold 50.00%  raise 50.00%
+     55       raise 100.00%
      64s      fold 30.00%  raise 70.00%
-     75s      fold 20.00%  raise 80.00%
-     86s-85s  fold 20.00%  raise 80.00%
+     66       raise 100.00%
+     75s      raise 100.00%
+     76s      raise 100.00%
+     77       raise 100.00%
+     85s      fold 20.00%  raise 80.00%
+     86s      raise 100.00%
      87o      fold 40.00%  raise 60.00%
-     96s-95s  fold 10.00%  raise 90.00%
+     87s      raise 100.00%
+     88       raise 100.00%
+     95s      fold 10.00%  raise 90.00%
+     96s      raise 100.00%
+     97s      raise 100.00%
      98o      fold 30.00%  raise 70.00%
-     AA-22    fold 0.00%  raise 100.00%
-     AKo-A2o  fold 0.00%  raise 100.00%
-     AKs-A2s  fold 0.00%  raise 100.00%
-     JTo-J9o  fold 0.00%  raise 100.00%
-     JTs-J6s  fold 0.00%  raise 100.00%
-     KQo-K8o  fold 0.00%  raise 100.00%
-     KQs-K2s  fold 0.00%  raise 100.00%
-     QJo-Q9o  fold 0.00%  raise 100.00%
-     QJs-Q4s  fold 0.00%  raise 100.00%
+     98s      raise 100.00%
+     99       raise 100.00%
+     A2o      raise 100.00%
+     A2s      raise 100.00%
+     A3o      raise 100.00%
+     A3s      raise 100.00%
+     A4o      raise 100.00%
+     A4s      raise 100.00%
+     A5o      raise 100.00%
+     A5s      raise 100.00%
+     A6o      raise 100.00%
+     A6s      raise 100.00%
+     A7o      raise 100.00%
+     A7s      raise 100.00%
+     A8o      raise 100.00%
+     A8s      raise 100.00%
+     A9o      raise 100.00%
+     A9s      raise 100.00%
+     AA       raise 100.00%
+     AJo      raise 100.00%
+     AJs      raise 100.00%
+     AKo      raise 100.00%
+     AKs      raise 100.00%
+     AQo      raise 100.00%
+     AQs      raise 100.00%
+     ATo      raise 100.00%
+     ATs      raise 100.00%
+     J6s      raise 100.00%
+     J7s      raise 100.00%
+     J8s      raise 100.00%
+     J9o      raise 100.00%
+     J9s      raise 100.00%
+     JJ       raise 100.00%
+     JTo      raise 100.00%
+     JTs      raise 100.00%
+     K2s      raise 100.00%
+     K3s      raise 100.00%
+     K4s      raise 100.00%
+     K5s      raise 100.00%
+     K6s      raise 100.00%
+     K7s      raise 100.00%
+     K8o      raise 100.00%
+     K8s      raise 100.00%
+     K9o      raise 100.00%
+     K9s      raise 100.00%
+     KJo      raise 100.00%
+     KJs      raise 100.00%
+     KK       raise 100.00%
+     KQo      raise 100.00%
+     KQs      raise 100.00%
+     KTo      raise 100.00%
+     KTs      raise 100.00%
+     Q4s      raise 100.00%
+     Q5s      raise 100.00%
+     Q6s      raise 100.00%
+     Q7s      raise 100.00%
+     Q8s      raise 100.00%
+     Q9o      raise 100.00%
+     Q9s      raise 100.00%
+     QJo      raise 100.00%
+     QJs      raise 100.00%
+     QQ       raise 100.00%
+     QTo      raise 100.00%
+     QTs      raise 100.00%
+     T6s      raise 100.00%
+     T7s      raise 100.00%
+     T8s      raise 100.00%
      T9o      fold 20.00%  raise 80.00%
-     T9s-T6s  fold 0.00%  raise 100.00%
+     T9s      raise 100.00%
+     TT       raise 100.00%
 
 ── vs3bet-co-vs-btn · CO 开池面对 BTN 3bet
    能力节点：preflop-vs-3bet
-   位置：按钮位后第 1 座
+   位置：按钮位后第 5 座
    行动频率：
-     跟注至 6.00BB  55.00%  EV 0.120BB
-     加注至 26.00BB  15.00%  EV 0.140BB
-     弃牌  30.00%  EV 0.000BB
+     跟注至 5.00BB  80.00%  EV 0.110BB
+     加注至 16.50BB  20.00%  EV 0.060BB
+     弃牌  0.00%  EV 0.000BB
    范围表：
-     99-77    call 80.00%  fold 20.00%
-     A5s      call 30.00%  fold 20.00%  fourbet 50.00%
-     AA-QQ    fourbet 100.00%
-     AKo      call 40.00%  fourbet 60.00%
-     AKs      fourbet 100.00%
-     AQo      call 50.00%  fold 50.00%
-     AQs      call 80.00%  fourbet 20.00%
-     JJ-TT    call 70.00%  fourbet 30.00%
-     JTs      call 70.00%  fold 30.00%
-     KQs      call 80.00%  fold 20.00%
+     77       call 60.00%  fold 40.00%
+     88       call 60.00%  fold 40.00%
+     99       call 60.00%  fold 40.00%
+     A5s      call 20.00%  fold 30.00%  raise 50.00%
+     AA       raise 100.00%
+     AJs      call 60.00%  fold 40.00%
+     AKo      call 40.00%  raise 60.00%
+     AKs      raise 100.00%
+     AQo      call 40.00%  fold 60.00%
+     AQs      call 80.00%  raise 20.00%
+     ATs      call 50.00%  fold 50.00%
+     JJ       call 70.00%  raise 30.00%
+     JTs      call 50.00%  fold 50.00%
+     KK       raise 100.00%
+     KQs      call 70.00%  fold 30.00%
+     QQ       raise 100.00%
+     TT       call 70.00%  raise 30.00%
 
 审核提示：确认每张范围表的行动与频率符合你的策略判断。
 确认后用 --review-status reviewed --reviewed-by <你的名字> 重新导入。

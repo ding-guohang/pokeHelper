@@ -1,6 +1,6 @@
 {
   "packID": "cash-6max-100bb-core",
-  "generatedSource": "claude-authored preflop baseline, frequencies calibrated to published 6-max 100bb benchmarks",
+  "generatedSource": "claude-authored preflop charts; every frequency derived from the range tables rather than stated independently",
   "exportedAt": "2026-08-10T00:00:00Z",
   "gameType": "NLHE cash",
   "tableSize": 6,
@@ -8,7 +8,7 @@
     "centiBB": 10000
   },
   "rakeDescription": "5% capped at 3BB",
-  "allowedBetSizeDescription": "2.5BB open (3BB from SB), 3x 3bet, 2.2x 4bet",
+  "allowedBetSizeDescription": "2.5BB open (3BB from SB), 7.5BB 3bet, 16.5BB 4bet",
   "curriculum": [
     {
       "id": "preflop-rfi",
@@ -25,8 +25,8 @@
   ],
   "nodes": [
     {
-      "id": "rfi-lj",
-      "title": "LJ 位翻前开池",
+      "id": "rfi-utg",
+      "title": "UTG 位翻前开池",
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 3,
@@ -55,16 +55,16 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 1760,
+          "frequencyBasisPoints": 10000,
           "ev": {
-            "milliBB": 210
+            "milliBB": 190
           }
         },
         {
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 8240,
+          "frequencyBasisPoints": 0,
           "ev": {
             "milliBB": 0
           }
@@ -72,76 +72,313 @@
       ],
       "rangeCells": [
         {
-          "handClass": "AA-TT",
+          "handClass": "22",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
-          "handClass": "AKs-AJs",
+          "handClass": "33",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
-          "handClass": "AKo-AQo",
+          "handClass": "44",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
-          "handClass": "KQs",
+          "handClass": "55",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
-          "handClass": "99-77",
+          "handClass": "66",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "KJs",
+          "handClass": "77",
           "actionWeightsBasisPoints": {
-            "raise": 6000,
-            "fold": 4000
+            "raise": 10000
           }
         },
         {
-          "handClass": "QJs",
+          "handClass": "88",
           "actionWeightsBasisPoints": {
-            "raise": 5000,
-            "fold": 5000
+            "raise": 10000
           }
         },
         {
-          "handClass": "JTs",
+          "handClass": "99",
           "actionWeightsBasisPoints": {
-            "raise": 5000,
-            "fold": 5000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AA",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JJ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KK",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QQ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "TT",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "87s",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "98s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "A2s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "A3s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "A4s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "A5s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "A6s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "A7s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "A8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATo",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
           }
         },
         {
           "handClass": "ATs",
           "actionWeightsBasisPoints": {
-            "raise": 8000,
-            "fold": 2000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J8s",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "J9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K8s",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "K9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KJo",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "KJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q8s",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "Q9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T8s",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "T9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         }
       ],
       "explanation": {
-        "conclusion": "LJ 位以 2.5BB 开池，开池频率约 17.6%。",
-        "rangeReasoning": "LJ 位后面还有 3 个位置要过，范围随位置靠后放宽。",
+        "conclusion": "UTG 位以 2.5BB 开池，整段开池频率约 15.6%。",
+        "rangeReasoning": "范围随位置靠后放宽；边缘手牌以混合频率开池。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
         "futurePlan": "被 3bet 后按对应的应对范围继续。",
-        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池的两向混合。",
         "exploitCondition": null
       }
     },
@@ -150,10 +387,10 @@
       "title": "HJ 位翻前开池",
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
-      "heroSeatOffsetFromButton": 2,
+      "heroSeatOffsetFromButton": 4,
       "heroCards": [
         "Ad",
-        "Kc"
+        "Tc"
       ],
       "board": [],
       "pot": {
@@ -176,16 +413,16 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 2140,
+          "frequencyBasisPoints": 10000,
           "ev": {
-            "milliBB": 250
+            "milliBB": 40
           }
         },
         {
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 7860,
+          "frequencyBasisPoints": 0,
           "ev": {
             "milliBB": 0
           }
@@ -193,76 +430,344 @@
       ],
       "rangeCells": [
         {
-          "handClass": "AA-99",
+          "handClass": "22",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "fold": 4000,
+            "raise": 6000
           }
         },
         {
-          "handClass": "AKs-ATs",
+          "handClass": "33",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "fold": 4000,
+            "raise": 6000
           }
         },
         {
-          "handClass": "AKo-AJo",
+          "handClass": "44",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "KQs-KJs",
+          "handClass": "55",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "88-66",
+          "handClass": "66",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "QJs",
+          "handClass": "77",
           "actionWeightsBasisPoints": {
-            "raise": 8000,
-            "fold": 2000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "88",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "99",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AA",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JJ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KK",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QQ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "TT",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "76s",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "87s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "98s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A2s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A3s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A4s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A9o",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "A9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J8s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "J9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         },
         {
           "handClass": "JTs",
           "actionWeightsBasisPoints": {
-            "raise": 8000,
-            "fold": 2000
+            "raise": 10000
           }
         },
         {
-          "handClass": "T9s",
+          "handClass": "K5s",
           "actionWeightsBasisPoints": {
-            "raise": 5000,
-            "fold": 5000
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "K6s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "K7s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "K8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KJo",
+          "actionWeightsBasisPoints": {
+            "fold": 4000,
+            "raise": 6000
+          }
+        },
+        {
+          "handClass": "KJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         },
         {
           "handClass": "KTs",
           "actionWeightsBasisPoints": {
-            "raise": 6000,
-            "fold": 4000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q8s",
+          "actionWeightsBasisPoints": {
+            "fold": 4000,
+            "raise": 6000
+          }
+        },
+        {
+          "handClass": "Q9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QJo",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "QJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T8s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "T9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         }
       ],
       "explanation": {
-        "conclusion": "HJ 位以 2.5BB 开池，开池频率约 21.4%。",
-        "rangeReasoning": "HJ 位后面还有 2 个位置要过，范围随位置靠后放宽。",
+        "conclusion": "HJ 位以 2.5BB 开池，整段开池频率约 19.8%。",
+        "rangeReasoning": "范围随位置靠后放宽；边缘手牌以混合频率开池。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
         "futurePlan": "被 3bet 后按对应的应对范围继续。",
-        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池的两向混合。",
         "exploitCondition": null
       }
     },
@@ -271,10 +776,10 @@
       "title": "CO 位翻前开池",
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
-      "heroSeatOffsetFromButton": 1,
+      "heroSeatOffsetFromButton": 5,
       "heroCards": [
-        "Ad",
-        "Kc"
+        "Ah",
+        "5h"
       ],
       "board": [],
       "pot": {
@@ -297,16 +802,16 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 2780,
+          "frequencyBasisPoints": 10000,
           "ev": {
-            "milliBB": 330
+            "milliBB": 150
           }
         },
         {
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 7220,
+          "frequencyBasisPoints": 0,
           "ev": {
             "milliBB": 0
           }
@@ -314,83 +819,433 @@
       ],
       "rangeCells": [
         {
-          "handClass": "AA-66",
+          "handClass": "22",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "AKs-A9s",
+          "handClass": "33",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "AKo-ATo",
+          "handClass": "44",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "KQs-KTs",
+          "handClass": "55",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "55-22",
+          "handClass": "66",
           "actionWeightsBasisPoints": {
-            "raise": 7000,
-            "fold": 3000
+            "raise": 10000
           }
         },
         {
-          "handClass": "QJs-QTs",
+          "handClass": "77",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "JTs-J9s",
+          "handClass": "88",
           "actionWeightsBasisPoints": {
-            "raise": 9000,
-            "fold": 1000
+            "raise": 10000
           }
         },
         {
-          "handClass": "T9s",
+          "handClass": "99",
           "actionWeightsBasisPoints": {
-            "raise": 9000,
-            "fold": 1000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AA",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JJ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KK",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QQ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "TT",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "65s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "76s",
+          "actionWeightsBasisPoints": {
+            "fold": 4000,
+            "raise": 6000
+          }
+        },
+        {
+          "handClass": "86s",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "87s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "97s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
           "handClass": "98s",
           "actionWeightsBasisPoints": {
-            "raise": 7000,
-            "fold": 3000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A2s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A3s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A4s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A9o",
+          "actionWeightsBasisPoints": {
+            "fold": 4000,
+            "raise": 6000
+          }
+        },
+        {
+          "handClass": "A9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J7s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "J8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JTo",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "JTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K2s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "K3s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "K4s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "K5s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "K6s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "K7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         },
         {
           "handClass": "KJo",
           "actionWeightsBasisPoints": {
-            "raise": 6000,
-            "fold": 4000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KTo",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "KTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q5s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "Q6s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "Q7s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "Q8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QTo",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "QTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T7s",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "T8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         }
       ],
       "explanation": {
-        "conclusion": "CO 位以 2.5BB 开池，开池频率约 27.8%。",
-        "rangeReasoning": "CO 位后面还有 1 个位置要过，范围随位置靠后放宽。",
+        "conclusion": "CO 位以 2.5BB 开池，整段开池频率约 24.9%。",
+        "rangeReasoning": "范围随位置靠后放宽；边缘手牌以混合频率开池。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
         "futurePlan": "被 3bet 后按对应的应对范围继续。",
-        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池的两向混合。",
         "exploitCondition": null
       }
     },
@@ -401,8 +1256,8 @@
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 0,
       "heroCards": [
-        "Ad",
-        "Kc"
+        "9d",
+        "8c"
       ],
       "board": [],
       "pot": {
@@ -425,16 +1280,16 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 4350,
+          "frequencyBasisPoints": 6000,
           "ev": {
-            "milliBB": 520
+            "milliBB": 2
           }
         },
         {
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 5650,
+          "frequencyBasisPoints": 4000,
           "ev": {
             "milliBB": 0
           }
@@ -442,97 +1297,641 @@
       ],
       "rangeCells": [
         {
-          "handClass": "AA-22",
+          "handClass": "22",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "AKs-A2s",
+          "handClass": "33",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "AKo-A8o",
+          "handClass": "44",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "KQs-K5s",
+          "handClass": "55",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "KQo-KTo",
+          "handClass": "66",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "QJs-Q8s",
+          "handClass": "77",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "QJo-QTo",
+          "handClass": "88",
           "actionWeightsBasisPoints": {
-            "raise": 9000,
-            "fold": 1000
+            "raise": 10000
           }
         },
         {
-          "handClass": "JTs-J8s",
+          "handClass": "99",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "T9s-T8s",
+          "handClass": "AA",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "98s-87s",
+          "handClass": "JJ",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "76s-65s",
+          "handClass": "KK",
           "actionWeightsBasisPoints": {
-            "raise": 9000,
-            "fold": 1000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QQ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "TT",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "53s",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "54s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "64s",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "65s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "75s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "76o",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "76s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "85s",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "86s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "87o",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "87s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "95s",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "96s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "97s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "98o",
+          "actionWeightsBasisPoints": {
+            "fold": 4000,
+            "raise": 6000
+          }
+        },
+        {
+          "handClass": "98s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A2o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A2s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A3o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A3s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A4o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A4s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A5o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A6o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A7o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A8o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J5s",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "J6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J8o",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "J8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         },
         {
           "handClass": "J9o",
           "actionWeightsBasisPoints": {
-            "raise": 6000,
-            "fold": 4000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JTo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K2s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K3s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K4s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K5o",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "K5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K6o",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "K6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K7o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K8o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KTo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q2s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "Q3s",
+          "actionWeightsBasisPoints": {
+            "fold": 5000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "Q4s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q8o",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "Q8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QTo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T5s",
+          "actionWeightsBasisPoints": {
+            "fold": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "T6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T8o",
+          "actionWeightsBasisPoints": {
+            "fold": 6000,
+            "raise": 4000
+          }
+        },
+        {
+          "handClass": "T8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         }
       ],
       "explanation": {
-        "conclusion": "BT 位以 2.5BB 开池，开池频率约 43.5%。",
-        "rangeReasoning": "BTN 位后面还有 5 个位置要过，范围随位置靠后放宽。",
+        "conclusion": "BTN 位以 2.5BB 开池，整段开池频率约 46.3%。",
+        "rangeReasoning": "范围随位置靠后放宽；边缘手牌以混合频率开池。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
         "futurePlan": "被 3bet 后按对应的应对范围继续。",
-        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池的两向混合。",
         "exploitCondition": null
       }
     },
@@ -541,10 +1940,10 @@
       "title": "SB 位翻前开池",
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
-      "heroSeatOffsetFromButton": 4,
+      "heroSeatOffsetFromButton": 1,
       "heroCards": [
         "Ad",
-        "Kc"
+        "7c"
       ],
       "board": [],
       "pot": {
@@ -567,16 +1966,16 @@
             "kind": "raise",
             "toCentiBB": 300
           },
-          "frequencyBasisPoints": 4200,
+          "frequencyBasisPoints": 10000,
           "ev": {
-            "milliBB": 180
+            "milliBB": 90
           }
         },
         {
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 5800,
+          "frequencyBasisPoints": 0,
           "ev": {
             "milliBB": 0
           }
@@ -584,139 +1983,554 @@
       ],
       "rangeCells": [
         {
-          "handClass": "AA-22",
+          "handClass": "22",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "AKs-A2s",
+          "handClass": "33",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "KQs-K2s",
+          "handClass": "44",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "QJs-Q4s",
+          "handClass": "55",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "JTs-J6s",
+          "handClass": "66",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "T9s-T6s",
+          "handClass": "77",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "96s-95s",
+          "handClass": "88",
           "actionWeightsBasisPoints": {
-            "raise": 9000,
-            "fold": 1000
+            "raise": 10000
           }
         },
         {
-          "handClass": "86s-85s",
+          "handClass": "99",
           "actionWeightsBasisPoints": {
-            "raise": 8000,
-            "fold": 2000
+            "raise": 10000
           }
         },
         {
-          "handClass": "75s",
+          "handClass": "AA",
           "actionWeightsBasisPoints": {
-            "raise": 8000,
-            "fold": 2000
+            "raise": 10000
           }
         },
         {
-          "handClass": "64s",
+          "handClass": "JJ",
           "actionWeightsBasisPoints": {
-            "raise": 7000,
-            "fold": 3000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KK",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QQ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "TT",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         },
         {
           "handClass": "53s",
           "actionWeightsBasisPoints": {
-            "raise": 5000,
-            "fold": 5000
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
-          "handClass": "AKo-A2o",
+          "handClass": "64s",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "fold": 3000,
+            "raise": 7000
           }
         },
         {
-          "handClass": "KQo-K8o",
+          "handClass": "75s",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "QJo-Q9o",
+          "handClass": "76s",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "raise": 10000
           }
         },
         {
-          "handClass": "JTo-J9o",
+          "handClass": "85s",
           "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
+            "fold": 2000,
+            "raise": 8000
           }
         },
         {
-          "handClass": "T9o",
+          "handClass": "86s",
           "actionWeightsBasisPoints": {
-            "raise": 8000,
-            "fold": 2000
-          }
-        },
-        {
-          "handClass": "98o",
-          "actionWeightsBasisPoints": {
-            "raise": 7000,
-            "fold": 3000
+            "raise": 10000
           }
         },
         {
           "handClass": "87o",
           "actionWeightsBasisPoints": {
-            "raise": 6000,
-            "fold": 4000
+            "fold": 4000,
+            "raise": 6000
+          }
+        },
+        {
+          "handClass": "87s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "95s",
+          "actionWeightsBasisPoints": {
+            "fold": 1000,
+            "raise": 9000
+          }
+        },
+        {
+          "handClass": "96s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "97s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "98o",
+          "actionWeightsBasisPoints": {
+            "fold": 3000,
+            "raise": 7000
+          }
+        },
+        {
+          "handClass": "98s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A2o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A2s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A3o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A3s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A4o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A4s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A5o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A6o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A7o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A8o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "A9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AKs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "ATs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "J9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JTo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K2s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K3s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K4s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K8o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "K9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KQs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KTo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "KTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q4s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q5s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "Q9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QJo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QJs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QTo",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QTs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T6s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T7s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T8s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "T9o",
+          "actionWeightsBasisPoints": {
+            "fold": 2000,
+            "raise": 8000
+          }
+        },
+        {
+          "handClass": "T9s",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
           }
         }
       ],
       "explanation": {
-        "conclusion": "SB 以 3BB 开池，开池频率约 42%。",
-        "rangeReasoning": "这是移除跛入后重解的加注范围。含跛入的解里 SB 总参与率约 62%、其中纯加注仅约 24%；本内容不建模跛入，因此对应 35–45% 的 raise-only 区间。",
+        "conclusion": "SB 位以 3BB 开池，整段开池频率约 42.8%。",
+        "rangeReasoning": "范围随位置靠后放宽；边缘手牌以混合频率开池。本内容不建模跛入，对应移除跛入后重解的加注范围。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
         "futurePlan": "被 3bet 后按对应的应对范围继续。",
-        "gtoBaseline": "基线为 raise-only 简化：弃牌与 3BB 开池的两向混合，不含跛入分支。",
+        "gtoBaseline": "基线为位置化开池范围，弃牌与开池的两向混合。",
         "exploitCondition": null
       }
     },
@@ -725,52 +2539,52 @@
       "title": "CO 开池面对 BTN 3bet",
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-vs-3bet",
-      "heroSeatOffsetFromButton": 1,
+      "heroSeatOffsetFromButton": 5,
       "heroCards": [
         "Ah",
         "Qh"
       ],
       "board": [],
       "pot": {
-        "centiBB": 1350
+        "centiBB": 1150
       },
       "amountToCall": {
-        "centiBB": 600
+        "centiBB": 500
       },
       "minimumRaiseTo": {
-        "centiBB": 1500
+        "centiBB": 1250
       },
       "configuredBetSizes": [
         {
-          "centiBB": 2600
+          "centiBB": 1650
         }
       ],
       "actions": [
         {
           "action": {
             "kind": "call",
-            "toCentiBB": 600
+            "toCentiBB": 500
           },
-          "frequencyBasisPoints": 5500,
+          "frequencyBasisPoints": 8000,
           "ev": {
-            "milliBB": 120
+            "milliBB": 110
           }
         },
         {
           "action": {
             "kind": "raise",
-            "toCentiBB": 2600
+            "toCentiBB": 1650
           },
-          "frequencyBasisPoints": 1500,
+          "frequencyBasisPoints": 2000,
           "ev": {
-            "milliBB": 140
+            "milliBB": 60
           }
         },
         {
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 3000,
+          "frequencyBasisPoints": 0,
           "ev": {
             "milliBB": 0
           }
@@ -778,69 +2592,116 @@
       ],
       "rangeCells": [
         {
-          "handClass": "AA-QQ",
+          "handClass": "77",
           "actionWeightsBasisPoints": {
-            "fourbet": 10000
+            "call": 6000,
+            "fold": 4000
           }
         },
         {
-          "handClass": "JJ-TT",
+          "handClass": "88",
+          "actionWeightsBasisPoints": {
+            "call": 6000,
+            "fold": 4000
+          }
+        },
+        {
+          "handClass": "99",
+          "actionWeightsBasisPoints": {
+            "call": 6000,
+            "fold": 4000
+          }
+        },
+        {
+          "handClass": "AA",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "JJ",
           "actionWeightsBasisPoints": {
             "call": 7000,
-            "fourbet": 3000
+            "raise": 3000
           }
         },
         {
-          "handClass": "AKs",
+          "handClass": "KK",
           "actionWeightsBasisPoints": {
-            "fourbet": 10000
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "QQ",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "TT",
+          "actionWeightsBasisPoints": {
+            "call": 7000,
+            "raise": 3000
+          }
+        },
+        {
+          "handClass": "A5s",
+          "actionWeightsBasisPoints": {
+            "call": 2000,
+            "fold": 3000,
+            "raise": 5000
+          }
+        },
+        {
+          "handClass": "AJs",
+          "actionWeightsBasisPoints": {
+            "call": 6000,
+            "fold": 4000
           }
         },
         {
           "handClass": "AKo",
           "actionWeightsBasisPoints": {
             "call": 4000,
-            "fourbet": 6000
+            "raise": 6000
+          }
+        },
+        {
+          "handClass": "AKs",
+          "actionWeightsBasisPoints": {
+            "raise": 10000
+          }
+        },
+        {
+          "handClass": "AQo",
+          "actionWeightsBasisPoints": {
+            "call": 4000,
+            "fold": 6000
           }
         },
         {
           "handClass": "AQs",
           "actionWeightsBasisPoints": {
             "call": 8000,
-            "fourbet": 2000
+            "raise": 2000
           }
         },
         {
-          "handClass": "AQo",
+          "handClass": "ATs",
           "actionWeightsBasisPoints": {
             "call": 5000,
             "fold": 5000
           }
         },
         {
-          "handClass": "A5s",
+          "handClass": "JTs",
           "actionWeightsBasisPoints": {
-            "call": 3000,
-            "fourbet": 5000,
-            "fold": 2000
+            "call": 5000,
+            "fold": 5000
           }
         },
         {
           "handClass": "KQs",
-          "actionWeightsBasisPoints": {
-            "call": 8000,
-            "fold": 2000
-          }
-        },
-        {
-          "handClass": "99-77",
-          "actionWeightsBasisPoints": {
-            "call": 8000,
-            "fold": 2000
-          }
-        },
-        {
-          "handClass": "JTs",
           "actionWeightsBasisPoints": {
             "call": 7000,
             "fold": 3000
@@ -848,11 +2709,11 @@
         }
       ],
       "explanation": {
-        "conclusion": "面对 BTN 的 3bet，以跟注为主、少量 4bet，其余弃牌。",
-        "rangeReasoning": "跟注范围保留有位置劣势但摊牌价值好的牌，4bet 取最强牌与少量阻断牌。",
-        "boardReasoning": "翻前无公共牌。",
+        "conclusion": "面对 BTN 3bet 到 7.5BB，以跟注为主、少量 4bet。",
+        "rangeReasoning": "跟注范围保留摊牌价值好的牌，4bet 取最强牌与少量阻断牌；范围中的每一手都在 CO 的开池范围内。",
+        "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设 BTN 用标准 3bet 范围，不针对性调整。",
-        "futurePlan": "跟注后进入翻后有位劣势的锅，按翻牌节点继续。",
+        "futurePlan": "跟注后进入无位置的锅，按翻牌节点继续。",
         "gtoBaseline": "基线为跟注、4bet 与弃牌的三向混合。",
         "exploitCondition": null
       }
