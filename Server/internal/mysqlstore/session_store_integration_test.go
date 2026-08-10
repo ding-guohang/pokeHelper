@@ -470,3 +470,55 @@ func assertNoPlaintextTokenInDatabase(t *testing.T, db *sql.DB, tokens ...string
 		t.Fatalf("iterate device rows: %v", err)
 	}
 }
+
+// The device list is what the user reads to decide which session to revoke, so
+// its fields have to carry real values. The existing test only asserted that
+// another user's device was absent, which a blank row would also satisfy.
+func TestTheDeviceListReportsTheDetailsTheClientSupplied(t *testing.T) {
+	db, manager, clock := newSessionFixture(t)
+	owner := createSessionUser(t, db)
+	installationID := "6f1a2b3c-4d5e-4f60-8a1b-2c3d4e5f6071"
+
+	pair, err := manager.Issue(
+		context.Background(),
+		owner,
+		session.DeviceMetadata{
+			DeviceID:    installationID,
+			DisplayName: "Wenzheng 的 iPad",
+			Platform:    "iPadOS",
+			AppVersion:  "1.4.2",
+		},
+		clock.now,
+	)
+	if err != nil {
+		t.Fatalf("issue session: %v", err)
+	}
+
+	devices, err := manager.ListDevices(context.Background(), session.Principal{
+		UserID:    owner,
+		SessionID: pair.SessionID,
+	})
+	if err != nil {
+		t.Fatalf("list devices: %v", err)
+	}
+
+	device := devices[0]
+	if device.DisplayName != "Wenzheng 的 iPad" {
+		t.Errorf("displayName = %q", device.DisplayName)
+	}
+	if device.Platform != "iPadOS" {
+		t.Errorf("platform = %q", device.Platform)
+	}
+	if device.AppVersion != "1.4.2" {
+		t.Errorf("appVersion = %q, want the value the client sent", device.AppVersion)
+	}
+	if device.DeviceID != installationID {
+		t.Errorf("deviceID = %q, want the installation ID", device.DeviceID)
+	}
+	if device.LastActiveAt.IsZero() || device.CreatedAt.IsZero() {
+		t.Error("the list must carry real timestamps")
+	}
+	if !device.Current {
+		t.Error("the caller's own session must be marked current")
+	}
+}

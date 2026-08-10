@@ -25,6 +25,10 @@ type ErrorCode string
 const (
 	ValidationFailed ErrorCode = "validationFailed"
 	IdempotencyReuse ErrorCode = "idempotencyKeyReused"
+	// BatchTooLarge is distinct from ValidationFailed so a client can tell
+	// "split this batch and retry" from "this content is wrong", which are
+	// opposite recovery actions.
+	BatchTooLarge ErrorCode = "batchTooLarge"
 )
 
 type Error struct {

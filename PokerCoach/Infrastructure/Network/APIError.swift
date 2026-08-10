@@ -11,6 +11,9 @@ enum APIError: Error, Equatable, Sendable {
     case identityConflict
     case validationFailed
     case rateLimited(retryAfter: TimeInterval)
+    /// The batch was well formed but too big. The recovery is to split it, not
+    /// to change its content.
+    case batchTooLarge
     case server(status: Int)
     case malformedResponse
 
@@ -30,6 +33,8 @@ enum APIError: Error, Equatable, Sendable {
             "提交的内容不符合要求，请检查后重试。"
         case let .rateLimited(retryAfter):
             "尝试过于频繁，请在 \(Int(retryAfter.rounded(.up))) 秒后重试。"
+        case .batchTooLarge:
+            "本次同步的数据量过大，正在自动拆分后重试。"
         case .server:
             "服务暂时不可用，请稍后重试。"
         case .malformedResponse:
@@ -47,7 +52,10 @@ extension APIError {
         case .validationFailed, .identityConflict:
             true
         case .offline, .timedOut, .unauthorized, .reauthenticationRequired,
-             .rateLimited, .server, .malformedResponse:
+             .rateLimited, .server, .malformedResponse, .batchTooLarge:
+            // batchTooLarge is excluded on purpose: the same events can still
+            // be delivered in smaller batches, so quarantining them would
+            // discard data the server never refused on its merits.
             false
         }
     }

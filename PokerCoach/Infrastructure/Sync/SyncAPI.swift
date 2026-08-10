@@ -117,6 +117,8 @@ struct RemoteSyncAPI: SyncAPI {
             throw APIError.unauthorized
         case 409:
             throw APIError.identityConflict
+        case 413:
+            throw APIError.batchTooLarge
         default:
             throw APIError.server(status: http.statusCode)
         }

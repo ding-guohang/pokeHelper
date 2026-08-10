@@ -80,11 +80,15 @@ actor SyncEngine {
 
     private func uploadPending() async throws -> Bool {
         var uploadedAnything = false
+        // Halved whenever the server says a batch is too large. The events are
+        // fine; only the request size is wrong, so the fix is to send fewer at
+        // a time rather than to drop any.
+        var limit = uploadLimit
         while true {
             let eventsByID = try await currentEventsByID()
             guard let batch = try await outbox.beginBatch(
                 eventsByID: eventsByID,
-                limit: uploadLimit
+                limit: limit
             ) else {
                 return uploadedAnything
             }
@@ -100,6 +104,10 @@ actor SyncEngine {
                         accessToken: accessToken
                     )
                 }
+            } catch APIError.batchTooLarge where batch.eventIDs.count > 1 {
+                limit = max(1, batch.eventIDs.count / 2)
+                try await outbox.discardInFlightBatch()
+                continue
             } catch let error as APIError where error.isServerRefusal {
                 // The server judged this batch invalid, so resending the same
                 // bytes will always fail the same way.

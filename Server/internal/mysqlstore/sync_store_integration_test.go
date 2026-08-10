@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	stdsync "sync"
 	"testing"
 	"time"
 
@@ -329,4 +330,126 @@ func randomUUIDString(t *testing.T) string {
 		"%08x-%04x-%04x-%04x-%012x",
 		value[0:4], value[4:6], value[6:8], value[8:10], value[10:16],
 	)
+}
+
+// The per-user sequence lock is what makes duplicate handling safe under
+// concurrency. Only a sequential test existed, which cannot distinguish
+// "serialized correctly" from "got lucky".
+func TestConcurrentUploadsOfTheSameEventStoreItOnce(t *testing.T) {
+	db, store, owner := newSyncFixture(t)
+
+	const callers = 4
+	var group stdsync.WaitGroup
+	errs := make([]error, callers)
+	group.Add(callers)
+	for index := range errs {
+		go func() {
+			defer group.Done()
+			_, errs[index] = store.Upload(
+				context.Background(),
+				uploadRequest(owner, "shared-key", 1),
+			)
+		}()
+	}
+	group.Wait()
+
+	for index, err := range errs {
+		if err != nil {
+			t.Fatalf("caller %d: %v", index, err)
+		}
+	}
+	var stored int
+	if err := db.QueryRow("SELECT COUNT(*) FROM training_events").Scan(&stored); err != nil {
+		t.Fatalf("count events: %v", err)
+	}
+	if stored != 1 {
+		t.Errorf("stored %d rows for one event, want 1", stored)
+	}
+}
+
+// Two concurrent uploads of *different* events must produce strictly
+// increasing sequences with no gap and no reuse.
+func TestConcurrentUploadsAllocateStrictlyIncreasingSequences(t *testing.T) {
+	db, store, owner := newSyncFixture(t)
+
+	var group stdsync.WaitGroup
+	group.Add(2)
+	errs := make([]error, 2)
+	for index := range errs {
+		go func() {
+			defer group.Done()
+			request := uploadRequest(owner, fmt.Sprintf("batch-%d", index), 1)
+			request.Events[0].ID = fmt.Sprintf("00000000-0000-4000-8000-%012d", index+100)
+			canonical, _ := sync.CanonicalBody(sync.UploadBody{
+				SchemaVersion: sync.SchemaVersion,
+				Events:        request.Events,
+			})
+			request.RequestHash = sha256.Sum256(canonical)
+			_, errs[index] = store.Upload(context.Background(), request)
+		}()
+	}
+	group.Wait()
+
+	for index, err := range errs {
+		if err != nil {
+			t.Fatalf("caller %d: %v", index, err)
+		}
+	}
+
+	rows, err := db.Query(`
+		SELECT server_sequence FROM training_events
+		WHERE user_id = UNHEX(REPLACE(?, '-', '')) ORDER BY server_sequence`,
+		owner.userID,
+	)
+	if err != nil {
+		t.Fatalf("read sequences: %v", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var sequences []uint64
+	for rows.Next() {
+		var sequence uint64
+		if err := rows.Scan(&sequence); err != nil {
+			t.Fatalf("scan sequence: %v", err)
+		}
+		sequences = append(sequences, sequence)
+	}
+	if len(sequences) != 2 {
+		t.Fatalf("stored %d events, want 2", len(sequences))
+	}
+	if sequences[0] != 1 || sequences[1] != 2 {
+		t.Errorf("sequences = %v, want 1 then 2 with no gap or reuse", sequences)
+	}
+}
+
+// A replay must return the original answer in full. Comparing only the
+// checkpoint would miss a response that confirmed a different set of events.
+func TestAReplayReturnsTheIdenticalAcceptedSet(t *testing.T) {
+	_, store, owner := newSyncFixture(t)
+	request := uploadRequest(owner, "batch-1", 3)
+
+	first, err := store.Upload(context.Background(), request)
+	if err != nil {
+		t.Fatalf("first upload: %v", err)
+	}
+	second, err := store.Upload(context.Background(), request)
+	if err != nil {
+		t.Fatalf("replay: %v", err)
+	}
+
+	if len(second.AcceptedEventIDs) != len(first.AcceptedEventIDs) {
+		t.Fatalf(
+			"replay accepted %d events, want the original %d",
+			len(second.AcceptedEventIDs), len(first.AcceptedEventIDs),
+		)
+	}
+	for index := range first.AcceptedEventIDs {
+		if second.AcceptedEventIDs[index] != first.AcceptedEventIDs[index] {
+			t.Errorf(
+				"replay accepted %v, want the original %v",
+				second.AcceptedEventIDs, first.AcceptedEventIDs,
+			)
+			break
+		}
+	}
 }

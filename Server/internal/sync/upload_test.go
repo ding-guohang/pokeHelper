@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -317,4 +318,80 @@ func (s *pullStoreDouble) Pull(
 		}
 	}
 	return page, nil
+}
+
+// The batch bounds had no test at all, and an oversized batch reported the
+// same code as malformed content — opposite recovery actions for the client.
+func TestOversizedBatchesAreRejectedWithADistinctCode(t *testing.T) {
+	t.Run("too many events", func(t *testing.T) {
+		command := cloneCommand(t, contractCommand(t))
+		template := command.Body.Events[0]
+		for index := len(command.Body.Events); index <= sync.MaxBatchEvents; index++ {
+			event := template
+			event.ID = fmt.Sprintf("00000000-0000-4000-8000-%012d", index)
+			command.Body.Events = append(command.Body.Events, event)
+		}
+		command.RawBody = mustCanonical(t, command.Body)
+
+		assertSyncCode(t, sync.ValidateUpload(command), sync.BatchTooLarge)
+	})
+
+	t.Run("body over the byte limit", func(t *testing.T) {
+		command := cloneCommand(t, contractCommand(t))
+		command.RawBody = make([]byte, sync.MaxBatchBytes+1)
+
+		assertSyncCode(t, sync.ValidateUpload(command), sync.BatchTooLarge)
+	})
+}
+
+// The boundary itself must be accepted, or the client's own limit would be
+// one event too generous.
+func TestABatchAtExactlyTheEventLimitIsAccepted(t *testing.T) {
+	command := cloneCommand(t, contractCommand(t))
+	template := command.Body.Events[0]
+	for index := len(command.Body.Events); index < sync.MaxBatchEvents; index++ {
+		event := template
+		event.ID = fmt.Sprintf("00000000-0000-4000-8000-%012d", index)
+		command.Body.Events = append(command.Body.Events, event)
+	}
+	command.RawBody = mustCanonical(t, command.Body)
+
+	if len(command.Body.Events) != sync.MaxBatchEvents {
+		t.Fatalf("built %d events, want exactly %d", len(command.Body.Events), sync.MaxBatchEvents)
+	}
+	if err := sync.ValidateUpload(command); err != nil {
+		t.Fatalf("a batch at the limit was rejected: %v", err)
+	}
+}
+
+// A page that exactly fills the limit must report no more, or a client would
+// make one pointless extra round trip forever.
+func TestAPageThatExactlyFillsTheLimitReportsNoMore(t *testing.T) {
+	store := &pullStoreDouble{
+		events: []sync.StoredEvent{
+			{Event: sync.Event{ID: "a"}, ServerSequence: 1},
+			{Event: sync.Event{ID: "b"}, ServerSequence: 2},
+		},
+	}
+	service := sync.NewPullService(store)
+
+	page, err := service.Pull(
+		context.Background(),
+		sync.Principal{UserID: "11111111-1111-4111-8111-111111111111"},
+		0,
+		2,
+	)
+	if err != nil {
+		t.Fatalf("pull: %v", err)
+	}
+
+	if len(page.Events) != 2 {
+		t.Fatalf("returned %d events, want 2", len(page.Events))
+	}
+	if page.HasMore {
+		t.Error("an exactly-full page has nothing after it")
+	}
+	if page.Checkpoint != 2 {
+		t.Errorf("checkpoint = %d, want 2", page.Checkpoint)
+	}
 }

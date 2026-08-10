@@ -19,11 +19,16 @@ func ValidateUpload(command UploadCommand) error {
 	if command.Body.SchemaVersion != SchemaVersion {
 		return &Error{Code: ValidationFailed}
 	}
-	if len(command.Body.Events) == 0 || len(command.Body.Events) > MaxBatchEvents {
+	if len(command.Body.Events) == 0 {
 		return &Error{Code: ValidationFailed}
 	}
+	// An oversized batch is well-formed but too big; the client should split
+	// it rather than treat its content as invalid.
+	if len(command.Body.Events) > MaxBatchEvents {
+		return &Error{Code: BatchTooLarge}
+	}
 	if len(command.RawBody) > MaxBatchBytes {
-		return &Error{Code: ValidationFailed}
+		return &Error{Code: BatchTooLarge}
 	}
 
 	// The body must already be canonical. Accepting an equivalent-but-different

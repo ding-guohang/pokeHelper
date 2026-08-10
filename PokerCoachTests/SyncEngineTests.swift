@@ -289,3 +289,116 @@ private final class SyncAPIDouble: SyncAPI, @unchecked Sendable {
         let events: [Event]
     }
 }
+
+/// A batch the server calls too large must be split, not discarded: the events
+/// are fine, only the request size is wrong.
+@MainActor
+final class OversizedBatchTests: XCTestCase {
+    private var directory: URL!
+
+    override func setUpWithError() throws {
+        directory = FileManager.default.temporaryDirectory.appending(
+            path: "Oversized-\(UUID().uuidString)",
+            directoryHint: .isDirectory
+        )
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: directory)
+    }
+
+    func testAnOversizedBatchIsHalvedUntilItFitsAndNoEventIsLost() async throws {
+        let underlying = try FileTrainingEventStore(directory: directory)
+        let outbox = try FileOutboxStore(directory: directory)
+        let state = try FileSyncStateStore(directory: directory)
+        let store = SyncTrackingTrainingEventStore(underlying: underlying, outbox: outbox)
+
+        let events = (0 ..< 4).map { _ in ContractEventFixture.make(id: UUID()) }
+        for event in events {
+            try await store.append(event)
+        }
+
+        let api = SizeLimitedSyncAPI(maximumEventsPerBatch: 1)
+        let engine = SyncEngine(
+            store: store,
+            outbox: outbox,
+            state: state,
+            api: api,
+            authorizer: SessionAuthorizer(
+                store: OversizedCredentialStore(),
+                api: StubAccountAPI()
+            ),
+            now: { Date(timeIntervalSince1970: 1_786_200_000) }
+        )
+
+        await engine.synchronize(reason: .launch)
+
+        let status = await engine.status()
+        guard case .upToDate = status else {
+            return XCTFail("status = \(status), want upToDate")
+        }
+        XCTAssertEqual(
+            Set(api.acceptedEventIDs),
+            Set(events.map(\.id)),
+            "every event must arrive, just in smaller batches"
+        )
+        let pending = try await outbox.pendingEventIDs()
+        XCTAssertTrue(pending.isEmpty)
+        let quarantined = try await outbox.quarantinedEventIDs()
+        XCTAssertTrue(quarantined.isEmpty, "an oversized batch must not be discarded")
+    }
+}
+
+/// Rejects any batch above a fixed event count, the way the server rejects one
+/// above its byte limit.
+private final class SizeLimitedSyncAPI: SyncAPI, @unchecked Sendable {
+    private let maximumEventsPerBatch: Int
+    private(set) var acceptedEventIDs: [UUID] = []
+
+    init(maximumEventsPerBatch: Int) {
+        self.maximumEventsPerBatch = maximumEventsPerBatch
+    }
+
+    func upload(
+        _ batch: UploadBatch,
+        accessToken: String
+    ) async throws -> UploadAcknowledgement {
+        let decoded = try JSONDecoder().decode(Probe.self, from: batch.body)
+        let ids = decoded.events.map(\.id)
+        if ids.count > maximumEventsPerBatch {
+            throw APIError.batchTooLarge
+        }
+        acceptedEventIDs.append(contentsOf: ids)
+        return UploadAcknowledgement(
+            acceptedEventIDs: ids,
+            checkpoint: UInt64(acceptedEventIDs.count)
+        )
+    }
+
+    func pull(
+        after checkpoint: UInt64,
+        limit: Int,
+        accessToken: String
+    ) async throws -> RemoteEventPage {
+        RemoteEventPage(events: [], checkpoint: checkpoint, hasMore: false)
+    }
+
+    private struct Probe: Decodable {
+        struct Event: Decodable {
+            let id: UUID
+        }
+
+        let events: [Event]
+    }
+}
+
+private struct OversizedCredentialStore: CredentialStore {
+    func loadActive() async throws -> StoredSession? { .fixture() }
+    func saveActive(_ session: StoredSession) async throws {}
+    func replaceActive(expectedRefreshToken: String, with session: StoredSession) async throws {}
+    func clearActive() async throws {}
+    func moveRefreshToPendingRevocation() async throws {}
+    func loadPendingRevocation() async throws -> PendingSessionRevocation? { nil }
+    func clearPendingRevocation() async throws {}
+}

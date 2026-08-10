@@ -153,6 +153,21 @@ bash scripts/check-m1b-release-secrets.sh --sources-only   # 跳过产物扫描�
 
 ATS 增加了 `NSAllowsLocalNetworking`（仅放开回环与 .local 的 http），密钥门禁断言 `NSAllowsArbitraryLoads` 未被启用。
 
+## WEAK 场景收口
+
+评审给出 25 COVERED / 30 WEAK / 1 UNCOVERED。已处理的部分：
+
+| 场景 | 原问题 | 处理 |
+|---|---|---|
+| 超限批次（唯一 UNCOVERED） | `MaxBatchEvents`/`MaxBatchBytes` 零测试引用，且规格要求 typed error 而代码返回通用 `validationFailed` | 新增 `batchTooLarge`（HTTP 413），补边界与恰好命中上限两个用例 |
+| 重复事件并发写入 | 只有顺序测试，无法区分"正确序列化"与"运气好" | 实测确认每用户 `FOR UPDATE` 确实序列化（4 并发 0 失败 1 条），转为正式测试 |
+| 并发顺序分配 | 只有一个真实 Upload，"严格递增"从未被观察 | 两个真实并发 Upload，断言序列为 1、2 无缺口无复用 |
+| 上传响应丢失后重试 | 只比对 checkpoint | 增加 `AcceptedEventIDs` 逐项比对 |
+| 查看设备 | `displayName`/`platform`/`appVersion`/时间戳从不断言，空白行也能通过 | 断言全部字段等于客户端发送的值 |
+| 多页 checkpoint 边界 | 无"恰好装满一页"用例 | 补 exact-fit：`hasMore` 必须为 false |
+
+**批次过大改为拆分而非隔离。** 413 原本落进 `.server(413)`（不算 refusal）→ 永久重试卡死。但正确的恢复不是丢弃用户数据：现在按半数递减重试，`OversizedBatchTests` 断言 4 个事件在每批只容 1 条的服务端下**全部送达且无一被隔离**。
+
 ## 修复记录：三个曾经形同虚设的检查
 
 ### Release 门禁的三条 marker 永远不可能命中

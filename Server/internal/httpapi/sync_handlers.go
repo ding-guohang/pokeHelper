@@ -52,8 +52,17 @@ func (h *syncHandler) uploadEvents(response http.ResponseWriter, request *http.R
 	// The raw bytes matter: idempotency compares hashes of exactly what the
 	// client sent, so the body is read once and reused rather than re-encoded.
 	raw, err := io.ReadAll(io.LimitReader(request.Body, sync.MaxBatchBytes+1))
-	if err != nil || len(raw) > sync.MaxBatchBytes {
+	if err != nil {
 		writeTypedError(response, http.StatusBadRequest, string(sync.ValidationFailed), requestID)
+		return
+	}
+	if len(raw) > sync.MaxBatchBytes {
+		writeTypedError(
+			response,
+			http.StatusRequestEntityTooLarge,
+			string(sync.BatchTooLarge),
+			requestID,
+		)
 		return
 	}
 
@@ -131,6 +140,13 @@ func writeSyncError(response http.ResponseWriter, err error, requestID string) {
 		writeTypedError(response, http.StatusBadRequest, string(syncError.Code), requestID)
 	case sync.IdempotencyReuse:
 		writeTypedError(response, http.StatusConflict, string(syncError.Code), requestID)
+	case sync.BatchTooLarge:
+		writeTypedError(
+			response,
+			http.StatusRequestEntityTooLarge,
+			string(syncError.Code),
+			requestID,
+		)
 	default:
 		writeTypedError(response, http.StatusInternalServerError, "internalError", requestID)
 	}

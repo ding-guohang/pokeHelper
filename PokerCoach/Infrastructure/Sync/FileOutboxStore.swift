@@ -126,6 +126,19 @@ actor FileOutboxStore: OutboxStore {
         return inFlight.eventIDs
     }
 
+    /// Returns the in-flight batch's events to the front of the queue so they
+    /// can be resent in smaller pieces. Used when the server says the batch is
+    /// too large, where the events themselves are fine.
+    func discardInFlightBatch() throws {
+        var current = try state()
+        guard let inFlight = current.inFlight else {
+            return
+        }
+        current.inFlight = nil
+        current.queued.insert(contentsOf: inFlight.eventIDs, at: 0)
+        try save(current)
+    }
+
     func quarantinedEventIDs() throws -> [UUID] {
         try state().quarantined
     }

@@ -85,6 +85,8 @@ struct APIClient: Sendable {
             return code == "reauthenticationRequired" ? .reauthenticationRequired : .unauthorized
         case 409:
             return .identityConflict
+        case 413:
+            return .batchTooLarge
         case 429:
             let retryAfter = headers.value(forHTTPHeaderField: "Retry-After")
                 .flatMap(TimeInterval.init) ?? 1
