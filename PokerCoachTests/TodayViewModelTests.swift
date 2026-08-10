@@ -74,7 +74,7 @@ final class TodayViewModelTests: XCTestCase {
     func testRefreshRereadsAppendedEventsAndUpdatesDailyPlan() async throws {
         let fixture = DashboardFixture.empty()
         await fixture.today.refresh()
-        let initialReason = try XCTUnwrap(fixture.today.primaryItem?.reason)
+        let initialReason = try XCTUnwrap(fixture.today.primaryItem?.reasonDetail)
 
         await fixture.store.append(
             DashboardFixture.weakPreflopEvent(
@@ -86,7 +86,9 @@ final class TodayViewModelTests: XCTestCase {
         XCTAssertEqual(fixture.today.state, .loaded)
         XCTAssertEqual(fixture.today.primaryItem?.abilityDimension, "preflop-range")
         XCTAssertEqual(fixture.today.supportingItems.count, 2)
-        XCTAssertNotEqual(fixture.today.primaryItem?.reason, initialReason)
+        // reason is an enum now and legitimately stays .weakness across this
+        // change; the numbers behind it are what must move.
+        XCTAssertNotEqual(fixture.today.primaryItem?.reasonDetail, initialReason)
         XCTAssertEqual(fixture.today.durationText, "约 8 分钟")
         XCTAssertEqual(fixture.today.startPrimaryItem(), "cash-preflop-range")
     }

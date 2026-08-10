@@ -12,7 +12,11 @@ import Testing
 
     #expect(plan.items.first?.abilityDimension == "bet-sizing")
     #expect(plan.items.first?.priority == 87)
-    #expect(plan.items.count == 3)
+    // Two items, not three: the catalog holds three five-minute items and the
+    // plan is capped at ten minutes. This used to take a fixed prefix of three
+    // regardless of how long they were.
+    #expect(plan.items.count == 2)
+    #expect(plan.items.map(\.catalogItem.estimatedMinutes).reduce(0, +) == 10)
 }
 
 @Test func plannerUsesUnseenDefaultsAndBreaksPriorityTiesByItemID() throws {
@@ -27,5 +31,5 @@ import Testing
 
     #expect(plan.items.map(\.priority) == [54, 54])
     #expect(plan.items.map(\.id) == ["unseen-a", "unseen-b"])
-    #expect(plan.items.allSatisfy { $0.reason.contains("Unseen") })
+    #expect(plan.items.allSatisfy { $0.reasonDetail.contains("Unseen") })
 }
