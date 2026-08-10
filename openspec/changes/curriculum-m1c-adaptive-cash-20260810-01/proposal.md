@@ -23,8 +23,8 @@ M1C 是让产品第一次真正可用的里程碑：把内容送进 App，并让
 
 ### Modified Capabilities
 
-- `versioned-strategy-content` — 增加 `unverifiedDraft` 审核状态与其披露和发布约束；增加内容包的随包交付与可选更新。
-- `local-learning-profile` — 能力画像从单一维度快照扩展为能力树节点掌握判定（最小样本、近期稳定性、信心校准、复练完成、迁移表现）。
+- `versioned-strategy-content` — 增加 `unverifiedDraft` 审核状态及其披露与发布约束；新增“内容版本不可原地修改”要求。随包交付与更新校验归入新能力 `strategy-content-pipeline`。
+- `local-learning-profile` — 新增“能力树节点掌握信号”要求；“今日训练优先级”的排序输入增加遗忘风险与学习路径，并补充时长约束与入选原因。
 
 ### Removed Capabilities
 
@@ -216,6 +216,9 @@ The system SHALL lengthen the interval after a correct repetition and shorten it
 
 ### Capability: versioned-strategy-content
 
+<!-- 归档时本节整块替换 openspec/specs/versioned-strategy-content/spec.md，
+     因此未变更的 Requirement 与 Scenario 也必须原文保留。 -->
+
 #### Requirement: 策略包来源可追溯
 
 The system SHALL load strategy packs that identify schema version, content version, review status, generated source, game assumptions, and decision scenarios.
@@ -255,36 +258,49 @@ The system SHALL reject a strategy decision node that violates card uniqueness, 
 
 #### Requirement: 审核状态约束
 
-The system SHALL distinguish `testFixture`, `unverifiedDraft`, `reviewed`, and `retired` strategy content, and SHALL NOT present unverified content as verified.
+The system SHALL distinguish `testFixture`, `unverifiedDraft`, `reviewed`, and `retired` strategy content, and SHALL NOT present content of any status other than `reviewed` as verified poker advice.
+
+##### Scenario: 已审核内容缺少审核时间
+
+- GIVEN review status 为 `reviewed` 且 reviewed-at 为空
+- WHEN validator 校验
+- THEN 策略包被拒绝
 
 ##### Scenario: 已审核内容缺少审核来源
 
-- GIVEN 一个 manifest 声明 review status 为 `reviewed` 但缺少审核来源或审核时间
-- WHEN loader 加载该包
-- THEN 拒绝该包
-- AND 错误指明缺失的审核元数据
+- GIVEN review status 为 `reviewed` 且 reviewed-by 为空
+- WHEN validator 校验
+- THEN 策略包被拒绝
+- AND 错误指明缺失的是审核来源而非其他 manifest 字段
+
+##### Scenario: 开发内容展示
+
+- GIVEN APP 使用 `testFixture` 内容
+- WHEN 用户查看训练或反馈
+- THEN 界面明确显示“开发演示数据”
+- AND 不把数据描述为已审核扑克建议
 
 ##### Scenario: 未审核内容必须披露
 
-- GIVEN 当前内容包的 review status 为 `unverifiedDraft`
-- WHEN 用户看到任何由该内容生成的训练题、反馈或能力画像
-- THEN 界面显示该内容尚未经过策略审核的提示
-- AND 提示说明其不构成扑克建议
+- GIVEN APP 使用 `unverifiedDraft` 内容
+- WHEN 用户查看训练、反馈或能力画像
+- THEN 界面明确显示“未经策略审核”
+- AND 不把数据描述为已审核扑克建议
+- AND 该提示与 `testFixture` 的“开发演示数据”是两条不同的文案
 
 ##### Scenario: 未审核内容不得进入商店发布
 
-- GIVEN 一个面向 App Store 的发布构建
-- WHEN 发布门禁检查随包内容
-- THEN 任何 `testFixture` 或 `unverifiedDraft` 内容都导致门禁失败
-- AND 只有 `reviewed` 内容可以随商店发布交付
+- GIVEN 一个面向 App Store 提交的构建
+- WHEN 发布门禁检查随包策略内容的 review status
+- THEN 存在任何 `testFixture` 或 `unverifiedDraft` 的包都使门禁以非零码失败
+- AND 失败信息列出违规包的 pack ID 与其 review status
 
 ##### Scenario: dogfooding 构建可以携带未审核内容
 
-- GIVEN 一个供作者自用的 dogfooding 构建
-- WHEN 构建包含 `unverifiedDraft` 内容
-- THEN 构建成功且训练可用
-- AND 每个由该内容生成的界面显示未经策略审核的提示
-- AND 该构建不能被提交到 App Store
+- GIVEN 一个供作者自用、不提交 App Store 的构建
+- WHEN 该构建随包携带 `unverifiedDraft` 内容
+- THEN 门禁通过且训练可以开始
+- AND 由该内容生成的界面仍显示“未经策略审核”
 
 #### Requirement: 内容版本不可原地修改
 
@@ -292,12 +308,14 @@ The system SHALL treat a published content version as immutable and SHALL record
 
 ##### Scenario: 内容升级后历史仍可追溯
 
-- GIVEN 本机已有使用旧 content version 作答的训练事件
-- WHEN 安装了更高 content version 的内容包
-- THEN 既有事件记录的 pack ID 与 content version 不被改写
-- AND 复盘界面仍能显示每条历史当时依据的内容版本
+- GIVEN 本机已有使用 content version `2026.08.06` 作答的训练事件
+- WHEN 安装 content version `2026.09.01` 的内容包
+- THEN 既有事件记录的 pack ID 与 content version 仍为 `2026.08.06` 的取值
+- AND 复盘界面对该条历史显示 `2026.08.06`
 
 ### Capability: local-learning-profile
+
+<!-- 同上：归档时整块替换 openspec/specs/local-learning-profile/spec.md。 -->
 
 #### Requirement: 不可变本地训练事件
 
@@ -319,66 +337,91 @@ The system SHALL persist each completed decision as an immutable, append-only ev
 
 ##### Scenario: 损坏事件文件
 
-- GIVEN 事件文件中存在一行无法解码的内容
-- WHEN APP 读取全部事件
-- THEN 返回带行号的 typed error
+- GIVEN JSON Lines 文件的某一行无法解码
+- WHEN store 初始化或读取
+- THEN 返回包含行号的 typed corruption error
 - AND 日志不输出完整事件正文
 
 #### Requirement: 能力画像归约
 
-The system SHALL derive the ability profile deterministically from the complete event history.
+The system SHALL derive each ability dimension from its immutable training events.
 
 ##### Scenario: 高信心错误
 
-- GIVEN 某能力维度存在高信心且 EV 损失显著的作答
-- WHEN 归约器计算画像
-- THEN 该维度的高信心错误计数增加
-- AND 相同事件集合总是得到相同画像
-
-##### Scenario: 跨设备历史确定性归约
-
-- GIVEN 两台设备合并后拥有相同的去重事件集合
-- WHEN 各自独立归约
-- THEN 两台设备得到完全相同的画像
-
-#### Requirement: 能力树节点掌握信号
-
-The system SHALL expose, for every curriculum node, the mastery signals it currently satisfies and those it does not.
-
-##### Scenario: 查看未掌握原因
-
-- GIVEN 某节点尚未掌握
-- WHEN 用户查看该节点
-- THEN 显示缺失的具体信号，如样本不足、存在高信心错误或尚未完成复练
-- AND 不显示笼统的未掌握结论
+- GIVEN very-sure 决策被评为 improvable 或 blunder
+- WHEN reducer 生成能力画像
+- THEN 对应维度 high-confidence-error-count 增加
+- AND 其他能力维度不受影响
 
 #### Requirement: 今日训练优先级
 
-The system SHALL prioritize the daily plan by error severity, confidence miscalibration, forgetting risk, and the active learning path.
+The system SHALL rank training catalog items using weakness, high-confidence errors, days since practice, forgetting risk, and the active learning path.
 
 ##### Scenario: 高信心弱项优先
 
-- GIVEN 画像中存在高信心错误维度与低信心正确维度
-- WHEN 生成今日计划
-- THEN 高信心错误维度排序更前
-- AND 每个计划项显示被选中的原因
+- GIVEN bet-sizing 分数较低且有高信心错误，preflop-range 分数较高
+- WHEN planner 生成三个今日项目
+- THEN bet-sizing 项目排在第一位
+- AND 排序在相同输入下保持稳定
+
+##### Scenario: 到期复练排在未到期项目之前
+
+- GIVEN 某维度的复练已到期，另一维度的复练尚未到期且两者弱项程度相同
+- WHEN planner 生成今日项目
+- THEN 已到期的维度排在未到期的维度之前
+
+##### Scenario: 每个计划项给出被选中的原因
+
+- GIVEN 今日计划已生成
+- WHEN 读取任意一个计划项
+- THEN 该项携带一个非空的、来自枚举的入选原因（弱项、高信心错误、复练到期或学习路径推进）
+- AND 该原因在相同输入下保持稳定
 
 ##### Scenario: 计划受可用时长约束
 
-- GIVEN 今日计划的目标时长为 5 到 10 分钟
-- WHEN 生成计划
-- THEN 计划项的预计总时长不超过目标上限
+- GIVEN 今日计划的目标时长上限为 10 分钟，且每项的预计时长已知
+- WHEN planner 生成计划
+- THEN 计划项预计时长之和不超过 10 分钟
+- AND 至少包含一项
 
 #### Requirement: 今日与复盘使用真实历史
 
-The system SHALL derive Today and Review from the persisted event history of the active profile.
+The system SHALL update Today and Review from the active profile's local event store after a completed or synchronized decision.
 
 ##### Scenario: 决策完成后刷新
 
-- GIVEN 用户刚完成一次决策
-- WHEN 返回今日或复盘
-- THEN 两处都反映最新事件
-- AND 远端合并进来的事件同样进入该归约
+- GIVEN 用户完成一个 bet-sizing 场景
+- WHEN 返回今日或进入复盘
+- THEN 页面样本量和能力信息反映该事件
+- AND 今日主训练可以指向该弱项
+
+#### Requirement: 跨设备历史确定性归约
+
+The system SHALL derive the active user's ability profile from the deduplicated union of locally created and synchronized TrainingEvents.
+
+##### Scenario: 远端事件进入画像
+
+- GIVEN 同一账号的另一设备完成训练并同步
+- WHEN 当前设备拉取并合并该事件
+- THEN Today 与 Review 的样本和能力画像包含该事件
+- AND 相同 event ID 的重复拉取不改变结果
+
+##### Scenario: 两台设备独立归约得到相同画像
+
+- GIVEN 两台设备各自持有相同的去重事件集合，但本地写入顺序不同
+- WHEN 各自独立归约
+- THEN 两台设备得到逐字段相等的画像
+
+#### Requirement: 能力树节点掌握信号
+
+The system SHALL expose, for every curriculum node, which of the five mastery signals it currently satisfies and which it does not.
+
+##### Scenario: 查看未掌握原因
+
+- GIVEN 某节点样本数为 4、最小样本为 20，且存在一个未完成的复练
+- WHEN 用户查看该节点
+- THEN 界面列出未满足的信号为“样本不足（4/20）”与“复练未完成”
+- AND 已满足的信号也逐项列出，而不是只给出一个未掌握结论
 
 ## 设计阶段需决断的点
 
