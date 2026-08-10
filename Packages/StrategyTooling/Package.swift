@@ -12,6 +12,7 @@ let package = Package(
     ],
     products: [
         .executable(name: "strategy-import", targets: ["strategy-import"]),
+        .executable(name: "strategy-golden", targets: ["strategy-golden"]),
     ],
     dependencies: [
         .package(path: "../PokerCore"),
@@ -30,6 +31,11 @@ let package = Package(
         ),
         .executableTarget(
             name: "strategy-import",
+            dependencies: ["StrategyToolingCore"],
+            swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
+        ),
+        .executableTarget(
+            name: "strategy-golden",
             dependencies: ["StrategyToolingCore"],
             swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
         ),
