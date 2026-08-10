@@ -68,6 +68,19 @@ M1A 把事件日志放在 `Library/PokerCoach/training-events.jsonl`、身份放
 
 要求：键按字典序、无空白、时间为 UTC RFC 3339 毫秒精度带 `Z`。Go 侧靠**结构体字段按字母序声明**实现（`encoding/json` 按声明顺序输出）——重排 `sync.Event` 的字段会静默破坏所有幂等重试。
 
+## 服务端尚无组合根
+
+`Server/cmd/` 目前只有 `migrate`。以下 handler 构造器都已实现并各自带测试，但**没有任何可执行程序挂载它们**：
+
+| 构造器 | 路由 |
+|---|---|
+| `httpapi.NewAuthHandler` | `/v1/auth/register`、`verify-email`、`login`、`password-reset/*` |
+| `httpapi.NewSessionHandler` | `/v1/auth/refresh`、`logout`、`/v1/sessions`（列出与撤销） |
+| `httpapi.NewAppleHandler` | `/v1/auth/apple`、`/v1/auth/apple/link` |
+| `httpapi.NewSyncHandler` | `/v1/sync/events`（上传与拉取） |
+
+Task 11 的文件清单包含 `httpapi/router.go` 与 `cmd/api/main.go`，届时统一挂载。在那之前服务无法真实启动，端到端只能靠各自的 handler 测试覆盖。
+
 ## 承接的遗留项（Task 13 最终评审前需决断）
 
 前三条来自 Codex 的台账，其原始记录不在版本控制内，在此固化：
