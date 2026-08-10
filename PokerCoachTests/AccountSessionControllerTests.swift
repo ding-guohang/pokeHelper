@@ -305,7 +305,7 @@ private final class AppleAuthorizationClientDouble: AppleAuthorizationClient, @u
     }
 }
 
-private final class AccountAPIDouble: AccountAPI, @unchecked Sendable {
+private final class AccountAPIDouble: StubAccountAPI, @unchecked Sendable {
     enum Behavior {
         case offline
         case unauthorized
@@ -323,22 +323,22 @@ private final class AccountAPIDouble: AccountAPI, @unchecked Sendable {
     private(set) var refreshCalls = 0
     private(set) var probeCalls = 0
 
-    func register(email: String, password: String) async throws {
+    override func register(email: String, password: String) async throws {
         try failIfConfigured()
         registerCalls += 1
     }
 
-    func verifyEmail(token: String) async throws -> StoredSession {
+    override func verifyEmail(token: String) async throws -> StoredSession {
         try failIfConfigured()
         return .fixture()
     }
 
-    func resendVerification(email: String) async throws {
+    override func resendVerification(email: String) async throws {
         try failIfConfigured()
         resendCalls += 1
     }
 
-    func login(
+    override func login(
         email: String,
         password: String,
         device: DeviceDescriptor
@@ -347,17 +347,17 @@ private final class AccountAPIDouble: AccountAPI, @unchecked Sendable {
         return .fixture()
     }
 
-    func requestPasswordReset(email: String) async throws {
+    override func requestPasswordReset(email: String) async throws {
         try failIfConfigured()
         resetRequestCalls += 1
     }
 
-    func confirmPasswordReset(token: String, newPassword: String) async throws {
+    override func confirmPasswordReset(token: String, newPassword: String) async throws {
         try failIfConfigured()
         resetConfirmCalls += 1
     }
 
-    func signInWithApple(
+    override func signInWithApple(
         identityToken: String,
         nonce: String,
         device: DeviceDescriptor
@@ -366,18 +366,18 @@ private final class AccountAPIDouble: AccountAPI, @unchecked Sendable {
         return .fixture()
     }
 
-    func linkApple(identityToken: String, nonce: String, accessToken: String) async throws {
+    override func linkApple(identityToken: String, nonce: String, accessToken: String) async throws {
         try failIfConfigured()
         linkCalls += 1
     }
 
-    func refresh(refreshToken: String) async throws -> StoredSession {
+    override func refresh(refreshToken: String) async throws -> StoredSession {
         try failIfConfigured()
         refreshCalls += 1
         return .fixture(refreshToken: "rotated-refresh-token")
     }
 
-    func logOut(refreshToken: String) async throws {
+    override func logOut(refreshToken: String) async throws {
         try failIfConfigured()
     }
 

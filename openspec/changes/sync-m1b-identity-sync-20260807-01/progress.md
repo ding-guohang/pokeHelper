@@ -24,7 +24,7 @@
 | 9 服务端事务化同步 | 完成 | `ae48f1b` |
 | 10 iOS SyncEngine 与收敛 | 完成 | `8d40593` |
 | 11 服务端重认证/导出/删除 | 完成 | `847c160` |
-| 12 iOS 设备/导出/删除/离线退出 | 未开始 | — |
+| 12 iOS 设备/导出/删除/离线退出 | 完成 | 见下一条补记 |
 | 13 双设备 E2E 与 Release 门禁 | 未开始 | — |
 
 tasks.md 的 checkbox 一律不勾选，与 Codex 的做法保持一致，避免两个执行者在同一文件上制造冲突。进度以本表为准。
@@ -82,6 +82,10 @@ Task 11 补齐了 `httpapi/router.go` 与 `cmd/api/main.go`，服务现在可以
 | `POKER_COACH_THROTTLE_SECRET` | 缺失会导致每次重启重置全部限流窗口 |
 | `POKER_COACH_APPLE_CLIENT_ID` | Apple 令牌的 audience 校验失去意义 |
 | SMTP 全套 | 生产不允许回落到开发邮件器（否则验证链接会写进日志） |
+
+## 测试替身集中在一处
+
+`AccountAPI` 是个胖协议，每加一个操作，所有测试替身都会编译失败（Task 12 一次就打断了三个）。现在统一继承 `PokerCoachTests/Support/StubAccountAPI.swift`：基类给出中性实现，各测试只 override 自己要验证的方法。协议再扩展时只改这一个文件。
 
 ## 承接的遗留项（Task 13 最终评审前需决断）
 

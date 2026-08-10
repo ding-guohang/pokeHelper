@@ -43,6 +43,24 @@ actor ActiveProfileController {
         _ = try await switchTo(.anonymous)
     }
 
+    fileprivate func lockAndReturnAnonymous() async throws -> ActiveProfile {
+        try await switchTo(.anonymous)
+    }
+
+    fileprivate func adoptAsAnonymous(_ profile: ProfileID) throws {
+        try directories.move(from: profile, to: .anonymous)
+    }
+
+    fileprivate func removeProfileDirectory(_ profile: ProfileID) throws {
+        let directory = directories.directory(for: profile)
+        guard FileManager.default.fileExists(
+            atPath: directory.path(percentEncoded: false)
+        ) else {
+            return
+        }
+        try FileManager.default.removeItem(at: directory)
+    }
+
     private func switchTo(_ id: ProfileID) async throws -> ActiveProfile {
         activeID = id
         // Recorded so the next launch reopens on this profile instead of
@@ -58,5 +76,28 @@ actor ActiveProfileController {
             deviceID: try await associations.deviceID(),
             directory: try directories.createDirectory(for: id)
         )
+    }
+}
+
+extension ActiveProfileController {
+    /// Applies the user's local choice after the remote account is deleted.
+    ///
+    /// Keeping the data detaches it from the account: the directory is renamed
+    /// back to anonymous so training continues with the same hands. Deleting
+    /// removes the profile's events, upload queue, sync state, and corrupted
+    /// backups together, because leaving any one of them behind would keep a
+    /// deleted account's data readable on this device.
+    func applyLocalDeletion(
+        _ choice: LocalDeletionChoice,
+        remoteUserID: UUID
+    ) async throws -> ActiveProfile {
+        let profile = ProfileID(remoteUserID: remoteUserID)
+        switch choice {
+        case .keepAnonymized:
+            try adoptAsAnonymous(profile)
+        case .deleteEverything:
+            try removeProfileDirectory(profile)
+        }
+        return try await lockAndReturnAnonymous()
     }
 }

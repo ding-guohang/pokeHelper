@@ -39,6 +39,7 @@ enum AppDestination: String, CaseIterable, Identifiable {
 
 struct AdaptiveRootView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selectedDestination: AppDestination? = .today
     @State private var isShowingAccount = false
 
@@ -59,7 +60,11 @@ struct AdaptiveRootView: View {
         }
         .task {
             await dependencies.accountSession.restore()
-            await dependencies.accountSession.processPendingRevocation()
+            await dependencies.pendingRevocation.process(trigger: .launch)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task { await dependencies.pendingRevocation.process(trigger: .foreground) }
         }
     }
 

@@ -103,7 +103,7 @@ private struct Device {
             api: DeviceSyncAPI(server: server),
             authorizer: SessionAuthorizer(
                 store: ConvergenceCredentialStore(),
-                api: ConvergenceAccountAPI()
+                api: StubAccountAPI()
             ),
             now: { Date(timeIntervalSince1970: 1_786_200_000) }
         )
@@ -179,25 +179,4 @@ private struct ConvergenceCredentialStore: CredentialStore {
     func moveRefreshToPendingRevocation() async throws {}
     func loadPendingRevocation() async throws -> PendingSessionRevocation? { nil }
     func clearPendingRevocation() async throws {}
-}
-
-private struct ConvergenceAccountAPI: AccountAPI {
-    func register(email: String, password: String) async throws {}
-    func verifyEmail(token: String) async throws -> StoredSession { .fixture() }
-    func resendVerification(email: String) async throws {}
-    func login(
-        email: String,
-        password: String,
-        device: DeviceDescriptor
-    ) async throws -> StoredSession { .fixture() }
-    func requestPasswordReset(email: String) async throws {}
-    func confirmPasswordReset(token: String, newPassword: String) async throws {}
-    func signInWithApple(
-        identityToken: String,
-        nonce: String,
-        device: DeviceDescriptor
-    ) async throws -> StoredSession { .fixture() }
-    func linkApple(identityToken: String, nonce: String, accessToken: String) async throws {}
-    func refresh(refreshToken: String) async throws -> StoredSession { .fixture() }
-    func logOut(refreshToken: String) async throws {}
 }

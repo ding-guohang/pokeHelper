@@ -38,9 +38,18 @@ final class AppDependencies {
         localUserID = localIdentity.localUserID
         deviceID = localIdentity.deviceID
         self.strategyContentAvailability = strategyContentAvailability
-        self.accountSession = accountSession
+        let session = accountSession
             ?? AppDependencies.makeAccountSession(localIdentity: localIdentity)
+        self.accountSession = session
+        pendingRevocation = PendingRevocationProcessor(
+            credentials: KeychainCredentialStore(vault: KeychainVault()),
+            api: RemoteAccountAPI(client: APIClient(baseURL: AppDependencies.accountServiceBaseURL))
+        )
     }
+
+    /// Revokes tokens parked by an offline logout. Driven by launch,
+    /// foreground, and network-restored signals.
+    let pendingRevocation: PendingRevocationProcessor
 
     /// Builds the account stack. Training never depends on it: with no account
     /// and no network the controller simply stays anonymous.

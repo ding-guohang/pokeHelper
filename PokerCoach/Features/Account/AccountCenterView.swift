@@ -76,6 +76,12 @@ struct AccountCenterView: View {
             Button("绑定 Apple 账号") {
                 Task { await controller.linkApple() }
             }
+            NavigationLink("设备") {
+                DeviceSessionsView(controller: controller)
+            }
+            NavigationLink("数据与隐私") {
+                DataRightsView(controller: controller)
+            }
             Button("退出登录", role: .destructive) {
                 Task { await controller.logOut() }
             }

@@ -216,7 +216,7 @@ private struct Harness {
             api: api,
             authorizer: SessionAuthorizer(
                 store: AlwaysAuthorizedCredentialStore(),
-                api: UnusedAccountAPI()
+                api: StubAccountAPI()
             ),
             now: { Date(timeIntervalSince1970: 1_786_200_000) },
             onHistoryChanged: onHistoryChanged
@@ -235,26 +235,6 @@ private struct AlwaysAuthorizedCredentialStore: CredentialStore {
     func clearPendingRevocation() async throws {}
 }
 
-private struct UnusedAccountAPI: AccountAPI {
-    func register(email: String, password: String) async throws {}
-    func verifyEmail(token: String) async throws -> StoredSession { .fixture() }
-    func resendVerification(email: String) async throws {}
-    func login(
-        email: String,
-        password: String,
-        device: DeviceDescriptor
-    ) async throws -> StoredSession { .fixture() }
-    func requestPasswordReset(email: String) async throws {}
-    func confirmPasswordReset(token: String, newPassword: String) async throws {}
-    func signInWithApple(
-        identityToken: String,
-        nonce: String,
-        device: DeviceDescriptor
-    ) async throws -> StoredSession { .fixture() }
-    func linkApple(identityToken: String, nonce: String, accessToken: String) async throws {}
-    func refresh(refreshToken: String) async throws -> StoredSession { .fixture() }
-    func logOut(refreshToken: String) async throws {}
-}
 
 private final class SyncAPIDouble: SyncAPI, @unchecked Sendable {
     private(set) var calls: [String] = []

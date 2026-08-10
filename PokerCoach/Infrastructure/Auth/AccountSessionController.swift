@@ -35,15 +35,24 @@ final class AccountSessionController {
     let authorizer: SessionAuthorizer
 
     @ObservationIgnored
-    private let api: any AccountAPI
+    fileprivate let api: any AccountAPI
     @ObservationIgnored
-    private let credentials: any CredentialStore
+    fileprivate let credentials: any CredentialStore
     @ObservationIgnored
-    private let apple: any AppleAuthorizationClient
+    fileprivate let apple: any AppleAuthorizationClient
     @ObservationIgnored
     private let policy: PasswordPolicy
     @ObservationIgnored
     private let device: DeviceDescriptor
+
+    /// The profile whose data an export bundles. Set by the profile lifecycle.
+    @ObservationIgnored
+    var activeProfile: ActiveProfile?
+
+    /// Applies the local half of an account deletion. Injected so the account
+    /// layer never needs to know how profiles are laid out on disk.
+    @ObservationIgnored
+    var onAccountDeleted: (@MainActor (UUID, LocalDeletionChoice) async -> Void)?
 
     init(
         api: any AccountAPI,
@@ -250,7 +259,7 @@ final class AccountSessionController {
         )
     }
 
-    private func run(_ operation: @escaping () async throws -> Void) async {
+    fileprivate func run(_ operation: @escaping () async throws -> Void) async {
         failure = nil
         isBusy = true
         defer { isBusy = false }
@@ -261,7 +270,7 @@ final class AccountSessionController {
         }
     }
 
-    private func report(_ error: Error) {
+    fileprivate func report(_ error: Error) {
         if case APIError.reauthenticationRequired = error {
             needsReauthentication = true
         }
@@ -287,4 +296,105 @@ final class AccountSessionController {
 enum ReauthenticationProof: Sendable, Equatable {
     case password(email: String, password: String)
     case apple
+}
+
+// MARK: - Device sessions and data rights
+
+extension AccountSessionController {
+    /// Lists the account's own device sessions.
+    func loadDevices() async -> [DeviceSessionDTO] {
+        guard case .authenticated = state else {
+            return []
+        }
+        do {
+            return try await authorizer.authorize { accessToken in
+                try await self.api.devices(accessToken: accessToken)
+            }
+        } catch {
+            report(error)
+            return []
+        }
+    }
+
+    /// Revokes another device. The server refuses a session the caller does
+    /// not own, so nothing here needs to re-check ownership.
+    func revokeDevice(sessionID: UUID) async {
+        await run {
+            try await self.authorizer.authorize { accessToken in
+                try await self.api.revokeDevice(sessionID: sessionID, accessToken: accessToken)
+            }
+        }
+    }
+
+    /// Proves presence with Apple, refreshing the current session rather than
+    /// starting a new one.
+    func reauthenticateWithApple() async {
+        await run {
+            let credential = try await self.apple.requestCredential()
+            _ = try await self.authorizer.authorize { accessToken in
+                try await self.api.reauthenticate(
+                    .apple(
+                        identityToken: credential.identityToken,
+                        nonce: credential.nonce
+                    ),
+                    accessToken: accessToken
+                )
+            }
+            self.needsReauthentication = false
+        }
+    }
+
+    /// Proves presence so a sensitive operation can proceed.
+    func reauthenticate(_ proof: ReauthenticationRequest) async {
+        await run {
+            _ = try await self.authorizer.authorize { accessToken in
+                try await self.api.reauthenticate(proof, accessToken: accessToken)
+            }
+            self.needsReauthentication = false
+        }
+    }
+
+    /// Downloads the account document and writes the take-away bundle.
+    func exportAccount(to destination: URL) async -> URL? {
+        guard let profile = activeProfile else {
+            failure = AccountFailure(message: "本机档案尚未就绪，请稍后重试。")
+            return nil
+        }
+
+        var built: URL?
+        await run {
+            let remote = try await self.authorizer.authorize { accessToken in
+                try await self.api.export(accessToken: accessToken)
+            }
+            built = try AccountExportBuilder().build(
+                remote: remote,
+                profile: profile,
+                destination: destination
+            )
+        }
+        return built
+    }
+
+    /// Deletes the remote account, then applies the user's choice for the
+    /// copy cached on this device.
+    ///
+    /// The remote deletion happens first. If it fails there is nothing to
+    /// reconcile locally, whereas clearing local data first would destroy the
+    /// user's hands for a deletion that never happened.
+    func deleteAccount(localChoice: LocalDeletionChoice) async {
+        guard case let .authenticated(summary) = state else {
+            failure = AccountFailure(message: "请先登录，再删除账号。")
+            return
+        }
+
+        await run {
+            try await self.authorizer.authorize { accessToken in
+                try await self.api.deleteAccount(accessToken: accessToken)
+            }
+            try? await self.credentials.clearActive()
+            try? await self.credentials.clearPendingRevocation()
+            await self.onAccountDeleted?(summary.userID, localChoice)
+            self.state = .anonymous
+        }
+    }
 }
