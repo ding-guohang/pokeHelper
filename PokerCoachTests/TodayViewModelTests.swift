@@ -158,7 +158,7 @@ final class TodayViewModelTests: XCTestCase {
 
         XCTAssertEqual(
             fixture.today.primaryReasonText,
-            "尚无下注尺度训练记录，按基准分 60 分、距上次练习 7 天计算；优先级 54。"
+            "下注尺度：这是你当前最弱的一项（尚无训练记录，按基准分 60 分计算）"
         )
     }
 
@@ -168,9 +168,14 @@ final class TodayViewModelTests: XCTestCase {
         await fixture.today.refresh()
 
         let reason = try XCTUnwrap(fixture.today.primaryReasonText)
+        let item = try XCTUnwrap(fixture.today.primaryItem)
         XCTAssertTrue(reason.contains("下注尺度"))
         XCTAssertTrue(reason.contains("平均得分"))
         XCTAssertTrue(reason.contains("高信心错误"))
         XCTAssertFalse(reason.contains("Mean score"))
+        // The verdict has to be the planner's, not one the screen re-derived.
+        XCTAssertTrue(
+            reason.contains(TodayReasonPresentation.headline(for: item.reason))
+        )
     }
 }

@@ -21,7 +21,8 @@ struct TodayView: View {
             planner: dependencies.planner,
             catalog: dependencies.localTrainingCatalog,
             strategyContentAvailability:
-                dependencies.strategyContentAvailability
+                dependencies.strategyContentAvailability,
+            strategyProvider: dependencies.strategyProvider
         ))
     }
 

@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import StrategyContent
 import TrainingDomain
 
 enum DashboardLoadState: Equatable {
@@ -38,22 +39,36 @@ enum AbilityDimensionPresentation {
 }
 
 enum TodayReasonPresentation {
-    static func text(
-        for item: DailyPlanItem,
-        profile: PlayerProfile,
-        now: Date
-    ) -> String {
+    /// Renders the planner's own verdict rather than re-deriving one.
+    ///
+    /// This used to rebuild an explanation from the profile, which meant the
+    /// screen could disagree with the ranking that actually placed the item —
+    /// two implementations of "why is this here" with nothing keeping them in
+    /// step.
+    static func text(for item: DailyPlanItem, profile: PlayerProfile) -> String {
         let abilityName = AbilityDimensionPresentation.displayName(
             for: item.abilityDimension
         )
-        guard let snapshot = profile[item.abilityDimension] else {
-            return "尚无\(abilityName)训练记录，按基准分 60 分、距上次练习 7 天计算；优先级 \(item.priority)。"
-        }
+        let verdict = "\(abilityName)：\(headline(for: item.reason))"
 
-        let daysSincePractice = snapshot.lastPracticedAt.map {
-            max(0, Int(now.timeIntervalSince($0) / 86_400))
-        } ?? 7
-        return "\(abilityName)平均得分 \(snapshot.meanScore) 分，高信心错误 \(snapshot.highConfidenceErrorCount) 次，距上次练习 \(daysSincePractice) 天；优先级 \(item.priority)。"
+        // The numbers are descriptive, not a second verdict: they say what the
+        // profile holds, while the headline above says why the planner picked
+        // this item. Keeping them separate is what stopped the screen from
+        // being able to disagree with the ranking.
+        guard let snapshot = profile[item.abilityDimension] else {
+            return "\(verdict)（尚无训练记录，按基准分 60 分计算）"
+        }
+        return "\(verdict)（平均得分 \(snapshot.meanScore) 分，"
+            + "高信心错误 \(snapshot.highConfidenceErrorCount) 次）"
+    }
+
+    static func headline(for reason: PlanItemReason) -> String {
+        switch reason {
+        case .weakness: "这是你当前最弱的一项"
+        case .highConfidenceError: "你在这里有过很确信但亏损的判断"
+        case .repetitionDue: "上次答错后到了复练时间"
+        case .pathProgress: "学习路径上的下一步"
+        }
     }
 }
 
@@ -66,6 +81,30 @@ final class TodayViewModel {
     private(set) var primaryReasonText: String?
     private(set) var durationText = "约 0 分钟"
     private(set) var failureMessage: String?
+    /// Diagnostic progress, or nil when there is no content to build one from.
+    private(set) var diagnostic: DiagnosticSession?
+    /// Skipping hides the prompt for this launch but leaves the entry on the
+    /// page: the product promise is "openable and trainable", not "diagnosed
+    /// or nothing".
+    private(set) var hasSkippedDiagnostic = false
+
+    var showsDiagnosticEntry: Bool {
+        guard let diagnostic else { return false }
+        return !diagnostic.isComplete
+    }
+
+    var showsDiagnosticPrompt: Bool {
+        showsDiagnosticEntry && !hasSkippedDiagnostic
+    }
+
+    var diagnosticProgressText: String? {
+        guard let diagnostic, !diagnostic.isComplete else { return nil }
+        return "\(diagnostic.completedCount)/\(diagnostic.totalCount)"
+    }
+
+    func skipDiagnostic() {
+        hasSkippedDiagnostic = true
+    }
     let strategyContentAvailability: StrategyContentAvailability
 
     var contentDisclosureText: String {
@@ -80,6 +119,9 @@ final class TodayViewModel {
     private let reducer: PlayerModelReducer
     private let planner: TrainingPlanner
     private let catalog: [TrainingCatalogItem]
+    /// Optional: Today still works with no content installed, it just cannot
+    /// offer a diagnostic or resolve which repetitions are due.
+    private let strategyProvider: (any StrategyPackProviding)?
     private let now: @MainActor () -> Date
 
     init(
@@ -89,6 +131,7 @@ final class TodayViewModel {
         catalog: [TrainingCatalogItem] = [],
         strategyContentAvailability: StrategyContentAvailability =
             .reviewedContentUnavailable,
+        strategyProvider: (any StrategyPackProviding)? = nil,
         now: @escaping @MainActor () -> Date = Date.init
     ) {
         self.eventStore = eventStore
@@ -96,26 +139,45 @@ final class TodayViewModel {
         self.planner = planner
         self.catalog = catalog
         self.strategyContentAvailability = strategyContentAvailability
+        self.strategyProvider = strategyProvider
         self.now = now
     }
 
     func refresh() async {
         state = .loading
         do {
-            let profile = reducer.reduce(events: try await eventStore.allEvents())
+            let events = try await eventStore.allEvents()
+            let profile = reducer.reduce(events: events)
+            let pack = try? await strategyProvider?.pack()
+
+            if let pack {
+                diagnostic = DiagnosticSession(
+                    blueprint: .cash6MaxDefault,
+                    pack: pack
+                ).resuming(answeredScenarioIDs: Set(events.map(\.scenarioID)))
+            }
+
+            // Repetition is due per curriculum node, which only the content can
+            // resolve. Without a pack the plan simply ranks without that term
+            // rather than guessing at one.
+            let dueDimensions = pack.map { pack in
+                Set(
+                    RepetitionScheduler()
+                        .dueRepetitions(events: events, pack: pack, now: now())
+                        .map(\.nodeID)
+                )
+            } ?? []
+
             let plan = planner.makePlan(
                 profile: profile,
                 catalog: catalog,
+                dueRepetitionDimensions: dueDimensions,
                 now: now()
             )
             primaryItem = plan.items.first
             supportingItems = Array(plan.items.dropFirst())
             primaryReasonText = plan.items.first.map {
-                TodayReasonPresentation.text(
-                    for: $0,
-                    profile: profile,
-                    now: plan.generatedAt
-                )
+                TodayReasonPresentation.text(for: $0, profile: profile)
             }
             let totalMinutes = plan.items.reduce(0) { partialResult, item in
                 partialResult + item.catalogItem.estimatedMinutes
