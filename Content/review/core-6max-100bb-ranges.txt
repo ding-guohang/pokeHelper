@@ -1,15 +1,15 @@
 策略包：cash-6max-100bb-core
-来源：claude-authored preflop baseline
+来源：claude-authored preflop baseline, frequencies calibrated to published 6-max 100bb benchmarks
 牌桌：NLHE cash · 6 人 · 有效筹码 100BB
 抽水：5% capped at 3BB
-允许尺度：2.5BB open, 3x 3bet, 2.2x 4bet
+允许尺度：2.5BB open (3BB from SB), 3x 3bet, 2.2x 4bet
 
 ── rfi-lj · LJ 位翻前开池
    能力节点：preflop-rfi
    位置：按钮位后第 3 座
    行动频率：
-     加注至 2.50BB  15.00%  EV 0.210BB
-     弃牌  85.00%  EV 0.000BB
+     加注至 2.50BB  17.60%  EV 0.210BB
+     弃牌  82.40%  EV 0.000BB
    范围表：
      99-77    fold 0.00%  raise 100.00%
      AA-TT    fold 0.00%  raise 100.00%
@@ -25,8 +25,8 @@
    能力节点：preflop-rfi
    位置：按钮位后第 2 座
    行动频率：
-     加注至 2.50BB  19.00%  EV 0.250BB
-     弃牌  81.00%  EV 0.000BB
+     加注至 2.50BB  21.40%  EV 0.250BB
+     弃牌  78.60%  EV 0.000BB
    范围表：
      88-66    fold 0.00%  raise 100.00%
      AA-99    fold 0.00%  raise 100.00%
@@ -42,8 +42,8 @@
    能力节点：preflop-rfi
    位置：按钮位后第 1 座
    行动频率：
-     加注至 2.50BB  27.00%  EV 0.330BB
-     弃牌  73.00%  EV 0.000BB
+     加注至 2.50BB  27.80%  EV 0.330BB
+     弃牌  72.20%  EV 0.000BB
    范围表：
      55-22    fold 30.00%  raise 70.00%
      98s      fold 30.00%  raise 70.00%
@@ -60,8 +60,8 @@
    能力节点：preflop-rfi
    位置：按钮位后第 0 座
    行动频率：
-     加注至 2.50BB  44.00%  EV 0.520BB
-     弃牌  56.00%  EV 0.000BB
+     加注至 2.50BB  43.50%  EV 0.520BB
+     弃牌  56.50%  EV 0.000BB
    范围表：
      76s-65s  fold 10.00%  raise 90.00%
      98s-87s  fold 0.00%  raise 100.00%
@@ -80,19 +80,27 @@
    能力节点：preflop-rfi
    位置：按钮位后第 4 座
    行动频率：
-     加注至 2.50BB  40.00%  EV 0.300BB
-     弃牌  60.00%  EV 0.000BB
+     加注至 3.00BB  42.00%  EV 0.180BB
+     弃牌  58.00%  EV 0.000BB
    范围表：
-     76s      fold 30.00%  raise 70.00%
-     98s-87s  fold 10.00%  raise 90.00%
+     53s      fold 50.00%  raise 50.00%
+     64s      fold 30.00%  raise 70.00%
+     75s      fold 20.00%  raise 80.00%
+     86s-85s  fold 20.00%  raise 80.00%
+     87o      fold 40.00%  raise 60.00%
+     96s-95s  fold 10.00%  raise 90.00%
+     98o      fold 30.00%  raise 70.00%
      AA-22    fold 0.00%  raise 100.00%
-     AKo-A7o  fold 0.00%  raise 100.00%
+     AKo-A2o  fold 0.00%  raise 100.00%
      AKs-A2s  fold 0.00%  raise 100.00%
-     JTs-J8s  fold 0.00%  raise 100.00%
-     KQo-KTo  fold 0.00%  raise 100.00%
-     KQs-K7s  fold 0.00%  raise 100.00%
-     QJs-Q8s  fold 0.00%  raise 100.00%
-     T9s-T8s  fold 0.00%  raise 100.00%
+     JTo-J9o  fold 0.00%  raise 100.00%
+     JTs-J6s  fold 0.00%  raise 100.00%
+     KQo-K8o  fold 0.00%  raise 100.00%
+     KQs-K2s  fold 0.00%  raise 100.00%
+     QJo-Q9o  fold 0.00%  raise 100.00%
+     QJs-Q4s  fold 0.00%  raise 100.00%
+     T9o      fold 20.00%  raise 80.00%
+     T9s-T6s  fold 0.00%  raise 100.00%
 
 ── vs3bet-co-vs-btn · CO 开池面对 BTN 3bet
    能力节点：preflop-vs-3bet

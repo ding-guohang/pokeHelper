@@ -1,6 +1,6 @@
 {
   "packID": "cash-6max-100bb-core",
-  "generatedSource": "claude-authored preflop baseline",
+  "generatedSource": "claude-authored preflop baseline, frequencies calibrated to published 6-max 100bb benchmarks",
   "exportedAt": "2026-08-10T00:00:00Z",
   "gameType": "NLHE cash",
   "tableSize": 6,
@@ -8,7 +8,7 @@
     "centiBB": 10000
   },
   "rakeDescription": "5% capped at 3BB",
-  "allowedBetSizeDescription": "2.5BB open, 3x 3bet, 2.2x 4bet",
+  "allowedBetSizeDescription": "2.5BB open (3BB from SB), 3x 3bet, 2.2x 4bet",
   "curriculum": [
     {
       "id": "preflop-rfi",
@@ -55,7 +55,7 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 1500,
+          "frequencyBasisPoints": 1760,
           "ev": {
             "milliBB": 210
           }
@@ -64,7 +64,7 @@
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 8500,
+          "frequencyBasisPoints": 8240,
           "ev": {
             "milliBB": 0
           }
@@ -136,7 +136,7 @@
         }
       ],
       "explanation": {
-        "conclusion": "LJ 位以 2.5BB 开池，开池频率约 15%。",
+        "conclusion": "LJ 位以 2.5BB 开池，开池频率约 17.6%。",
         "rangeReasoning": "LJ 位后面还有 3 个位置要过，范围随位置靠后放宽。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
@@ -176,7 +176,7 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 1900,
+          "frequencyBasisPoints": 2140,
           "ev": {
             "milliBB": 250
           }
@@ -185,7 +185,7 @@
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 8100,
+          "frequencyBasisPoints": 7860,
           "ev": {
             "milliBB": 0
           }
@@ -257,7 +257,7 @@
         }
       ],
       "explanation": {
-        "conclusion": "HJ 位以 2.5BB 开池，开池频率约 19%。",
+        "conclusion": "HJ 位以 2.5BB 开池，开池频率约 21.4%。",
         "rangeReasoning": "HJ 位后面还有 2 个位置要过，范围随位置靠后放宽。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
@@ -297,7 +297,7 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 2700,
+          "frequencyBasisPoints": 2780,
           "ev": {
             "milliBB": 330
           }
@@ -306,7 +306,7 @@
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 7300,
+          "frequencyBasisPoints": 7220,
           "ev": {
             "milliBB": 0
           }
@@ -385,7 +385,7 @@
         }
       ],
       "explanation": {
-        "conclusion": "CO 位以 2.5BB 开池，开池频率约 27%。",
+        "conclusion": "CO 位以 2.5BB 开池，开池频率约 27.8%。",
         "rangeReasoning": "CO 位后面还有 1 个位置要过，范围随位置靠后放宽。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
@@ -425,7 +425,7 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 4400,
+          "frequencyBasisPoints": 4350,
           "ev": {
             "milliBB": 520
           }
@@ -434,7 +434,7 @@
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 5600,
+          "frequencyBasisPoints": 5650,
           "ev": {
             "milliBB": 0
           }
@@ -527,7 +527,7 @@
         }
       ],
       "explanation": {
-        "conclusion": "BTN 位以 2.5BB 开池，开池频率约 44%。",
+        "conclusion": "BT 位以 2.5BB 开池，开池频率约 43.5%。",
         "rangeReasoning": "BTN 位后面还有 5 个位置要过，范围随位置靠后放宽。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
@@ -551,32 +551,32 @@
         "centiBB": 150
       },
       "amountToCall": {
-        "centiBB": 100
+        "centiBB": 50
       },
       "minimumRaiseTo": {
         "centiBB": 200
       },
       "configuredBetSizes": [
         {
-          "centiBB": 250
+          "centiBB": 300
         }
       ],
       "actions": [
         {
           "action": {
             "kind": "raise",
-            "toCentiBB": 250
+            "toCentiBB": 300
           },
-          "frequencyBasisPoints": 4000,
+          "frequencyBasisPoints": 4200,
           "ev": {
-            "milliBB": 300
+            "milliBB": 180
           }
         },
         {
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 6000,
+          "frequencyBasisPoints": 5800,
           "ev": {
             "milliBB": 0
           }
@@ -598,69 +598,125 @@
           }
         },
         {
-          "handClass": "AKo-A7o",
+          "handClass": "KQs-K2s",
           "actionWeightsBasisPoints": {
             "raise": 10000,
             "fold": 0
           }
         },
         {
-          "handClass": "KQs-K7s",
+          "handClass": "QJs-Q4s",
           "actionWeightsBasisPoints": {
             "raise": 10000,
             "fold": 0
           }
         },
         {
-          "handClass": "KQo-KTo",
+          "handClass": "JTs-J6s",
           "actionWeightsBasisPoints": {
             "raise": 10000,
             "fold": 0
           }
         },
         {
-          "handClass": "QJs-Q8s",
+          "handClass": "T9s-T6s",
           "actionWeightsBasisPoints": {
             "raise": 10000,
             "fold": 0
           }
         },
         {
-          "handClass": "JTs-J8s",
-          "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
-          }
-        },
-        {
-          "handClass": "T9s-T8s",
-          "actionWeightsBasisPoints": {
-            "raise": 10000,
-            "fold": 0
-          }
-        },
-        {
-          "handClass": "98s-87s",
+          "handClass": "96s-95s",
           "actionWeightsBasisPoints": {
             "raise": 9000,
             "fold": 1000
           }
         },
         {
-          "handClass": "76s",
+          "handClass": "86s-85s",
+          "actionWeightsBasisPoints": {
+            "raise": 8000,
+            "fold": 2000
+          }
+        },
+        {
+          "handClass": "75s",
+          "actionWeightsBasisPoints": {
+            "raise": 8000,
+            "fold": 2000
+          }
+        },
+        {
+          "handClass": "64s",
           "actionWeightsBasisPoints": {
             "raise": 7000,
             "fold": 3000
           }
+        },
+        {
+          "handClass": "53s",
+          "actionWeightsBasisPoints": {
+            "raise": 5000,
+            "fold": 5000
+          }
+        },
+        {
+          "handClass": "AKo-A2o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "KQo-K8o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "QJo-Q9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "JTo-J9o",
+          "actionWeightsBasisPoints": {
+            "raise": 10000,
+            "fold": 0
+          }
+        },
+        {
+          "handClass": "T9o",
+          "actionWeightsBasisPoints": {
+            "raise": 8000,
+            "fold": 2000
+          }
+        },
+        {
+          "handClass": "98o",
+          "actionWeightsBasisPoints": {
+            "raise": 7000,
+            "fold": 3000
+          }
+        },
+        {
+          "handClass": "87o",
+          "actionWeightsBasisPoints": {
+            "raise": 6000,
+            "fold": 4000
+          }
         }
       ],
       "explanation": {
-        "conclusion": "SB 位以 2.5BB 开池，开池频率约 40%。",
-        "rangeReasoning": "SB 位后面还有 4 个位置要过，范围随位置靠后放宽。",
+        "conclusion": "SB 以 3BB 开池，开池频率约 42%。",
+        "rangeReasoning": "这是移除跛入后重解的加注范围。含跛入的解里 SB 总参与率约 62%、其中纯加注仅约 24%；本内容不建模跛入，因此对应 35–45% 的 raise-only 区间。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
         "futurePlan": "被 3bet 后按对应的应对范围继续。",
-        "gtoBaseline": "基线为位置化开池范围，弃牌与开池两种行动的混合。",
+        "gtoBaseline": "基线为 raise-only 简化：弃牌与 3BB 开池的两向混合，不含跛入分支。",
         "exploitCondition": null
       }
     },
