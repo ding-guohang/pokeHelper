@@ -125,6 +125,32 @@ The system SHALL derive every card in a session from a recorded seed, so the sam
 - AND 公共牌张数按该手到达的街道恰为 0、3、4 或 5
 - AND 同一手内任意两张牌互不相同
 
+#### Requirement: 每一手都有盲注
+
+The system SHALL post the small and big blind from the first two seats after the button that still hold chips, and SHALL NOT deal a hand when fewer than two seats hold chips.
+
+##### Scenario: 盲注位破产时盲注顺延
+
+- GIVEN 按钮后第一个座位筹码为 0
+- WHEN 发下一手
+- THEN 小盲由按钮后第一个仍有筹码的座位贴出
+- AND 大盲由其后第一个仍有筹码的座位贴出
+- AND 该手的底池在任何人行动之前不为 0
+
+##### Scenario: 每一手都收到盲注
+
+- GIVEN 200 个种子各 15 手
+- WHEN 检查每一手行动开始前的底池
+- THEN 每一手的底池都严格大于 0
+- AND 不存在全场无人贴盲的手牌
+
+##### Scenario: 有筹码的座位少于两个时不再发牌
+
+- GIVEN 一局 Session 打到只剩一个座位有筹码
+- WHEN 尝试发下一手
+- THEN 不发牌，Session 以已完成的手数结束
+- AND 记录中的手数少于原定手数，且该情形被明确标示
+
 #### Requirement: 下注状态永远合法
 
 The system SHALL reject any action the current betting state does not permit, and SHALL expose at every decision point the complete set of permitted actions.
@@ -160,9 +186,9 @@ The system SHALL reject any action the current betting state does not permit, an
 
 - GIVEN 200 个种子各 15 手，共 3000 手
 - WHEN 检查所有玩家筹码变化都不为正的手牌
-- THEN 每一手都属于以下三种之一：唯一投入者取回自己的盲注（且该投入额等于其应贴盲注）；多名投入者平分且各自取回原额；两个盲注位都已破产因而全场无盲注，孤注下注者被全部弃掉后取回本金
-- AND 三种情形在扫描中都至少出现一次
-- AND 三者的计数之和等于零增量手牌的总数——不存在归不进任何一类的手牌
+- THEN 每一手要么是唯一投入者取回自己的盲注（且该投入额等于其应贴盲注），要么是多名投入者平分且各自取回原额
+- AND 两种情形在扫描中都至少出现一次
+- AND 两者的计数之和等于零增量手牌的总数——不存在归不进任何一类的手牌
 
 ### Capability: virtual-opponents
 
