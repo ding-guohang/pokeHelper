@@ -19,6 +19,7 @@
 | PokerCore | `Packages/PokerCore/` | 牌、精确金额、合法行动和牌局规则 |
 | StrategyContent | `Packages/StrategyContent/` | 版本化课程、场景、频率、EV 和求解假设 |
 | TrainingDomain | `Packages/TrainingDomain/` | 评分、训练事件、能力画像和每日计划 |
+| SessionSimulation | `Packages/SessionSimulation/` | 种子发牌、虚拟对手、下注状态机与结算；只依赖 PokerCore |
 | SwiftUI App | `PokerCoach/` | iPhone/iPad 的今日、学习、训练和复盘体验 |
 | Sync Backend | `Server/` | 独立身份、设备会话、事件同步和用户数据治理 |
 

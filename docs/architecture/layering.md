@@ -7,15 +7,21 @@ SwiftUI UI
   ↓ 绑定
 Feature ViewModel / Presentation
   ↓ 调用
-TrainingDomain
-  ↓ 读取
-StrategyContent → PokerCore
+TrainingDomain            SessionSimulation
+  ↓ 读取                    ↓ 只依赖
+StrategyContent   →      PokerCore
 
 Infrastructure
   ├─ Local TrainingEventStore
+  ├─ Session 记录存储
   ├─ Remote Synchronizer
   └─ Auth / Content / Hand Analysis API Clients
 ```
+
+`SessionSimulation` 与 `TrainingDomain` 是**并列**的，不是上下游。牌局引擎
+不知道教学内容存在，训练领域不知道牌局引擎存在；两者各自向 `PokerCore`
+的 `SpotSignature` 产出签名，由 Feature 层——唯一同时看得见两边的层——做
+比较。
 
 ## 调用规则
 
@@ -38,6 +44,16 @@ Infrastructure
 
 - `PokerCore → StrategyContent`
 - `PokerCore → TrainingDomain`
+- `PokerCore → SessionSimulation`
+- `SessionSimulation → StrategyContent`
+- `SessionSimulation → TrainingDomain`
+- `TrainingDomain → SessionSimulation`
+
+后四条是同一件事的两面。让 `SessionSimulation` 看见 `StrategyContent`
+之后，回答「这个决策点值不值得与内容对照」最省事的写法就是在引擎里查
+内容，而那个问题的答案就不再是关于这手牌的事实；反方向则直接构成环，
+因为引擎推进牌局时要向训练层提问。`Packages/SessionSimulation/Package.swift`
+的依赖列表是这条规则的执行点。
 - 领域包 → SwiftUI
 - 领域包 → 具体 HTTP 客户端
 - View → MySQL、文件系统或同步 DTO
