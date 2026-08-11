@@ -25,8 +25,9 @@ final class LearnViewModelTests: XCTestCase {
     // GIVEN river-bluff-catch 在当前包中无场景
     // THEN 标记暂无内容、不进计划、不计入进度分母
     func testMarksEmptyNodesAndExcludesThemFromProgress() throws {
+        let pack = LearnFixture.pack(riverScenarioCount: 0)
         let viewModel = LearnViewModel(
-            pack: LearnFixture.pack(riverScenarioCount: 0),
+            pack: pack,
             events: [],
             strategyContentAvailability: .unverifiedContentAvailable
         )
@@ -34,7 +35,18 @@ final class LearnViewModelTests: XCTestCase {
 
         let river = try XCTUnwrap(viewModel.nodes.first { $0.id == "river-bluff-catch" })
         XCTAssertTrue(river.isContentUnavailable)
-        XCTAssertFalse(viewModel.plannableNodeIDs.contains("river-bluff-catch"))
+
+        // "Not plannable" asserted against the thing that actually builds the
+        // plan. This used to check `LearnViewModel.plannableNodeIDs`, a
+        // property no plan ever read: the daily plan is built by
+        // TrainingPlanner from the runtime catalog, so the assertion described
+        // an exclusion that was never enforced anywhere. The real mechanism is
+        // that a node with no scenarios contributes no catalog items.
+        XCTAssertTrue(
+            RuntimeTrainingCatalog.items(from: pack)
+                .allSatisfy { $0.curriculumNodeID != "river-bluff-catch" },
+            "无场景的节点仍出现在训练目录里，今日计划可以选中它"
+        )
 
         // The denominator counts nodes that could actually be mastered. That
         // excludes the empty node and also flop-cbet, which has two scenarios

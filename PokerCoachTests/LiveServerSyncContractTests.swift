@@ -61,7 +61,7 @@ final class LiveServerSyncContractTests: XCTestCase {
         XCTAssertFalse(session.accessToken.isEmpty, "login must return a usable session")
 
         try await device.credentials.saveActive(session)
-        let event = ContractEventFixture.make(id: UUID())
+        let event = try ContractEventFixture.make(id: UUID())
         try await device.store.append(event)
 
         await device.engine.synchronize(reason: .decisionCompleted)
@@ -84,8 +84,8 @@ final class LiveServerSyncContractTests: XCTestCase {
         try await signIn(phone, email: email)
         try await signIn(tablet, email: email)
 
-        let phoneEvent = ContractEventFixture.make(id: UUID())
-        let tabletEvent = ContractEventFixture.make(id: UUID())
+        let phoneEvent = try ContractEventFixture.make(id: UUID())
+        let tabletEvent = try ContractEventFixture.make(id: UUID())
         try await phone.store.append(phoneEvent)
         try await tablet.store.append(tabletEvent)
 
@@ -133,7 +133,7 @@ final class LiveServerSyncContractTests: XCTestCase {
         let device = try makeDevice()
         try await register(email: email, using: device)
         try await signIn(device, email: email)
-        try await device.store.append(ContractEventFixture.make(id: UUID()))
+        try await device.store.append(try ContractEventFixture.make(id: UUID()))
         await device.engine.synchronize(reason: .decisionCompleted)
 
         let token = try await device.authorizer.validAccessToken()

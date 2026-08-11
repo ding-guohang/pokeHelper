@@ -166,16 +166,11 @@ final class TodayViewModel {
                 ).resuming(answeredScenarioIDs: Set(events.map(\.scenarioID)))
             }
 
-            // Repetition is due per curriculum node, which only the content can
-            // resolve. Without a pack the plan simply ranks without that term
-            // rather than guessing at one.
-            let dueNodeIDs = pack.map { pack in
-                Set(
-                    RepetitionScheduler()
-                        .dueRepetitions(events: events, pack: pack, now: now())
-                        .map(\.nodeID)
-                )
-            } ?? []
+            let dueNodeIDs = RepetitionScheduler().dueNodeIDs(
+                events: events,
+                pack: pack,
+                now: now()
+            )
 
             let plan = planner.makePlan(
                 profile: profile,

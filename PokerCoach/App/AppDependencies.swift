@@ -8,16 +8,16 @@ import UIKit
 @MainActor
 final class AppDependencies {
     let eventStore: any TrainingEventStore
-    let strategyProvider: any StrategyPackProviding
+    private(set) var strategyProvider: any StrategyPackProviding
     let scorer: DecisionScorer
     let playerModelReducer: PlayerModelReducer
     let planner: TrainingPlanner
-    let localTrainingCatalog: [TrainingCatalogItem]
-    let strategyContentAvailability: StrategyContentAvailability
+    private(set) var localTrainingCatalog: [TrainingCatalogItem]
+    private(set) var strategyContentAvailability: StrategyContentAvailability
     /// Review status of each installed pack, keyed by pack ID. Review reads it
     /// to disclose the provenance of a history entry, which it can only do for
     /// packs that are actually present.
-    let installedContent: [String: (ReviewStatus, ContentOrigin)]
+    private(set) var installedContent: [String: (ReviewStatus, ContentOrigin)]
     let localUserID: UUID
     let deviceID: UUID
     let accountSession: AccountSessionController
@@ -25,6 +25,7 @@ final class AppDependencies {
     /// Bumped whenever local history changes, so Today and Review reload after
     /// a remote merge rather than showing a stale reduction.
     private(set) var eventStoreRevision: Int
+
 
     init(
         eventStore: any TrainingEventStore,
@@ -87,7 +88,52 @@ final class AppDependencies {
         guard let contentUpdate else {
             return .noCandidate
         }
-        return (try? await contentUpdate.checkForUpdate()) ?? .noCandidate
+        let outcome = (try? await contentUpdate.checkForUpdate()) ?? .noCandidate
+        if case .adopted = outcome {
+            adoptContent(
+                pack: contentUpdate.currentPack,
+                availability: contentUpdate.availability
+            )
+        }
+        return outcome
+    }
+
+    /// Makes an adopted pack the content the app actually trains against.
+    ///
+    /// Without this the coordinator swapped its own `currentPack`, returned
+    /// `.adopted`, and nothing else moved: `strategyProvider` still served the
+    /// old pack, the catalog still listed the old scenarios, and the
+    /// disclosure still described the old review status. The whole update path
+    /// reported success and changed nothing a user could reach.
+    ///
+    /// There is deliberately no "content changed" signal here. Today and Review
+    /// capture their catalog when SwiftUI first builds their `@State` view
+    /// model, so a pack adopted after that point is not reflected until the
+    /// view model is rebuilt. Closing that window needs the two screens to
+    /// derive their catalog from the provider instead of from a captured copy;
+    /// it is not closed by adding a revision counter nothing reads, which is
+    /// the same kind of decoration as an adoption nothing installs. The window
+    /// is unreachable today — `BundledOnlyContentSource` never offers a
+    /// candidate — and must be closed before a real update source ships.
+    ///
+    /// Known limitation: `installedContent` is keyed by pack ID alone, so a
+    /// pack that changes review status between versions relabels the
+    /// provenance of history recorded under the earlier version. Events carry
+    /// `strategyContentVersion` too; keying on the pair would be more faithful
+    /// to "history keeps its own content version", but every past version
+    /// would then miss and fall back to "内容来源未知". Which of those is the
+    /// better answer is a product call, not one to settle silently here.
+    private func adoptContent(
+        pack: StrategyPack,
+        availability: StrategyContentAvailability
+    ) {
+        strategyProvider = InMemoryStrategyPackProvider(pack: pack)
+        localTrainingCatalog = RuntimeTrainingCatalog.items(from: pack)
+        strategyContentAvailability = availability
+        installedContent[pack.manifest.id] = (
+            pack.manifest.reviewStatus,
+            pack.manifest.origin
+        )
     }
 
     /// Assembles the account, profile, and sync layers. Without it each layer

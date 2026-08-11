@@ -43,7 +43,7 @@ final class LocalIdentityStoreTests: XCTestCase {
                 uuidString: "20000000-0000-0000-0000-000000000020"
             )!
         )
-        let pack = DecisionSessionFixture.makePack(
+        let pack = try DecisionSessionFixture.makePack(
             scenarioID: "stable-identity-scenario"
         )
         let store = InMemoryTrainingEventStore()

@@ -43,6 +43,9 @@ actor InMemoryTrainingEventStore: TrainingEventStore {
         return Array(orderedEvents.dropFirst(index + 1))
     }
 }
+/// `makePack` throws rather than trapping: the JSON below goes stale whenever
+/// the pack model gains a required field, and a trap took the whole XCTest host
+/// process down instead of naming the field in a single failed test.
 @MainActor
 enum DecisionSessionFixture {
     static let localUserID = UUID(
@@ -56,8 +59,8 @@ enum DecisionSessionFixture {
     )!
     static let occurredAt = Date(timeIntervalSince1970: 1_786_000_000)
 
-    static func make() -> DecisionSessionTestContext {
-        let pack = makePack()
+    static func make() throws -> DecisionSessionTestContext {
+        let pack = try makePack()
         let store = InMemoryTrainingEventStore()
         let viewModel = makeViewModel(
             provider: InMemoryStrategyPackProvider(pack: pack),
@@ -70,8 +73,8 @@ enum DecisionSessionFixture {
         )
     }
 
-    static func makeViewModel() -> DecisionSessionViewModel {
-        make().viewModel
+    static func makeViewModel() throws -> DecisionSessionViewModel {
+        try make().viewModel
     }
 
     static func makeViewModel(
@@ -112,7 +115,7 @@ enum DecisionSessionFixture {
         scenarioTitle: String = "按钮位",
         abilityDimension: String = "flop-cbet",
         foldEVMilliBB: Int = 0
-    ) -> StrategyPack {
+    ) throws -> StrategyPack {
         let json = """
         {
           "manifest": {
@@ -196,13 +199,9 @@ enum DecisionSessionFixture {
         }
         """
 
-        do {
-            return try JSONDecoder().decode(
-                StrategyPack.self,
-                from: Data(json.utf8)
-            )
-        } catch {
-            preconditionFailure("Invalid decision-session fixture: \(error)")
-        }
+        return try JSONDecoder().decode(
+            StrategyPack.self,
+            from: Data(json.utf8)
+        )
     }
 }

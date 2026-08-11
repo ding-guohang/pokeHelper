@@ -12,15 +12,15 @@ enum TrainingEventFixture {
         deviceID: UUID,
         occurredAt: Date = Date(timeIntervalSince1970: 1_786_172_800),
         dimension: String = "bet-sizing"
-    ) -> TrainingEvent {
-        let scenario = DecisionSessionFixture.makePack(
+    ) throws -> TrainingEvent {
+        let scenario = try DecisionSessionFixture.makePack(
             abilityDimension: dimension
         ).scenarios[0]
         let submission = DecisionSubmission(
             action: scenario.options[0].action,
             confidence: .verySure
         )
-        let grade = try! DecisionScorer().grade(
+        let grade = try DecisionScorer().grade(
             submission: submission,
             scenario: scenario
         )

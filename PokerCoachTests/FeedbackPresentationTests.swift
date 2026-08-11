@@ -4,7 +4,7 @@ import XCTest
 
 final class FeedbackPresentationTests: XCTestCase {
     func testMixedStrategyKeepsEveryAvailableActionVisible() throws {
-        let fixture = FeedbackFixture.mixedStrategy()
+        let fixture = try FeedbackFixture.mixedStrategy()
         let presentation = FeedbackPresentation(
             scenario: fixture.scenario,
             submission: fixture.submission,
@@ -17,12 +17,12 @@ final class FeedbackPresentationTests: XCTestCase {
     }
 
     func testDevelopmentFixtureIsAlwaysDisclosed() throws {
-        let presentation = FeedbackFixture.developmentPresentation()
+        let presentation = try FeedbackFixture.developmentPresentation()
         XCTAssertEqual(presentation.provenanceBadge, "开发演示数据")
     }
 
-    func testProfessionalHierarchyRetainsRawStrategyEvidence() {
-        let fixture = FeedbackFixture.mixedStrategy()
+    func testProfessionalHierarchyRetainsRawStrategyEvidence() throws {
+        let fixture = try FeedbackFixture.mixedStrategy()
         let presentation = FeedbackPresentation(
             scenario: fixture.scenario,
             submission: fixture.submission,
@@ -57,17 +57,17 @@ final class FeedbackPresentationTests: XCTestCase {
         XCTAssertEqual(presentation.reviewStatusText, "开发演示")
     }
 
-    func testExploitAdjustmentRequiresAnExplicitCondition() {
-        XCTAssertNil(FeedbackFixture.developmentPresentation().exploitAdjustment)
+    func testExploitAdjustmentRequiresAnExplicitCondition() throws {
+        XCTAssertNil(try FeedbackFixture.developmentPresentation().exploitAdjustment)
         XCTAssertEqual(
-            FeedbackFixture.exploitPresentation().exploitAdjustment,
+            try FeedbackFixture.exploitPresentation().exploitAdjustment,
             "仅当对手过度弃牌时提高下注频率。"
         )
     }
 
-    func testReviewedContentShowsItsVersion() {
+    func testReviewedContentShowsItsVersion() throws {
         XCTAssertEqual(
-            FeedbackFixture.reviewedPresentation().provenanceBadge,
+            try FeedbackFixture.reviewedPresentation().provenanceBadge,
             "已审核 · 2.0.0"
         )
     }

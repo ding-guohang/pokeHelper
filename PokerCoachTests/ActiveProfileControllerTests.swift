@@ -36,7 +36,7 @@ final class ActiveProfileControllerTests: XCTestCase {
     func testClaimingKeepsAnonymousEventBytesAndIdentifiersUnchanged() async throws {
         let controller = makeController()
         let anonymous = try await controller.current()
-        let event = TrainingEventFixture.make(
+        let event = try TrainingEventFixture.make(
             localUserID: anonymous.localUserID,
             deviceID: anonymous.deviceID
         )
@@ -77,7 +77,7 @@ final class ActiveProfileControllerTests: XCTestCase {
         let profileA = try await controller.activate(remoteUserID: accountA)
         let storeA = try FileTrainingEventStore(directory: profileA.directory)
         try await storeA.append(
-            TrainingEventFixture.make(
+            try TrainingEventFixture.make(
                 localUserID: profileA.localUserID,
                 deviceID: profileA.deviceID
             )
@@ -99,7 +99,7 @@ final class ActiveProfileControllerTests: XCTestCase {
 
         let firstVisit = try await controller.activate(remoteUserID: accountA)
         let store = try FileTrainingEventStore(directory: firstVisit.directory)
-        let event = TrainingEventFixture.make(
+        let event = try TrainingEventFixture.make(
             localUserID: firstVisit.localUserID,
             deviceID: firstVisit.deviceID
         )

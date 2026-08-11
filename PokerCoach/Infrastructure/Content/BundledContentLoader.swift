@@ -9,7 +9,25 @@ import StrategyContent
 struct BundledContentLoader {
     enum LoadError: Error, Equatable {
         case noContentInBundle
-        case invalid(packID: String, underlying: String)
+        case invalid(packID: String, reason: InvalidReason)
+
+        /// Why a bundled pack was rejected, kept as the error the check that
+        /// rejected it actually threw.
+        ///
+        /// The three sources are different build defects and read differently:
+        /// a checksum mismatch means the bytes were replaced after import, a
+        /// decode failure means the schema drifted, and a validation failure
+        /// names the scenario and the number that is wrong. Rendering them to
+        /// prose at the throw site loses all of that, and leaves callers and
+        /// tests matching on substrings of a message.
+        enum InvalidReason: Error, Equatable {
+            case loading(StrategyPackLoadingError)
+            case validation(StrategyPackValidationError)
+            /// A pack rejected by something other than the loader's own two
+            /// error types. Preserved as text because there is nothing typed
+            /// left to preserve, not as the default path.
+            case unrecognized(String)
+        }
     }
 
     struct LoadedContent {
@@ -77,12 +95,19 @@ struct BundledContentLoader {
                         expectedSHA256: found.recordedSHA256
                     )
                 )
-            } catch {
+            } catch let error as StrategyPackLoadingError {
                 // A bundled pack that fails validation is a build defect, not a
                 // reason to fall through to a lesser pack: doing that would ship
                 // unreviewed content in place of reviewed content that was
                 // merely corrupted.
-                throw LoadError.invalid(packID: name, underlying: "\(error)")
+                throw LoadError.invalid(packID: name, reason: .loading(error))
+            } catch let error as StrategyPackValidationError {
+                throw LoadError.invalid(packID: name, reason: .validation(error))
+            } catch {
+                throw LoadError.invalid(
+                    packID: name,
+                    reason: .unrecognized("\(error)")
+                )
             }
         }
 

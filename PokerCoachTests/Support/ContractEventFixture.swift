@@ -13,17 +13,21 @@ import TrainingDomain
 /// The grade comes from the real scorer rather than being hand-written, so the
 /// canonical bytes this fixture produces can only match the shared contract if
 /// the domain really does grade a pure check that way.
+///
+/// Both the decode and the grade throw rather than trapping: this JSON goes
+/// stale whenever the pack model gains a required field, and a trap took the
+/// XCTest host process down with it instead of naming the field.
 @MainActor
 enum ContractEventFixture {
     static func make(
         id: UUID = UUID(uuidString: "a1b2c3d4-0000-4000-8000-00000000000f")!
-    ) -> TrainingEvent {
-        let scenario = pack().scenarios[0]
+    ) throws -> TrainingEvent {
+        let scenario = try pack().scenarios[0]
         let submission = DecisionSubmission(
             action: scenario.options[0].action,
             confidence: .verySure
         )
-        let grade = try! DecisionScorer().grade(
+        let grade = try DecisionScorer().grade(
             submission: submission,
             scenario: scenario
         )
@@ -41,7 +45,7 @@ enum ContractEventFixture {
         )
     }
 
-    private static func pack() -> StrategyPack {
+    private static func pack() throws -> StrategyPack {
         let json = """
         {
           "manifest": {
@@ -101,10 +105,6 @@ enum ContractEventFixture {
           }]
         }
         """
-        do {
-            return try JSONDecoder().decode(StrategyPack.self, from: Data(json.utf8))
-        } catch {
-            preconditionFailure("Invalid contract fixture: \(error)")
-        }
+        return try JSONDecoder().decode(StrategyPack.self, from: Data(json.utf8))
     }
 }

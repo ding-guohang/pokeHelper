@@ -10,22 +10,30 @@ struct FeedbackFixtureContext {
     let grade: DecisionGrade
 }
 
+/// Throwing rather than trapping on purpose.
+///
+/// These fixtures decode hand-written pack JSON, so they go stale whenever the
+/// pack model gains a required field. When the failure was a
+/// `preconditionFailure` it killed the XCTest host process, xcodebuild retried
+/// the whole bundle, and the decode error naming the missing field never
+/// reached anyone — it surfaced as "the app crashes on launch". A thrown error
+/// fails one test and prints the field.
 enum FeedbackFixture {
-    static func mixedStrategy() -> FeedbackFixtureContext {
-        context(
+    static func mixedStrategy() throws -> FeedbackFixtureContext {
+        try context(
             reviewStatus: "testFixture",
             contentVersion: "1.2.3",
             exploitCondition: nil
         )
     }
 
-    static func developmentPresentation() -> FeedbackPresentation {
-        presentation(from: mixedStrategy())
+    static func developmentPresentation() throws -> FeedbackPresentation {
+        presentation(from: try mixedStrategy())
     }
 
-    static func exploitPresentation() -> FeedbackPresentation {
+    static func exploitPresentation() throws -> FeedbackPresentation {
         presentation(
-            from: context(
+            from: try context(
                 reviewStatus: "testFixture",
                 contentVersion: "1.2.3",
                 exploitCondition: "仅当对手过度弃牌时提高下注频率。"
@@ -33,9 +41,9 @@ enum FeedbackFixture {
         )
     }
 
-    static func reviewedPresentation() -> FeedbackPresentation {
+    static func reviewedPresentation() throws -> FeedbackPresentation {
         presentation(
-            from: context(
+            from: try context(
                 reviewStatus: "reviewed",
                 contentVersion: "2.0.0",
                 exploitCondition: nil
@@ -47,8 +55,8 @@ enum FeedbackFixture {
         reviewStatus: String,
         contentVersion: String,
         exploitCondition: String?
-    ) -> FeedbackFixtureContext {
-        let pack = decodePack(
+    ) throws -> FeedbackFixtureContext {
+        let pack = try decodePack(
             reviewStatus: reviewStatus,
             contentVersion: contentVersion,
             exploitCondition: exploitCondition
@@ -59,19 +67,15 @@ enum FeedbackFixture {
             confidence: .unsure
         )
 
-        do {
-            return FeedbackFixtureContext(
-                manifest: pack.manifest,
-                scenario: scenario,
+        return FeedbackFixtureContext(
+            manifest: pack.manifest,
+            scenario: scenario,
+            submission: submission,
+            grade: try DecisionScorer().grade(
                 submission: submission,
-                grade: try DecisionScorer().grade(
-                    submission: submission,
-                    scenario: scenario
-                )
+                scenario: scenario
             )
-        } catch {
-            preconditionFailure("Invalid feedback fixture: \(error)")
-        }
+        )
     }
 
     private static func presentation(
@@ -89,7 +93,7 @@ enum FeedbackFixture {
         reviewStatus: String,
         contentVersion: String,
         exploitCondition: String?
-    ) -> StrategyPack {
+    ) throws -> StrategyPack {
         let exploitJSON = exploitCondition.map { "\"\($0)\"" } ?? "null"
         let reviewedAtJSON = reviewStatus == "reviewed"
             ? "\"2026-08-06T00:00:00Z\""
@@ -179,15 +183,11 @@ enum FeedbackFixture {
         }
         """
 
-        do {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            return try decoder.decode(
-                StrategyPack.self,
-                from: Data(json.utf8)
-            )
-        } catch {
-            preconditionFailure("Invalid feedback pack fixture: \(error)")
-        }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(
+            StrategyPack.self,
+            from: Data(json.utf8)
+        )
     }
 }

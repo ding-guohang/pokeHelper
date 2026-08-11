@@ -64,5 +64,6 @@ M1B 的服务端数据库是 MySQL 8.4+ InnoDB，取代早期设计中的 Postgr
 - [模块与组件](components.md)
 - [独立账号与同步](sync.md)
 - [隐性约定](implicit-contracts.md)
+- [已知缺口](known-gaps.md)
 - [已批准产品设计](../superpowers/specs/2026-08-06-texas-holdem-coach-design.md)
 - [实施路线](../superpowers/plans/2026-08-06-poker-coach-implementation-roadmap.md)
