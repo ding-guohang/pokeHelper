@@ -50,6 +50,17 @@ xcodebuild test \
     -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
     -only-testing:PokerCoachTests >/dev/null
 
+# A capability that is computed and never rendered passes every unit test it
+# has. M1C shipped exactly that, and only a UI test tells the two apart: these
+# drive the session, the key-hand review and the frequency report through the
+# built app.
+echo "==> Session, key-hand review and the frequency report are reachable"
+xcodebuild test \
+    -project PokerCoach.xcodeproj \
+    -scheme PokerCoach \
+    -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+    -only-testing:PokerCoachUITests/M2ASurfaceTests >/dev/null
+
 echo "==> Package dependencies match the layer graph"
 bash scripts/check-package-layering.sh >/dev/null
 

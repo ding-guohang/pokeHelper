@@ -87,13 +87,21 @@ struct SessionContentMatcher {
 
     /// The hero spots in this hand that installed content covers.
     ///
-    /// Preflop only in M2A — not by filtering here, but because the coverage
-    /// key carries its street and every shipped scenario's is `preflop`. A
-    /// postflop hero spot cannot equal a preflop scenario's key, so a postflop
-    /// decision never matches and never gets marked.
+    /// Preflop only in M2A, and enforced here rather than inferred from the
+    /// shipped pack. The coverage key carries its street, so against
+    /// preflop-only content the filter changes nothing; against content that
+    /// does contain a postflop scenario it is the difference between following
+    /// the spec and following an accident. `cash-session-run` requires that
+    /// only a hand's preflop decision points be marked comparable, because
+    /// postflop equivalence needs a hand-class taxonomy this project has not
+    /// defined — the app's own development fixture ships two flop scenarios,
+    /// which without this line would be matched against dealt flop spots and
+    /// shown as curated answers to a question nobody curated.
     func matches(in hand: SessionHandRecord) -> [SessionContentMatch] {
         hand.heroSpots.compactMap { spot in
-            guard let scenarioID = scenarioID(matching: spot.signature) else {
+            guard spot.signature.street == .preflop,
+                  let scenarioID = scenarioID(matching: spot.signature)
+            else {
                 return nil
             }
             return SessionContentMatch(
