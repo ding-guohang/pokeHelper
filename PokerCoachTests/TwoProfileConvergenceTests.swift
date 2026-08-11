@@ -1,5 +1,6 @@
 import Foundation
 import TrainingDomain
+import TrainingPersistence
 import XCTest
 @testable import PokerCoach
 

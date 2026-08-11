@@ -28,6 +28,9 @@ swift test --package-path Packages/StrategyContent >/dev/null
 echo "==> Test TrainingDomain"
 swift test --package-path Packages/TrainingDomain >/dev/null
 
+echo "==> Test TrainingPersistence"
+swift test --package-path Packages/TrainingPersistence >/dev/null
+
 echo "==> Test StrategyTooling (includes cross-process import determinism)"
 swift test --package-path Packages/StrategyTooling >/dev/null
 

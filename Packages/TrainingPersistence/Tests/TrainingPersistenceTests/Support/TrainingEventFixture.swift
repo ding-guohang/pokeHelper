@@ -1,6 +1,7 @@
 import Foundation
 import PokerCore
-@testable import TrainingDomain
+import TrainingDomain
+import TrainingPersistence
 
 enum TrainingEventFixture {
     static func correctHighConfidence() -> TrainingEvent {

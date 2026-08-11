@@ -12,11 +12,20 @@ TrainingDomain            SessionSimulation
 StrategyContent   →      PokerCore
 
 Infrastructure
-  ├─ Local TrainingEventStore
-  ├─ Session 记录存储
+  ├─ Local TrainingEventStore（协议在 TrainingDomain，文件实现在 TrainingPersistence）
+  ├─ Session 记录存储（SessionPersistence，只依赖 SessionSimulation）
   ├─ Remote Synchronizer
   └─ Auth / Content / Hand Analysis API Clients
 ```
+
+`TrainingPersistence` 依赖 `TrainingDomain`，`SessionPersistence` 依赖
+`SessionSimulation`，方向都只有一条。它们是第 3 条规则的落地：JSON Lines 文件
+实现是具体存储，不能与评分、画像、计划或牌局引擎同处一个包；协议与领域类型留在
+上游包，实现在外面。
+
+两个存储包彼此不可见，`SessionPersistence` 也看不见 `TrainingDomain`——写入
+Session 记录的那条路径够不到 `TrainingEvent`，这是「Session 手牌不产生训练
+事件」的结构性一半。
 
 `SessionSimulation` 与 `TrainingDomain` 是**并列**的，不是上下游。牌局引擎
 不知道教学内容存在，训练领域不知道牌局引擎存在；两者各自向 `PokerCore`

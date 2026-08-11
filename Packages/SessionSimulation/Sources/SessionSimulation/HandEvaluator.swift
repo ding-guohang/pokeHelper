@@ -8,9 +8,9 @@ import PokerCore
 /// a showdown awards the pot to the wrong seat, the difference between
 /// `1_234_567` and `.twoPair [11, 4, 12]` is the difference between a
 /// debugging session and reading the failure message.
-public struct HandRanking: Hashable, Sendable, Comparable, CustomStringConvertible {
+public struct HandRanking: Hashable, Sendable, Codable, Comparable, CustomStringConvertible {
     /// Ordered weakest to strongest; the raw values are the comparison.
-    public enum Category: Int, Hashable, Sendable, Comparable, CaseIterable {
+    public enum Category: Int, Hashable, Sendable, Codable, Comparable, CaseIterable {
         case highCard
         case pair
         case twoPair

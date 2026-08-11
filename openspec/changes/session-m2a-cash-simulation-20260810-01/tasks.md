@@ -96,7 +96,17 @@ status: planned
 
 ### T8 — Session 推进与三种长度
 ### T9 — 记录持久化、中断续打、行为表版本校验
+`SessionRecord` / `SessionHandRecord` 与重放判定在 `SessionSimulation`；文件存储在新包
+`Packages/SessionPersistence/`（只依赖 `SessionSimulation`）。存储进包而不是进
+`PokerCoach/Infrastructure/`，是因为「第 7 手后终止进程」必须真的终止进程：测试拉起
+`session-record-writer`，让它打完 7 手后对自己发 SIGKILL。`Process` 在 iOS 上不可用，
+App 的 XCTest 目标放不下这条测试，而进程内的替身满足的是这句话的弱读法。
+
 ### T10 — 断言 Session 手牌不产生 TrainingEvent（含命中内容的情形）
+断言在 `PokerCoachTests/SessionEventIsolationTests`，走 App 层的 `SessionRunCoordinator`
+——它持有事件存储，所以「打完一整局都没写事件」是关于一条够得到存储的路径的断言，而不是
+关于一个够不到存储的类型的断言。结构性的一半由 `scripts/check-package-layering.sh` 守：
+`SessionPersistence` 看不见 `TrainingDomain`。
 
 T10 是本里程碑的关键测试，不是附带项：整局打完后事件存储条数必须不变。
 
@@ -118,7 +128,7 @@ T10 是本里程碑的关键测试，不是附带项：整局打完后事件存�
 更新 `docs/architecture/layering.md` 层图加入 `SessionSimulation`；加一条检查断言该包只依赖 `PokerCore`。
 
 ### T16 — `FileTrainingEventStore` 搬迁
-从 `Packages/TrainingDomain/Sources/` 搬到 `PokerCoach/Infrastructure/`；协议留在领域包。见 `docs/architecture/known-gaps.md`。搬完从该文件删除对应条目。
+从 `Packages/TrainingDomain/Sources/` 搬到新包 `Packages/TrainingPersistence/`（依赖 `TrainingDomain`）；协议留在领域包。搬包而不是搬进 App 目标，是为了让并发测试原样跑，理由见 design.md。见 `docs/architecture/known-gaps.md`。搬完从该文件删除对应条目。
 
 ### T17 — `scripts/verify-m2a.sh`
 沿用 verify-m1c.sh 的形状。每一道门禁必须有实测的失败路径，不接受只跑通绿灯。

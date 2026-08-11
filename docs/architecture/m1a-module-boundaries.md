@@ -8,7 +8,7 @@
 |---|---|---|
 | `TrainingEvent` | `TrainingDomain` — `Packages/TrainingDomain/Sources/TrainingDomain/TrainingEvent.swift` | 不可变、可编码、带内容版本的同步事件 |
 | `TrainingEventStore` | `TrainingDomain` — `Packages/TrainingDomain/Sources/TrainingDomain/TrainingEventStore.swift` | 本地优先追加、全量读取和 checkpoint 后增量读取的存储协议；checkpoint 表示 JSON Lines 追加日志顺序，不受事件时间影响 |
-| `FileTrainingEventStore` | `TrainingDomain` — `Packages/TrainingDomain/Sources/TrainingDomain/FileTrainingEventStore.swift` | M1A 的 JSON Lines 本地存储实现；M1B 的 outbox/同步不得改变其事件语义 |
+| `FileTrainingEventStore` | `TrainingPersistence` — `Packages/TrainingPersistence/Sources/TrainingPersistence/FileTrainingEventStore.swift` | M1A 的 JSON Lines 本地存储实现；M1B 的 outbox/同步不得改变其事件语义。M2A 起搬出领域包，事件语义未变 |
 | `StrategyPackManifest` | `StrategyContent` — `Packages/StrategyContent/Sources/StrategyContent/StrategyModels.swift` | 策略内容的 pack ID、schema/content version 和审核来源元数据 |
 
 M1B 应在 App Infrastructure 中围绕上述四个契约增加远端同步器：先持久化本地 `TrainingEvent`，再通过 outbox 幂等上传，并以 checkpoint 拉取新增事件。远端确认、重试和冲突处理不能改变事件 ID、事件内容版本或只追加语义。

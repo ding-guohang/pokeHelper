@@ -2,6 +2,7 @@ import Foundation
 import PokerCore
 import Testing
 import TrainingDomain
+import TrainingPersistence
 
 @Test func publicConsumerCanConstructAndAppendTrainingEvent() async throws {
     let gradeJSON = Data(

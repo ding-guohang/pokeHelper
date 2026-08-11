@@ -185,11 +185,13 @@ BB 没有场景——报告必须能显示「有实际频率、无基准」，�
 - `Packages/SessionSimulation/`——只依赖 `PokerCore`。发牌、对手行为表、Session 推进、结算。
 - `PokerCore` 新增 `SpotSignature`、`HandClass`、`Street`、`FacingAction`、`StackBucket`。
 - `PokerCoach/Features/Session/`——Session 界面、关键手复盘与频率报告。对照、「重打」与基准计算的桥接都在这一层，因为只有它同时看得到 `SessionSimulation` 与 `StrategyContent`。
-- `PokerCoach/Infrastructure/Session/`——Session 记录持久化。
+- `PokerCoach/Infrastructure/Session/`——Session 与内容的桥接（`SessionContentMatcher`、`SessionRunCoordinator`）。记录的持久化本身在 `Packages/SessionPersistence/`：文件存储是具体实现，不进引擎包；而「第 7 手后终止进程」这条断言需要一个能被 SIGKILL 的进程，`Process` 在 iOS 上不可用，App 的测试目标放不下它。
 
 ### 顺带偿还
 
-`Packages/TrainingDomain/Sources/TrainingDomain/FileTrainingEventStore.swift` 在这一步搬到 `PokerCoach/Infrastructure/`。它是具体存储实现，`layering.md` 第 3 条明确禁止领域包依赖数据库实现；协议 `TrainingEventStore` 留在领域包。见 [已知缺口](../../../docs/architecture/known-gaps.md)——那里记的「M2A 落 Session 记录持久化时一并做」就是这里。
+`Packages/TrainingDomain/Sources/TrainingDomain/FileTrainingEventStore.swift` 在这一步搬出领域包。它是具体存储实现，`layering.md` 第 3 条明确禁止领域包依赖数据库实现；协议 `TrainingEventStore` 留在领域包。见 [已知缺口](../../../docs/architecture/known-gaps.md)——那里记的「M2A 落 Session 记录持久化时一并做」就是这里。
+
+**落点改为新包 `Packages/TrainingPersistence/`，不是 `PokerCoach/Infrastructure/`。** 本文原先写的是后者，执行时改了，理由是搬迁的测试：`FileTrainingEventStoreTests` 断言的是并发性质——两个活着的 store 交错追加不丢事件、陈旧 store 不覆盖被改坏的文件、时间戳相同时按 UUID 排序。它们是 swift-testing，搬进 App 的 XCTest 目标要重写，而在一次搬迁里重写并发测试正是覆盖率悄悄变弱的方式。搬包则一行断言都不用改。
 
 ### 必须不变
 

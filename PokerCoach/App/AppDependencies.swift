@@ -1,6 +1,7 @@
 import Foundation
 import StrategyContent
 import TrainingDomain
+import TrainingPersistence
 #if canImport(UIKit)
 import UIKit
 #endif

@@ -72,9 +72,26 @@ echo "==> SessionSimulation may only see PokerCore"
 check_manifest SessionSimulation PokerCore
 check_imports SessionSimulation PokerCore
 
+# Session records go through this package, and it must not be able to reach a
+# TrainingEvent. "Session hands never produce a training event" is asserted by a
+# test that plays a whole session; this is the structural half of the same
+# claim, and the cheaper half to keep true.
+echo "==> SessionPersistence may only see SessionSimulation and PokerCore"
+check_manifest SessionPersistence PokerCore SessionSimulation
+check_imports SessionPersistence PokerCore SessionSimulation
+
 echo "==> TrainingDomain may not see SessionSimulation"
 check_manifest TrainingDomain PokerCore StrategyContent
 check_imports TrainingDomain PokerCore StrategyContent
+
+# The concrete event store lives outside the domain package, and the gate is
+# what keeps it outside: the dependency runs persistence -> domain and never
+# back, so nothing in TrainingDomain can reach a file. Listed with its
+# permitted set rather than left unchecked, because an unlisted package is one
+# nothing stops from importing StrategyContent or SessionSimulation.
+echo "==> TrainingPersistence may only see TrainingDomain and PokerCore"
+check_manifest TrainingPersistence PokerCore TrainingDomain
+check_imports TrainingPersistence PokerCore TrainingDomain
 
 echo "==> StrategyContent may not see SessionSimulation or TrainingDomain"
 check_manifest StrategyContent PokerCore

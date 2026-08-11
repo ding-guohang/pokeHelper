@@ -18,7 +18,7 @@ public struct SeatSnapshot: Hashable, Sendable {
 }
 
 /// One action, as it happened.
-public struct RecordedAction: Hashable, Sendable {
+public struct RecordedAction: Hashable, Sendable, Codable {
     public let seat: Int
     public let street: Street
     public let action: DecisionAction
@@ -28,7 +28,7 @@ public struct RecordedAction: Hashable, Sendable {
 }
 
 /// One layer of the pot and who took it.
-public struct PotAward: Hashable, Sendable {
+public struct PotAward: Hashable, Sendable, Codable {
     public let amount: BBAmount
     /// Everyone still in the hand who had chips in this layer, ascending.
     public let eligibleSeats: [Int]
@@ -40,7 +40,7 @@ public struct PotAward: Hashable, Sendable {
 }
 
 /// How a hand finished.
-public struct HandResult: Hashable, Sendable {
+public struct HandResult: Hashable, Sendable, Codable {
     /// The furthest street the hand reached; `board.count` always matches it.
     public let streetReached: Street
     public let board: [Card]

@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 import StrategyContent
 import TrainingDomain
+import TrainingPersistence
 @testable import PokerCoach
 
 @MainActor
