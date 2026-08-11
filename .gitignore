@@ -3,3 +3,8 @@
 **/.build/
 PokerCoach.xcodeproj/
 .build-channel/
+
+# 第三方预解参照，用户以自有账号人工查询所得，文件自述不可分发。
+# 留在工作树里供核对，不进仓库——仓库可能公开，而分发责任落在
+# 发布者身上。核对的产物是 Content/review/*.md 里的结论，不是它的数据。
+Content/review/gtowizard-*.txt
