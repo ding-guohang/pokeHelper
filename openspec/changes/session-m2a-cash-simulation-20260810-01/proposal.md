@@ -374,9 +374,9 @@ The system SHALL accumulate the user's realized preflop action frequencies per (
 ##### Scenario: 样本足够时给出与基准的对照
 
 - GIVEN 用户在 BTN 位置累计有 60 次开池机会，其中开池 42 次
-- AND 已安装内容的 BTN 开池基准为 46.33%
+- AND 已安装内容的 BTN 开池基准为 41.22%
 - WHEN 打开频率报告
-- THEN 显示实际 70.00%、基准 46.33%、差值 +23.67 个百分点
+- THEN 显示实际 70.00%、基准 41.22%、差值 +28.78 个百分点
 - AND 该位置出现在漏洞列表里，标注为偏松
 
 ##### Scenario: 差距在容差内不算漏洞

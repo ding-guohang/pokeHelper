@@ -43,7 +43,7 @@ final class SessionFrequencyReportTests: XCTestCase {
 
         // The content does cover this spot, so a withheld verdict cannot be
         // explained by there being nothing to compare against.
-        XCTAssertEqual(row.baselineBasisPoints, 4_633)
+        XCTAssertEqual(row.baselineBasisPoints, 4_122)
         XCTAssertFalse(row.hasEnoughOpportunities)
         XCTAssertNil(row.deltaBasisPoints)
         XCTAssertNil(row.leak)
@@ -51,9 +51,9 @@ final class SessionFrequencyReportTests: XCTestCase {
     }
 
     // GIVEN 用户在 BTN 位置累计有 60 次开池机会，其中开池 42 次
-    // AND 已安装内容的 BTN 开池基准为 46.33%
+    // AND 已安装内容的 BTN 开池基准为 41.22%
     // WHEN 打开频率报告
-    // THEN 显示实际 70.00%、基准 46.33%、差值 +23.67 个百分点
+    // THEN 显示实际 70.00%、基准 41.22%、差值 +28.78 个百分点
     // AND 该位置出现在漏洞列表里，标注为偏松
     @MainActor
     func testASufficientSampleIsComparedAgainstTheBaseline() throws {
@@ -64,8 +64,8 @@ final class SessionFrequencyReportTests: XCTestCase {
 
         let row = try XCTUnwrap(report.rows.first { $0.key == Self.button })
         XCTAssertEqual(row.frequencyBasisPoints, 7_000)
-        XCTAssertEqual(row.baselineBasisPoints, 4_633)
-        XCTAssertEqual(row.deltaBasisPoints, 2_367)
+        XCTAssertEqual(row.baselineBasisPoints, 4_122)
+        XCTAssertEqual(row.deltaBasisPoints, 2_878)
         XCTAssertTrue(row.hasEnoughOpportunities)
         XCTAssertEqual(row.leak, .loose)
         XCTAssertEqual(report.leaks.map(\.key), [Self.button])
@@ -90,7 +90,7 @@ final class SessionFrequencyReportTests: XCTestCase {
         XCTAssertNil(justUnder.rows.first?.deltaBasisPoints, "29 次机会就给出了结论")
         XCTAssertNotNil(exactly.rows.first?.deltaBasisPoints, "30 次机会仍不给结论")
         XCTAssertEqual(exactly.rows.first?.frequencyBasisPoints, 7_000)
-        XCTAssertEqual(exactly.rows.first?.deltaBasisPoints, 2_367)
+        XCTAssertEqual(exactly.rows.first?.deltaBasisPoints, 2_878)
     }
 
     /// A leak has a direction, and a near miss is not a leak. The tolerance is
@@ -100,24 +100,24 @@ final class SessionFrequencyReportTests: XCTestCase {
     func testALeakIsNamedByDirectionAndOnlyOutsideTheTolerance() throws {
         let pack = try Self.shippedPack()
 
-        // 12/30 = 40.00% against a 46.33% baseline: 6.33 points tight.
+        // 10/30 = 33.33% against a 41.22% baseline: 7.89 points tight.
         let tooTight = SessionFrequencyReport.make(
-            counts: [Self.button: HeroPreflopCounts(opportunities: 30, entries: 12)],
+            counts: [Self.button: HeroPreflopCounts(opportunities: 30, entries: 10)],
             installedContent: pack
         )
-        // 14/30 = 46.67%, a third of a point over.
+        // 13/30 = 43.33%, two points over — inside the tolerance.
         let onTheNose = SessionFrequencyReport.make(
-            counts: [Self.button: HeroPreflopCounts(opportunities: 30, entries: 14)],
+            counts: [Self.button: HeroPreflopCounts(opportunities: 30, entries: 13)],
             installedContent: pack
         )
 
-        XCTAssertEqual(tooTight.rows.first?.deltaBasisPoints, -633)
+        XCTAssertEqual(tooTight.rows.first?.deltaBasisPoints, -789)
         XCTAssertEqual(tooTight.rows.first?.leak, .tight)
         XCTAssertEqual(tooTight.leaks.count, 1)
 
-        XCTAssertEqual(onTheNose.rows.first?.deltaBasisPoints, 34)
+        XCTAssertEqual(onTheNose.rows.first?.deltaBasisPoints, 211)
         XCTAssertNil(onTheNose.rows.first?.leak)
-        XCTAssertTrue(onTheNose.leaks.isEmpty, "差 0.34 个百分点也被当成漏洞")
+        XCTAssertTrue(onTheNose.leaks.isEmpty, "差 2.11 个百分点也被当成漏洞")
     }
 
     // GIVEN 两个已安装内容版本，其 BTN 范围表的组合权重不同

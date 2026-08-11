@@ -102,13 +102,32 @@ RFI = {
          "97s": 5000, "86s": 4000, "76s": 6000, "65s": 5000,
          "A9o": 6000, "KTo": 5000, "QTo": 4000, "JTo": 5000},
     ),
+    # Tightened 2026-08-11 for rake. See Content/review/m2a-reference-check.md.
+    #
+    # Rake is charged on pots that see a flop, so it costs a hand in proportion
+    # to how often it plays one and how badly it realises equity when it does.
+    # Offsuit hands below the broadway tier are hit hardest -- they are the ones
+    # that flop weak, get dominated, and win small pots -- followed by suited
+    # hands with three or more gaps, and then small pairs, which are set-mining
+    # in pots the house now takes a cut of.
+    #
+    # Folded outright: the offsuit block below KTo (98o, 87o, 76o, T8o, J8o,
+    # Q8o, K5o, K6o) and the wide suited gappers (95s, 85s, 64s, 53s, T5s, Q2s).
+    # Demoted from a pure open to a coin flip: 22, 75s, 96s, K7o, A2o -- opening
+    # those every single time from the button was implausible before rake and is
+    # indefensible with it.
+    #
+    # The level was calibrated against a rake-adjusted NL25 reference solve
+    # (5% of pot, 8BB cap) the user supplied; the choice of which hands to cut
+    # is the reasoning above, not that reference's per-hand frequencies. Where
+    # the two still disagree -- the reference is tighter on K7o, A2o and 22 than
+    # a coin flip, and opens J5s pure where this chart mixes -- this chart keeps
+    # its own shape.
     "BTN": build_range(
         "22+,A2s+,K2s+,Q4s+,J6s+,T6s+,96s+,86s+,75s+,65s,54s,"
         "A2o+,K7o+,Q9o+,J9o+,T9o",
-        {"Q2s-Q3s": 5000, "J5s": 4000, "T5s": 3000, "95s": 4000,
-         "85s": 4000, "64s": 4000, "53s": 3000,
-         "K5o-K6o": 4000, "Q8o": 4000, "J8o": 4000, "T8o": 4000,
-         "98o": 6000, "87o": 4000, "76o": 3000},
+        {"Q3s": 5000, "J5s": 4000,
+         "22": 5000, "75s": 5000, "96s": 5000, "K7o": 5000, "A2o": 5000},
     ),
     "SB": build_range(
         "22+,A2s+,K2s+,Q4s+,J6s+,T6s+,96s+,86s+,75s+,"
@@ -251,7 +270,7 @@ nodes = [
     rfi_node("UTG", ["Ad", "Kc"], "AKo", 190),
     rfi_node("HJ", ["Ad", "Tc"], "ATo", 40),
     rfi_node("CO", ["Ah", "5h"], "A5s", 150),
-    rfi_node("BTN", ["9d", "8c"], "98o", 30),
+    rfi_node("BTN", ["2h", "2d"], "22", 0),
     rfi_node("SB", ["Ad", "7c"], "A7o", 90),
     collections.OrderedDict(
         id="vs3bet-co-vs-btn",
@@ -310,7 +329,14 @@ export = collections.OrderedDict(
     gameType="NLHE cash",
     tableSize=6,
     effectiveStack={"centiBB": 10000},
-    rakeDescription="5% capped at 3BB",
+    # Stated as unmodelled because it was unmodelled. The string used to read
+    # "5% capped at 3BB", which is a claim about how these ranges were derived,
+    # and nothing in this file ever applied it -- `rake` appeared exactly once
+    # in the whole script, inside that string. A reference check against a
+    # rake-adjusted NL25 solve found the button range 5.73 points wider than
+    # the reference, concentrated in weak offsuit hands and small pairs, which
+    # is where rake bites hardest. That gap is explainable; the claim was not.
+    rakeDescription="not modelled; ranges assume a rake-free pot",
     allowedBetSizeDescription=(
         f"{OPEN / 100:g}BB open ({OPEN_SB / 100:g}BB from SB), "
         f"{THREE_BET / 100:g}BB 3bet, {FOUR_BET / 100:g}BB 4bet"

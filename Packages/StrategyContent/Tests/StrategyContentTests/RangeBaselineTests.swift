@@ -19,7 +19,7 @@ struct RangeBaselineTests {
             (3, .unopened, 1_560), // UTG 15.60%
             (4, .unopened, 1_982), // HJ  19.82%
             (5, .unopened, 2_486), // CO  24.86%
-            (0, .unopened, 4_633), // BTN 46.33%
+            (0, .unopened, 4_122), // BTN 41.22%（2026-08-11 按抽水收紧）
             (1, .unopened, 4_275), // SB  42.75%
             (5, .reraise, 905), //    CO 面对 3bet 9.05%
         ]
