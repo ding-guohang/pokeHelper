@@ -99,3 +99,72 @@ struct CrossProcessDeterminismTests {
         #expect(zip(left, right).count { $0 != $1 } >= 29, "不同种子的英雄手牌重合过多")
     }
 }
+
+/// The deal itself, pinned to bytes that are in the repository.
+///
+/// The suite above compares two child processes against *each other*, which
+/// catches a deal that varies between launches but not one that changed on
+/// purpose or by accident and now varies from what shipped: both runs move
+/// together and the comparison stays green. A recorded session's whole promise
+/// is that the seed replays the same cards, and that promise spans releases,
+/// not just two processes started a second apart.
+@Suite("发牌黄金记录")
+struct SessionGoldenTranscriptTests {
+    /// Regenerate with:
+    ///   swift run session-transcript --seed 42 --hands 30 \
+    ///     > Tests/Fixtures/session-seed42-30hands.txt
+    ///
+    /// Do that only when the deal was meant to change. Every recorded session
+    /// on every device replays differently afterwards, so this file changing is
+    /// a release-note event, not a test fixup.
+    @Test("种子 42 的 30 手与提交的黄金记录逐字节相同")
+    func matchesTheCommittedTranscript() throws {
+        let binary = try TranscriptBinary.locate()
+        let run = try TranscriptBinary.run(binary, arguments: ["--seed", "42", "--hands", "30"])
+        let committed = try Self.committedTranscript()
+
+        // The fixture has to be a real transcript, not an empty file that would
+        // match an empty run.
+        #expect(committed.contains("hand 0 "), "黄金记录里没有第 0 手")
+        #expect(committed.contains("hand 29 "), "黄金记录里没有第 29 手")
+        #expect(committed.count > 10_000, "黄金记录只有 \(committed.count) 个字符，太短")
+
+        guard run.text == committed else {
+            let runLines = run.text.split(separator: "\n", omittingEmptySubsequences: false)
+            let goldenLines = committed.split(separator: "\n", omittingEmptySubsequences: false)
+            let firstDifference = zip(runLines, goldenLines).enumerated()
+                .first { $0.element.0 != $0.element.1 }
+            let detail = firstDifference.map {
+                "第 \($0.offset + 1) 行：记录是「\($0.element.1)」，现在是「\($0.element.0)」"
+            } ?? "行数不同：记录 \(goldenLines.count) 行，现在 \(runLines.count) 行"
+
+            Issue.record(
+                Comment(rawValue: """
+                发牌与提交的黄金记录不同。\(detail)。
+                如果这是有意的改动，所有已记录的 Session 都会在所有设备上重放出不同的牌；\
+                重新生成：swift run session-transcript --seed 42 --hands 30 > \
+                Tests/Fixtures/session-seed42-30hands.txt
+                """)
+            )
+            return
+        }
+    }
+
+    /// A different seed must not match it, or the assertion above would pass
+    /// against a transcript that ignored its input.
+    @Test("另一个种子与该黄金记录不同")
+    func aDifferentSeedDoesNotMatchTheCommittedTranscript() throws {
+        let binary = try TranscriptBinary.locate()
+        let other = try TranscriptBinary.run(binary, arguments: ["--seed", "43", "--hands", "30"])
+
+        #expect(other.text != (try Self.committedTranscript()))
+    }
+
+    private static func committedTranscript() throws -> String {
+        let url = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appending(path: "Fixtures/session-seed42-30hands.txt")
+        return try String(contentsOf: url, encoding: .utf8)
+    }
+}

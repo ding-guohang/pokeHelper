@@ -146,3 +146,50 @@ struct DealingTests {
         #expect(Set(labels).count == TableRules.seatCount)
     }
 }
+
+/// A longer session extends a shorter one rather than replacing it.
+///
+/// Cards come from `(seed, handIndex)`, so this holds by construction today —
+/// but "by construction" is a property of the current dealer, not a promise
+/// anyone recorded. An implementation that mixed the session length into the
+/// deck seed, or that streamed cards from one running generator, would break it
+/// silently: a user who picked 60 instead of 30 would get a different first
+/// hand for a reason nothing explains, and a 30-hand record could no longer be
+/// resumed to 60.
+///
+/// Asserted against `SessionRunner.run` rather than against a test helper that
+/// re-implements its loop. A first attempt at this test went through such a
+/// helper and stayed green under a mutation that changed the deal, because the
+/// helper never called the code being mutated.
+@Suite("会话长度不影响发牌")
+struct SessionLengthPrefixTests {
+    @Test("同种子下 60 手的前 15 手与 15 手 Session 完全相同")
+    func aLongerRunBeginsWithTheShorterOne() {
+        let fifteen = SessionRunner(seed: 42).run(handCount: 15)
+        let sixty = SessionRunner(seed: 42).run(handCount: 60)
+
+        #expect(fifteen.hands.count == 15)
+        #expect(sixty.hands.count == 60)
+
+        for index in 0 ..< 15 {
+            #expect(
+                sixty.hands[index].holeCards == fifteen.hands[index].holeCards,
+                "第 \(index) 手的底牌不同：15 手局与 60 手局分歧"
+            )
+            #expect(
+                sixty.hands[index].buttonSeat == fifteen.hands[index].buttonSeat,
+                "第 \(index) 手的按钮位不同"
+            )
+        }
+    }
+
+    /// And the deal really does depend on the seed, or the assertion above
+    /// would hold for a dealer that returned the same cards for everything.
+    @Test("换种子则前 15 手不同")
+    func adifferentSeedDealsDifferently() {
+        let a = SessionRunner(seed: 42).run(handCount: 15)
+        let b = SessionRunner(seed: 43).run(handCount: 15)
+
+        #expect(a.hands.map(\.holeCards) != b.hands.map(\.holeCards))
+    }
+}

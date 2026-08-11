@@ -162,3 +162,37 @@ struct SessionRecordStoreTests {
         }
     }
 }
+
+/// The three session lengths the product offers, each played to the end.
+///
+/// The suite above exercises 15 and 30. The proposal names 15, 30 and 60, and
+/// 60 had no test at all — the longest session was the one nobody ran. It is
+/// also the one where stacks have drifted furthest from the 100BB the content
+/// is written for, so it is the least like the others rather than more of the
+/// same.
+@Suite("三种长度的 Session")
+struct SessionLengthTests {
+    @Test("15、30、60 手各自打完并存满", arguments: [15, 30, 60])
+    func aSessionOfEachOfferedLengthCompletes(handCount: Int) async throws {
+        let directory = SessionFixture.temporaryDirectory()
+        let store = try FileSessionRecordStore(directory: directory)
+        let id = UUID(uuidString: "00000000-0000-0000-0000-0000000000\(String(format: "%02d", handCount))")!
+        let record = SessionRecord(id: id, seed: 42, handCount: handCount)
+        try await store.create(record)
+
+        let hands = SessionFixture.uninterruptedHands(record: record)
+        #expect(hands.count == handCount, "夹具只发了 \(hands.count) 手")
+        for hand in hands {
+            try await store.appendHand(hand, to: id)
+        }
+
+        let stored = try await store.hands(for: id)
+        #expect(stored.count == handCount)
+        #expect(stored.map(\.handIndex) == Array(0 ..< handCount))
+        #expect(try await store.progress(for: id).nextHandIndex == handCount)
+
+        let loaded = try await store.record(id: id)
+        #expect(loaded.handCount == handCount)
+        #expect(loaded.seed == 42)
+    }
+}
