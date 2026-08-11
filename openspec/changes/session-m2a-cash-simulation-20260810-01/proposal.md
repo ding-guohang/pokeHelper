@@ -12,6 +12,8 @@ M1C 让 APP 第一次有了真实内容，但训练仍然是**孤立的单点决
 
 M2A 补上连续性：可复现的发牌、四种虚拟对手、15/30/60 手的 Session，以及打完之后挑出真正决定输赢的那几手来复盘。
 
+还补上职业牌手真正在用的那一步：**按位置的聚合频率对照**。职业工作流是「打 → 导进 tracker → 看各位置的 VPIP/PFR → 对比基准 → 定位漏洞 → 针对性学习」，中间那一步是聚合而不是单手，因为单手噪声太大。单手复盘看的是「这手打错没有」，聚合看的是「我这个位置整体打得太松还是太紧」——后者才是可以拿去练的漏洞。这一步不需要给任何单手评分：实际频率来自记录的手牌，基准来自内容包的范围表。
+
 ## What Changes
 
 ### New Capabilities
@@ -20,6 +22,7 @@ M2A 补上连续性：可复现的发牌、四种虚拟对手、15/30/60 手的 
 - `virtual-opponents` — 四种可披露、确定性的对手策略。
 - `cash-session-run` — 15/30/60 手的 Session，可中断续打。
 - `key-hand-review` — 从一局 Session 中挑出值得复盘的手牌，并与已安装内容对照。
+- `session-frequency-report` — 跨 Session 累计的按位置翻前频率，与内容基准对照。
 
 ### Modified Capabilities
 
@@ -59,6 +62,8 @@ M2A 的等同定义为**全部满足**：
 - 有效筹码落入同一分桶，分桶边界在本 spec 中枚举：`[0, 2000)`、`[2000, 6000)`、`[6000, 12000)`、`[12000, ∞)` centi-BB
 
 **翻后不做匹配**，因为翻后手牌类别需要一套本项目尚未定义、也无求解器依据可定义的分类法。翻后对照属于 M2B。
+
+这不是损失：核对过 `PokerCoach/Resources/CoreStrategyPack.json`，已发布内容的 6 个场景**全部是翻前**（board 长度为 0），102 个手牌类别全部是合法的 169 格记号（13 对子 / 57 同花 / 32 非同花，对子不带后缀）。翻后本来就没有内容可对照。
 
 底池不参与判定：翻前底池由盲注与加注序列决定，已被「面对的行动类别」和分桶覆盖，再单列一个连续量只会让等同关系永不成立。
 
@@ -184,7 +189,7 @@ The system SHALL only produce opponent actions the betting state permits.
 
 #### Requirement: 三种长度的 Session
 
-The system SHALL run sessions of 15, 30 or 60 hands and SHALL record the seed, profile assignment and hand count so a session can be replayed hand for hand.
+The system SHALL run sessions of 15, 30 or 60 hands and SHALL record the seed, profile assignment, opponent profile table version and hand count so a session can be replayed hand for hand.
 
 ##### Scenario: 完成一局 Session
 
@@ -192,8 +197,16 @@ The system SHALL run sessions of 15, 30 or 60 hands and SHALL record the seed, p
 - WHEN 打完全部手数
 - THEN 三局都标记为完成
 - AND 三局的 SessionHand 条数恰为 15、30、60
-- AND 每条记录保存了种子、五个座位的档案指派与手数
+- AND 每条记录保存了种子、五个座位的档案指派、对手行为表版本与手数
 - AND 用该记录重新构造 Session 得到逐手相同的牌与逐个相同的对手行动
+
+##### Scenario: 行为表版本变化时拒绝静默重放
+
+- GIVEN 一条记录的对手行为表版本与当前内置版本不同
+- WHEN 用户重放该 Session
+- THEN 系统不声称重放一致
+- AND 明确告知该记录由另一版本的对手行为产生
+- AND 仍可查看已保存的手牌记录
 
 ##### Scenario: 中断后续打
 
@@ -302,6 +315,84 @@ The system SHALL show, for a key hand whose preflop spot matches installed conte
 - WHEN 用户打开该手
 - THEN 可以逐街回放
 - AND 不显示对照，也不显示「重打」入口
+
+### Capability: session-frequency-report
+
+#### Requirement: 按位置累计翻前频率并与内容基准对照
+
+The system SHALL accumulate the user's realized preflop action frequencies per (position, facing action) pair across all recorded sessions, SHALL derive each baseline from the installed content's range chart for that same pair rather than from stored constants, and SHALL withhold any comparison verdict for a pair whose opportunity count is below 30.
+
+##### Scenario: 样本不足时只报计数，不下结论
+
+- GIVEN 用户在 BTN 位置累计有 8 次开池机会，阈值为 30
+- WHEN 打开频率报告
+- THEN 显示「BTN 8 次机会」与实际开池次数
+- AND 不显示与基准的差值
+- AND 显示「样本不足，暂不比较」
+- AND 该位置不出现在漏洞列表里
+
+##### Scenario: 样本足够时给出与基准的对照
+
+- GIVEN 用户在 BTN 位置累计有 60 次开池机会，其中开池 42 次
+- AND 已安装内容的 BTN 开池基准为 46.33%
+- WHEN 打开频率报告
+- THEN 显示实际 70.00%、基准 46.33%、差值 +23.67 个百分点
+- AND 该位置出现在漏洞列表里，标注为偏松
+
+##### Scenario: 基准由内容算出，不是写死的数字
+
+- GIVEN 两个已安装内容版本，其 BTN 范围表的组合权重不同
+- WHEN 分别打开频率报告
+- THEN 两次显示的基准值不同
+- AND 每次的基准值等于该版本 BTN 未面对下注范围表中的非弃牌组合数除以 1326
+
+##### Scenario: 同一位置的不同面对情形各有各的基准
+
+- GIVEN 已安装内容在 CO 位置同时有未面对下注与面对 3bet 两个场景
+- WHEN 计算 CO 的基准
+- THEN 未面对下注的基准为 24.86%，面对 3bet 的基准为 9.05%
+- AND 两者不被合并成一个 CO 基准
+- AND 英雄在 CO 面对 3bet 的手牌只计入面对 3bet 的机会数
+
+##### Scenario: 内容未覆盖的位置不显示基准
+
+- GIVEN 已安装内容没有 BB 位置的场景
+- WHEN 打开频率报告
+- THEN 显示 BB 的实际次数与频率
+- AND BB 行不显示基准值或差值
+- AND BB 不出现在漏洞列表里
+
+##### Scenario: 无内容时不编造基准
+
+- GIVEN 未安装任何内容
+- WHEN 打开频率报告
+- THEN 仍显示各位置的实际次数与频率
+- AND 不显示任何基准值或差值
+- AND 不出现漏洞列表
+
+##### Scenario: 跨 Session 累计而不是单局
+
+- GIVEN 三局各 15 手的已完成 Session
+- WHEN 打开频率报告
+- THEN 各位置的机会数等于三局之和
+- AND 删除其中一局后，机会数相应减少
+
+#### Requirement: 频率来自记录的手牌
+
+The system SHALL compute every reported frequency from recorded session hands, never from an estimate or a running counter that can drift from the hands on disk.
+
+##### Scenario: 报告可由记录重算
+
+- GIVEN 一份任意的 Session 记录集合
+- WHEN 计算频率报告两次，第二次在重新读取记录之后
+- THEN 两次结果逐字段相等
+
+##### Scenario: 未到该位置行动的手牌不计入机会数
+
+- GIVEN 一手牌在英雄行动前已经结束
+- WHEN 计算频率报告
+- THEN 该手不计入英雄所在位置的机会数
+- AND 也不计入开池次数
 
 ### Capability: cash-decision-domain
 
@@ -518,7 +609,7 @@ The system SHALL expose, for every curriculum node, each of the five mastery sig
 
 1. **`SpotSignature` 放在哪一层。** 等同判定需要同时看 Session 局面与 `DecisionScenario`。若判定放进 `SessionSimulation` 就要 import `StrategyContent`，放进 `TrainingDomain` 就要 import `SessionSimulation`——两条都在分层规则之外。倾向把 `SpotSignature` 定义在 `PokerCore`，两侧各自产出签名，由 App 层比较；plan 阶段确认。
 2. **Session 记录的存储与同步。** `SessionHand` 是否纳入跨设备同步。纳入则要扩展服务端；不纳入则换设备看不到历史 Session。
-3. **对手档案的定义方式。** 硬编码为 Swift 值，还是作为内容随策略包交付。后者可以随内容更新，但要接受同一套审核与门禁。无论哪种，档案都必须带版本号并在界面披露。
+3. **对手档案的定义方式。** 硬编码为 Swift 值，还是作为内容随策略包交付。后者可以随内容更新，但要接受同一套审核与门禁。无论哪种，行为表都必须带版本号：Session 重放的确定性依赖它，改表而不改版本号会让旧 Session 静默重放出不同的牌。
 4. **关键手选择分数的具体权重。** 四个原因的排序键与并列时的确定性 tie-break。
 
 ## Impact
@@ -543,6 +634,9 @@ The system SHALL expose, for every curriculum node, each of the five mastery sig
 - **状态机漏判非法行动，产生不可能的牌局** → 断言合法集合的**双向**性质：集合内均可接受，集合外均被拒绝；每手结算断言筹码守恒且赢家增量为正。
 - **关键手选择退化为「取前五手」** → 有一条断言「同种子放大后五手底池会改变选择结果」的测试。
 - **等同判定过松，把不相干的对照摆在用户面前** → 有相邻分桶的反例测试；且判错只影响展示，不进入画像。
+- **把同一位置的不同面对情形合并成一个基准。** 内容里 CO 有两个场景（未面对下注 24.86%、面对 3bet 9.05%），只按位置取基准会把两者混成一个没有含义的数。→ 基准按 (位置, 面对情形) 取键，并有一条断言两者不被合并的场景。
+- **拿几手牌的频率当漏洞给用户看，教出的是噪声。** 6-max 里一个位置每 6 手才轮到一次，60 手 Session 也只给一个位置约 10 次机会，标准误约 ±16 个百分点 → 阈值 30 次机会以下只报计数不下结论，且跨 Session 累计。让用户学会「n=8 说明不了任何事」本身就是职业素养的一部分。
+- **改对手行为表后旧 Session 静默重放出不同的牌** → 记录携带行为表版本，版本不符时拒绝声称一致而不是照放。
 
 ## Non-Goals
 
@@ -562,12 +656,13 @@ The system SHALL expose, for every curriculum node, each of the five mastery sig
 3. 每个决策点的合法集合双向成立：集合内行动均被接受，集合外行动均被拒绝；超出筹码的加注返回 `SessionActionError.exceedsEffectiveStack`。
 4. 每手结算后筹码变化之和为 0、赢家增量为正、底池归零；30 手后六座位筹码之和为 600BB。
 5. 四种对手档案两两之间在 20 个固定局面上至少 5 个局面行动不同，且各自跨进程确定性。
-6. 15/30/60 手 Session 各自可完成，可中断续打，且从记录重建得到逐手相同的牌。
+6. 15/30/60 手 Session 各自可完成，可中断续打，且从记录重建得到逐手相同的牌；行为表版本不符时拒绝声称重放一致。
 7. 整局 Session 打完后事件存储条数不变——命中内容与否都不产生 TrainingEvent。
 8. 相邻筹码分桶不判定为等同；翻后决策点不被标记为可对照。
 9. 从关键手复盘重打产生的 TrainingEvent，与今日训练产生的事件除 ID、时间、设备外逐字段相等。
 10. 完成 Session 后给出 3 到 5 手关键手，每手带枚举原因；同种子放大后五手底池会改变选择结果。
-11. Session 与关键手复盘在真实构建中可达，并有 UI 测试驱动。
-12. `Contracts/training-event-upload-v1.sha256` 未变更。
-13. `bash scripts/verify-m1a.sh`、`verify-m1b.sh`、`verify-m1c.sh` 仍然通过。
-14. `bash scripts/check-proposal-completeness.sh session-m2a-cash-simulation-20260810-01` 通过。
+11. 频率报告在机会数低于 30 时只报计数不给差值；达到阈值后给出的基准值等于内容范围表算出的组合占比。
+12. Session、关键手复盘与频率报告在真实构建中可达，并有 UI 测试驱动。
+13. `Contracts/training-event-upload-v1.sha256` 未变更。
+14. `bash scripts/verify-m1a.sh`、`verify-m1b.sh`、`verify-m1c.sh` 仍然通过。
+15. `bash scripts/check-proposal-completeness.sh session-m2a-cash-simulation-20260810-01` 通过。
