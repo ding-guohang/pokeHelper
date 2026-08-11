@@ -134,3 +134,66 @@ struct HandEvaluatorTests {
         #expect(hand.tiebreakers == [12, 0, 7], "实际 \(hand.tiebreakers)")
     }
 }
+
+/// Three pairs in seven cards, where the best kicker is a singleton that ranks
+/// below one of the pairs.
+///
+/// `groups` sorts by count first, so all three pairs precede every single card;
+/// taking the third element of that list yields the third pair rather than the
+/// best remaining card. The two hands below make the same two pair from the
+/// board and differ only in which card plays fifth — they must tie.
+@Test("三对时的踢脚是最大的单张，不是第三对")
+func theTwoPairKickerIsTheBestSingletonNotTheThirdPair() {
+    let board = ["Qh", "7c", "8h", "8d", "6s"].map { Card(code: $0)! }
+    let withFive = HandEvaluator.evaluate(
+        holeCards: ["5d", "Qc"].map { Card(code: $0)! },
+        board: board
+    )
+    let withSix = HandEvaluator.evaluate(
+        holeCards: ["6d", "Qs"].map { Card(code: $0)! },
+        board: board
+    )
+
+    // Both play QQ88 with the board's 7. The third pair the second hand makes
+    // is irrelevant — a pair cannot be a kicker to a better two pair.
+    #expect(withFive == withSix, "三对时把第三对当成了踢脚")
+    #expect(withFive.category == .twoPair)
+    #expect(withSix.tiebreakers == [10, 6, 5], "踢脚应为 7（strength 5）")
+}
+
+/// The seven-card path must agree with the exhaustive best-of-21 answer.
+///
+/// This is the check that found the kicker bug, kept as a regression: it does
+/// not encode any expected ranking, only that the fast path and the definition
+/// agree. Any future shortcut in `evaluate` is measured against the definition
+/// rather than against itself.
+@Test("七张牌的评估与穷举五张子集的最优解一致")
+func theSevenCardPathAgreesWithTheExhaustiveBestFive() {
+    var rng = SplitMix64(seed: 20_260_811)
+    var checked = 0
+
+    for _ in 0 ..< 20_000 {
+        var deck = Deck.shuffled(using: &rng)
+        let hole = Array(deck.prefix(2))
+        deck.removeFirst(2)
+        let board = Array(deck.prefix(5))
+
+        let fast = HandEvaluator.evaluate(holeCards: hole, board: board)
+        let all = hole + board
+        var best: HandRanking?
+        for excluded in 0 ..< 7 {
+            for alsoExcluded in (excluded + 1) ..< 7 {
+                let five = all.enumerated()
+                    .filter { $0.offset != excluded && $0.offset != alsoExcluded }
+                    .map(\.element)
+                let ranking = HandEvaluator.evaluate(holeCards: [], board: five)
+                if best == nil || ranking > best! { best = ranking }
+            }
+        }
+
+        #expect(fast == best, "七张 \(all.map(\.code)) 快路径 \(fast) 与穷举 \(best!) 不一致")
+        checked += 1
+    }
+
+    #expect(checked == 20_000)
+}

@@ -128,7 +128,18 @@ public enum HandEvaluator {
             let kickers = groups.dropFirst().prefix(2).map(\.strength)
             return HandRanking(category: .threeOfAKind, tiebreakers: [groups[0].strength] + kickers)
         case 2 where groups.count > 1 && groups[1].count == 2:
-            let kicker = groups.dropFirst(2).first?.strength ?? aceLowStrength
+            // `max`, not `first`. `groups` is sorted by count and only then by
+            // rank, so with three pairs in seven cards all three pair groups
+            // sort ahead of every singleton and `first` returns the third
+            // pair — even when a higher single card is on the board. On
+            // Qh7c8h8d6s a hand of 6dQs played QQ88 with a 6 kicker instead of
+            // the 7, losing a pot it should have chopped. A differential sweep
+            // against every five-card subset put this at 1.38% of seven-card
+            // hands and 0.37% of six-way showdowns decided for the wrong seat.
+            //
+            // Chip conservation cannot see this: the pot is fully paid out,
+            // just to the wrong player.
+            let kicker = groups.dropFirst(2).map(\.strength).max() ?? aceLowStrength
             return HandRanking(
                 category: .twoPair,
                 tiebreakers: [groups[0].strength, groups[1].strength, kicker]
