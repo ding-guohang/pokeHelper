@@ -1,7 +1,7 @@
 ---
 name: session-m2a-cash-simulation-20260810-01
 created: 2026-08-10
-status: draft
+status: review_passed
 ---
 
 # 需求提案：M2A 现金局 Session 模拟
@@ -19,11 +19,12 @@ M2A 补上连续性：可复现的发牌、四种虚拟对手、15/30/60 手的 
 - `session-dealing` — 由种子确定的发牌与永远合法的下注状态机。
 - `virtual-opponents` — 四种可披露、确定性的对手策略。
 - `cash-session-run` — 15/30/60 手的 Session，可中断续打。
-- `key-hand-review` — 从一局 Session 中挑出值得复盘的手牌。
+- `key-hand-review` — 从一局 Session 中挑出值得复盘的手牌，并与已安装内容对照。
 
 ### Modified Capabilities
 
-- `local-learning-profile` — 明确 Session 手牌与训练事件的关系：只有落在已安装内容场景上的决策才进入能力画像。
+- `cash-decision-domain` — 明确 `amountToCall` 是「该玩家实际须投入的额度」，由上游封顶到有效筹码；并明确筹码用尽时的跟注就是全下。
+- `local-learning-profile` — 明确 Session 手牌**不产生** TrainingEvent；只有用户在复盘里主动「重打」时才走原有的带信心训练管线。
 
 ### Removed Capabilities
 
@@ -31,21 +32,47 @@ M2A 补上连续性：可复现的发牌、四种虚拟对手、15/30/60 手的 
 
 ## 已确定的设计约束
 
-### 1. 没有策略就不评分
+### 1. 没有策略就不评分，且不为绕开信心而降级评分
 
 `DecisionScorer` 需要 `DecisionScenario.options`——即这个具体局面下每个行动的频率与 EV。内容包为**特定场景**提供这些；随机发出的牌局没有。
 
-因此 **Session 中的决策默认不评分**，只记录。只有当发出的局面与已安装内容中的某个场景在语义上等同（位置、街道、有效筹码、底池、面对的行动、英雄手牌类别全部匹配）时，该手牌才产生 `TrainingEvent` 并进入能力画像。
+更强的一条约束来自现有规格：`explainable-decision-training` 要求**行动与信心共同提交**才评分，并要求**在展示反馈前**持久化事件。Session 里连续打牌不会、也不该在每个决策点弹出信心选择——那就不是打牌了。
 
-这不是能力缺失，是拒绝编造判定。给一手无策略可依的牌打上「blunder」，与本项目此前驳回的生成内容是同一类错误。
+因此 **Session 手牌一律不产生 `TrainingEvent`**，无论是否命中内容。命中内容的手牌在复盘里做**对照**（你打了什么 / 内容说的频率是什么），并提供「以训练模式重打这一手」——重打走的是既有管线：出示行动与信心、评分、反馈前落库。
+
+这样做的直接后果是好的：Session 手牌无法伪造样本量、无法满足掌握判定里的复练与迁移信号，而「迁移」本来就是要在**没见过**的局面上发生的，用只有命中内容才计分的规则去喂它是把信号喂反了。
 
 ### 2. Session 记录与训练事件是两种东西
 
 `SessionHand` 记录发生了什么（牌、行动、底池、结果），`TrainingEvent` 记录一次**被评分的决策**。前者不进入 `Contracts/training-event-upload-v1.json`，事件契约不变。
 
-### 3. 对手策略必须可披露且确定性
+### 3. 「局面等同」M2A 只判翻前
+
+等同关系的唯一用途是决定哪些手牌值得在复盘里对照，因此判错的代价是「给你看了一条不相干的对照」，而不是污染画像。即便如此仍需可测判据。
+
+M2A 的等同定义为**全部满足**：
+
+- 街道同为 preflop
+- 英雄位置（`heroSeatOffsetFromButton`）相等
+- 手牌类别相等——取 `RangeCell.handClass` 已在用的 169 格记号（如 `AKs`、`AKo`、`77`）
+- 面对的行动类别相等（未面对下注 / 面对单次加注 / 面对再加注）
+- 有效筹码落入同一分桶，分桶边界在本 spec 中枚举：`[0, 2000)`、`[2000, 6000)`、`[6000, 12000)`、`[12000, ∞)` centi-BB
+
+**翻后不做匹配**，因为翻后手牌类别需要一套本项目尚未定义、也无求解器依据可定义的分类法。翻后对照属于 M2B。
+
+底池不参与判定：翻前底池由盲注与加注序列决定，已被「面对的行动类别」和分桶覆盖，再单列一个连续量只会让等同关系永不成立。
+
+### 4. 对手策略必须可披露且确定性
 
 对手不是「AI」，是四张写死的行为表。给定 (种子, 局面, 档案)，它的行动唯一确定。界面必须能显示当前对手档案及其倾向——否则用户在跟一个不可知的东西对练，学到的东西无法迁移。
+
+档案是**策略形状的真值**，因此与策略内容承担同一条披露义务：界面必须写明对手行为来自固定启发式规则，不是求解器策略，也不代表真实牌手。
+
+### 5. 桌型、抽水与筹码在 M2A 是常量
+
+- 6-max，英雄 + 5 名对手，每个座位由种子独立指派档案。
+- 所有座位起始 100BB，Session 内不补码、不换座。
+- **抽水恒为 0**。写清楚是为了让「筹码守恒」成为一条有内容的断言，而不是一个未定义项掩护下的恒真式。
 
 ## Capabilities Detail
 
@@ -57,72 +84,90 @@ The system SHALL derive every card in a session from a recorded seed, so the sam
 
 ##### Scenario: 同种子重放相同牌局
 
-- GIVEN 一个 Session 种子与手数 30
+- GIVEN 种子 42 与手数 30
 - WHEN 在两个独立进程中各生成一次
 - THEN 两次的每一手英雄手牌、公共牌与对手手牌完全相同
-- AND 两次的对手行动序列完全相同
+- AND 两次的对手行动序列逐个相同，且序列长度不少于 30
+- AND 两次结果逐字段等于 `Tests/Fixtures/session-seed42-30hands.json` 中提交的黄金记录
 
 ##### Scenario: 不同种子产生不同牌局
 
-- GIVEN 两个不同的种子
+- GIVEN 种子 42 与种子 43
 - WHEN 各生成 30 手
 - THEN 至少 29 手的英雄手牌不同
 
 ##### Scenario: 一副牌内不出现重复牌
 
-- GIVEN 任意种子与任意手数
+- GIVEN 种子 42 的 30 手
 - WHEN 检查每一手的英雄手牌、对手手牌与公共牌
-- THEN 同一手内没有任何一张牌出现两次
-- AND 每一手最多发出 2 + 2 × 对手数 + 5 张牌
+- THEN 每一手恰好发出 2 张英雄手牌与 10 张对手手牌
+- AND 公共牌张数按该手到达的街道恰为 0、3、4 或 5
+- AND 同一手内任意两张牌互不相同
 
 #### Requirement: 下注状态永远合法
 
-The system SHALL reject any action the current betting state does not permit, and SHALL expose the legal set at every decision point.
+The system SHALL reject any action the current betting state does not permit, and SHALL expose at every decision point the complete set of permitted actions.
 
-##### Scenario: 非法行动被拒绝
+##### Scenario: 超出筹码的加注被拒绝
 
-- GIVEN 面对 3BB 加注、英雄剩余 2BB
+- GIVEN 英雄剩余 2BB，面对一次加注，须投入额度已被状态机封顶为 2BB
 - WHEN 尝试加注到 6BB
-- THEN 行动被拒绝并返回 typed error
-- AND 合法行动集合为 {弃牌, 全下至 2BB}
+- THEN 行动被拒绝并返回 `SessionActionError.exceedsEffectiveStack`
+- AND 合法行动集合恰为 `{.fold, .call(to: 2BB)}`——其中 `call(to: effectiveStack)` 即为全下
+- AND Session 状态未改变
 
-##### Scenario: 每个决策点都给出合法行动集合
+##### Scenario: 每个决策点都给出完整合法集合
 
-- GIVEN Session 中的任意决策点
+- GIVEN 种子 42 的 30 手中的每一个决策点
 - WHEN 读取当前状态
-- THEN 合法行动集合非空
-- AND 集合中的每个行动都能被状态机接受
+- THEN 集合中的每个行动都能被状态机接受
+- AND 任何不在该集合中的行动都被状态机拒绝
+- AND 未面对下注时集合同时包含 check 与至少一个下注尺度
+- AND 面对下注且剩余筹码大于须跟注额时集合同时包含 fold、call 与至少一个 raise 尺度
 
 ##### Scenario: 筹码守恒
 
-- GIVEN 一手牌从发牌到结算
-- WHEN 结算完成
-- THEN 所有玩家筹码变化之和加上抽水等于 0
+- GIVEN 种子 42 的 30 手，抽水为 0
+- WHEN 每一手结算完成
+- THEN 该手所有玩家筹码变化之和等于 0
+- AND 至少一名玩家的筹码变化严格大于 0
+- AND 结算后底池为 0
+- AND 30 手结束时六个座位筹码之和等于 600BB
 
 ### Capability: virtual-opponents
 
 #### Requirement: 四种可披露的对手档案
 
-The system SHALL offer four named opponent profiles whose tendencies are stated to the user, and SHALL play each deterministically.
+The system SHALL offer four named opponent profiles whose tendencies are stated to the user as defined values, and SHALL disclose that these are fixed heuristics rather than solver strategy.
 
 ##### Scenario: 档案与其倾向对用户可见
 
 - GIVEN 用户开始一局 Session
 - WHEN 查看对手信息
-- THEN 显示对手档案名称与其倾向描述（入池率、激进度、跟注站或弃牌倾向）
-- AND 描述来自档案定义，不是运行时统计
+- THEN 显示的名称等于所选档案的 `name`，显示的入池率、激进度与跟注倾向数值逐字段等于该档案定义
+- AND 依次选择四种档案，四次显示的数值组合两两不同
+- AND 同一档案下打完 30 手后重新查看，显示的数值未改变
+
+##### Scenario: 对手行为的来源被披露
+
+- GIVEN 任意一局 Session
+- WHEN 用户查看对手信息
+- THEN 显示「对手为固定启发式规则，不是求解器策略」
+- AND 该文案与策略内容的披露文案是两条独立文案
 
 ##### Scenario: 同一局面同一档案的行动唯一确定
 
-- GIVEN 相同的种子、局面与对手档案
-- WHEN 两次求对手行动
+- GIVEN 种子 42、固定局面与同一档案
+- WHEN 在两个独立进程中各求一次
 - THEN 两次行动相同
+- AND 对种子 42 的 30 手，该档案的行动序列逐个等于 `Tests/Fixtures/opponent-<profile>-seed42.json` 中提交的黄金序列
 
 ##### Scenario: 四种档案在同一局面下行为可区分
 
-- GIVEN 一个面对下注的局面与四种档案
-- WHEN 分别求行动
-- THEN 至少三种档案给出的行动或频率互不相同
+- GIVEN `Tests/Fixtures/opponent-spots-20.json` 中 20 个固定局面
+- WHEN 四种档案分别在每个局面求行动
+- THEN 任意两种档案之间至少在 5 个局面上行动不同
+- AND 没有任何一种档案在 20 个局面上给出同一个行动
 
 #### Requirement: 对手行动始终合法
 
@@ -130,76 +175,210 @@ The system SHALL only produce opponent actions the betting state permits.
 
 ##### Scenario: 短码对手不会超额下注
 
-- GIVEN 对手剩余 3BB、当前需跟注 5BB
-- WHEN 求对手行动
-- THEN 行动只能是弃牌或全下至 3BB
+- GIVEN 对手剩余 3BB，面对一次 5BB 的下注，须投入额度已被状态机封顶为 3BB
+- WHEN 四种档案分别求行动
+- THEN 每种档案的行动都属于 `{.fold, .call(to: 3BB)}`
+- AND 四种档案中至少一种返回 `.fold`、至少一种返回 `.call(to: 3BB)`
 
 ### Capability: cash-session-run
 
 #### Requirement: 三种长度的 Session
 
-The system SHALL run sessions of 15, 30 or 60 hands and SHALL record the seed, profile and hand count so a session can be replayed.
+The system SHALL run sessions of 15, 30 or 60 hands and SHALL record the seed, profile assignment and hand count so a session can be replayed hand for hand.
 
-##### Scenario: 完成一局 15 手 Session
+##### Scenario: 完成一局 Session
 
-- GIVEN 用户选择 15 手与一种对手档案
+- GIVEN 用户分别选择 15、30、60 手
 - WHEN 打完全部手数
-- THEN Session 标记为完成
-- AND 记录中有恰好 15 条 SessionHand
-- AND 记录中保存了种子、对手档案与手数
+- THEN 三局都标记为完成
+- AND 三局的 SessionHand 条数恰为 15、30、60
+- AND 每条记录保存了种子、五个座位的档案指派与手数
+- AND 用该记录重新构造 Session 得到逐手相同的牌与逐个相同的对手行动
 
 ##### Scenario: 中断后续打
 
-- GIVEN 用户打到第 7 手后退出
+- GIVEN 用户打到第 7 手后终止进程
 - WHEN 再次打开该 Session
 - THEN 从第 8 手继续
 - AND 前 7 手的记录未被改写
+- AND 第 8 至 15 手的牌与对手行动，与同种子不中断连续打完的 Session 的第 8 至 15 手完全相同
 
-#### Requirement: Session 结果与训练画像分离
+#### Requirement: Session 手牌不进入能力画像
 
-The system SHALL write a TrainingEvent only for a hand whose spot matches an installed content scenario, and SHALL record every other hand as session history alone.
+The system SHALL NOT create a TrainingEvent from a session hand, whether or not its spot matches installed content.
 
-##### Scenario: 无对应内容的手牌不进入画像
+##### Scenario: 未命中内容的手牌不产生事件
 
-- GIVEN Session 中一手的局面在已安装内容里没有等同场景
+- GIVEN 已安装内容非空，Session 中一手在翻前的位置与内容某场景相同但手牌类别不同
 - WHEN 该手结束
 - THEN 不产生 TrainingEvent
+- AND 事件存储的条数不变
 - AND 能力画像的样本量不变
 - AND 该手仍出现在 Session 记录中
 
-##### Scenario: 命中内容场景的手牌照常评分
+##### Scenario: 命中内容的手牌同样不产生事件
 
-- GIVEN Session 中一手的位置、街道、有效筹码、底池、面对的行动与手牌类别与某个已安装场景等同
-- WHEN 用户作答并结束该手
-- THEN 产生一条 TrainingEvent，其 scenarioID 为该场景
-- AND 能力画像的对应维度样本量加一
+- GIVEN Session 中一手在翻前与某已安装场景等同
+- WHEN 该手结束
+- THEN 不产生 TrainingEvent
+- AND 事件存储的条数不变
+- AND 该手在 Session 记录中被标记为可对照
+
+##### Scenario: 相邻分桶不算等同
+
+- GIVEN 一手的街道、位置、面对的行动类别与手牌类别均与某场景相同，但有效筹码落在与该场景相邻的分桶
+- WHEN 判定等同
+- THEN 判定为不等同
+- AND 该手不被标记为可对照
+
+##### Scenario: 翻后手牌不参与匹配
+
+- GIVEN 一手打到翻牌之后，其翻前部分与某已安装场景等同
+- WHEN 判定等同
+- THEN 只有该手的翻前决策点被标记为可对照
+- AND 翻牌及之后的决策点都不被标记
 
 ### Capability: key-hand-review
 
 #### Requirement: 挑出值得复盘的手牌
 
-The system SHALL select key hands from a finished session by pot size, decision difficulty and outcome swing, and SHALL state why each was selected.
+The system SHALL select between three and five key hands from a finished session using pot size, all-in occurrence, stack swing and content match, and SHALL state which of these caused each hand to be selected.
 
 ##### Scenario: 完成 Session 后给出关键手
 
 - GIVEN 一局已完成的 30 手 Session
 - WHEN 打开复盘
-- THEN 列出不超过 5 手关键手
-- AND 每一手显示其入选原因（大底池、艰难决策或结果大幅波动）
+- THEN 列出 3 到 5 手关键手
+- AND 每一手的入选原因为 `.bigPot`、`.allIn`、`.bigSwing`、`.trainable` 之一
+- AND 标记 `.bigPot` 的手，其底池必须是该 Session 底池最大的 5 手之一
+- AND 标记 `.bigSwing` 的手，其英雄筹码变化绝对值不小于 20BB
 
 ##### Scenario: 全部小底池的 Session
 
-- GIVEN 一局 15 手 Session 中每手底池都不超过 3BB
+- GIVEN 一局 15 手 Session，每手底池均不超过 3BB，第 4 手 3.0BB 为全局最大、第 9 手 2.9BB 次之
 - WHEN 打开复盘
-- THEN 仍然列出关键手，按相对排序选出
-- AND 不出现空列表
+- THEN 列表非空，按选择分数降序排列
+- AND 首项为第 4 手
+
+##### Scenario: 关键手不是「取前五手」
+
+- GIVEN 两局同种子 Session，第二局把第 11 至 15 手的底池放大
+- WHEN 分别打开复盘
+- THEN 两次选出的手牌编号集合不同
+- AND 第二次选出的手牌至少包含第 11 至 15 手中的两手
 
 ##### Scenario: 关键手可逐街回放
 
-- GIVEN 一手关键手
-- WHEN 用户打开它
-- THEN 可以逐街查看当时的底池、筹码、行动与手牌
-- AND 若该手命中了内容场景，同时显示当时的评分
+- GIVEN 一手打到河牌的关键手
+- WHEN 用户逐街翻看
+- THEN 四个街道分别显示 0、3、4、5 张公共牌
+- AND 每个街道显示的底池等于该街道结束时的底池，四个数值不全相同
+- AND 每个街道显示的行动只包含该街道发生的行动
+
+#### Requirement: 命中内容的关键手可对照与重打
+
+The system SHALL show, for a key hand whose preflop spot matches installed content, the user's action beside the content's frequencies, and SHALL let the user replay that spot through the normal training pipeline.
+
+##### Scenario: 对照展示
+
+- GIVEN 一手关键手的翻前局面与某已安装场景等同
+- WHEN 用户打开该手
+- THEN 显示用户当时的行动与该场景各行动的频率和 EV
+- AND 明确标注这是对照，不是评分
+- AND 不显示 EV 损失或质量等级
+
+##### Scenario: 重打产生正常训练事件
+
+- GIVEN 一手可对照的关键手
+- WHEN 用户选择「以训练模式重打」，提交行动与信心
+- THEN 产生一条 TrainingEvent，其 scenarioID 为该已安装场景
+- AND 该事件带有用户提交的信心值
+- AND 该事件在展示反馈前已持久化
+- AND 能力画像的对应维度样本量加一
+
+##### Scenario: 未命中内容的关键手不提供重打
+
+- GIVEN 一手关键手在已安装内容里没有等同场景
+- WHEN 用户打开该手
+- THEN 可以逐街回放
+- AND 不显示对照，也不显示「重打」入口
+
+### Capability: cash-decision-domain
+
+<!-- 归档时整块替换 openspec/specs/cash-decision-domain/spec.md；
+     由 scripts/check-proposal-completeness.sh 机械校验。 -->
+
+#### Requirement: 精确扑克值
+
+The system SHALL represent pot and stack amounts as integer centi-big-blinds, EV as integer milli-big-blinds, and strategy frequencies as integer basis points.
+
+##### Scenario: 精确金额运算
+
+- GIVEN 两个可相加的 centi-BB 金额和两个可相减的 milli-BB EV
+- WHEN 领域层执行运算
+- THEN 结果使用整数精确计算
+- AND 领域真值不依赖浮点数比较
+
+#### Requirement: 稳定牌面表示
+
+The system SHALL parse and serialize a card using a stable two-character rank/suit code.
+
+##### Scenario: 合法牌往返
+
+- GIVEN 输入 `As`
+- WHEN 系统解析后重新序列化
+- THEN 结果仍为 `As`
+- AND 点数为 Ace、花色为 Spades
+
+##### Scenario: 非法牌拒绝
+
+- GIVEN 输入 `1x`
+- WHEN 系统尝试解析
+- THEN 解析失败
+- AND 不产生部分 Card 值
+
+#### Requirement: 合法行动过滤
+
+The system SHALL derive the available fold, check, call, bet, raise, and all-in actions from a stored betting decision context, in which amount-to-call is the amount the acting player must actually put in and therefore never exceeds the effective stack.
+
+##### Scenario: 未面对下注
+
+- GIVEN amount-to-call 为零，配置了两个低于有效筹码的下注尺度
+- WHEN 系统计算合法行动
+- THEN 包含 check、两个 bet 和 all-in
+- AND 不包含 fold、call 或 raise
+
+##### Scenario: 面对下注
+
+- GIVEN amount-to-call 大于零并存在 minimum-raise-to
+- WHEN 系统计算合法行动
+- THEN 包含 fold、call、达到最小加注要求的 raise 和 all-in
+- AND 低于 minimum-raise-to 的配置尺度被排除
+
+##### Scenario: 须跟注额被上游封顶到有效筹码
+
+- GIVEN 上游下注为 5BB 而该玩家只剩 3BB
+- WHEN 上游构造决策上下文
+- THEN amount-to-call 为 3BB，等于有效筹码
+- AND 合法行动集合恰为 `{.fold, .call(to: 3BB)}`
+- AND 该集合不含独立的 all-in 项——筹码用尽时的 call 就是全下
+
+#### Requirement: 稳定行动 JSON
+
+The system SHALL encode decision actions with an explicit action kind and unit-bearing target amount.
+
+##### Scenario: 带金额行动
+
+- GIVEN 行动是 bet 到 2.17BB
+- WHEN 系统编码 JSON
+- THEN JSON kind 为 `bet`
+- AND `toCentiBB` 为 `217`
+
+##### Scenario: 行动字段不匹配
+
+- GIVEN fold/check 包含金额或 bet/raise 缺少金额
+- WHEN 系统解码
+- THEN 解码失败并返回 typed error
 
 ### Capability: local-learning-profile
 
@@ -231,11 +410,19 @@ The system SHALL persist each completed decision as an immutable, append-only ev
 - THEN 返回包含行号的 typed corruption error
 - AND 日志不输出完整事件正文
 
-##### Scenario: Session 手牌不写入无策略可依的事件
+##### Scenario: Session 手牌不写入事件
 
-- GIVEN 一手 Session 牌局在已安装内容里没有等同场景
-- WHEN 该手结束
+- GIVEN 一局 30 手 Session，其中若干手在翻前与已安装场景等同
+- WHEN 整局打完
 - THEN 事件存储的条数不变
+- AND 无论是否命中内容都不产生 TrainingEvent
+
+##### Scenario: 重打产生的事件与普通训练事件无从区分
+
+- GIVEN 用户从关键手复盘里重打一个场景，另一用户从今日训练里作答同一场景，行动与信心相同
+- WHEN 比较两条 TrainingEvent
+- THEN 除 event ID、时间与设备外逐字段相等
+- AND 事件中不含任何标示其来自 Session 的字段
 
 #### Requirement: 能力画像归约
 
@@ -329,52 +516,58 @@ The system SHALL expose, for every curriculum node, each of the five mastery sig
 
 ## 设计阶段需决断的点
 
-1. **「局面等同」的判定粒度。** 决定哪些 Session 手牌能被评分。太严则几乎没有手牌命中，太松则拿错误的策略去评分。需要在 plan 阶段定义等同关系并写成可测的判据。
+1. **`SpotSignature` 放在哪一层。** 等同判定需要同时看 Session 局面与 `DecisionScenario`。若判定放进 `SessionSimulation` 就要 import `StrategyContent`，放进 `TrainingDomain` 就要 import `SessionSimulation`——两条都在分层规则之外。倾向把 `SpotSignature` 定义在 `PokerCore`，两侧各自产出签名，由 App 层比较；plan 阶段确认。
 2. **Session 记录的存储与同步。** `SessionHand` 是否纳入跨设备同步。纳入则要扩展服务端；不纳入则换设备看不到历史 Session。
-3. **对手档案的定义方式。** 硬编码为 Swift 值，还是作为内容随策略包交付。后者可以随内容更新，但要接受同一套审核与门禁。
+3. **对手档案的定义方式。** 硬编码为 Swift 值，还是作为内容随策略包交付。后者可以随内容更新，但要接受同一套审核与门禁。无论哪种，档案都必须带版本号并在界面披露。
+4. **关键手选择分数的具体权重。** 四个原因的排序键与并列时的确定性 tie-break。
 
 ## Impact
 
 - **Code:**
-  - `Packages/PokerCore/` — 下注状态机与筹码守恒（当前只有单点 `BettingDecisionContext`）
-  - 新增 `Packages/SessionSimulation/` — 发牌、对手档案、Session 推进
-  - `Packages/TrainingDomain/` — 局面等同判定与事件生成边界
-  - `PokerCoach/Features/Session/` — 新增 Session 与关键手复盘界面
+  - `Packages/PokerCore/` — 下注状态机、筹码守恒、`SpotSignature`
+  - 新增 `Packages/SessionSimulation/` — 发牌、对手档案、Session 推进；只依赖 `PokerCore`
+  - `PokerCoach/Features/Session/` — 新增 Session 与关键手复盘界面；对照与重打的桥接在此层
   - `PokerCoach/Infrastructure/` — Session 记录持久化
+  - `docs/architecture/layering.md` — 把 `SessionSimulation` 写入层图
   - `scripts/verify-m2a.sh` — 一键验证
 - **Interfaces:** Session 为新增 UI 入口。无新增服务端接口（除非设计点 2 决定同步）。
-- **Dependencies:** 无新增运行时依赖。`Contracts/training-event-upload-v1.json` 不变。
+- **Dependencies:** 无新增运行时依赖。`Contracts/training-event-upload-v1.json` 不变。`TrainingDomain` 不新增依赖。
 
 ## Risks
 
-- **给无策略可依的手牌编造评分** → 只有命中内容场景的手牌才评分，其余只记录；有独立测试断言事件条数不变。
-- **发牌不可复现导致 Session 无法回放** → 种子驱动，跨进程确定性测试，禁止 `hashValue`、系统时钟与字典迭代顺序参与。
-- **对手行为不可知，用户学到无法迁移的东西** → 档案与其倾向必须在界面上可见，且来自定义而非运行时统计。
-- **状态机漏判非法行动，产生不可能的牌局** → 每个决策点断言合法集合非空且集合内行动均可被接受；每手结算断言筹码守恒。
-- **关键手选择退化为「取前五手」** → 需要一条断言「相同 Session 换一种排序输入会选出不同的手」的测试。
-- **Session 记录混进能力画像，污染掌握判定** → 画像仍只由 TrainingEvent 归约，Session 记录是另一份数据。
+- **给无策略可依的手牌编造评分** → Session 手牌一律不产生事件；有独立测试断言整局打完后事件条数不变。
+- **绕过「行动与信心共同提交」** → 重打走既有管线，并有测试断言重打事件与普通训练事件逐字段无从区分。
+- **Session 事件污染掌握判定的复练与迁移信号** → 由「不产生事件」从构造上排除，而非靠过滤。
+- **发牌不可复现导致 Session 无法回放** → 种子驱动，跨进程确定性测试加提交的黄金记录，禁止 `hashValue`、系统时钟与字典迭代顺序参与。
+- **对手行为不可知，用户学到无法迁移的东西** → 档案与其倾向来自定义而非运行时统计，界面披露其为固定启发式。
+- **状态机漏判非法行动，产生不可能的牌局** → 断言合法集合的**双向**性质：集合内均可接受，集合外均被拒绝；每手结算断言筹码守恒且赢家增量为正。
+- **关键手选择退化为「取前五手」** → 有一条断言「同种子放大后五手底池会改变选择结果」的测试。
+- **等同判定过松，把不相干的对照摆在用户面前** → 有相邻分桶的反例测试；且判错只影响展示，不进入画像。
 
 ## Non-Goals
 
 - 不做牌谱导入与场景构建（属于 M2B）。
-- 不做锦标赛、短码、Ante、ICM（属于 M3）。
+- 不做翻后局面等同匹配（属于 M2B，需要先有翻后手牌分类法）。
+- 不做锦标赛、Ante、ICM（属于 M3）。M2A 内的短码只作为 100BB 牌局中途的自然状态，不做短码桌型。
 - 不做订阅与上架（属于 M4）。
-- 不做多桌、不做非 6-max 桌型。
+- 不做多桌、不做非 6-max 桌型、不做补码与换座。
+- M2A 抽水恒为 0，不做抽水模型。
 - 不为 Session 手牌生成教练文案；反馈仍只组织已有结构化分析。
 - 不把对手做成学习型 AI；档案是写死的行为表。
 
 ## Acceptance Criteria
 
-1. 同一种子在两个独立进程中重放出逐张相同的牌局与逐个相同的对手行动。
-2. 任意种子任意手数下，同一手内无重复牌，且每手发牌数不超过 2 + 2 × 对手数 + 5。
-3. 每个决策点的合法行动集合非空，且集合内每个行动都能被状态机接受；非法行动返回 typed error。
-4. 每手结算后筹码变化之和加抽水等于 0。
-5. 四种对手档案在同一局面下至少三种行为可区分，且各自确定性。
-6. 15/30/60 手 Session 可完成、可中断续打，记录保存种子、档案与手数。
-7. 未命中内容场景的 Session 手牌不产生 TrainingEvent，能力画像样本量不变。
-8. 命中内容场景的手牌产生 TrainingEvent 且进入画像。
-9. 完成 Session 后给出不超过 5 手关键手，每手显示入选原因；全小底池时不返回空列表。
-10. Session 与关键手复盘在真实构建中可达，并有 UI 测试驱动。
-11. `Contracts/training-event-upload-v1.sha256` 未变更。
-12. `bash scripts/verify-m1a.sh`、`verify-m1b.sh`、`verify-m1c.sh` 仍然通过。
-13. `bash scripts/check-proposal-completeness.sh session-m2a-cash-simulation-20260810-01` 通过。
+1. 种子 42 在两个独立进程中重放出逐张相同的牌局与逐个相同的对手行动，并与提交的黄金记录逐字段相等。
+2. 种子 42 的 30 手中，每手恰好发出 2 + 10 张底牌与街道对应的 0/3/4/5 张公共牌，同一手内无重复牌。
+3. 每个决策点的合法集合双向成立：集合内行动均被接受，集合外行动均被拒绝；超出筹码的加注返回 `SessionActionError.exceedsEffectiveStack`。
+4. 每手结算后筹码变化之和为 0、赢家增量为正、底池归零；30 手后六座位筹码之和为 600BB。
+5. 四种对手档案两两之间在 20 个固定局面上至少 5 个局面行动不同，且各自跨进程确定性。
+6. 15/30/60 手 Session 各自可完成，可中断续打，且从记录重建得到逐手相同的牌。
+7. 整局 Session 打完后事件存储条数不变——命中内容与否都不产生 TrainingEvent。
+8. 相邻筹码分桶不判定为等同；翻后决策点不被标记为可对照。
+9. 从关键手复盘重打产生的 TrainingEvent，与今日训练产生的事件除 ID、时间、设备外逐字段相等。
+10. 完成 Session 后给出 3 到 5 手关键手，每手带枚举原因；同种子放大后五手底池会改变选择结果。
+11. Session 与关键手复盘在真实构建中可达，并有 UI 测试驱动。
+12. `Contracts/training-event-upload-v1.sha256` 未变更。
+13. `bash scripts/verify-m1a.sh`、`verify-m1b.sh`、`verify-m1c.sh` 仍然通过。
+14. `bash scripts/check-proposal-completeness.sh session-m2a-cash-simulation-20260810-01` 通过。
