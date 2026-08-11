@@ -109,7 +109,7 @@ The system SHALL derive every card in a session from a recorded seed, so the sam
 - WHEN 在两个独立进程中各生成一次
 - THEN 两次的每一手英雄手牌、公共牌与对手手牌完全相同
 - AND 两次的对手行动序列逐个相同，且序列长度不少于 30
-- AND 两次结果逐字段等于 `Tests/Fixtures/session-seed42-30hands.json` 中提交的黄金记录
+- AND 两次输出逐字节等于 `Tests/Fixtures/session-seed42-30hands.txt` 中提交的黄金记录
 
 ##### Scenario: 不同种子产生不同牌局
 
@@ -160,7 +160,7 @@ The system SHALL reject any action the current betting state does not permit, an
 
 - GIVEN 200 个种子各 15 手，共 3000 手
 - WHEN 检查所有玩家筹码变化都不为正的手牌
-- THEN 每一手要么是唯一投入者取回自己的盲注，要么是多名投入者平分且各自取回原额
+- THEN 每一手要么是唯一投入者取回自己的盲注——且该投入额等于其应贴盲注——要么是多名投入者平分且各自取回原额
 - AND 两种情形在扫描中都至少出现一次
 - AND 不存在既非上述两者、筹码却减少的手牌
 
@@ -175,7 +175,7 @@ The system SHALL offer four named opponent profiles whose tendencies are stated 
 - GIVEN 用户开始一局 Session
 - WHEN 查看对手信息
 - THEN 显示的名称等于所选档案的 `name`，显示的入池率、激进度与跟注倾向数值逐字段等于该档案定义
-- AND 依次选择四种档案，四次显示的数值组合两两不同
+- AND 四种档案同时列出，四组数值两两不同
 - AND 同一档案下打完 30 手后重新查看，显示的数值未改变
 
 ##### Scenario: 对手行为的来源被披露
@@ -223,7 +223,8 @@ The system SHALL run sessions of 15, 30 or 60 hands and SHALL record the seed, p
 - THEN 三局都标记为完成
 - AND 三局的 SessionHand 条数恰为 15、30、60
 - AND 每条记录保存了种子、五个座位的档案指派、对手行为表版本与手数
-- AND 用该记录重新构造 Session 得到逐手相同的牌与逐个相同的对手行动
+- AND 三局都被标记为完成
+- AND 三局各自用记录重新构造，都得到逐手相同的牌与逐个相同的对手行动
 
 ##### Scenario: 行为表版本变化时拒绝静默重放
 
@@ -241,13 +242,38 @@ The system SHALL run sessions of 15, 30 or 60 hands and SHALL record the seed, p
 - AND 前 7 手的记录未被改写
 - AND 第 8 至 15 手的牌与对手行动，与同种子不中断连续打完的 Session 的第 8 至 15 手完全相同
 
+#### Requirement: 英雄的每个决策都由用户作出
+
+The system SHALL obtain every hero action in a session from the user, and SHALL NOT advance past a hero decision point without one.
+
+##### Scenario: 每个英雄决策点都停下来等用户
+
+- GIVEN 一局进行中的 Session 走到英雄的决策点
+- WHEN 用户尚未选择行动
+- THEN 该手不推进，界面显示当前合法行动集合
+- AND 记录中该手的行动数不增加
+
+##### Scenario: 记录里的英雄行动就是用户选的
+
+- GIVEN 用户在一局 15 手 Session 中的每个英雄决策点作出选择
+- WHEN 对局结束
+- THEN 记录中每个英雄行动都等于用户当时选的那个
+- AND 该 Session 至少有 15 个英雄决策点，否则断言空转
+
+##### Scenario: 没有暗中代打
+
+- GIVEN 一局 Session
+- WHEN 检查英雄座位的行动来源
+- THEN 不存在任何路径由 `BaselineActionPolicy` 或任何对手档案代替英雄行动
+- AND 频率报告与关键手复盘中标为「你的行动」的，只能是用户提交过的行动
+
 #### Requirement: Session 手牌不进入能力画像
 
 The system SHALL NOT create a TrainingEvent from a session hand, whether or not its spot matches installed content.
 
 ##### Scenario: 未命中内容的手牌不产生事件
 
-- GIVEN 已安装内容非空，Session 中一手在翻前的位置与内容某场景相同但手牌类别不同
+- GIVEN 已安装内容非空，Session 中一手在翻前的位置与内容某场景相同，但有效筹码落在不同分桶
 - WHEN 该手结束
 - THEN 不产生 TrainingEvent
 - AND 事件存储的条数不变
@@ -260,20 +286,20 @@ The system SHALL NOT create a TrainingEvent from a session hand, whether or not 
 - WHEN 该手结束
 - THEN 不产生 TrainingEvent
 - AND 事件存储的条数不变
-- AND 该手在 Session 记录中被标记为可对照
+- AND 由该手记录的英雄局面签名可重算出它是可对照的
 
 ##### Scenario: 相邻分桶不算等同
 
-- GIVEN 一手的街道、位置、面对的行动类别与手牌类别均与某场景相同，但有效筹码落在与该场景相邻的分桶
+- GIVEN 一手的街道、位置与面对的行动类别均与某场景相同，但有效筹码落在与该场景相邻的分桶
 - WHEN 判定等同
 - THEN 判定为不等同
-- AND 该手不被标记为可对照
+- AND 由该手的签名重算出它不可对照
 
 ##### Scenario: 翻后手牌不参与匹配
 
 - GIVEN 一手打到翻牌之后，其翻前部分与某已安装场景等同
 - WHEN 判定等同
-- THEN 只有该手的翻前决策点被标记为可对照
+- THEN 只有该手的翻前决策点被算作可对照
 - AND 翻牌及之后的决策点都不被标记
 
 ### Capability: key-hand-review
@@ -287,7 +313,7 @@ The system SHALL select between three and five key hands from a finished session
 - GIVEN 一局已完成的 30 手 Session
 - WHEN 打开复盘
 - THEN 列出 3 到 5 手关键手
-- AND 每一手的入选原因为 `.deviation`、`.allIn`、`.bigSwing`、`.bigPot` 之一
+- AND 在 300 个种子的真实 Session 上，`.deviation`、`.allIn`、`.bigPot` 三种原因都至少作为展示原因出现过一次
 - AND 标记 `.deviation` 的手，其翻前局面被已安装内容覆盖，且英雄的行动在该范围表对其手牌类别的权重低于 5000 基点
 - AND 标记 `.bigPot` 的手，其底池必须是该 Session 底池最大的 5 手之一
 - AND 标记 `.bigSwing` 的手，其英雄筹码变化绝对值不小于 20BB
@@ -381,11 +407,12 @@ The system SHALL accumulate the user's realized preflop action frequencies per (
 
 ##### Scenario: 差距在容差内不算漏洞
 
-- GIVEN 某位置累计 60 次机会，实际频率与基准相差 3 个百分点
+- GIVEN 某位置累计 60 次机会，实际频率与基准相差 3.00 个百分点
 - WHEN 打开频率报告
 - THEN 显示实际值、基准值与差值
 - AND 该位置不出现在漏洞列表里
-- AND 相差 6 个百分点的位置出现在漏洞列表里
+- AND 同样 60 次机会、相差 6.00 个百分点的位置出现在漏洞列表里
+- AND 这两个数值直接出现在测试里，容差因此被夹在 3.00 与 6.00 之间
 
 ##### Scenario: 基准由内容算出，不是写死的数字
 
@@ -706,7 +733,7 @@ The system SHALL expose, for every curriculum node, each of the five mastery sig
 5. 四种对手档案两两之间在 20 个固定局面上至少 5 个局面行动不同，且各自跨进程确定性。
 6. 15/30/60 手 Session 各自可完成，可中断续打，且从记录重建得到逐手相同的牌；行为表版本不符时拒绝声称重放一致。
 7. 整局 Session 打完后事件存储条数不变——命中内容与否都不产生 TrainingEvent。
-8. 相邻筹码分桶不判定为等同；翻后决策点不被标记为可对照。
+8. 相邻筹码分桶不判定为等同；翻后决策点不被算作可对照。
 9. 从关键手复盘重打产生的 TrainingEvent，与今日训练产生的事件除 ID、时间、设备外逐字段相等。
 10. 完成 Session 后给出 3 到 5 手关键手，每手带枚举原因；同种子放大后五手底池会改变选择结果。
 11. 频率报告在机会数低于 30 时只报计数不给差值；达到阈值后给出的基准值等于内容范围表算出的组合占比。
