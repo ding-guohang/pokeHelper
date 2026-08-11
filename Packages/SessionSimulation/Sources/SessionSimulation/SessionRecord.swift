@@ -150,6 +150,29 @@ public struct SessionHandRecord: Hashable, Sendable, Codable {
     public var heroActions: [DecisionAction] {
         actions.filter { $0.seat == TableRules.heroSeat }.map(\.action)
     }
+
+    /// Each spot the hero faced, paired with what they did in it.
+    ///
+    /// The two arrays are parallel by construction: the runner records a
+    /// decision point and then applies exactly one action for it, and blind
+    /// posts are committed without going through the action log. Paired here
+    /// rather than at each call site so that the invariant has one place to be
+    /// stated and one place to be tested — `SessionHandRecordTests` asserts the
+    /// counts agree, and the streets line up, across a sweep of seeds.
+    public var heroSpots: [HeroSpot] {
+        zip(heroSpotSignatures, heroActions).map(HeroSpot.init)
+    }
+}
+
+/// One spot the hero faced and the action they chose in it.
+public struct HeroSpot: Hashable, Sendable {
+    public let signature: SpotSignature
+    public let action: DecisionAction
+
+    public init(signature: SpotSignature, action: DecisionAction) {
+        self.signature = signature
+        self.action = action
+    }
 }
 
 /// Where a stored session stands.

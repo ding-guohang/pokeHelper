@@ -29,6 +29,41 @@ public extension DecisionScenario {
             stackBucket: StackBucket(effectiveStack: decision.effectiveStack)
         )
     }
+
+    /// The situation this scenario teaches, cards left out.
+    ///
+    /// Never nil for a validated pack, for the same reason `spotSignature` is
+    /// not: only an impossible board size can fail.
+    var spotCoverageKey: SpotCoverageKey? {
+        spotSignature?.coverageKey
+    }
+
+    /// What this scenario's range table gives `action` for `handClass`, in
+    /// basis points out of 10,000.
+    ///
+    /// Two cases that look alike and are not:
+    ///
+    /// - The table has no row for the class. That is not missing data — a range
+    ///   chart lists what it plays, and a class it omits is one it folds every
+    ///   time. So the answer is 10,000 for a fold and 0 for anything else, and
+    ///   `nil` is not returned.
+    /// - The action has no name in this table's vocabulary. Range tables in the
+    ///   shipped pack are written in `fold` / `call` / `raise`; a check has no
+    ///   entry anywhere and no defensible translation — mapping it onto `fold`
+    ///   would call a free look at a flop a surrender. That returns `nil`,
+    ///   which callers read as "no comparison to draw" rather than as zero.
+    func rangeWeightBasisPoints(
+        forHandClass handClass: HandClass,
+        action: DecisionAction
+    ) -> Int? {
+        guard let key = RangeBaseline.actionKey(for: action) else {
+            return nil
+        }
+        guard let cell = rangeCells.first(where: { $0.handClass == handClass.description }) else {
+            return key == RangeBaseline.foldKey ? RangeBaseline.fullWeightBasisPoints : 0
+        }
+        return cell.actionWeightsBasisPoints[key] ?? 0
+    }
 }
 
 /// How often a range enters the pot, in basis points of all 1,326 combinations.
@@ -43,6 +78,32 @@ public enum RangeBaseline {
     /// that omits the trash it always folds must not thereby report a higher
     /// entry rate.
     public static let totalCombinations = 1_326
+
+    /// A cell's weights sum to this.
+    public static let fullWeightBasisPoints = 10_000
+
+    /// The three names range tables in this project are written in.
+    ///
+    /// Verified against the shipped pack: every cell in every scenario uses
+    /// only these keys, and every cell sums to 10,000.
+    public static let foldKey = "fold"
+    public static let callKey = "call"
+    public static let raiseKey = "raise"
+
+    /// The range-table name for an action a player took, or `nil` if the
+    /// vocabulary has none.
+    ///
+    /// A bet, a raise and an all-in are all "raise": a range chart names the
+    /// decision to put in more than is owed, not the sizing, and the sizing
+    /// already lives in `DecisionScenario.options`.
+    public static func actionKey(for action: DecisionAction) -> String? {
+        switch action {
+        case .fold: foldKey
+        case .call: callKey
+        case .bet, .raise, .allIn: raiseKey
+        case .check: nil
+        }
+    }
 
     /// The share of all combinations this cell set does something other than
     /// fold with, in basis points.

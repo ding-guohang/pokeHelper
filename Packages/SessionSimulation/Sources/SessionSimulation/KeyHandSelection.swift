@@ -6,17 +6,19 @@ import PokerCore
 /// screen that listed every applicable reason would rank hands by how many
 /// labels they collected rather than by how much they mattered.
 public enum KeyHandReason: String, Hashable, Sendable, Codable, CaseIterable {
+    /// The hero played the spot differently from the range installed content
+    /// teaches for it.
+    ///
+    /// Whether content covers the spot, and what weight its range table gives
+    /// the action the hero chose, are not questions this package can answer —
+    /// it does not know teaching content exists — so they arrive as an input.
+    case deviation
     /// Somebody's whole stack went in.
     case allIn
     /// The hero's stack moved by at least 20BB.
     case bigSwing
     /// One of the session's five largest pots.
     case bigPot
-    /// Installed content has something to say about the hero's preflop spot.
-    ///
-    /// Whether that is true is not a question this package can answer — it does
-    /// not know teaching content exists — so it arrives as an input.
-    case trainable
 }
 
 /// The four facts a hand is scored on.
@@ -24,7 +26,8 @@ public enum KeyHandReason: String, Hashable, Sendable, Codable, CaseIterable {
 /// A separate type from `SessionHandRecord` because scoring and reading a
 /// record are different jobs, and because "what counts as an all-in" is a
 /// decision that has to live somewhere nameable. Deriving these from a record
-/// is `init(_:isTrainable:)`; everything below it works on the facts alone.
+/// is `init(_:heroActionWeightBasisPoints:)`; everything below it works on the
+/// facts alone.
 public struct KeyHandFacts: Hashable, Sendable {
     public let handIndex: Int
     public let potTotalCentiBB: Int
@@ -43,23 +46,30 @@ public struct KeyHandFacts: Hashable, Sendable {
     /// Signed, because losing is the ordinary case.
     public let heroStackDeltaCentiBB: Int
 
-    public let isTrainable: Bool
+    /// The weight, in basis points out of 10,000, that installed content's
+    /// range table gives the action the hero actually took.
+    ///
+    /// `nil` when installed content does not cover the hand's preflop spot at
+    /// all — which is a different statement from "covers it and says the hero's
+    /// action is never taken", and the two must not collapse: the first cannot
+    /// be a deviation, the second is the strongest one there is.
+    public let heroActionWeightBasisPoints: Int?
 
     public init(
         handIndex: Int,
         potTotalCentiBB: Int,
         sawAllIn: Bool,
         heroStackDeltaCentiBB: Int,
-        isTrainable: Bool = false
+        heroActionWeightBasisPoints: Int? = nil
     ) {
         self.handIndex = handIndex
         self.potTotalCentiBB = potTotalCentiBB
         self.sawAllIn = sawAllIn
         self.heroStackDeltaCentiBB = heroStackDeltaCentiBB
-        self.isTrainable = isTrainable
+        self.heroActionWeightBasisPoints = heroActionWeightBasisPoints
     }
 
-    public init(_ hand: SessionHandRecord, isTrainable: Bool) {
+    public init(_ hand: SessionHandRecord, heroActionWeightBasisPoints: Int?) {
         self.init(
             handIndex: hand.handIndex,
             potTotalCentiBB: hand.result.potTotal.centiBB,
@@ -67,7 +77,7 @@ public struct KeyHandFacts: Hashable, Sendable {
                 start.centiBB > 0 && put == start
             },
             heroStackDeltaCentiBB: hand.result.stackDeltasCentiBB[TableRules.heroSeat],
-            isTrainable: isTrainable
+            heroActionWeightBasisPoints: heroActionWeightBasisPoints
         )
     }
 }
@@ -92,10 +102,10 @@ public struct KeyHand: Hashable, Sendable {
 ///
 /// | Reason | Qualifies when | Score |
 /// |---|---|---|
+/// | `.deviation` | content covers the spot and gives the hero's action < 5000bp | 5000 + (10000 − weight) |
 /// | `.allIn` | a stack went in | 4000 + pot |
 /// | `.bigSwing` | the hero's stack moved ≥ 20BB | 3000 + \|delta\| |
 /// | `.bigPot` | among the five largest pots | 2000 + pot |
-/// | `.trainable` | installed content covers the preflop spot | 1000 |
 ///
 /// A hand's score is the largest of the rows it qualifies for, and that row is
 /// the reason shown. The offsets are small next to a pot measured in centi-BB,
@@ -103,17 +113,21 @@ public struct KeyHand: Hashable, Sendable {
 /// each other — which is deliberate: a 90BB pot matters more than a 4BB one
 /// however each of them ended.
 ///
-/// Two consequences worth stating rather than discovering:
+/// `.deviation` is the row that carries a learning signal. The other three say
+/// "this hand decided the session", which is variance; only this one says "you
+/// played it differently from what you have installed", which is something to
+/// practise. It is written at the top of the table and its whole score range,
+/// 10,001 through 15,000, sits above the fixed part of every other row, so a
+/// deviation outranks any hand whose distinction is a pot of ordinary size. It
+/// does not outrank a genuinely enormous pot — 4000 + a 150BB pot is 19,000 —
+/// and that is the table as specified rather than an accident: a stack going in
+/// for 150BB is not something a review should bury.
 ///
-/// - Between three and five hands come back for any session of three or more,
-///   with no floor written into the code. `.bigPot` qualifies the five largest
-///   pots, so a session of *n* hands always has at least `min(n, 5)` candidates
-///   and the selection is always exactly that many.
-/// - `.trainable` can never be the reason shown. It scores a flat 1000 while
-///   every one of the five biggest pots scores at least 2000, so a hand whose
-///   only distinction is that content covers it is always outranked.
-///   `KeyHandSelectionTests` pins this down so that changing the table turns a
-///   test red instead of quietly changing what users see.
+/// One consequence worth stating rather than discovering: between three and
+/// five hands come back for any session of three or more, with no floor written
+/// into the code. `.bigPot` qualifies the five largest pots, so a session of
+/// *n* hands always has at least `min(n, 5)` candidates and the selection is
+/// always exactly that many.
 public enum KeyHandSelection {
     /// Never more than five, so that "review" stays a handful of hands.
     public static let maximumCount = 5
@@ -121,30 +135,50 @@ public enum KeyHandSelection {
     /// 20BB, per the spec.
     public static let bigSwingThresholdCentiBB = 2_000
 
+    /// A range table's weights are basis points of this.
+    public static let fullWeightBasisPoints = 10_000
+
+    /// Below half weight, the hero took the minority line. Fixed in design.md
+    /// decision 4 rather than tuned: at any higher threshold a hand the range
+    /// plays both ways would be flagged as a departure from a range that in
+    /// fact endorses it.
+    public static let deviationWeightThresholdBasisPoints = 5_000
+
+    private static let deviationBase = 5_000
     private static let allInBase = 4_000
     private static let bigSwingBase = 3_000
     private static let bigPotBase = 2_000
-    private static let trainableBase = 1_000
 
     public static func facts(
         for hands: [SessionHandRecord],
-        trainableHandIndices: Set<Int>
+        heroActionWeightsBasisPoints: [Int: Int]
     ) -> [KeyHandFacts] {
-        hands.map { KeyHandFacts($0, isTrainable: trainableHandIndices.contains($0.handIndex)) }
+        hands.map {
+            KeyHandFacts(
+                $0,
+                heroActionWeightBasisPoints: heroActionWeightsBasisPoints[$0.handIndex]
+            )
+        }
     }
 
     /// The key hands of a session.
     ///
-    /// `trainableHandIndices` is an input because this package cannot see
-    /// installed content and must not learn to: answering "does content cover
-    /// this spot?" inside the engine turns the answer into something other than
-    /// a fact about the hand. The app layer, which sees both sides, computes it
-    /// from `SpotSignature` equality.
+    /// `heroActionWeightsBasisPoints` is an input because this package cannot
+    /// see installed content and must not learn to: answering "does content
+    /// cover this spot?" inside the engine turns the answer into something
+    /// other than a fact about the hand. The app layer, which sees both sides,
+    /// looks the spot up by `SpotCoverageKey` and then reads the hero's hand
+    /// class out of that scenario's range table.
+    ///
+    /// Hands absent from the dictionary are the uncovered ones. A hand mapped
+    /// to 0 is covered and given no weight at all, which is the opposite claim.
     public static func select(
         from hands: [SessionHandRecord],
-        trainableHandIndices: Set<Int>
+        heroActionWeightsBasisPoints: [Int: Int]
     ) -> [KeyHand] {
-        select(from: facts(for: hands, trainableHandIndices: trainableHandIndices))
+        select(
+            from: facts(for: hands, heroActionWeightsBasisPoints: heroActionWeightsBasisPoints)
+        )
     }
 
     public static func select(from facts: [KeyHandFacts]) -> [KeyHand] {
@@ -202,6 +236,10 @@ public enum KeyHandSelection {
             }
         }
 
+        if let weight = fact.heroActionWeightBasisPoints,
+           weight < deviationWeightThresholdBasisPoints {
+            consider(.deviation, deviationBase + (fullWeightBasisPoints - weight))
+        }
         if fact.sawAllIn {
             consider(.allIn, allInBase + fact.potTotalCentiBB)
         }
@@ -210,9 +248,6 @@ public enum KeyHandSelection {
         }
         if isAmongBiggestPots {
             consider(.bigPot, bigPotBase + fact.potTotalCentiBB)
-        }
-        if fact.isTrainable {
-            consider(.trainable, trainableBase)
         }
 
         return best

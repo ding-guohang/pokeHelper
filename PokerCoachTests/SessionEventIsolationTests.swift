@@ -24,12 +24,20 @@ import XCTest
 /// preflop spot is equivalent to a shipped scenario are played, matched, and
 /// still produce nothing.
 final class SessionEventIsolationTests: XCTestCase {
-    /// Chosen because 30 hands from it contain at least one spot the shipped
-    /// pack covers and many it does not. Both are asserted below rather than
-    /// assumed: without the first the test proves nothing about matching hands,
-    /// and without the second it proves nothing about the rest.
+    /// Chosen when coverage was keyed on the whole spot signature, because 30
+    /// hands from it contained exactly one spot the shipped pack covered. That
+    /// premise is gone: coverage is keyed on the situation now, and the same
+    /// thirty hands contain 22 covered ones. Both the covered and the uncovered
+    /// count are asserted below rather than assumed — without the first the
+    /// test proves nothing about matching hands, and without the second it
+    /// proves nothing about the rest.
     private let seed: UInt64 = 18
     private let handCount = 30
+
+    /// What the shipped pack covers in these thirty hands. Pinned as a value
+    /// rather than as "at least one", because the number is the measurement
+    /// that justified changing the key: it was 1 under the old signature key.
+    private let expectedMatchedHandCount = 22
 
     @MainActor
     func testAFullSessionWithContentInstalledWritesNoTrainingEvent() async throws {
@@ -67,15 +75,30 @@ final class SessionEventIsolationTests: XCTestCase {
         XCTAssertEqual(hands.count, handCount)
 
         let matched = hands.filter { summary.comparableHandIndices.contains($0.handIndex) }
-        XCTAssertGreaterThanOrEqual(
+        XCTAssertEqual(
             matched.count,
-            1,
-            "这 \(handCount) 手没有一手命中已安装内容，测试就没有覆盖「命中内容也不产生事件」"
+            expectedMatchedHandCount,
+            "这 \(handCount) 手命中 \(matched.count) 次内容，与实测的 \(expectedMatchedHandCount) 不符"
         )
         XCTAssertLessThan(
             matched.count,
             hands.count,
             "每一手都命中内容，测试就没有覆盖「未命中内容也不产生事件」"
+        )
+
+        // The same thirty hands under the old key — the whole signature,
+        // example hand and all — so the improvement this change exists for is
+        // a number in the test rather than a claim in a commit message.
+        let underTheOldSignatureKey = hands.count { hand in
+            hand.heroSpotSignatures.contains { signature in
+                installed.pack.scenarios.contains { $0.spotSignature == signature }
+            }
+        }
+        XCTAssertEqual(underTheOldSignatureKey, 1, "旧键在这局的命中数不是 1，对照失去意义")
+        XCTAssertGreaterThan(
+            matched.count,
+            underTheOldSignatureKey * 10,
+            "改键之后命中数只有 \(matched.count)，没有量级上的改善"
         )
 
         // The whole session has been played, with content installed, and some
@@ -136,10 +159,10 @@ final class SessionEventIsolationTests: XCTestCase {
         XCTAssertEqual(after, before)
     }
 
-    /// The shipped pack covers exactly one of these thirty spots, which is what
-    /// installed content honestly does today. This test asks the same question
-    /// with content that covers *every* preflop spot the hero faced, so the
-    /// matched branch runs on the whole session rather than on one hand.
+    /// The shipped pack covers 22 of these thirty hands. This test asks the
+    /// same question with content that covers *every* preflop spot the hero
+    /// faced, so the matched branch runs on the whole session rather than on
+    /// most of it.
     @MainActor
     func testASessionWhoseEverySpotMatchesContentStillWritesNoTrainingEvent() async throws {
         let eventStore = try FileTrainingEventStore(directory: temporaryDirectory())
@@ -177,23 +200,25 @@ final class SessionEventIsolationTests: XCTestCase {
         XCTAssertEqual(after, before)
     }
 
-    /// Scenarios built to match every preflop spot in these hands.
+    /// Scenarios built to cover every preflop situation in these hands.
     ///
-    /// Only the five fields a signature reads are set from the hand — street,
-    /// seat offset, hand class, facing and stack depth. Everything else is
-    /// copied from a fixture scenario, because none of it participates in the
-    /// comparison and inventing frequencies would be inventing strategy.
+    /// Only the four fields a coverage key reads are set from the hand —
+    /// street, seat offset, facing and stack depth. The example hand is fixed,
+    /// deliberately: it does not participate in coverage, and varying it would
+    /// suggest it did. Everything else is copied from a fixture scenario,
+    /// because none of it participates in the comparison either and inventing
+    /// frequencies would be inventing strategy.
     @MainActor
     private static func scenariosCovering(
         _ hands: [SessionHandRecord]
     ) throws -> [DecisionScenario] {
         let template = try DecisionSessionFixture.makePack().scenarios[0]
-        var seen: Set<SpotSignature> = []
+        var seen: Set<SpotCoverageKey> = []
         var scenarios: [DecisionScenario] = []
 
         for hand in hands {
             for signature in hand.heroSpotSignatures
-            where signature.street == .preflop && seen.insert(signature).inserted {
+            where signature.street == .preflop && seen.insert(signature.coverageKey).inserted {
                 let stack = representativeStack(for: signature.stackBucket)
                 scenarios.append(
                     DecisionScenario(
@@ -203,7 +228,10 @@ final class SessionEventIsolationTests: XCTestCase {
                         curriculumNodeID: template.curriculumNodeID,
                         heroSeatOffsetFromButton: signature.heroSeatOffsetFromButton,
                         facing: signature.facing,
-                        heroCards: cards(for: signature.handClass),
+                        heroCards: [
+                            Card(rank: .ace, suit: .spades),
+                            Card(rank: .king, suit: .hearts),
+                        ],
                         board: [],
                         decision: BettingDecisionContext(
                             pot: BBAmount(centiBB: 150),
@@ -234,26 +262,6 @@ final class SessionEventIsolationTests: XCTestCase {
         // otherwise this helper silently stops covering anything.
         precondition(StackBucket(effectiveStack: stack) == bucket)
         return stack
-    }
-
-    private static func cards(for handClass: HandClass) -> [Card] {
-        switch handClass.suitedness {
-        case .pair:
-            [
-                Card(rank: handClass.highRank, suit: .spades),
-                Card(rank: handClass.lowRank, suit: .hearts),
-            ]
-        case .suited:
-            [
-                Card(rank: handClass.highRank, suit: .spades),
-                Card(rank: handClass.lowRank, suit: .spades),
-            ]
-        case .offsuit:
-            [
-                Card(rank: handClass.highRank, suit: .spades),
-                Card(rank: handClass.lowRank, suit: .hearts),
-            ]
-        }
     }
 
     private func temporaryDirectory() -> URL {

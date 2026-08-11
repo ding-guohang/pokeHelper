@@ -77,6 +77,40 @@ public enum StackBucket: String, Hashable, Sendable, CaseIterable, Codable {
     }
 }
 
+/// The identity of a *situation*, with the cards left out.
+///
+/// This is the key that answers "does installed content have anything to say
+/// about this spot?", and it deliberately omits the hand class. A scenario's
+/// hero cards are the example the training screen shows; its range table covers
+/// the whole range — 47 to 102 classes each in the shipped pack. Keying
+/// coverage on the example hand would require the user to be dealt that exact
+/// hand: measured against the shipped pack over 6,000 dealt hands, the full
+/// signature matched 15 of them, one hand in 400, 0.07 per 30-hand session. The
+/// comparison loop that number describes does not exist.
+///
+/// The hero's actual cards are not thrown away, they are asked second: once the
+/// situation is covered, the class is looked up in that scenario's range table.
+/// A class the table omits is not a miss — it is the table saying it folds that
+/// hand 100% of the time, which is as comparable an answer as any other.
+public struct SpotCoverageKey: Hashable, Sendable, Codable {
+    public let street: Street
+    public let heroSeatOffsetFromButton: Int
+    public let facing: FacingAction
+    public let stackBucket: StackBucket
+
+    public init(
+        street: Street,
+        heroSeatOffsetFromButton: Int,
+        facing: FacingAction,
+        stackBucket: StackBucket
+    ) {
+        self.street = street
+        self.heroSeatOffsetFromButton = heroSeatOffsetFromButton
+        self.facing = facing
+        self.stackBucket = stackBucket
+    }
+}
+
 /// The identity of a betting spot, for deciding whether a hand dealt in a
 /// session corresponds to a scenario in the installed content.
 ///
@@ -109,6 +143,20 @@ public struct SpotSignature: Hashable, Sendable, Codable {
         self.handClass = handClass
         self.facing = facing
         self.stackBucket = stackBucket
+    }
+
+    /// This spot's situation, without the cards.
+    ///
+    /// The signature still answers "is this literally the same training
+    /// scenario"; the coverage key answers the question a review screen
+    /// actually asks, which is whether content covers the situation.
+    public var coverageKey: SpotCoverageKey {
+        SpotCoverageKey(
+            street: street,
+            heroSeatOffsetFromButton: heroSeatOffsetFromButton,
+            facing: facing,
+            stackBucket: stackBucket
+        )
     }
 }
 

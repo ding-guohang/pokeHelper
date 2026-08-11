@@ -89,6 +89,35 @@ struct SpotSignatureTests {
         #expect(FacingAction(priorRaiseCount: 9) == .reraise)
     }
 
+    /// The coverage key is the signature minus the cards, and the "minus the
+    /// cards" half needs asserting in both directions: a key that still carried
+    /// the hand class would fail the first assertion, and one that dropped a
+    /// second component along with it would fail one of the other four while
+    /// looking correct in use.
+    @Test("覆盖键忽略手牌类别，其余四个分量都参与")
+    func theCoverageKeyDropsTheHandClassAndNothingElse() throws {
+        let base = Self.signature()
+
+        #expect(
+            base.coverageKey == Self.signature(handClass: try #require(HandClass(notation: "72o"))).coverageKey,
+            "手牌类别仍然参与了覆盖判定"
+        )
+        // The signatures themselves still differ, so the line above is about
+        // the key rather than about two values that were equal anyway.
+        #expect(base != Self.signature(handClass: try #require(HandClass(notation: "72o"))))
+
+        #expect(base.coverageKey != Self.signature(street: .flop).coverageKey, "street 未参与覆盖判定")
+        #expect(
+            base.coverageKey != Self.signature(heroSeatOffsetFromButton: 3).coverageKey,
+            "位置未参与覆盖判定"
+        )
+        #expect(base.coverageKey != Self.signature(facing: .reraise).coverageKey, "面对情形未参与覆盖判定")
+        #expect(base.coverageKey != Self.signature(stackBucket: .short).coverageKey, "筹码分桶未参与覆盖判定")
+
+        #expect(base.coverageKey == Self.signature().coverageKey)
+        #expect(Set([base.coverageKey, Self.signature().coverageKey]).count == 1)
+    }
+
     /// The signature is persisted inside session records, so a round trip that
     /// silently loses a component would make replayed sessions stop matching
     /// content they matched when they were played.

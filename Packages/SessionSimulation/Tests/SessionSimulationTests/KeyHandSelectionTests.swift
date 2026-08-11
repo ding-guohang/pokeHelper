@@ -30,7 +30,7 @@ struct KeyHandSelectionTests {
         let hands = session()
         #expect(hands.count == Self.handCount, "夹具只打了 \(hands.count) 手")
 
-        let selected = KeyHandSelection.select(from: hands, trainableHandIndices: [])
+        let selected = KeyHandSelection.select(from: hands, heroActionWeightsBasisPoints: [:])
 
         #expect(selected.count >= 3, "只选出 \(selected.count) 手")
         #expect(selected.count <= 5, "选出了 \(selected.count) 手")
@@ -140,7 +140,7 @@ struct KeyHandSelectionTests {
         let hands = session(handCount: 15)
         #expect(hands.count == 15)
 
-        let asPlayed = hands.map { KeyHandFacts($0, isTrainable: false) }
+        let asPlayed = hands.map { KeyHandFacts($0, heroActionWeightBasisPoints: nil) }
         // The eleventh through fifteenth hands, which the records index 10–14.
         let lateIndices = Set(10 ... 14)
         let enlarged = asPlayed.map { fact in
@@ -230,16 +230,21 @@ struct KeyHandSelectionTests {
         }
     }
 
-    // AND 每一手的入选原因为 .bigPot、.allIn、.bigSwing、.trainable 之一——当一手同时
+    // AND 每一手的入选原因为 .deviation、.allIn、.bigSwing、.bigPot 之一——当一手同时
     // 满足多个判据时，展示的是分数最高的那个。
     @Test("一手命中多个判据时展示分数最高的原因")
     func aHandThatQualifiesTwiceReportsItsHighestScoringReason() {
+        // Qualifies on all four rows. 5000 + (10000 − 4000) = 11000 for the
+        // deviation, 4000 + 8000 = 12000 for the all-in, 3000 + 7000 = 10000
+        // for the swing, 2000 + 8000 = 10000 for the pot. The all-in wins, so
+        // `.deviation` being written at the top of the table is not by itself
+        // what decides the reason.
         let everything = KeyHandFacts(
             handIndex: 0,
             potTotalCentiBB: 8_000,
             sawAllIn: true,
             heroStackDeltaCentiBB: -7_000,
-            isTrainable: true
+            heroActionWeightBasisPoints: 4_000
         )
         // 3000 + 2500 = 5500 for the swing, 2000 + 10000 = 12000 for the pot:
         // the bigger pot wins even though the swing is listed above it in the
@@ -265,37 +270,127 @@ struct KeyHandSelectionTests {
         #expect(byIndex[1]?.score == 12_000)
     }
 
-    /// A consequence of the score table worth pinning down, because it is not
-    /// obvious from reading it: `.trainable` scores a flat 1000 while every one
-    /// of the five largest pots scores at least 2000, so a hand whose only
-    /// distinction is that installed content covers it can never reach the
-    /// list. Recorded as a test so that changing the table changes a red test
-    /// rather than quietly changing what users see.
-    @Test("只因命中内容而值得看的手，在这张分数表下选不进来")
-    func aHandThatIsOnlyTrainableNeverMakesTheList() {
+    // GIVEN 一局 Session 中，第 3 手英雄在被内容覆盖的局面上做出了范围表权重为 0 的行动，
+    //       第 8 手是全局最大底池但英雄的行动与范围表一致
+    // WHEN 打开复盘
+    // THEN 第 3 手排在第 8 手之前
+    // AND 第 3 手的原因为 .deviation，第 8 手不是
+    //
+    // "第 3 手" and "第 8 手" are the third and eighth hands, indexed 2 and 7.
+    @Test("偏离内容范围的手排在纯粹大底池之前")
+    func aDeviationOutranksAPotThatWasMerelyLarge() throws {
+        let deviatingIndex = 2
+        let biggestPotIndex = 7
         let facts = (0 ..< 15).map { index in
             KeyHandFacts(
                 handIndex: index,
-                // Hand 7 has the smallest pot of the fifteen.
-                potTotalCentiBB: index == 7 ? 100 : 1_000 + index * 10,
+                potTotalCentiBB: index == biggestPotIndex ? 6_000 : 300 + index * 10,
                 sawAllIn: false,
                 heroStackDeltaCentiBB: 0,
-                isTrainable: index == 7
+                // Covered either way. The third hand took a line the range
+                // never takes; the eighth took the one it always takes.
+                heroActionWeightBasisPoints: index == deviatingIndex
+                    ? 0
+                    : (index == biggestPotIndex ? 10_000 : nil)
             )
         }
-        let trainable = facts[7]
-        #expect(trainable.isTrainable)
-        #expect(!trainable.sawAllIn)
-        #expect(abs(trainable.heroStackDeltaCentiBB) < 2_000)
-        #expect(
-            facts.count(where: { $0.potTotalCentiBB > trainable.potTotalCentiBB }) >= 5,
-            "夹具里这手的底池进了最大的 5 手，测的就不是「只有可训练」了"
-        )
+
+        // The fixture really is the shape the scenario describes: the eighth
+        // hand has the session's largest pot, the third hand's is unremarkable,
+        // and only the third hand departed from the range.
+        let deviating = try #require(facts.first { $0.handIndex == deviatingIndex })
+        let biggest = try #require(facts.first { $0.handIndex == biggestPotIndex })
+        #expect(biggest.potTotalCentiBB == facts.map(\.potTotalCentiBB).max())
+        #expect(deviating.potTotalCentiBB < biggest.potTotalCentiBB)
+        #expect(deviating.heroActionWeightBasisPoints == 0)
+        #expect(biggest.heroActionWeightBasisPoints == 10_000)
+        #expect(!deviating.sawAllIn && !biggest.sawAllIn)
+        #expect(abs(deviating.heroStackDeltaCentiBB) < KeyHandSelection.bigSwingThresholdCentiBB)
 
         let selected = KeyHandSelection.select(from: facts)
+        let order = selected.map(\.handIndex)
+        let byIndex = Dictionary(uniqueKeysWithValues: selected.map { ($0.handIndex, $0) })
 
-        #expect(!selected.contains { $0.handIndex == 7 }, "只因可训练而入选：\(selected)")
-        #expect(!selected.contains { $0.reason == .trainable })
+        // Both are on the list, otherwise "before" is a statement about
+        // something that is not being shown.
+        let deviatingPlace = try #require(order.firstIndex(of: deviatingIndex), "偏离的第 3 手没有入选：\(order)")
+        let biggestPlace = try #require(order.firstIndex(of: biggestPotIndex), "最大底池的第 8 手没有入选：\(order)")
+        #expect(deviatingPlace < biggestPlace, "第 3 手排在第 8 手之后：\(order)")
+        #expect(byIndex[deviatingIndex]?.reason == .deviation,
+                "第 3 手的原因是 \(String(describing: byIndex[deviatingIndex]?.reason))")
+        #expect(byIndex[biggestPotIndex]?.reason != .deviation,
+                "第 8 手也被标成了偏离")
+        #expect(byIndex[deviatingIndex]?.score == 15_000)
+    }
+
+    // GIVEN 一手的翻前局面在已安装内容里没有覆盖
+    // WHEN 选关键手
+    // THEN 该手的原因不可能是 .deviation
+    // AND 它仍可因底池、全下或波动入选
+    @Test("内容未覆盖的手不会被标为偏离")
+    func anUncoveredHandIsNeverADeviation() throws {
+        let uncoveredIndex = 3
+        func facts(weightForUncovered weight: Int?) -> [KeyHandFacts] {
+            (0 ..< 10).map { index in
+                KeyHandFacts(
+                    handIndex: index,
+                    // Big enough to be selected on its own merits, small enough
+                    // that a deviation would outrank it if one were found.
+                    potTotalCentiBB: index == uncoveredIndex ? 5_000 : 200 + index * 10,
+                    sawAllIn: index == uncoveredIndex,
+                    heroStackDeltaCentiBB: index == uncoveredIndex ? -2_500 : 0,
+                    heroActionWeightBasisPoints: index == uncoveredIndex ? weight : nil
+                )
+            }
+        }
+
+        let uncovered = KeyHandSelection.select(from: facts(weightForUncovered: nil))
+        let byIndex = Dictionary(uniqueKeysWithValues: uncovered.map { ($0.handIndex, $0) })
+        let hand = try #require(byIndex[uncoveredIndex], "未覆盖的这手根本没入选，断言是空转的")
+
+        #expect(hand.reason != .deviation, "未覆盖的手被标成了偏离")
+        #expect(hand.reason == .allIn, "它应当仍因全下入选，实际是 \(hand.reason)")
+        #expect(uncovered.first?.handIndex == uncoveredIndex, "它没有排在最前：\(uncovered.map(\.handIndex))")
+
+        // The same hand, the same pot, the same all-in — the only thing that
+        // changed is that content now covers it and says the hero's line has no
+        // weight. Without this the assertion above is also satisfied by an
+        // implementation that never produces `.deviation` at all.
+        let covered = KeyHandSelection.select(from: facts(weightForUncovered: 0))
+        let coveredHand = try #require(covered.first { $0.handIndex == uncoveredIndex })
+        #expect(coveredHand.reason == .deviation, "覆盖且权重为 0 时的原因是 \(coveredHand.reason)")
+    }
+
+    /// The threshold is a strict `<`, and the score falls as the weight rises.
+    /// Both halves matter: an implementation that flagged everything covered
+    /// would satisfy the two scenarios above, and one that scored every
+    /// deviation the same would order two of them by hand index.
+    @Test("权重 5000 及以上不算偏离，权重越低分数越高")
+    func theDeviationThresholdAndScoreFollowTheWeight() {
+        func reason(forWeight weight: Int?) -> (KeyHandReason, Int)? {
+            // One hand, so `.bigPot` always applies and there is always a row
+            // to fall back on — the question is only whether `.deviation`
+            // outranks it.
+            let selected = KeyHandSelection.select(from: [
+                KeyHandFacts(
+                    handIndex: 0,
+                    potTotalCentiBB: 100,
+                    sawAllIn: false,
+                    heroStackDeltaCentiBB: 0,
+                    heroActionWeightBasisPoints: weight
+                ),
+            ])
+            return selected.first.map { ($0.reason, $0.score) }
+        }
+
+        #expect(reason(forWeight: nil)?.0 == .bigPot)
+        #expect(reason(forWeight: 5_000)?.0 == .bigPot, "权重恰好 5000 被算成了偏离")
+        #expect(reason(forWeight: 10_000)?.0 == .bigPot)
+        #expect(reason(forWeight: 4_999)?.0 == .deviation, "权重 4999 没有被算成偏离")
+
+        #expect(reason(forWeight: 4_999)?.1 == 10_001)
+        #expect(reason(forWeight: 2_500)?.1 == 12_500)
+        #expect(reason(forWeight: 0)?.1 == 15_000)
     }
 
     /// The all-in test the spec's wording invites getting wrong: `.allIn` is not
@@ -311,7 +406,7 @@ struct KeyHandSelectionTests {
 
         for seed in UInt64(1) ... 60 {
             for hand in SessionRunner(seed: seed).run(handCount: 30).hands.map(SessionHandRecord.init) {
-                let byChips = KeyHandFacts(hand, isTrainable: false).sawAllIn
+                let byChips = KeyHandFacts(hand, heroActionWeightBasisPoints: nil).sawAllIn
                 let byName = hand.actions.contains {
                     if case .allIn = $0.action { true } else { false }
                 }
@@ -333,25 +428,39 @@ struct KeyHandSelectionTests {
     @Test("没有手牌就没有关键手")
     func anEmptySessionHasNoKeyHands() {
         #expect(KeyHandSelection.select(from: [] as [KeyHandFacts]).isEmpty)
-        #expect(KeyHandSelection.select(from: [], trainableHandIndices: []).isEmpty)
+        #expect(KeyHandSelection.select(from: [], heroActionWeightsBasisPoints: [:]).isEmpty)
     }
 
-    /// The trainable flag is an input, not something the engine looks up. This
+    /// The range weight is an input, not something the engine looks up. This
     /// package cannot see installed content, and the layering gate enforces it;
-    /// the assertion here is only that what the caller passes in arrives.
+    /// the assertion here is only that what the caller passes in arrives, and
+    /// that "absent" and "zero" stay distinguishable — they mean opposite
+    /// things and a dictionary lookup is the easiest place to conflate them.
     ///
     /// The other three facts are read off the record, and are pinned to the
     /// sixth hand of seed 42 by value: the hero loses 93.50BB into a 188.00BB
     /// pot with a stack in the middle. Values rather than a restatement of the
     /// expression, so that reading the wrong seat's delta is a red test.
-    @Test("四项判据由记录算出，可训练由调用方传入")
+    @Test("四项判据由记录算出，范围权重由调用方传入")
     func theFactsComeFromTheRecordAndTheCaller() throws {
         let hands = session(handCount: 15)
-        let facts = KeyHandSelection.facts(for: hands, trainableHandIndices: [2, 5])
+        let facts = KeyHandSelection.facts(
+            for: hands,
+            heroActionWeightsBasisPoints: [2: 0, 5: 7_500]
+        )
 
         #expect(facts.count == 15)
-        #expect(facts.filter(\.isTrainable).map(\.handIndex) == [2, 5])
-        #expect(KeyHandSelection.facts(for: hands, trainableHandIndices: []).allSatisfy { !$0.isTrainable })
+        #expect(
+            facts.filter { $0.heroActionWeightBasisPoints != nil }.map(\.handIndex) == [2, 5],
+            "带权重的是 \(facts.filter { $0.heroActionWeightBasisPoints != nil }.map(\.handIndex))"
+        )
+        #expect(facts.first { $0.handIndex == 2 }?.heroActionWeightBasisPoints == 0)
+        #expect(facts.first { $0.handIndex == 5 }?.heroActionWeightBasisPoints == 7_500)
+        #expect(
+            KeyHandSelection
+                .facts(for: hands, heroActionWeightsBasisPoints: [:])
+                .allSatisfy { $0.heroActionWeightBasisPoints == nil }
+        )
 
         let sixth = try #require(facts.first { $0.handIndex == 5 })
         #expect(sixth.potTotalCentiBB == 18_800, "第 6 手底池是 \(sixth.potTotalCentiBB)")

@@ -14,6 +14,13 @@ struct SessionRunSummary: Equatable {
     /// comparison, not a grade.
     let contentMatches: [SessionContentMatch]
 
+    /// The three to five hands review opens with.
+    ///
+    /// Selected by the engine, which cannot see content; the one input that
+    /// needs content — how much weight the installed range gives what the hero
+    /// did — is computed here and handed in.
+    let keyHands: [KeyHand]
+
     var comparableHandIndices: Set<Int> {
         Set(contentMatches.map(\.handIndex))
     }
@@ -73,7 +80,11 @@ struct SessionRunCoordinator {
         let hands = try await sessionStore.hands(for: sessionID)
         return SessionRunSummary(
             hands: hands,
-            contentMatches: hands.flatMap { matcher.matches(in: $0) }
+            contentMatches: hands.flatMap { matcher.matches(in: $0) },
+            keyHands: KeyHandSelection.select(
+                from: hands,
+                heroActionWeightsBasisPoints: matcher.heroActionWeightsBasisPoints(in: hands)
+            )
         )
     }
 }
