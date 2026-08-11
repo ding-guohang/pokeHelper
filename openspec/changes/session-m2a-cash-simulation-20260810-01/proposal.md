@@ -53,13 +53,16 @@ M2A 补上连续性：可复现的发牌、四种虚拟对手、15/30/60 手的 
 
 等同关系的唯一用途是决定哪些手牌值得在复盘里对照，因此判错的代价是「给你看了一条不相干的对照」，而不是污染画像。即便如此仍需可测判据。
 
-M2A 的等同定义为**全部满足**：
+判定的是**内容是否覆盖这个局面**，四项全部满足：
 
 - 街道同为 preflop
 - 英雄位置（`heroSeatOffsetFromButton`）相等
-- 手牌类别相等——取 `RangeCell.handClass` 已在用的 169 格记号（如 `AKs`、`AKo`、`77`）
 - 面对的行动类别相等（未面对下注 / 面对单次加注 / 面对再加注）
 - 有效筹码落入同一分桶，分桶边界在本 spec 中枚举：`[0, 2000)`、`[2000, 6000)`、`[6000, 12000)`、`[12000, ∞)` centi-BB
+
+**手牌类别不在键里。** 场景的 `heroCards` 只是训练时展示的示例手牌，`rangeCells` 覆盖的是整段范围——已发布内容每个场景列 47 到 102 个手牌类别。把示例手牌写进键，等于要求用户恰好摸到那一手才给对照：实测每手命中率 0.70%，平均要打 142 手才看到一次，30 手 Session 期望命中 0.21 次。那条闭环等于不存在。
+
+正确的做法是：先判局面被覆盖，再把英雄的实际手牌拿到该场景的范围表里查。范围表里没有这个类别，就是「该范围对这手牌是 100% 弃牌」，同样是一个可比对的答案。这样翻前未面对下注的决策约 83% 被覆盖。
 
 **翻后不做匹配**，因为翻后手牌类别需要一套本项目尚未定义、也无求解器依据可定义的分类法。翻后对照属于 M2B。
 
@@ -271,7 +274,8 @@ The system SHALL select between three and five key hands from a finished session
 - GIVEN 一局已完成的 30 手 Session
 - WHEN 打开复盘
 - THEN 列出 3 到 5 手关键手
-- AND 每一手的入选原因为 `.bigPot`、`.allIn`、`.bigSwing`、`.trainable` 之一
+- AND 每一手的入选原因为 `.deviation`、`.allIn`、`.bigSwing`、`.bigPot` 之一
+- AND 标记 `.deviation` 的手，其翻前局面被已安装内容覆盖，且英雄的行动在该范围表对其手牌类别的权重低于 5000 基点
 - AND 标记 `.bigPot` 的手，其底池必须是该 Session 底池最大的 5 手之一
 - AND 标记 `.bigSwing` 的手，其英雄筹码变化绝对值不小于 20BB
 
@@ -281,6 +285,20 @@ The system SHALL select between three and five key hands from a finished session
 - WHEN 打开复盘
 - THEN 列表非空，按选择分数降序排列
 - AND 首项为第 4 手
+
+##### Scenario: 偏离内容范围的手排在纯粹大底池之前
+
+- GIVEN 一局 Session 中，第 3 手英雄在被内容覆盖的局面上做出了范围表权重为 0 的行动，第 8 手是全局最大底池但英雄的行动与范围表一致
+- WHEN 打开复盘
+- THEN 第 3 手排在第 8 手之前
+- AND 第 3 手的原因为 `.deviation`，第 8 手不是
+
+##### Scenario: 内容未覆盖的手不会被标为偏离
+
+- GIVEN 一手的翻前局面在已安装内容里没有覆盖
+- WHEN 选关键手
+- THEN 该手的原因不可能是 `.deviation`
+- AND 它仍可因底池、全下或波动入选
 
 ##### Scenario: 关键手不是「取前五手」
 
@@ -347,6 +365,14 @@ The system SHALL accumulate the user's realized preflop action frequencies per (
 - WHEN 打开频率报告
 - THEN 显示实际 70.00%、基准 46.33%、差值 +23.67 个百分点
 - AND 该位置出现在漏洞列表里，标注为偏松
+
+##### Scenario: 差距在容差内不算漏洞
+
+- GIVEN 某位置累计 60 次机会，实际频率与基准相差 3 个百分点
+- WHEN 打开频率报告
+- THEN 显示实际值、基准值与差值
+- AND 该位置不出现在漏洞列表里
+- AND 相差 6 个百分点的位置出现在漏洞列表里
 
 ##### Scenario: 基准由内容算出，不是写死的数字
 
