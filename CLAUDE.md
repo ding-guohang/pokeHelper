@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Poker Coach（仓库名 `porkHelper`）：原生 iPhone/iPad 德州扑克决策训练 APP。M1A 是可离线运行的现金桌训练纵向切片，已实现并进入最终评审收口；M1B（独立账号与同步）和 M1C（自适应课程）尚未开始。技术栈：SwiftUI、Swift 6.2.3、Xcode 26.2、XcodeGen、Swift Package Manager，无第三方运行时依赖。
+Poker Coach（仓库名 `porkHelper`）：原生 iPhone/iPad 德州扑克决策训练 APP。M1 的三个切片均已实现并归档：M1A 可离线运行的现金桌训练纵向切片、M1B 独立账号与跨设备同步、M1C 自适应现金局课程（随包已审核翻前内容、初始诊断、能力树掌握判定、间隔复练、今日计划）。下一步是 M2A（现金局 Session）。
+
+技术栈：SwiftUI、Swift 6.2.3、Xcode 26.2、XcodeGen、Swift Package Manager，客户端无第三方运行时依赖；服务端是 Go + MySQL 8.4+ InnoDB，源码在 `Server/`。
 
 ## Commands
 
@@ -20,6 +22,7 @@ xcodegen generate
 swift test --package-path Packages/PokerCore
 swift test --package-path Packages/StrategyContent
 swift test --package-path Packages/TrainingDomain
+swift test --package-path Packages/StrategyTooling
 ```
 
 运行单个 App 测试（`xcodegen generate` 之后）：
@@ -34,7 +37,7 @@ xcodebuild test -project PokerCoach.xcodeproj -scheme PokerCoach \
   -only-testing:PokerCoachUITests/CashCoachHappyPathTests
 ```
 
-完整验证（三个包测试 + App 单测 + iPhone/iPad UI 测试 + Release 模拟器构建 + fixture 排除断言 + `git diff --check`，任何步骤失败返回非零）：
+完整验证 M1A（三个包测试 + App 单测 + iPhone/iPad UI 测试 + Release 模拟器构建 + fixture 排除断言 + `git diff --check`，任何步骤失败返回非零）：
 
 ```bash
 bash scripts/verify-m1a.sh
@@ -42,13 +45,47 @@ bash scripts/verify-m1a.sh
 
 iPhone/iPad destination 可分别用 `M1A_IPHONE_DESTINATION` / `M1A_IPAD_DESTINATION` 环境变量覆盖；iPad 默认自动探测 `iPad Pro 13-inch (M4)`，不存在时回退到 `(M5)`，两者都没有则报错而不是跳过。
 
+完整验证 M1B（先跑 `verify-m1a.sh`，再跑 Go 静态检查与单测、隔离 MySQL 上的集成与双设备 E2E、iOS 账号与同步测试、Release 密钥门禁）：
+
+```bash
+bash scripts/verify-m1b.sh
+```
+
+集成测试需要本机可执行 `mysqld`；`scripts/test-server-mysql.sh` 会在临时目录启动一个独立实例，不触碰既有 MySQL。单独跑服务端：
+
+```bash
+cd Server && go test ./...
+bash scripts/test-server-mysql.sh go test -tags=integration ./...
+```
+
+完整验证 M1C（四个包测试含 StrategyTooling + App 单测 + `PokerCoachUITests/M1CSurfaceTests` + 核心内容字节级重导入比对 + Debug/Dogfood/Release 三种构建 + 内容门禁的正反双向验证 + 冻结契约检查）：
+
+```bash
+bash scripts/verify-m1c.sh
+```
+
+它不包含 `verify-m1a.sh`（iPad 布局测试仍归后者），改动横跨切片时两个都要跑。
+
 检查工程骨架（`project.yml`、xcconfig、Package.swift 中的告警即错误设置是否齐全）：
 
 ```bash
 bash scripts/check-project-shape.sh
 ```
 
-本地运行 Debug fixture：`xcodegen generate` → 用 Xcode 打开 `PokerCoach.xcodeproj` → 选择 `PokerCoach` scheme + Debug + 一个 iPhone/iPad Simulator → Run。Debug 自动加载 `PokerCoach/Resources/DevStrategyPack.json`（`--reset-training-events` launch argument 可清空本地训练事件）。这个 fixture 只是确定性演示数据，未经扑克策略审核；任何由它生成的界面必须显示"开发演示数据"，且不得进入 Release（`verify-m1a.sh` 会断言 Release 产物不含该资源）。
+本地运行：`xcodegen generate` → 用 Xcode 打开 `PokerCoach.xcodeproj` → 选择 `PokerCoach` scheme + Debug + 一个 iPhone/iPad Simulator → Run（`--reset-training-events` launch argument 可清空本地训练事件）。Debug 同时打包已审核的 `CoreStrategyPack.json` 和 `DevStrategyPack.json`，`BundledContentLoader` 按可信度优先取 Core，fixture 只在没有更可信的包时才被训练使用。这个 fixture 只是确定性演示数据，未经扑克策略审核；任何由它生成的界面必须显示“开发演示数据”，且不得进入 Dogfood/Release（`verify-m1a.sh` 与 `check-release-content.sh` 都会断言）。
+
+改动随包策略内容（`PokerCoach/Resources/CoreStrategyPack.json` **不可手工编辑**，`verify-m1c.sh` 会重新导入并要求字节相同）：
+
+```bash
+python3 Content/build-core-export.py   # 从仓库根目录运行，重建 Content/exports/core-6max-100bb.json
+swift run --package-path Packages/StrategyTooling strategy-import \
+  --export Content/exports/core-6max-100bb.json \
+  --content-version <新版本> --review-status reviewed --origin generativeModel \
+  --reviewed-by '<审核人>' --reviewed-at '<ISO8601>' \
+  --output PokerCoach/Resources/CoreStrategyPack.json
+swift run --package-path Packages/StrategyTooling strategy-golden \
+  --old <旧包> --new <新包> --cases <cases.json>
+```
 
 ## Architecture
 
@@ -64,12 +101,17 @@ TrainingDomain                     (Packages/TrainingDomain/)
 StrategyContent                    (Packages/StrategyContent/)
   ↓ 使用
 PokerCore                          (Packages/PokerCore/)
+
+App Infrastructure                 (PokerCoach/Infrastructure/: Auth · Content · Network · Profiles · Sync)
+  —— 实现领域协议、承载 HTTP/钥匙串/文件等具体技术，由 App/AppDependencies 注入；领域包不得反向依赖它
 ```
 
 - **PokerCore**：牌、精确金额（`BBAmount`/`EVAmount`）、合法行动、`BettingDecisionContext`。不依赖仓库内任何其他模块，不含教学文案、网络、存储或用户状态。
 - **StrategyContent**：加载不可变策略包（`StrategyPack`、`DecisionScenario`、`StrategyPackLoader`、`StrategyPackValidator`）。使用 PokerCore 的类型，负责解码/校验/版本追溯。每个决策节点的行动频率总和必须严格等于 10,000 basis points。
-- **TrainingDomain**：`DecisionScorer`、`TrainingEvent`、`TrainingEventStore`（及 M1A 实现 `FileTrainingEventStore`，JSON Lines 追加式）、`PlayerModelReducer`、`TrainingPlanner`。可读 PokerCore 与 StrategyContent，禁止依赖 SwiftUI、HTTP 或数据库实现。评分逻辑不得读取后续发牌或本手输赢结果。
-- **SwiftUI App**（`PokerCoach/`）：View 只管布局/交互/无业务含义的显示状态；ViewModel 组合领域协议，但不得自行计算 EV、合法行动或能力分数。跨 Feature 复用且无业务状态的组件放 `PokerCoach/Shared/`。
+- **TrainingDomain**：`DecisionScorer`、`TrainingEvent`、`TrainingEventStore`（及 M1A 实现 `FileTrainingEventStore`，JSON Lines 追加式）、`PlayerModelReducer`、`TrainingPlanner`，以及 M1C 的 `DiagnosticBlueprint`、`CurriculumResolver`、`NodeMastery`、`RepetitionScheduler`。可读 PokerCore 与 StrategyContent，禁止依赖 SwiftUI、HTTP 或数据库实现。评分逻辑不得读取后续发牌或本手输赢结果。
+- **StrategyTooling**（`Packages/StrategyTooling/`）：本机内容工具（`strategy-import`、`strategy-golden`），**故意不写进 `project.yml`**，绝不链接进 APP。
+- **SwiftUI App**（`PokerCoach/`）：View 只管布局/交互/无业务含义的显示状态；ViewModel 组合领域协议，但不得自行计算 EV、合法行动或能力分数。跨 Feature 复用且无业务状态的组件放 `PokerCoach/Shared/`。内容下载、同步、认证等技术实现放 `PokerCoach/Infrastructure/`，不进领域包。
+- **Server**（`Server/`）：Go + MySQL 的账号与同步服务，独立部署，与领域包只通过 `Contracts/` 中冻结的事件契约交互。
 
 **禁止的依赖方向**：`PokerCore → StrategyContent`、`PokerCore → TrainingDomain`、任何领域包 → SwiftUI 或具体 HTTP 客户端、View → 文件系统/数据库/同步 DTO、生成式文本 → `DecisionScorer` 输入。远端 DTO（M1B 引入）必须在基础设施层转换为领域类型后才能进入 TrainingDomain。
 
@@ -82,6 +124,8 @@ M1B（独立身份与同步）只能依赖以下类型且不得改变其语义�
 
 `TrainingEventStore.allEvents()` 按 `occurredAt` 再按事件 UUID 稳定排序供 UI/归约使用；`events(after:)` 严格按 JSON Lines 追加顺序读取供增量同步使用 —— 即使设备时钟回拨，后追加事件仍必须出现在此前 checkpoint 之后。
 
+`Contracts/training-event-upload-v1.json` 是**字节冻结**的上传契约，摘要记在同名 `.sha256`，由 `Server/migrations/contracts_test.go`、`PokerCoachTests/Support/ContractEventFixture.swift` 与 `verify-m1c.sh` 三处断言。新增能力应通过 `scenarioID` 关联内容包求得，而不是往事件里加字段。
+
 位置表示（供 M3 锦标赛复用，见同一文档）：`SolverAssumptions.tableSize`（2–9 人）+ `DecisionScenario.heroSeatOffsetFromButton`（`0..<tableSize`，`0`=BTN 或 heads-up 的 BTN/SB，向后递推）。`StrategyPackValidator` 必须联合校验两者；新增场景不得引入自由文本位置或固定人数位置枚举。
 
 ### 精确数据规则
@@ -92,8 +136,10 @@ M1B（独立身份与同步）只能依赖以下类型且不得改变其语义�
 
 ### 策略内容规则
 
-- `reviewStatus` 三态：`testFixture`（仅测试/演示，Release 禁用）、`reviewed`（Release 可用）、`retired`（历史保留，不用于新训练）。
-- 已发布 pack 不可原地修改；新内容必须用新的 content version；`TrainingEvent` 永久记录生成时的 pack ID 与 content version。
+- `reviewStatus` 四态：`testFixture`（仅测试/演示）、`unverifiedDraft`（内部自洽但无人核对过，必须在界面披露）、`reviewed`（可上架，必须带 `reviewedBy` + `reviewedAt`，校验器拒绝无审核人的 `reviewed`）、`retired`（历史保留，不用于新训练）。
+- `origin`（`solver` / `generativeModel` / `fixture`）与 `reviewStatus` 是两件事：前者说真值从哪来，后者说有没有人检查过。人工审核不能把生成内容变成求解器产出——`generativeModel` + `reviewed` 的内容界面必须显示“非求解器产出，已人工审核”。
+- 三种构建频道由各 configuration 写入 Info.plist 的 `PCContentChannel`，`scripts/check-release-content.sh` 从产物读回该值决定允许的审核状态：`debug` 三态皆可、`dogfood` 允许 `unverifiedDraft` 与 `reviewed`、`store` 只允许 `reviewed`。门禁按 manifest 而非文件名识别包，并校验包与随附 `.sha256` 一致；缺少频道标记直接失败。
+- 已发布 pack 不可原地修改；新内容必须用新的 content version；`TrainingEvent` 永久记录生成时的 pack ID 与 content version。内容升级必须过 `strategy-golden` 黄金回归。
 - 生成式教练文本不得添加结构化数据（频率/EV/范围）中不存在的数字或结论。
 
 ## Testing
@@ -116,7 +162,10 @@ M1B（独立身份与同步）只能依赖以下类型且不得改变其语义�
 
 本仓库使用 Harness 技能驱动的规格化工作流：`propose → review-proposal → plan → apply → review → archive`（对应 `/harness-propose`、`/harness-review-proposal`、`/harness-plan`、`/harness-apply`、`/harness-review`、`/harness-archive`；`/harness-workflow` 查看进行中 change，`/harness-knowledge` 检索/更新知识库）。任何代码变更意图应先经 `/harness-workflow` 分流，不要绕过它直接实现。
 
-- `openspec/specs/`：当前生效的主规格（按能力域拆分：`cash-decision-domain`、`explainable-decision-training`、`local-learning-profile`、`versioned-strategy-content`、`adaptive-native-shell`、`m1a-release-safety`）。
-- `openspec/changes/`：进行中和已归档（`archive/`）的变更记录。
+- `openspec/specs/`：当前生效的主规格（16 个能力域，按切片划分）：
+  - M1A：`cash-decision-domain`、`explainable-decision-training`、`local-learning-profile`、`versioned-strategy-content`、`adaptive-native-shell`、`m1a-release-safety`
+  - M1B：`independent-account-access`、`secure-device-sessions`、`local-first-event-sync`、`mysql-sync-service`、`account-data-rights`、`m1b-verification`
+  - M1C：`strategy-content-pipeline`、`initial-diagnostic`、`adaptive-curriculum`、`spaced-repetition`
+- `openspec/changes/`：进行中和已归档（`archive/`，见 `archive/index.md`）的变更记录。M1A/M1B/M1C 三个 change 均已归档，其 design.md、tasks.md 与评审记录留在归档目录里。
 - `docs/superpowers/specs/`：已批准的产品设计；`docs/superpowers/plans/`：实施路线和详细任务计划。
 - `docs/architecture/`、`docs/standards/`、`docs/product/` 各自的 `index.md` 是对应知识域的入口。
