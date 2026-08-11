@@ -1,5 +1,51 @@
+# Harness / 工作区
 .superpowers/
 .worktrees/
-**/.build/
-PokerCoach.xcodeproj/
 .build-channel/
+
+# Xcode 生成物（工程由 xcodegen generate 从 project.yml 生成）
+PokerCoach.xcodeproj/
+*.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+DerivedData/
+build/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+**/.build/
+.swiftpm/
+Package.resolved
+!Packages/*/Package.resolved
+
+# Go server
+Server/bin/
+*.test
+*.out
+
+# 密钥与本地配置（不得提交）
+*.pem
+*.p12
+*.key
+*.mobileprovision
+*.cer
+.env
+.env.*
+!.env.example
+**/local.xcconfig
+**/*.local.json
+
+# macOS / 编辑器
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*~
+.idea/
+.vscode/
