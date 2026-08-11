@@ -139,6 +139,7 @@ enum DecisionSessionFixture {
             "abilityDimension": "\(abilityDimension)",
             "curriculumNodeID": "\(abilityDimension)",
             "heroSeatOffsetFromButton": 0,
+            "facing": "unopened",
             "heroCards": ["As", "Kh"],
             "board": ["Qs", "Jh", "2c"],
             "decision": {

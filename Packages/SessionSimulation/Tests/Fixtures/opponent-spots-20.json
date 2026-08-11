@@ -1,0 +1,522 @@
+{
+  "provenance": "种子 7/8/9/10 各 20 手、以 BaselineActionPolicy 走出的全部 729 个决策点中，按决策形状配额抽取：翻前无人下注 1、翻前面对下注 4、翻后无人下注 9、翻后面对下注 6；每一形状内按出现顺序等距抽取，避免同一手同一街道被重复选中。配额偏向翻后是实测的结论而不是偏好：在这批决策点上，翻前无人下注的局面里最紧与最松的两个档案只有 3% 行动不同，翻后无人下注是 19%、翻后面对下注是 65%——把前者塞满夹具只会稀释它的分辨力。rngSeed 由 SplitMix64.derivedSeed(base: 42, label: 序号) 得到，四个档案在同一局面上用同一个种子求解，所以两个档案的差异是选择的差异，不是抽到不同随机数的差异。",
+  "spots": [
+    {
+      "amountToCallCentiBB": 0,
+      "board": [],
+      "configuredBetSizesCentiBB": [
+        100,
+        175,
+        350
+      ],
+      "effectiveStackCentiBB": 9900,
+      "facing": "unopened",
+      "handIndex": 0,
+      "holeCards": [
+        "Ac",
+        "8d"
+      ],
+      "id": 0,
+      "label": "preflop-unopened",
+      "potCentiBB": 350,
+      "rngSeed": 13679457532755275413,
+      "seatOffsetFromButton": 2,
+      "street": "preflop"
+    },
+    {
+      "amountToCallCentiBB": 100,
+      "board": [],
+      "configuredBetSizesCentiBB": [
+        200,
+        225,
+        350
+      ],
+      "effectiveStackCentiBB": 10000,
+      "facing": "unopened",
+      "handIndex": 0,
+      "holeCards": [
+        "3h",
+        "7c"
+      ],
+      "id": 1,
+      "label": "preflop-unopened",
+      "minimumRaiseToCentiBB": 200,
+      "potCentiBB": 150,
+      "rngSeed": 2949826092126892291,
+      "seatOffsetFromButton": 3,
+      "street": "preflop"
+    },
+    {
+      "amountToCallCentiBB": 100,
+      "board": [],
+      "configuredBetSizesCentiBB": [
+        200,
+        225,
+        350
+      ],
+      "effectiveStackCentiBB": 6175,
+      "facing": "unopened",
+      "handIndex": 18,
+      "holeCards": [
+        "Kd",
+        "Ts"
+      ],
+      "id": 2,
+      "label": "preflop-unopened",
+      "minimumRaiseToCentiBB": 200,
+      "potCentiBB": 150,
+      "rngSeed": 5139283748462763858,
+      "seatOffsetFromButton": 4,
+      "street": "preflop"
+    },
+    {
+      "amountToCallCentiBB": 100,
+      "board": [],
+      "configuredBetSizesCentiBB": [
+        200,
+        425,
+        750
+      ],
+      "effectiveStackCentiBB": 9600,
+      "facing": "singleRaise",
+      "handIndex": 5,
+      "holeCards": [
+        "9s",
+        "6d"
+      ],
+      "id": 3,
+      "label": "preflop-singleRaise",
+      "minimumRaiseToCentiBB": 200,
+      "potCentiBB": 550,
+      "rngSeed": 6349198060258255764,
+      "seatOffsetFromButton": 5,
+      "street": "preflop"
+    },
+    {
+      "amountToCallCentiBB": 50,
+      "board": [],
+      "configuredBetSizesCentiBB": [
+        150,
+        250,
+        450
+      ],
+      "effectiveStackCentiBB": 20050,
+      "facing": "unopened",
+      "handIndex": 1,
+      "holeCards": [
+        "Ks",
+        "4d"
+      ],
+      "id": 4,
+      "label": "preflop-unopened",
+      "minimumRaiseToCentiBB": 150,
+      "potCentiBB": 350,
+      "rngSeed": 701532786141963250,
+      "seatOffsetFromButton": 1,
+      "street": "preflop"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "8h",
+        "6d",
+        "Kc"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        175,
+        350
+      ],
+      "effectiveStackCentiBB": 9900,
+      "facing": "unopened",
+      "handIndex": 0,
+      "holeCards": [
+        "Ac",
+        "8d"
+      ],
+      "id": 5,
+      "label": "flop-unopened",
+      "potCentiBB": 350,
+      "rngSeed": 16015981125662989062,
+      "seatOffsetFromButton": 2,
+      "street": "flop"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "Td",
+        "2s",
+        "9c"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        150,
+        300
+      ],
+      "effectiveStackCentiBB": 8600,
+      "facing": "unopened",
+      "handIndex": 7,
+      "holeCards": [
+        "Tc",
+        "5h"
+      ],
+      "id": 6,
+      "label": "flop-unopened",
+      "potCentiBB": 300,
+      "rngSeed": 4028864712777624925,
+      "seatOffsetFromButton": 2,
+      "street": "flop"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "8s",
+        "Kd",
+        "7c",
+        "Th"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        150,
+        300
+      ],
+      "effectiveStackCentiBB": 40000,
+      "facing": "unopened",
+      "handIndex": 1,
+      "holeCards": [
+        "2c",
+        "4d"
+      ],
+      "id": 7,
+      "label": "turn-unopened",
+      "potCentiBB": 300,
+      "rngSeed": 14769051326987775908,
+      "seatOffsetFromButton": 2,
+      "street": "turn"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "5d",
+        "Td",
+        "As"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        125,
+        250
+      ],
+      "effectiveStackCentiBB": 10950,
+      "facing": "unopened",
+      "handIndex": 14,
+      "holeCards": [
+        "Ks",
+        "9s"
+      ],
+      "id": 8,
+      "label": "flop-unopened",
+      "potCentiBB": 250,
+      "rngSeed": 6270620877612482005,
+      "seatOffsetFromButton": 2,
+      "street": "flop"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "As",
+        "7s",
+        "7d",
+        "Td"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        1225,
+        2450
+      ],
+      "effectiveStackCentiBB": 9100,
+      "facing": "unopened",
+      "handIndex": 1,
+      "holeCards": [
+        "7h",
+        "Th"
+      ],
+      "id": 9,
+      "label": "turn-unopened",
+      "potCentiBB": 2450,
+      "rngSeed": 11408980392250668974,
+      "seatOffsetFromButton": 0,
+      "street": "turn"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "3s",
+        "6d",
+        "Kh",
+        "7d"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        1700,
+        3400
+      ],
+      "effectiveStackCentiBB": 8050,
+      "facing": "unopened",
+      "handIndex": 11,
+      "holeCards": [
+        "3d",
+        "8s"
+      ],
+      "id": 10,
+      "label": "turn-unopened",
+      "potCentiBB": 3400,
+      "rngSeed": 3779771651426294207,
+      "seatOffsetFromButton": 1,
+      "street": "turn"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "2s",
+        "5c",
+        "Ad",
+        "3h"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        175,
+        350
+      ],
+      "effectiveStackCentiBB": 9250,
+      "facing": "unopened",
+      "handIndex": 14,
+      "holeCards": [
+        "Ac",
+        "2d"
+      ],
+      "id": 11,
+      "label": "turn-unopened",
+      "potCentiBB": 350,
+      "rngSeed": 9094045341461139646,
+      "seatOffsetFromButton": 0,
+      "street": "turn"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "8c",
+        "6h",
+        "2h",
+        "6c"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        450,
+        900
+      ],
+      "effectiveStackCentiBB": 10425,
+      "facing": "unopened",
+      "handIndex": 3,
+      "holeCards": [
+        "3d",
+        "Jh"
+      ],
+      "id": 12,
+      "label": "turn-unopened",
+      "potCentiBB": 900,
+      "rngSeed": 9470486766231111398,
+      "seatOffsetFromButton": 3,
+      "street": "turn"
+    },
+    {
+      "amountToCallCentiBB": 0,
+      "board": [
+        "9s",
+        "Ts",
+        "Kh"
+      ],
+      "configuredBetSizesCentiBB": [
+        100,
+        1600,
+        3200
+      ],
+      "effectiveStackCentiBB": 18475,
+      "facing": "unopened",
+      "handIndex": 9,
+      "holeCards": [
+        "Qs",
+        "7h"
+      ],
+      "id": 13,
+      "label": "flop-unopened",
+      "potCentiBB": 3200,
+      "rngSeed": 9592552252706221495,
+      "seatOffsetFromButton": 2,
+      "street": "flop"
+    },
+    {
+      "amountToCallCentiBB": 175,
+      "board": [
+        "8h",
+        "6d",
+        "Kc"
+      ],
+      "configuredBetSizesCentiBB": [
+        350,
+        525,
+        875
+      ],
+      "effectiveStackCentiBB": 9900,
+      "facing": "singleRaise",
+      "handIndex": 0,
+      "holeCards": [
+        "4d",
+        "Jc"
+      ],
+      "id": 14,
+      "label": "flop-singleRaise",
+      "minimumRaiseToCentiBB": 350,
+      "potCentiBB": 525,
+      "rngSeed": 12270025419241524956,
+      "seatOffsetFromButton": 5,
+      "street": "flop"
+    },
+    {
+      "amountToCallCentiBB": 100,
+      "board": [
+        "Ac",
+        "7d",
+        "Kd"
+      ],
+      "configuredBetSizesCentiBB": [
+        200,
+        275,
+        450
+      ],
+      "effectiveStackCentiBB": 15000,
+      "facing": "singleRaise",
+      "handIndex": 9,
+      "holeCards": [
+        "5c",
+        "7h"
+      ],
+      "id": 15,
+      "label": "flop-singleRaise",
+      "minimumRaiseToCentiBB": 200,
+      "potCentiBB": 250,
+      "rngSeed": 3752715396868486130,
+      "seatOffsetFromButton": 1,
+      "street": "flop"
+    },
+    {
+      "amountToCallCentiBB": 200,
+      "board": [
+        "3d",
+        "Jc",
+        "6h"
+      ],
+      "configuredBetSizesCentiBB": [
+        400,
+        500,
+        800
+      ],
+      "effectiveStackCentiBB": 11550,
+      "facing": "singleRaise",
+      "handIndex": 12,
+      "holeCards": [
+        "Kh",
+        "Ah"
+      ],
+      "id": 16,
+      "label": "flop-singleRaise",
+      "minimumRaiseToCentiBB": 400,
+      "potCentiBB": 400,
+      "rngSeed": 1910607418205583989,
+      "seatOffsetFromButton": 4,
+      "street": "flop"
+    },
+    {
+      "amountToCallCentiBB": 100,
+      "board": [
+        "Th",
+        "9d",
+        "Qh"
+      ],
+      "configuredBetSizesCentiBB": [
+        200,
+        350,
+        600
+      ],
+      "effectiveStackCentiBB": 9800,
+      "facing": "singleRaise",
+      "handIndex": 3,
+      "holeCards": [
+        "Jh",
+        "Jc"
+      ],
+      "id": 17,
+      "label": "flop-singleRaise",
+      "minimumRaiseToCentiBB": 200,
+      "potCentiBB": 400,
+      "rngSeed": 9140336935745592861,
+      "seatOffsetFromButton": 1,
+      "street": "flop"
+    },
+    {
+      "amountToCallCentiBB": 500,
+      "board": [
+        "Kd",
+        "9c",
+        "Ac",
+        "8s"
+      ],
+      "configuredBetSizesCentiBB": [
+        1000,
+        1250,
+        2000
+      ],
+      "effectiveStackCentiBB": 9825,
+      "facing": "singleRaise",
+      "handIndex": 13,
+      "holeCards": [
+        "3d",
+        "6h"
+      ],
+      "id": 18,
+      "label": "turn-singleRaise",
+      "minimumRaiseToCentiBB": 1000,
+      "potCentiBB": 1000,
+      "rngSeed": 1723436047706647047,
+      "seatOffsetFromButton": 2,
+      "street": "turn"
+    },
+    {
+      "amountToCallCentiBB": 175,
+      "board": [
+        "3s",
+        "9d",
+        "2h",
+        "Jd"
+      ],
+      "configuredBetSizesCentiBB": [
+        350,
+        525,
+        875
+      ],
+      "effectiveStackCentiBB": 9500,
+      "facing": "singleRaise",
+      "handIndex": 4,
+      "holeCards": [
+        "8d",
+        "Th"
+      ],
+      "id": 19,
+      "label": "turn-singleRaise",
+      "minimumRaiseToCentiBB": 350,
+      "potCentiBB": 525,
+      "rngSeed": 12708817412199463008,
+      "seatOffsetFromButton": 3,
+      "street": "turn"
+    }
+  ]
+}

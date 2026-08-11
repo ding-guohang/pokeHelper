@@ -284,6 +284,40 @@ struct ContentAuditTests {
 
     /// Every shipped export, not just the core one. The depth pack rides on
     /// Debug and Dogfood and was previously subject to none of these rules.
+    // `facing` and `facingRaiseTo` are both author-declared, and nothing so far
+    // forces them to agree. They describe one fact from two angles: a node
+    // answering no raise has no raise size, and a node naming a raise size is
+    // answering a raise. Left uncrossed, a scenario could claim `.unopened`
+    // while carrying a 3-bet to answer, and the frequency report would file it
+    // under the open-raising baseline — the single mistake `facing` was added
+    // to prevent.
+    @Test("facing 与 facingRaiseTo 互相印证")
+    func facingAgreesWithTheRaiseBeingAnswered() throws {
+        var unopened = 0
+        var answering = 0
+
+        for (pack, node) in try allNodes() {
+            switch node.facing {
+            case .unopened:
+                unopened += 1
+                #expect(
+                    node.facingRaiseTo == nil,
+                    "\(pack)/\(node.id) 声明未面对下注，却带着 facingRaiseTo"
+                )
+            case .singleRaise, .reraise:
+                answering += 1
+                #expect(
+                    node.facingRaiseTo != nil,
+                    "\(pack)/\(node.id) 声明面对加注，却没有 facingRaiseTo"
+                )
+            }
+        }
+
+        // Both shapes must occur, or the crossing above is vacuous.
+        #expect(unopened > 0, "没有任何未面对下注的节点，本检查空转")
+        #expect(answering > 0, "没有任何面对加注的节点，本检查空转")
+    }
+
     private func allNodes() throws -> [(String, SolverNode)] {
         try exports().flatMap { entry in
             entry.export.nodes.map { (entry.name, $0) }

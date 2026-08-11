@@ -161,6 +161,19 @@ public struct DecisionScenario: Codable, Sendable, Identifiable {
     /// to decode rather than silently land every scenario in a default node.
     public let curriculumNodeID: String
     public let heroSeatOffsetFromButton: Int
+    /// How much aggression the hero is answering.
+    ///
+    /// Declared rather than derived, and not optional, for the same reason
+    /// `curriculumNodeID` is not: a pack that predates the field should fail to
+    /// decode rather than land every scenario in a default bucket. Defaulting
+    /// to `.unopened` would file every 3-bet scenario under the open-raising
+    /// baseline, which is the one mistake this field exists to prevent.
+    ///
+    /// It cannot be recovered from `decision`. Chips a caller puts in and chips
+    /// a raiser puts in are indistinguishable inside `pot`, so the number of
+    /// prior raises is simply not present in the betting context —
+    /// `SolverNode.facingRaiseTo` carries the same observation for MDF.
+    public let facing: FacingAction
     public let heroCards: [Card]
     public let board: [Card]
     public let decision: BettingDecisionContext
@@ -175,6 +188,7 @@ public struct DecisionScenario: Codable, Sendable, Identifiable {
         abilityDimension: String,
         curriculumNodeID: String,
         heroSeatOffsetFromButton: Int,
+        facing: FacingAction,
         heroCards: [Card],
         board: [Card],
         decision: BettingDecisionContext,
@@ -188,6 +202,7 @@ public struct DecisionScenario: Codable, Sendable, Identifiable {
         self.abilityDimension = abilityDimension
         self.curriculumNodeID = curriculumNodeID
         self.heroSeatOffsetFromButton = heroSeatOffsetFromButton
+        self.facing = facing
         self.heroCards = heroCards
         self.board = board
         self.decision = decision

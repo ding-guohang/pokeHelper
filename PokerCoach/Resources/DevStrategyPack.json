@@ -31,6 +31,7 @@
       "title": "BTN 对 BB 的翻牌下注尺度",
       "abilityDimension": "bet-sizing",
       "heroSeatOffsetFromButton": 0,
+      "facing": "unopened",
       "heroCards": [
         "Ah",
         "Qh"
@@ -123,6 +124,7 @@
       "title": "CO 面对 HJ 加注的翻前范围",
       "abilityDimension": "preflop-range",
       "heroSeatOffsetFromButton": 5,
+      "facing": "unopened",
       "heroCards": [
         "As",
         "Kd"
@@ -213,6 +215,7 @@
       "title": "BTN 对 BB 的翻牌持续下注",
       "abilityDimension": "flop-cbet",
       "heroSeatOffsetFromButton": 0,
+      "facing": "unopened",
       "heroCards": [
         "Jc",
         "Tc"

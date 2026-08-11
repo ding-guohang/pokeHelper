@@ -91,6 +91,7 @@ enum CurriculumFixture {
             abilityDimension: node,
             curriculumNodeID: node,
             heroSeatOffsetFromButton: 0,
+            facing: .unopened,
             heroCards: [Card(code: "As")!, Card(code: "Kd")!],
             board: [Card(code: "7c")!, Card(code: "8h")!, Card(code: "2s")!],
             decision: BettingDecisionContext(

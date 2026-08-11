@@ -133,6 +133,7 @@ public struct PackBuilder: Sendable {
             abilityDimension: node.abilityDimension,
             curriculumNodeID: node.curriculumNodeID,
             heroSeatOffsetFromButton: node.heroSeatOffsetFromButton,
+            facing: node.facing,
             heroCards: try cards(node.heroCards, scenarioID: node.id),
             board: try cards(node.board, scenarioID: node.id),
             decision: BettingDecisionContext(

@@ -205,6 +205,8 @@ def rfi_node(position, hero_cards, hero_hand, ev_raise):
         abilityDimension="preflop-range",
         curriculumNodeID="preflop-rfi",
         heroSeatOffsetFromButton=SEAT[position],
+        # 只面对盲注，没有人加注过。
+        facing="unopened",
         heroCards=hero_cards,
         board=[],
         pot={"centiBB": SB_POST + BB_POST},
@@ -257,6 +259,8 @@ nodes = [
         abilityDimension="preflop-range",
         curriculumNodeID="preflop-vs-3bet",
         heroSeatOffsetFromButton=SEAT["CO"],
+        # 英雄开池、BTN 再加注：这是第二次加注。
+        facing="reraise",
         heroCards=["Ah", "Qh"],
         board=[],
         pot={"centiBB": POT_AT_VS3BET},

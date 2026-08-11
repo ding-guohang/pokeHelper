@@ -67,6 +67,7 @@ private extension DecisionScenario {
             abilityDimension: abilityDimension,
             curriculumNodeID: nodeID,
             heroSeatOffsetFromButton: heroSeatOffsetFromButton,
+            facing: facing,
             heroCards: heroCards,
             board: board,
             decision: decision,

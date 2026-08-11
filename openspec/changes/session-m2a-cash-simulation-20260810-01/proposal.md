@@ -181,7 +181,7 @@ The system SHALL offer four named opponent profiles whose tendencies are stated 
 - GIVEN `Tests/Fixtures/opponent-spots-20.json` 中 20 个固定局面
 - WHEN 四种档案分别在每个局面求行动
 - THEN 任意两种档案之间至少在 5 个局面上行动不同
-- AND 没有任何一种档案在 20 个局面上给出同一个行动
+- AND 在这 20 个局面 × 50 个生成器种子上，每种档案都至少弃牌一次、至少过牌或跟注一次、至少下注或加注一次
 
 #### Requirement: 对手行动始终合法
 

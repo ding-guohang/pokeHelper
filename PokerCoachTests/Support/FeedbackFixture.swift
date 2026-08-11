@@ -126,6 +126,7 @@ enum FeedbackFixture {
             "abilityDimension": "flop-cbet",
             "curriculumNodeID": "flop-cbet",
             "heroSeatOffsetFromButton": 0,
+            "facing": "unopened",
             "heroCards": ["As", "Kd"],
             "board": ["7c", "8h", "2s"],
             "decision": {

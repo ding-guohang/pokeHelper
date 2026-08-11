@@ -215,6 +215,7 @@ struct PackBuilderTests {
                     abilityDimension: export.nodes[0].abilityDimension,
                     curriculumNodeID: export.nodes[0].curriculumNodeID,
                     heroSeatOffsetFromButton: 0,
+                    facing: export.nodes[0].facing,
                     heroCards: ["Zz", "Kd"],
                     board: export.nodes[0].board,
                     pot: export.nodes[0].pot,

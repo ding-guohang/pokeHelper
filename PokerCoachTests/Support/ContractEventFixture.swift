@@ -69,6 +69,7 @@ enum ContractEventFixture {
             "abilityDimension": "bet-sizing",
             "curriculumNodeID": "bet-sizing",
             "heroSeatOffsetFromButton": 0,
+            "facing": "unopened",
             "heroCards": ["As", "Kh"],
             "board": ["Qs", "Jh", "2c"],
             "decision": {

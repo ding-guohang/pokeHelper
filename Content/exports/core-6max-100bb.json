@@ -30,6 +30,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 3,
+      "facing": "unopened",
       "heroCards": [
         "Ad",
         "Kc"
@@ -388,6 +389,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 4,
+      "facing": "unopened",
       "heroCards": [
         "Ad",
         "Tc"
@@ -777,6 +779,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 5,
+      "facing": "unopened",
       "heroCards": [
         "Ah",
         "5h"
@@ -1255,6 +1258,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 0,
+      "facing": "unopened",
       "heroCards": [
         "9d",
         "8c"
@@ -1941,6 +1945,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 1,
+      "facing": "unopened",
       "heroCards": [
         "Ad",
         "7c"
@@ -2540,6 +2545,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-vs-3bet",
       "heroSeatOffsetFromButton": 5,
+      "facing": "reraise",
       "heroCards": [
         "Ah",
         "Qh"

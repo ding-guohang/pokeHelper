@@ -52,8 +52,16 @@ struct DeterminismTests {
 
     /// Pinned so a change in encoding shows up as a failing assertion rather
     /// than as two runs that agree with each other but not with what shipped.
+    ///
+    /// Last changed 2026-08-11, when `DecisionScenario` gained `facing`. That
+    /// is the only legitimate reason to touch this constant: the pack's shape
+    /// changed on purpose. Before updating it, verify mechanically that the
+    /// difference is the intended one — strip the new field from the freshly
+    /// imported pack and confirm it is byte-identical to what shipped. Editing
+    /// this line to make a red test green is how a silent encoding change
+    /// ships.
     static let goldenChecksum =
-        "333d4049c428f5e2e29fc39aaeaa28cd92306f3b9470a99305018276593e314f"
+        "afa19caa12d02ed9d97918dfcfd3d6c45cabb792242094b51c3fb47c9f7edb3b"
 
     // MARK: - Harness
 

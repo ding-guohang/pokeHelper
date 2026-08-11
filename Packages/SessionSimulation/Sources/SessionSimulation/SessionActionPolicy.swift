@@ -62,6 +62,12 @@ public struct BaselineActionPolicy: SessionActionPolicy {
     /// engine produces contain a spread of pot sizes and showdowns instead of
     /// noise, which is what makes settlement and legal-set assertions run over
     /// interesting states.
+    ///
+    /// Deliberately *not* shared with the disclosed profiles, which read a
+    /// holding on their own scale. The two scales measure the same thing to
+    /// different calibrations — a pair of aces is 23 here and 55 there — and
+    /// merging them would change every hand this baseline has ever dealt, for
+    /// the sake of a function neither caller wants to share.
     private func handStrength(at decision: DecisionPoint) -> Int {
         guard decision.street != .preflop else {
             return preflopStrength(decision.handClass)

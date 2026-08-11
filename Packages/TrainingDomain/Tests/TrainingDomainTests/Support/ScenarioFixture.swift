@@ -9,6 +9,7 @@ enum ScenarioFixture {
             abilityDimension: "flop",
             curriculumNodeID: "flop",
             heroSeatOffsetFromButton: 0,
+            facing: .unopened,
             heroCards: [try card("As"), try card("Kd")],
             board: [try card("7c"), try card("8h"), try card("2s")],
             decision: BettingDecisionContext(

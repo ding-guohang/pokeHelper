@@ -31,8 +31,26 @@ change_id="$1"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 proposal="$repo_root/openspec/changes/$change_id/proposal.md"
 
+# Archiving moves the proposal to changes/archive/<id>-<timestamp>/. The check
+# has to follow it: verify-<milestone>.sh runs this on its own change forever as
+# a regression gate, and a gate that starts failing the moment its change is
+# archived is a gate nobody can keep green. It failed closed rather than passing
+# silently, which is the right direction, but a permanently red check gets
+# deleted rather than fixed.
+#
+# Post-archive the comparison is against specs the proposal itself wrote, so it
+# no longer guards the archive door. What it still catches is a later hand-edit
+# to openspec/specs/ that drops a requirement this change introduced.
 if [[ ! -f "$proposal" ]]; then
-  echo "no proposal at $proposal" >&2
+  archived="$(find "$repo_root/openspec/changes/archive" -maxdepth 2 \
+    -path "*/$change_id-*/proposal.md" -print -quit 2>/dev/null || true)"
+  if [[ -n "$archived" ]]; then
+    proposal="$archived"
+  fi
+fi
+
+if [[ ! -f "$proposal" ]]; then
+  echo "no proposal at $proposal, and none archived under that change id" >&2
   exit 2
 fi
 
