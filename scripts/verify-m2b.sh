@@ -61,7 +61,8 @@ xcodebuild test \
     -scheme PokerCoach \
     -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
     -only-testing:PokerCoachUITests/M2BSurfaceTests \
-    -only-testing:PokerCoachUITests/M2BAnalysisSurfaceTests >/dev/null
+    -only-testing:PokerCoachUITests/M2BAnalysisSurfaceTests \
+    -only-testing:PokerCoachUITests/M2BRemediationSurfaceTests >/dev/null
 
 echo "==> Package dependencies match the layer graph"
 bash scripts/check-package-layering.sh >/dev/null

@@ -85,6 +85,44 @@ enum HandImportFixtureText {
         with: "Dealt to Hero [3s 2d]"
     )
 
+    /// Appendix I: the hero opens `32o` from the cutoff. The seats mirror
+    /// appendix A's 6-max table, but the hero sits on Seat 6 — the cutoff, offset
+    /// 5 from the button — and is first in: the two players before them (UTG and
+    /// the hijack) fold, the hero raises, and everyone behind folds. The coverage
+    /// key for that decision therefore resolves to `rfi-co`, not `rfi-btn`, which
+    /// is the whole point: it is a different covering scenario from appendix G's
+    /// button open.
+    ///
+    /// `32o` has no cell in the shipped `rfi-co` range table either, so opening
+    /// it looks the weight up as 0 out of 10,000 — a full 10,000-magnitude
+    /// deviation, covered by `rfi-co`. Verified against `CoreStrategyPack.json`
+    /// at implementation time: 32o has no cell in rfi-co.
+    static let coOpenTrash = """
+    PokerStars Hand #240000000009:  Hold'em No Limit ($0.50/$1.00 USD) - 2026/01/15 20:45:00 ET
+    Table 'Cassiopeia' 6-max Seat #1 is the button
+    Seat 1: Villain1 ($100 in chips)
+    Seat 2: Villain2 ($100 in chips)
+    Seat 3: Villain3 ($100 in chips)
+    Seat 4: Villain4 ($100 in chips)
+    Seat 5: Villain5 ($100 in chips)
+    Seat 6: Hero ($100 in chips)
+    Villain2: posts small blind $0.50
+    Villain3: posts big blind $1
+    *** HOLE CARDS ***
+    Dealt to Hero [3s 2d]
+    Villain4: folds
+    Villain5: folds
+    Hero: raises $2 to $3
+    Villain1: folds
+    Villain2: folds
+    Villain3: folds
+    Uncalled bet ($2) returned to Hero
+    Hero collected $1.50 from pot
+    *** SUMMARY ***
+    Total pot $1.50 | Rake $0
+
+    """
+
     /// Appendix H: the hero commits their whole starting stack. After a $3
     /// preflop open and a $4 flop bet the hero has $93 left, and the $93 turn
     /// bet brings their committed chips to exactly their $100 start. `isAllIn`

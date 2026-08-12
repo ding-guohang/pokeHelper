@@ -16,6 +16,11 @@ struct KeyNode: Equatable {
     /// all-in that is not also a deviation, because an uncovered spot has no
     /// weight to measure against.
     let deviationMagnitude: Int?
+    /// The scenario whose range table covered this line, for a deviation, so a
+    /// drill can be started on exactly the spot the departure was measured
+    /// against. `nil` for an all-in: an uncovered commitment has no covering
+    /// scenario to practise, and remediation only follows a covered deviation.
+    let coveringScenarioID: String?
 }
 
 /// The threshold below which a covered line counts as a deviation, in basis
@@ -43,20 +48,28 @@ func selectKeyNodes(
     var allIns: [KeyNode] = []
 
     for (signature, coverage) in classified {
-        if case let .covered(_, weight) = coverage,
+        if case let .covered(scenarioID, weight) = coverage,
            weight < importedHandDeviationWeightThresholdBasisPoints {
             // Covered and under the threshold is a deviation, and takes
-            // precedence over the all-in reason when the node is both.
+            // precedence over the all-in reason when the node is both. The
+            // covering scenario's ID is retained so remediation can drill the
+            // exact spot the departure was measured against.
             deviations.append(
                 KeyNode(
                     signature: signature,
                     reason: .deviation,
-                    deviationMagnitude: deviationMagnitude(weightBasisPoints: weight)
+                    deviationMagnitude: deviationMagnitude(weightBasisPoints: weight),
+                    coveringScenarioID: scenarioID
                 )
             )
         } else if signature.isAllIn {
             allIns.append(
-                KeyNode(signature: signature, reason: .allIn, deviationMagnitude: nil)
+                KeyNode(
+                    signature: signature,
+                    reason: .allIn,
+                    deviationMagnitude: nil,
+                    coveringScenarioID: nil
+                )
             )
         }
     }

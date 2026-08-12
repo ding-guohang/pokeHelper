@@ -71,17 +71,49 @@ struct HandLabView: View {
         identity: String,
         tableSize: Int
     ) -> HandAnalysisViewModel {
-        let scenarios = (try? BundledContentLoader(bundle: .main).loadPreferredPack())?
-            .pack.scenarios ?? []
+        let preferredPack = try? BundledContentLoader(bundle: .main).loadPreferredPack()
         let coordinator = HandAnalysisCoordinator(
             libraryStore: store,
             eventStore: dependencies.eventStore,
-            matcher: ImportedHandContentMatcher(scenarios: scenarios)
+            matcher: ImportedHandContentMatcher(scenarios: preferredPack?.pack.scenarios ?? [])
         )
         return HandAnalysisViewModel(
             coordinator: coordinator,
             identity: identity,
-            tableSize: tableSize
+            tableSize: tableSize,
+            makeRemediationSession: { scenarioID in
+                makeRemediationSession(scenarioID: scenarioID, pack: preferredPack?.pack)
+            }
+        )
+    }
+
+    /// The training session that drills a remediation scenario.
+    ///
+    /// Remediation is the ordinary training flow — the real scorer, event store
+    /// and local identity — so the event it records is a plain training event,
+    /// indistinguishable from one produced by starting the same scenario
+    /// directly. It trains against the *preferred pack*, the very content the
+    /// analysis matcher judged the imported line against, so the drill is the
+    /// exact spot the deviation was measured at. In a shipping build that pack is
+    /// also `dependencies.strategyProvider`'s, so this is
+    /// `dependencies.makeDecisionSessionViewModel` by another name; a development
+    /// build's training tab carries a different fixture pack, but the flagged
+    /// spot lives in the reviewed content, and remediation follows it there
+    /// rather than to a scenario the fixture happens not to contain.
+    private func makeRemediationSession(
+        scenarioID: String,
+        pack: StrategyPack?
+    ) -> DecisionSessionViewModel {
+        let provider: any StrategyPackProviding = pack
+            .map { InMemoryStrategyPackProvider(pack: $0) }
+            ?? dependencies.strategyProvider
+        return DecisionSessionViewModel(
+            scenarioID: scenarioID,
+            strategyProvider: provider,
+            scorer: dependencies.scorer,
+            eventStore: dependencies.eventStore,
+            localUserID: dependencies.localUserID,
+            deviceID: dependencies.deviceID
         )
     }
 }

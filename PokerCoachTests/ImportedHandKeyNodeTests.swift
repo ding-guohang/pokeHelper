@@ -83,6 +83,54 @@ final class ImportedHandKeyNodeTests: XCTestCase {
         XCTAssertTrue(allInNode.signature.isAllIn, "入选依据是投入达起始筹码这一事实")
     }
 
+    // GIVEN 附录 G 从 BTN 用 32o 开池、附录 I 从 CO 用 32o 开池，装入随包内容
+    // WHEN 选关键节点
+    // THEN 各自偏离节点保留其覆盖场景：G 为 "rfi-btn"、I 为 "rfi-co"，且两者不同
+    //
+    // 覆盖场景来自分析判定的那个场景本身——把它写死成常量会让附录 I 断言变红。
+    @MainActor
+    func testDeviationRetainsItsCoveringScenarioID() throws {
+        let matcher = try shippedMatcher()
+
+        let btn = try keyNodes(of: HandImportFixtureText.btnOpenTrash, matcher: matcher)
+        let btnPreflop = try XCTUnwrap(btn.signatures.first)
+        let btnNode = try XCTUnwrap(
+            btn.nodes.first { $0.signature == btnPreflop && $0.reason == .deviation },
+            "附录 G 的 32o BTN 开池应是偏离节点"
+        )
+        XCTAssertEqual(btnNode.coveringScenarioID, "rfi-btn")
+
+        let co = try keyNodes(of: HandImportFixtureText.coOpenTrash, matcher: matcher)
+        let coPreflop = try XCTUnwrap(co.signatures.first)
+        XCTAssertEqual(coPreflop.signature.handClass, HandClass(notation: "32o"))
+        let coNode = try XCTUnwrap(
+            co.nodes.first { $0.signature == coPreflop && $0.reason == .deviation },
+            "附录 I 的 32o CO 开池应是偏离节点"
+        )
+        XCTAssertEqual(coNode.coveringScenarioID, "rfi-co")
+
+        XCTAssertNotEqual(
+            btnNode.coveringScenarioID,
+            coNode.coveringScenarioID,
+            "BTN 与 CO 开池必须覆盖到不同的场景"
+        )
+    }
+
+    // GIVEN 附录 H 的全下节点
+    // WHEN 选关键节点
+    // THEN 其 coveringScenarioID 为 nil：全下不来自被覆盖的范围表
+    @MainActor
+    func testAllInHasNoCoveringScenarioID() throws {
+        let matcher = try shippedMatcher()
+        let result = try keyNodes(of: HandImportFixtureText.heroAllIn, matcher: matcher)
+
+        let allInNode = try XCTUnwrap(
+            result.nodes.first { $0.reason == .allIn },
+            "附录 H 应有一个全下节点"
+        )
+        XCTAssertNil(allInNode.coveringScenarioID)
+    }
+
     // GIVEN 附录 A + 空内容
     // WHEN 选关键节点
     // THEN 为空

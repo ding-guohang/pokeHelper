@@ -30,6 +30,10 @@ struct HandImportKeyNodePresentation: Equatable {
         let isDeviation: Bool
         /// How the played line compares to installed content.
         let comparison: Comparison
+        /// The scenario a remediation drill would run, when this node is a
+        /// covered deviation; `nil` otherwise, so the view offers "练这个漏洞"
+        /// exactly where there is a spot to practise.
+        let remediationScenarioID: String?
 
         var id: Int { index }
     }
@@ -58,7 +62,8 @@ struct HandImportKeyNodePresentation: Equatable {
                 heroAction: Self.action(node.signature.action),
                 reasonLabel: Self.reasonLabel(node.reason),
                 isDeviation: node.reason == .deviation,
-                comparison: Self.comparison(node)
+                comparison: Self.comparison(node),
+                remediationScenarioID: remediationScenarioID(for: node)
             )
         }
     }

@@ -44,7 +44,8 @@ final class HandImportKeyNodePresentationTests: XCTestCase {
                 kind: .raiseTo, amountCentiBB: 300, isAllIn: false
             ),
             reason: .deviation,
-            deviationMagnitude: 10_000
+            deviationMagnitude: 10_000,
+            coveringScenarioID: "rfi-btn"
         )
 
         let presentation = HandImportKeyNodePresentation(keyNodes: [node], tableSize: 6)
@@ -69,7 +70,8 @@ final class HandImportKeyNodePresentationTests: XCTestCase {
                 kind: .raiseTo, amountCentiBB: 250, isAllIn: false
             ),
             reason: .deviation,
-            deviationMagnitude: 3_766
+            deviationMagnitude: 3_766,
+            coveringScenarioID: "rfi-utg"
         )
 
         let presentation = HandImportKeyNodePresentation(keyNodes: [node], tableSize: 6)
@@ -89,7 +91,8 @@ final class HandImportKeyNodePresentationTests: XCTestCase {
                 kind: .bet, amountCentiBB: 9_300, isAllIn: true
             ),
             reason: .allIn,
-            deviationMagnitude: nil
+            deviationMagnitude: nil,
+            coveringScenarioID: nil
         )
 
         let presentation = HandImportKeyNodePresentation(keyNodes: [node], tableSize: 6)
