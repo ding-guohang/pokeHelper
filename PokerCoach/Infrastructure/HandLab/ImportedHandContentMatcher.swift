@@ -59,6 +59,18 @@ struct ImportedHandContentMatcher {
     /// range table's vocabulary, so there is no comparison to draw even though
     /// the situation is covered.
     func classify(_ signature: HeroDecisionSignature) -> NodeCoverage {
+        // Preflop only, enforced here rather than inferred from the shipped pack,
+        // exactly as `SessionContentMatcher.matches(in:)` does. Postflop
+        // equivalence needs a hand-class taxonomy this project has not defined,
+        // so matching a postflop hero decision against a pack's flop scenarios
+        // would present a curated answer to an uncurated question. Against
+        // preflop-only content this line changes nothing; against content that
+        // does contain a postflop scenario — the app's own development fixture
+        // ships flop scenarios — it is the difference between the spec and an
+        // accident. Uncovered here is structural, independent of what is loaded.
+        guard signature.signature.street == .preflop else {
+            return .uncovered
+        }
         guard let scenario = scenariosByCoverageKey[signature.signature.coverageKey] else {
             return .uncovered
         }

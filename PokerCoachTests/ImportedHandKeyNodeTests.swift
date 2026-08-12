@@ -93,43 +93,75 @@ final class ImportedHandKeyNodeTests: XCTestCase {
         XCTAssertTrue(result.nodes.isEmpty, "空内容且无全下应无关键节点")
     }
 
-    // GIVEN 一手英雄有 6 个被覆盖且低权重的决策
+    /// A hero decision on `handClass`, used only to give `selectKeyNodes` a
+    /// distinct signature to attach each covered deviation to. The situation is
+    /// arbitrary — the cap and ordering depend on the `NodeCoverage` weights, not
+    /// on how these signatures were produced.
+    private func decision(handClass notation: String) throws -> HeroDecisionSignature {
+        let handClass = try XCTUnwrap(HandClass(notation: notation))
+        return HeroDecisionSignature(
+            street: .preflop,
+            actionIndexInStreet: 0,
+            signature: SpotSignature(
+                street: .preflop,
+                heroSeatOffsetFromButton: 0,
+                handClass: handClass,
+                facing: .unopened,
+                stackBucket: .deep
+            ),
+            action: ObservedAction(seat: 1, kind: .raiseTo, amountCentiBB: 300),
+            isAllIn: false
+        )
+    }
+
+    // GIVEN 6 个被覆盖且低权重（各不相同）的决策，直接喂给 selectKeyNodes
     // WHEN 选关键节点
-    // THEN 恰 5 个（上界）、按偏离幅度降序
+    // THEN 恰 5 个（上界）、全为 deviation、按偏离幅度降序，最小幅度（最高权重）被丢弃
+    //
+    // 覆盖能力停留在 selectKeyNodes 这一层，不再经过 matcher.classify —— 关键节点的
+    // 上界与排序只取决于收到的 NodeCoverage 权重。翻后现已一律 uncovered，无法再靠
+    // 单手多街的翻后覆盖凑出 6 个偏离，因此在此直接构造 6 个 .covered 元组。
     @MainActor
     func testSixDeviationsAreCappedAtFiveMagnitudeDescending() throws {
-        let signatures = try ObservedHand.parsed(HandImportFixtureText.sixDeviations)
-            .heroDecisionSignatures()
-        XCTAssertEqual(signatures.count, 6, "六偏离夹具应有 6 个英雄决策")
-
-        // A content fixture covering each of the six distinct coverage keys, each
-        // with a distinct sub-threshold weight, so all six are deviations with
-        // distinct magnitudes and the cap and ordering are both observable.
-        var scenarios: [DecisionScenario] = []
-        var expectedMagnitudes: [Int] = []
-        for (index, signature) in signatures.enumerated() {
-            let actionKey = signature.action.kind == .call ? RangeBaseline.callKey : RangeBaseline.raiseKey
-            let weight = 500 * (index + 1)
-            XCTAssertLessThan(weight, importedHandDeviationWeightThresholdBasisPoints)
-            scenarios.append(try HandLabContentFixture.scenario(
-                id: "six-\(index)",
-                covering: signature.signature.coverageKey,
-                handClass: signature.signature.handClass,
-                actionKey: actionKey,
-                weightBasisPoints: weight
+        // Six distinct sub-threshold weights → six deviations with six distinct
+        // magnitudes (magnitude = 10,000 - weight, strictly decreasing in weight).
+        let weights = [500, 1_000, 1_500, 2_000, 2_500, 3_000]
+        let notations = ["AKo", "AQo", "AJo", "ATo", "A9o", "A8o"]
+        var classified: [(HeroDecisionSignature, NodeCoverage)] = []
+        for (index, weight) in weights.enumerated() {
+            XCTAssertLessThan(
+                weight,
+                importedHandDeviationWeightThresholdBasisPoints,
+                "每个权重都必须低于偏离阈值，否则不算偏离"
+            )
+            classified.append((
+                try decision(handClass: notations[index]),
+                .covered(scenarioID: "six-\(index)", weightBasisPoints: weight)
             ))
-            expectedMagnitudes.append(deviationMagnitude(weightBasisPoints: weight))
         }
-        // The six keys really are distinct, otherwise fewer than six get covered.
-        XCTAssertEqual(Set(signatures.map { $0.signature.coverageKey }).count, 6)
 
-        let matcher = ImportedHandContentMatcher(scenarios: scenarios)
-        let classified = signatures.map { ($0, matcher.classify($0)) }
         let nodes = selectKeyNodes(classified)
 
+        // Cap: six deviations in, exactly five out.
         XCTAssertEqual(nodes.count, 5, "上界为 5")
-        XCTAssertTrue(nodes.allSatisfy { $0.reason == .deviation })
+        XCTAssertTrue(nodes.allSatisfy { $0.reason == .deviation }, "全部应为偏离")
+
+        // Ordering: magnitude descending.
         let magnitudes = nodes.map { $0.deviationMagnitude }
-        XCTAssertEqual(magnitudes, Array(expectedMagnitudes.sorted(by: >).prefix(5)))
+        XCTAssertEqual(
+            magnitudes,
+            [9_500, 9_000, 8_500, 8_000, 7_500],
+            "应按偏离幅度降序保留前五"
+        )
+
+        // The dropped one is the smallest magnitude, i.e. the highest weight
+        // (3,000 → magnitude 7,000): the least-departing deviation is cut, not
+        // the largest.
+        let droppedMagnitude = deviationMagnitude(weightBasisPoints: 3_000)
+        XCTAssertEqual(droppedMagnitude, 7_000)
+        XCTAssertFalse(
+            nodes.contains { $0.deviationMagnitude == droppedMagnitude },
+            "被丢弃的应是最小幅度（最高权重）的偏离"
+        )
     }
 }

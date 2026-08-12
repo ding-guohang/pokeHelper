@@ -73,6 +73,7 @@ extension ObservedHand {
   - 一节点可能既偏离又全下 → 取 `deviation`（学习信号优先，与 M2A「一节点一理由、deviation 最高」一致）。
   - 关键节点 = 理由为 deviation/allIn 的节点；排序：deviation 按偏离幅度降序，再 allIn；`min(5, 数量)`；可为空。
 - `HandAnalysisCoordinator`（`Infrastructure/HandLab/`）：持有 `any TrainingEventStore`（**从不写**，仿 `HandImportCoordinator` 的注释与理由）+ 库存储 + matcher；`analyze(identity:) -> [KeyNode]`（读库中已采纳牌谱，产出关键节点与逐节点对照）。隔离断言因此是关于一条够得到事件存储的真实路径。
+- **翻后一律 uncovered（评审加固）**：`ImportedHandContentMatcher.classify` 首行 `guard signature.street == .preflop else { return .uncovered }`，与 `SessionContentMatcher` 同款——本项目无翻后手牌分类法，不把翻后决策对着某个牌包的翻牌场景显示为"已审内容答案"。这使"翻后节点无内容可对照"成为结构性保证，不依赖当前随包内容恰为纯翻前。**后果**：真实一手最多约两个被覆盖的翻前偏离节点，故"6 个偏离 → 上界 5"这一属性在 `selectKeyNodes(...)` 函数层用手搭的 6 个 `.covered` 偏离节点断言（cap/排序是选择逻辑的性质，与 matcher 是否覆盖翻后无关），而非经真实翻后覆盖路由。
 
 ## 决断 4：`32o` 权重实现期核实
 

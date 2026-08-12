@@ -75,6 +75,37 @@ final class ImportedHandContentMatchTests: XCTestCase {
         }
     }
 
+    // GIVEN 装入了确实覆盖英雄翻后（翻牌）局面覆盖键的内容
+    // WHEN 判定该翻后决策
+    // THEN 仍是 uncovered —— 翻后无内容可对照是结构性的，与加载了什么内容无关
+    //      （无翻后手牌分类学，不得把未策展的翻后问题当成已策展答案）
+    @MainActor
+    func testPostflopNodeStaysUncoveredEvenWhenContentCoversItsKey() throws {
+        let signatures = try appendixASignatures()
+        // 附录 A 的翻牌决策：英雄在 [Ac 7h 2s] 上 bets $4。
+        let flop = try XCTUnwrap(
+            signatures.first { $0.signature.street == .flop },
+            "附录 A 应有翻牌英雄决策"
+        )
+
+        // 构造确实覆盖这个翻牌覆盖键、且能给英雄下注动作查到权重的内容。
+        // 没有 guard 时，classify 会命中覆盖键并按 raise 键查表 → covered。
+        let scenario = try HandLabContentFixture.scenario(
+            id: "covers-flop-cbet",
+            covering: flop.signature.coverageKey,
+            handClass: flop.signature.handClass,
+            actionKey: RangeBaseline.raiseKey,
+            weightBasisPoints: 6_234
+        )
+        let matcher = ImportedHandContentMatcher(scenarios: [scenario])
+
+        XCTAssertEqual(
+            matcher.classify(flop),
+            .uncovered,
+            "翻后节点即便有内容覆盖其覆盖键，也必须结构性地保持 uncovered"
+        )
+    }
+
     // GIVEN 内容为空
     // WHEN 判定翻前决策
     // THEN uncovered（与命中成对，排除恒 covered/恒 uncovered）
