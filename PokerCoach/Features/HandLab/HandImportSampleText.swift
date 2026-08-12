@@ -1,0 +1,45 @@
+#if DEVELOPMENT_STRATEGY_FIXTURES
+/// A sample hand history for exercising the Hand Lab in a development build.
+///
+/// Byte-for-byte the appendix A fixture the parser tests use, so the "载入示例"
+/// button drives the same input the unit and cross-process tests pin. Compiled
+/// only into development builds; it never ships.
+enum HandImportSampleText {
+    static let appendixA = """
+    PokerStars Hand #240000000001:  Hold'em No Limit ($0.50/$1.00 USD) - 2026/01/15 20:00:00 ET
+    Table 'Andromeda' 6-max Seat #1 is the button
+    Seat 1: Hero ($100 in chips)
+    Seat 2: Villain2 ($100 in chips)
+    Seat 3: Villain3 ($100 in chips)
+    Seat 4: Villain4 ($100 in chips)
+    Seat 5: Villain5 ($100 in chips)
+    Seat 6: Villain6 ($100 in chips)
+    Villain2: posts small blind $0.50
+    Villain3: posts big blind $1
+    *** HOLE CARDS ***
+    Dealt to Hero [Ah Kd]
+    Villain4: folds
+    Villain5: folds
+    Villain6: folds
+    Hero: raises $2 to $3
+    Villain2: folds
+    Villain3: calls $2
+    *** FLOP *** [Ac 7h 2s]
+    Villain3: checks
+    Hero: bets $4
+    Villain3: calls $4
+    *** TURN *** [Ac 7h 2s] [Td]
+    Villain3: checks
+    Hero: checks
+    *** RIVER *** [Ac 7h 2s Td] [9c]
+    Villain3: checks
+    Hero: bets $8
+    Villain3: folds
+    Uncalled bet ($8) returned to Hero
+    Hero collected $14 from pot
+    *** SUMMARY ***
+    Total pot $14.50 | Rake $0.50
+
+    """
+}
+#endif

@@ -18,6 +18,10 @@ packages:
     path: Packages/SessionSimulation
   SessionPersistence:
     path: Packages/SessionPersistence
+  HandHistory:
+    path: Packages/HandHistory
+  HandHistoryPersistence:
+    path: Packages/HandHistoryPersistence
 targets:
   PokerCoach:
     type: application
@@ -40,6 +44,8 @@ targets:
       - package: TrainingPersistence
       - package: SessionSimulation
       - package: SessionPersistence
+      - package: HandHistory
+      - package: HandHistoryPersistence
     info:
       path: PokerCoach/Info.plist
       properties:

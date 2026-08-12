@@ -5,6 +5,7 @@ enum AppDestination: String, CaseIterable, Identifiable {
     case learn
     case train
     case review
+    case handLab
 
     var id: Self {
         self
@@ -20,6 +21,8 @@ enum AppDestination: String, CaseIterable, Identifiable {
             "训练"
         case .review:
             "复盘"
+        case .handLab:
+            "牌局实验室"
         }
     }
 
@@ -33,6 +36,8 @@ enum AppDestination: String, CaseIterable, Identifiable {
             "suit.spade.fill"
         case .review:
             "chart.bar.fill"
+        case .handLab:
+            "tray.and.arrow.down.fill"
         }
     }
 }
@@ -157,6 +162,8 @@ struct AdaptiveRootView: View {
                 dependencies: dependencies,
                 onStartTraining: { selectedDestination = .train }
             )
+        case .handLab:
+            HandLabView(dependencies: dependencies)
         }
     }
 }
