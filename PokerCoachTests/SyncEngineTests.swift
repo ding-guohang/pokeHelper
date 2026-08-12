@@ -1,5 +1,6 @@
 import Foundation
 import TrainingDomain
+import TrainingPersistence
 import XCTest
 @testable import PokerCoach
 
@@ -23,7 +24,7 @@ final class SyncEngineTests: XCTestCase {
     // when the merged history comes back, so the reduction sees one set.
     func testSynchronizeReconcilesThenUploadsThenPulls() async throws {
         let harness = try Harness(directory: directory)
-        try await harness.underlying.append(ContractEventFixture.make())
+        try await harness.underlying.append(try ContractEventFixture.make())
 
         await harness.engine.synchronize(reason: .launch)
 
@@ -38,7 +39,7 @@ final class SyncEngineTests: XCTestCase {
     // reconciliation, without any explicit repair step by the caller.
     func testAnUnqueuedLocalEventIsStillUploaded() async throws {
         let harness = try Harness(directory: directory)
-        let orphan = ContractEventFixture.make()
+        let orphan = try ContractEventFixture.make()
         try await harness.underlying.append(orphan)
 
         await harness.engine.synchronize(reason: .launch)
@@ -50,7 +51,7 @@ final class SyncEngineTests: XCTestCase {
     // server would treat the replay as a new batch.
     func testALostResponseRetriesTheExactSameBytesAndKey() async throws {
         let harness = try Harness(directory: directory)
-        try await harness.underlying.append(ContractEventFixture.make())
+        try await harness.underlying.append(try ContractEventFixture.make())
         harness.api.uploadFailures = 1
 
         await harness.engine.synchronize(reason: .launch)
@@ -72,7 +73,7 @@ final class SyncEngineTests: XCTestCase {
 
     func testRemoteEventsAreMergedWithoutBeingUploadedBack() async throws {
         let harness = try Harness(directory: directory)
-        let remote = ContractEventFixture.make(id: UUID())
+        let remote = try ContractEventFixture.make(id: UUID())
         harness.api.remotePages = [
             RemoteEventPage(events: [remote], checkpoint: 5, hasMore: false),
         ]
@@ -91,8 +92,8 @@ final class SyncEngineTests: XCTestCase {
 
     func testPagedPullMergesEveryPageAndAdvancesTheCheckpointOnce() async throws {
         let harness = try Harness(directory: directory)
-        let first = ContractEventFixture.make(id: UUID())
-        let second = ContractEventFixture.make(id: UUID())
+        let first = try ContractEventFixture.make(id: UUID())
+        let second = try ContractEventFixture.make(id: UUID())
         harness.api.remotePages = [
             RemoteEventPage(events: [first], checkpoint: 1, hasMore: true),
             RemoteEventPage(events: [second], checkpoint: 2, hasMore: false),
@@ -123,7 +124,7 @@ final class SyncEngineTests: XCTestCase {
 
     func testADuplicateRemoteEventDoesNotDuplicateHistory() async throws {
         let harness = try Harness(directory: directory)
-        let event = ContractEventFixture.make()
+        let event = try ContractEventFixture.make()
         try await harness.underlying.append(event)
         harness.api.remotePages = [
             RemoteEventPage(events: [event], checkpoint: 1, hasMore: false),
@@ -138,7 +139,7 @@ final class SyncEngineTests: XCTestCase {
     // Sync failing must never stop the user training.
     func testAFailedSynchronizationKeepsLocalHistoryIntact() async throws {
         let harness = try Harness(directory: directory)
-        let local = ContractEventFixture.make()
+        let local = try ContractEventFixture.make()
         try await harness.underlying.append(local)
         harness.api.uploadFailures = 1
 
@@ -152,7 +153,7 @@ final class SyncEngineTests: XCTestCase {
 
     func testNetworkRecoveryUploadsWhatWasPending() async throws {
         let harness = try Harness(directory: directory)
-        try await harness.underlying.append(ContractEventFixture.make())
+        try await harness.underlying.append(try ContractEventFixture.make())
         harness.api.uploadFailures = 1
         await harness.engine.synchronize(reason: .launch)
 
@@ -169,7 +170,7 @@ final class SyncEngineTests: XCTestCase {
     func testHistoryChangeIsPublishedOnlyWhenSomethingChanged() async throws {
         let counter = ChangeCounter()
         let harness = try Harness(directory: directory) { await counter.increment() }
-        try await harness.underlying.append(ContractEventFixture.make())
+        try await harness.underlying.append(try ContractEventFixture.make())
 
         await harness.engine.synchronize(reason: .launch)
         let afterUpload = await counter.value
@@ -314,7 +315,7 @@ final class OversizedBatchTests: XCTestCase {
         let state = try FileSyncStateStore(directory: directory)
         let store = SyncTrackingTrainingEventStore(underlying: underlying, outbox: outbox)
 
-        let events = (0 ..< 4).map { _ in ContractEventFixture.make(id: UUID()) }
+        let events = try (0 ..< 4).map { _ in try ContractEventFixture.make(id: UUID()) }
         for event in events {
             try await store.append(event)
         }

@@ -32,16 +32,16 @@ struct DashboardFixture {
         ),
     ]
 
-    static func withBetSizingWeakness() -> DashboardFixture {
+    static func withBetSizingWeakness() throws -> DashboardFixture {
         make(events: [
-            event(
+            try event(
                 id: "40000000-0000-0000-0000-000000000001",
                 occurredAt: 1_786_000_000,
                 score: 40,
                 confidence: .verySure,
                 dimension: "bet-sizing"
             ),
-            event(
+            try event(
                 id: "40000000-0000-0000-0000-000000000002",
                 occurredAt: 1_786_086_400,
                 score: 80,
@@ -51,8 +51,8 @@ struct DashboardFixture {
         ])
     }
 
-    static func withTwoDimensions() -> DashboardFixture {
-        withBetSizingWeakness()
+    static func withTwoDimensions() throws -> DashboardFixture {
+        try withBetSizingWeakness()
     }
 
     static func empty() -> DashboardFixture {
@@ -89,8 +89,8 @@ struct DashboardFixture {
 
     static func weakPreflopEvent(
         contentVersion: String
-    ) -> TrainingEvent {
-        event(
+    ) throws -> TrainingEvent {
+        try event(
             id: "40000000-0000-0000-0000-000000000003",
             occurredAt: 1_786_172_800,
             score: 0,
@@ -100,8 +100,8 @@ struct DashboardFixture {
         )
     }
 
-    static func developmentBetSizingEvent() -> TrainingEvent {
-        event(
+    static func developmentBetSizingEvent() throws -> TrainingEvent {
+        try event(
             id: "40000000-0000-0000-0000-000000000004",
             occurredAt: 1_786_172_800,
             score: 40,
@@ -119,8 +119,8 @@ struct DashboardFixture {
         dimension: String,
         contentVersion: String = "2026.08.06",
         strategyPackID: String = "cash-pack"
-    ) -> TrainingEvent {
-        let scenario = DecisionSessionFixture.makePack(
+    ) throws -> TrainingEvent {
+        let scenario = try DecisionSessionFixture.makePack(
             abilityDimension: dimension,
             foldEVMilliBB: score == 0 ? 0 : (score < 50 ? 200 : 0)
         ).scenarios[0]
@@ -131,7 +131,7 @@ struct DashboardFixture {
             action: action,
             confidence: confidence
         )
-        let grade = try! DecisionScorer().grade(
+        let grade = try DecisionScorer().grade(
             submission: submission,
             scenario: scenario
         )

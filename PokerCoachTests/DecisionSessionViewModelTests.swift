@@ -7,8 +7,8 @@ import XCTest
 
 @MainActor
 final class DecisionSessionViewModelTests: XCTestCase {
-    func testAnsweringAllowsSubmitAttemptBeforeSelections() async {
-        let sut = DecisionSessionFixture.makeViewModel()
+    func testAnsweringAllowsSubmitAttemptBeforeSelections() async throws {
+        let sut = try DecisionSessionFixture.makeViewModel()
 
         await sut.load()
 
@@ -18,7 +18,7 @@ final class DecisionSessionViewModelTests: XCTestCase {
     }
 
     func testSubmitRequiresActionAndConfidence() async throws {
-        let fixture = DecisionSessionFixture.make()
+        let fixture = try DecisionSessionFixture.make()
         await fixture.viewModel.load()
 
         XCTAssertEqual(fixture.viewModel.state, .answering)
@@ -33,7 +33,7 @@ final class DecisionSessionViewModelTests: XCTestCase {
     }
 
     func testIllegalActionCannotBecomeACompleteSubmission() async throws {
-        let fixture = DecisionSessionFixture.make()
+        let fixture = try DecisionSessionFixture.make()
         await fixture.viewModel.load()
 
         fixture.viewModel.select(action: .check)
@@ -49,8 +49,8 @@ final class DecisionSessionViewModelTests: XCTestCase {
         XCTAssertTrue(events.isEmpty)
     }
 
-    func testLoadExposesOnlyLegalActionsInStableDisplayOrder() async {
-        let sut = DecisionSessionFixture.makeViewModel()
+    func testLoadExposesOnlyLegalActionsInStableDisplayOrder() async throws {
+        let sut = try DecisionSessionFixture.makeViewModel()
 
         await sut.load()
 
@@ -66,8 +66,8 @@ final class DecisionSessionViewModelTests: XCTestCase {
         )
     }
 
-    func testM1ASixPlayerFixturePresentsDerivedButtonPosition() async {
-        let fixture = DecisionSessionFixture.make()
+    func testM1ASixPlayerFixturePresentsDerivedButtonPosition() async throws {
+        let fixture = try DecisionSessionFixture.make()
 
         await fixture.viewModel.load()
 
@@ -81,7 +81,7 @@ final class DecisionSessionViewModelTests: XCTestCase {
     }
 
     func testLoadAndSubmitUseOneImmutablePackSnapshot() async throws {
-        let packA = DecisionSessionFixture.makePack(
+        let packA = try DecisionSessionFixture.makePack(
             packID: "pack-a",
             contentVersion: "version-a",
             generatedSource: "source-a",
@@ -89,7 +89,7 @@ final class DecisionSessionViewModelTests: XCTestCase {
             abilityDimension: "ability-a",
             foldEVMilliBB: -100
         )
-        let packB = DecisionSessionFixture.makePack(
+        let packB = try DecisionSessionFixture.makePack(
             packID: "pack-b",
             contentVersion: "version-b",
             generatedSource: "source-b",
@@ -135,7 +135,7 @@ final class DecisionSessionViewModelTests: XCTestCase {
     }
 
     func testValidSubmitGradesAndPersistsOneImmutableVersionedEvent() async throws {
-        let fixture = DecisionSessionFixture.make()
+        let fixture = try DecisionSessionFixture.make()
         await fixture.viewModel.load()
         let action = fixture.scenario.options[0].action
         fixture.viewModel.select(action: action)
@@ -167,7 +167,7 @@ final class DecisionSessionViewModelTests: XCTestCase {
     }
 
     func testSaveFailureCanRetryWithoutGradingOrCreatingANewEvent() async throws {
-        let pack = DecisionSessionFixture.makePack()
+        let pack = try DecisionSessionFixture.makePack()
         let store = FailFirstTrainingEventStore()
         var gradeCount = 0
         let scorer = DecisionScorer()
@@ -207,12 +207,12 @@ final class DecisionSessionViewModelTests: XCTestCase {
         XCTAssertEqual(events.count, 1)
     }
 
-    func testScoringFailureReturnsToEditableAnsweringAndCanSubmitAgain() async {
+    func testScoringFailureReturnsToEditableAnsweringAndCanSubmitAgain() async throws {
         enum GradingFailure: Error {
             case unavailable
         }
 
-        let pack = DecisionSessionFixture.makePack()
+        let pack = try DecisionSessionFixture.makePack()
         let store = InMemoryTrainingEventStore()
         let scorer = DecisionScorer()
         var gradeCount = 0
@@ -254,9 +254,9 @@ final class DecisionSessionViewModelTests: XCTestCase {
         XCTAssertEqual(eventsAfterRetry.count, 1)
     }
 
-    func testLoadFailureSurfacesChineseRetryMessageAndCanRetry() async {
+    func testLoadFailureSurfacesChineseRetryMessageAndCanRetry() async throws {
         let provider = FailFirstStrategyProvider(
-            pack: DecisionSessionFixture.makePack()
+            pack: try DecisionSessionFixture.makePack()
         )
         let sut = DecisionSessionFixture.makeViewModel(
             provider: provider,
@@ -275,8 +275,8 @@ final class DecisionSessionViewModelTests: XCTestCase {
         XCTAssertFalse(sut.canRetry)
     }
 
-    func testSubmissionIsDisabledWhileSavingAndConcurrentSubmitIsIgnored() async {
-        let pack = DecisionSessionFixture.makePack()
+    func testSubmissionIsDisabledWhileSavingAndConcurrentSubmitIsIgnored() async throws {
+        let pack = try DecisionSessionFixture.makePack()
         let store = SuspendedTrainingEventStore()
         let sut = DecisionSessionFixture.makeViewModel(
             provider: InMemoryStrategyPackProvider(pack: pack),
@@ -300,8 +300,8 @@ final class DecisionSessionViewModelTests: XCTestCase {
         XCTAssertEqual(sut.state, .feedback)
     }
 
-    func testSaveRetryIsDisabledWhileRetryIsInFlight() async {
-        let pack = DecisionSessionFixture.makePack()
+    func testSaveRetryIsDisabledWhileRetryIsInFlight() async throws {
+        let pack = try DecisionSessionFixture.makePack()
         let store = FailThenSuspendTrainingEventStore()
         let sut = DecisionSessionFixture.makeViewModel(
             provider: InMemoryStrategyPackProvider(pack: pack),
@@ -334,8 +334,8 @@ final class DecisionSessionViewModelTests: XCTestCase {
         XCTAssertFalse(sut.canRetry)
     }
 
-    func testContinueSessionMovesFeedbackToCompleted() async {
-        let fixture = DecisionSessionFixture.make()
+    func testContinueSessionMovesFeedbackToCompleted() async throws {
+        let fixture = try DecisionSessionFixture.make()
         await fixture.viewModel.load()
         fixture.viewModel.select(
             action: fixture.scenario.options[0].action

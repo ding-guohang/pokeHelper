@@ -1,5 +1,6 @@
 import Foundation
 import Synchronization
+import TrainingDomain
 
 public actor FileTrainingEventStore: TrainingEventStore {
     private let coordinator: TrainingEventFileCoordinator

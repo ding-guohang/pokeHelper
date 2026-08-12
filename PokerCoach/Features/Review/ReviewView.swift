@@ -22,6 +22,7 @@ struct ReviewView: View {
             catalog: dependencies.localTrainingCatalog,
             strategyContentAvailability:
                 dependencies.strategyContentAvailability,
+            strategyProvider: dependencies.strategyProvider,
             installedContent: dependencies.installedContent
         ))
     }

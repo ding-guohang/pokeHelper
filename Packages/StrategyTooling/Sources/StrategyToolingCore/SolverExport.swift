@@ -113,6 +113,10 @@ public struct SolverNode: Codable, Sendable {
     public let abilityDimension: String
     public let curriculumNodeID: String
     public let heroSeatOffsetFromButton: Int
+    /// Declared, because the number of prior raises cannot be recovered from
+    /// the pot and the amount owed — see `facingRaiseTo` below, which records
+    /// the same limitation for a different consumer.
+    public let facing: FacingAction
     /// Card codes such as "As". Parsed by the importer so a typo fails the
     /// build rather than reaching the app as an undecodable pack.
     public let heroCards: [String]
@@ -138,6 +142,7 @@ public struct SolverNode: Codable, Sendable {
         abilityDimension: String,
         curriculumNodeID: String,
         heroSeatOffsetFromButton: Int,
+        facing: FacingAction,
         heroCards: [String],
         board: [String],
         pot: BBAmount,
@@ -154,6 +159,7 @@ public struct SolverNode: Codable, Sendable {
         self.abilityDimension = abilityDimension
         self.curriculumNodeID = curriculumNodeID
         self.heroSeatOffsetFromButton = heroSeatOffsetFromButton
+        self.facing = facing
         self.heroCards = heroCards
         self.board = board
         self.pot = pot

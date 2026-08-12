@@ -63,7 +63,7 @@ final class TodayViewModelTests: XCTestCase {
     }
 
     func testWeakestDimensionBecomesPrimaryTraining() async throws {
-        let fixture = DashboardFixture.withBetSizingWeakness()
+        let fixture = try DashboardFixture.withBetSizingWeakness()
 
         await fixture.today.refresh()
 
@@ -77,7 +77,7 @@ final class TodayViewModelTests: XCTestCase {
         let initialReason = try XCTUnwrap(fixture.today.primaryItem?.reasonDetail)
 
         await fixture.store.append(
-            DashboardFixture.weakPreflopEvent(
+            try DashboardFixture.weakPreflopEvent(
                 contentVersion: "2026.08.07"
             )
         )
@@ -163,7 +163,7 @@ final class TodayViewModelTests: XCTestCase {
     }
 
     func testPracticedPrimaryReasonIsPresentedInChinese() async throws {
-        let fixture = DashboardFixture.withBetSizingWeakness()
+        let fixture = try DashboardFixture.withBetSizingWeakness()
 
         await fixture.today.refresh()
 

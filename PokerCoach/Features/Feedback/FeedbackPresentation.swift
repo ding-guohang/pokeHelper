@@ -188,16 +188,7 @@ struct FeedbackPresentation {
     }
 
     private static func evText(_ amount: EVAmount) -> String {
-        let sign: String
-        if amount.milliBB < 0 {
-            sign = "−"
-        } else {
-            sign = ""
-        }
-        let magnitude = amount.milliBB.magnitude
-        let whole = magnitude / 1_000
-        let fractional = magnitude % 1_000
-        return "\(sign)\(whole).\(String(format: "%03llu", fractional)) BB"
+        StrategyNumberText.ev(amount)
     }
 
     private static func lossText(_ amount: EVAmount) -> String {
@@ -208,8 +199,7 @@ struct FeedbackPresentation {
     }
 
     private static func frequencyText(basisPoints: Int) -> String {
-        let tenthsOfPercent = (basisPoints + 5) / 10
-        return "\(tenthsOfPercent / 10).\(tenthsOfPercent % 10)%"
+        StrategyNumberText.frequency(basisPoints: basisPoints)
     }
 
     private static func compactBBText(_ amount: BBAmount) -> String {

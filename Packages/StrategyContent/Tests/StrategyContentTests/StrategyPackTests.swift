@@ -176,6 +176,7 @@ func heroSeatOffsetOutsideTableIsRejected(
         abilityDimension: sourceScenario.abilityDimension,
         curriculumNodeID: sourceScenario.curriculumNodeID,
         heroSeatOffsetFromButton: sourceScenario.heroSeatOffsetFromButton,
+        facing: .unopened,
         heroCards: sourceScenario.heroCards,
         board: sourceScenario.board,
         decision: BettingDecisionContext(
@@ -305,7 +306,7 @@ func heroSeatOffsetOutsideTableIsRejected(
     let data = try fixture("valid-pack.json")
     let pack = try StrategyPackLoader().load(
         data: data,
-        expectedSHA256: "7c5b5a8a208fa6de7d60cfd1f3248d2901eba1d766d277fee969aac4517f46fc"
+        expectedSHA256: "92a37cd0ede128f195e481230820693980d40434a07efd1a8b8bf8c78cd1ac5c"
     )
 
     #expect(pack.manifest.id == "cash-6max-100bb-dev")

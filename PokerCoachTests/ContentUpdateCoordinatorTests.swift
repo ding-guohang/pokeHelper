@@ -193,6 +193,60 @@ final class ContentUpdateReachabilityTests: XCTestCase {
         XCTAssertEqual(outcome, .adopted(contentVersion: "2026.09.01"))
         XCTAssertEqual(coordinator.availability, .unverifiedContentAvailable)
     }
+
+    // Adoption has to change what the app trains against.
+    //
+    // The coordinator updated its own `currentPack` and returned `.adopted`,
+    // and every test stopped there. Meanwhile `AppDependencies.strategyProvider`
+    // was a `let` still holding the original pack, so the entire update path
+    // ran, reported success, and changed nothing a user could reach.
+    func testAdoptedContentReplacesWhatTheAppTrainsAgainst() async throws {
+        let dependencies = AppDependencies.availableContent(
+            eventStore: InMemoryTrainingEventStore(events: []),
+            strategyPack: try ContentUpdateFixture.pack(contentVersion: "2026.08.06"),
+            strategyContentAvailability: .reviewedContentAvailable
+        )
+        let catalogBefore = dependencies.localTrainingCatalog
+        dependencies.installContentUpdate(
+            pack: try ContentUpdateFixture.pack(contentVersion: "2026.08.06"),
+            availability: .reviewedContentAvailable,
+            source: StubUpdateSource(
+                offer: try ContentUpdateFixture.unverifiedOffer(
+                    contentVersion: "2026.09.01"
+                )
+            )
+        )
+
+        let outcome = await dependencies.checkForContentUpdate()
+        XCTAssertEqual(outcome, .adopted(contentVersion: "2026.09.01"))
+
+        let served = try await dependencies.strategyProvider.pack()
+        XCTAssertEqual(
+            served.manifest.contentVersion,
+            "2026.09.01",
+            "采纳的内容没有装进 strategyProvider，训练仍在用旧包"
+        )
+        XCTAssertEqual(
+            dependencies.strategyContentAvailability,
+            .unverifiedContentAvailable,
+            "披露没有跟着采纳的包走，未审核内容会以已审核的样子出现"
+        )
+        XCTAssertEqual(
+            dependencies.installedContent[served.manifest.id]?.0,
+            .unverifiedDraft,
+            "历史条目的来源披露仍按旧包的审核状态解析"
+        )
+        XCTAssertEqual(
+            dependencies.localTrainingCatalog,
+            RuntimeTrainingCatalog.items(from: served),
+            "今日与复盘的目录仍来自旧包"
+        )
+        XCTAssertEqual(
+            catalogBefore.count,
+            dependencies.localTrainingCatalog.count,
+            "同一份内容的不同版本目录条数应一致——若不一致本测试的其余断言意义不明"
+        )
+    }
 }
 
 private struct StubUpdateSource: ContentUpdateSource {

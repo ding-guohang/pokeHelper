@@ -6,9 +6,9 @@ import TrainingDomain
 @MainActor
 final class ReviewViewModelTests: XCTestCase {
     func testUnavailableContentKeepsHistoryButBlocksSuggestedRoute()
-        async
+        async throws
     {
-        let event = DashboardFixture.developmentBetSizingEvent()
+        let event = try DashboardFixture.developmentBetSizingEvent()
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
@@ -32,8 +32,8 @@ final class ReviewViewModelTests: XCTestCase {
         )
     }
 
-    func testAvailableContentAllowsSuggestedRoute() async {
-        let event = DashboardFixture.developmentBetSizingEvent()
+    func testAvailableContentAllowsSuggestedRoute() async throws {
+        let event = try DashboardFixture.developmentBetSizingEvent()
 
         for availability in [
             StrategyContentAvailability.developmentFixtureAvailable,
@@ -58,7 +58,7 @@ final class ReviewViewModelTests: XCTestCase {
     }
 
     func testDevelopmentEventDisclosesFixtureInsteadOfPackID() async throws {
-        let event = DashboardFixture.developmentBetSizingEvent()
+        let event = try DashboardFixture.developmentBetSizingEvent()
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
@@ -79,7 +79,7 @@ final class ReviewViewModelTests: XCTestCase {
     }
 
     func testUnverifiedHistoryIsDisclosedAsUnreviewed() async throws {
-        let event = DashboardFixture.developmentBetSizingEvent()
+        let event = try DashboardFixture.developmentBetSizingEvent()
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
@@ -96,7 +96,7 @@ final class ReviewViewModelTests: XCTestCase {
     }
 
     func testReviewedHistoryCarriesNoDisclosure() async throws {
-        let event = DashboardFixture.developmentBetSizingEvent()
+        let event = try DashboardFixture.developmentBetSizingEvent()
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
@@ -113,7 +113,7 @@ final class ReviewViewModelTests: XCTestCase {
     // Silence there reads as "nothing to disclose", which is the opposite of
     // what an unresolvable provenance means.
     func testHistoryFromAnUninstalledPackDisclosesUnknownProvenance() async throws {
-        let event = DashboardFixture.developmentBetSizingEvent()
+        let event = try DashboardFixture.developmentBetSizingEvent()
         let viewModel = ReviewViewModel(
             eventStore: InMemoryTrainingEventStore(events: [event]),
             reducer: PlayerModelReducer(),
@@ -130,7 +130,7 @@ final class ReviewViewModelTests: XCTestCase {
     }
 
     func testReviewSortsWeakestAbilityFirst() async throws {
-        let fixture = DashboardFixture.withTwoDimensions()
+        let fixture = try DashboardFixture.withTwoDimensions()
 
         await fixture.review.refresh()
 
@@ -146,7 +146,7 @@ final class ReviewViewModelTests: XCTestCase {
         XCTAssertEqual(fixture.review.state, .empty)
 
         await fixture.store.append(
-            DashboardFixture.weakPreflopEvent(
+            try DashboardFixture.weakPreflopEvent(
                 contentVersion: "2026.08.07"
             )
         )

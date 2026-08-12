@@ -21,7 +21,7 @@ final class FileOutboxStoreTests: XCTestCase {
     // The upload bytes are the contract the server hashes. If Swift and Go
     // disagree by one byte, every idempotent retry looks like a new request.
     func testCanonicalEncodingMatchesTheSharedContractFixtureAndHash() throws {
-        let event = contractEvent()
+        let event = try contractEvent()
 
         let body = try UploadEncoding.canonicalBody(events: [event])
 
@@ -57,7 +57,7 @@ final class FileOutboxStoreTests: XCTestCase {
 
     func testBeginBatchFreezesOrderBytesAndHash() async throws {
         let store = try FileOutboxStore(directory: directory)
-        let events = [contractEvent(), contractEvent(id: UUID())]
+        let events = [try contractEvent(), try contractEvent(id: UUID())]
         for event in events {
             try await store.enqueue(event.id)
         }
@@ -77,7 +77,7 @@ final class FileOutboxStoreTests: XCTestCase {
     // recognizes it through the same idempotency key and body hash.
     func testAnInFlightBatchIsReplayedVerbatimAfterAReopen() async throws {
         let store = try FileOutboxStore(directory: directory)
-        let event = contractEvent()
+        let event = try contractEvent()
         try await store.enqueue(event.id)
         let started = try await store.beginBatch(eventsByID: [event.id: event], limit: 10)
         let original = try XCTUnwrap(started)
@@ -94,8 +94,8 @@ final class FileOutboxStoreTests: XCTestCase {
 
     func testAcknowledgementClearsConfirmedEventsAndRequeuesTheRest() async throws {
         let store = try FileOutboxStore(directory: directory)
-        let confirmed = contractEvent()
-        let unconfirmed = contractEvent(id: UUID())
+        let confirmed = try contractEvent()
+        let unconfirmed = try contractEvent(id: UUID())
         for event in [confirmed, unconfirmed] {
             try await store.enqueue(event.id)
         }
@@ -115,7 +115,7 @@ final class FileOutboxStoreTests: XCTestCase {
 
     func testBatchRespectsItsLimit() async throws {
         let store = try FileOutboxStore(directory: directory)
-        let events = (0 ..< 5).map { _ in contractEvent(id: UUID()) }
+        let events = try (0 ..< 5).map { _ in try contractEvent(id: UUID()) }
         for event in events {
             try await store.enqueue(event.id)
         }
@@ -137,11 +137,11 @@ final class FileOutboxStoreTests: XCTestCase {
             .appending(path: "Contracts", directoryHint: .isDirectory)
     }
 
-    private func contractEvent() -> TrainingEvent {
-        ContractEventFixture.make()
+    private func contractEvent() throws -> TrainingEvent {
+        try ContractEventFixture.make()
     }
 
-    private func contractEvent(id: UUID) -> TrainingEvent {
-        ContractEventFixture.make(id: id)
+    private func contractEvent(id: UUID) throws -> TrainingEvent {
+        try ContractEventFixture.make(id: id)
     }
 }

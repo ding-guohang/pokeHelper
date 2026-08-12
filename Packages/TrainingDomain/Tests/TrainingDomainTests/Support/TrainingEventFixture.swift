@@ -96,11 +96,3 @@ enum TrainingEventFixture {
         }
     }
 }
-
-extension FileTrainingEventStore {
-    static func temporary() throws -> FileTrainingEventStore {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
-        return try FileTrainingEventStore(directory: directory)
-    }
-}

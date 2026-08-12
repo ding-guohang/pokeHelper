@@ -120,3 +120,40 @@ import Testing
         try JSONDecoder().decode(BettingDecisionContext.self, from: invalidContext)
     }
 }
+
+// The one spot where a call and an all-in are the same action.
+//
+// M2A's session state machine caps the amount owed at the effective stack, so
+// a player facing a 5BB bet with 3BB behind is handed
+// `amountToCall == effectiveStack`. The legal set is then exactly fold-or-call
+// with no separate all-in entry: an `.allIn(to:)` sitting beside an identical
+// `.call(to:)` would offer the same action twice under two names.
+@Test func aCallForTheWholeStackIsTheAllIn() {
+    let context = BettingDecisionContext(
+        pot: BBAmount(centiBB: 800),
+        effectiveStack: BBAmount(centiBB: 300),
+        amountToCall: BBAmount(centiBB: 300),
+        minimumRaiseTo: BBAmount(centiBB: 600),
+        configuredBetSizes: [BBAmount(centiBB: 600), BBAmount(centiBB: 900)]
+    )
+
+    #expect(context.legalActions() == [.fold, .call(to: BBAmount(centiBB: 300))])
+}
+
+// The boundary from the other side: one centi-BB behind and the all-in is a
+// distinct, larger action again.
+@Test func allInSeparatesFromCallAsSoonAsThereIsSomethingBehind() {
+    let context = BettingDecisionContext(
+        pot: BBAmount(centiBB: 800),
+        effectiveStack: BBAmount(centiBB: 301),
+        amountToCall: BBAmount(centiBB: 300),
+        minimumRaiseTo: BBAmount(centiBB: 600),
+        configuredBetSizes: []
+    )
+
+    #expect(context.legalActions() == [
+        .fold,
+        .call(to: BBAmount(centiBB: 300)),
+        .allIn(to: BBAmount(centiBB: 301)),
+    ])
+}

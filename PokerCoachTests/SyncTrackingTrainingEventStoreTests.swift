@@ -1,5 +1,6 @@
 import Foundation
 import TrainingDomain
+import TrainingPersistence
 import XCTest
 @testable import PokerCoach
 
@@ -21,7 +22,7 @@ final class SyncTrackingTrainingEventStoreTests: XCTestCase {
 
     func testLocalAppendWritesTheEventAndQueuesIt() async throws {
         let (store, outbox, _) = try makeStore()
-        let event = ContractEventFixture.make()
+        let event = try ContractEventFixture.make()
 
         try await store.append(event)
 
@@ -49,7 +50,7 @@ final class SyncTrackingTrainingEventStoreTests: XCTestCase {
             underlying: underlying,
             outbox: unwritableOutbox
         )
-        let event = ContractEventFixture.make()
+        let event = try ContractEventFixture.make()
 
         try await store.append(event)
 
@@ -61,7 +62,7 @@ final class SyncTrackingTrainingEventStoreTests: XCTestCase {
     // straight back.
     func testAppendRemoteNeverEnqueues() async throws {
         let (store, outbox, _) = try makeStore()
-        let event = ContractEventFixture.make()
+        let event = try ContractEventFixture.make()
 
         try await store.appendRemote(event)
 
@@ -73,7 +74,7 @@ final class SyncTrackingTrainingEventStoreTests: XCTestCase {
 
     func testDuplicateAppendStaysASingleEvent() async throws {
         let (store, outbox, _) = try makeStore()
-        let event = ContractEventFixture.make()
+        let event = try ContractEventFixture.make()
 
         try await store.append(event)
         try await store.append(event)
@@ -88,7 +89,7 @@ final class SyncTrackingTrainingEventStoreTests: XCTestCase {
     // the same backup-and-repair recovery M1A shipped.
     func testCorruptedHistoryStillReportsItsLineNumber() async throws {
         let (store, _, _) = try makeStore()
-        try await store.append(ContractEventFixture.make())
+        try await store.append(try ContractEventFixture.make())
         let log = directory.appending(
             path: "training-events.jsonl",
             directoryHint: .notDirectory
@@ -140,7 +141,7 @@ final class OutboxReconciliationTests: XCTestCase {
     // Reconciliation is what makes that recoverable.
     func testReconciliationQueuesLocalEventsThatNeverReachedTheOutbox() async throws {
         let underlying = try FileTrainingEventStore(directory: directory)
-        let orphan = ContractEventFixture.make()
+        let orphan = try ContractEventFixture.make()
         try await underlying.append(orphan)
 
         let outbox = try FileOutboxStore(directory: directory)
@@ -155,9 +156,9 @@ final class OutboxReconciliationTests: XCTestCase {
 
     func testReconciliationIsAllLocalMinusAcknowledgedMinusQueued() async throws {
         let underlying = try FileTrainingEventStore(directory: directory)
-        let acknowledged = ContractEventFixture.make(id: UUID())
-        let queued = ContractEventFixture.make(id: UUID())
-        let orphan = ContractEventFixture.make(id: UUID())
+        let acknowledged = try ContractEventFixture.make(id: UUID())
+        let queued = try ContractEventFixture.make(id: UUID())
+        let orphan = try ContractEventFixture.make(id: UUID())
         for event in [acknowledged, queued, orphan] {
             try await underlying.append(event)
         }
@@ -175,7 +176,7 @@ final class OutboxReconciliationTests: XCTestCase {
 
     func testReconciliationIsIdempotent() async throws {
         let underlying = try FileTrainingEventStore(directory: directory)
-        let orphan = ContractEventFixture.make()
+        let orphan = try ContractEventFixture.make()
         try await underlying.append(orphan)
         let outbox = try FileOutboxStore(directory: directory)
         let store = SyncTrackingTrainingEventStore(underlying: underlying, outbox: outbox)

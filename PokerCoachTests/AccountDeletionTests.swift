@@ -1,5 +1,6 @@
 import Foundation
 import TrainingDomain
+import TrainingPersistence
 import XCTest
 @testable import PokerCoach
 
@@ -25,7 +26,7 @@ final class AccountDeletionTests: XCTestCase {
         let controller = makeProfileController()
         let account = UUID()
         let profile = try await controller.activate(remoteUserID: account)
-        let event = TrainingEventFixture.make(
+        let event = try TrainingEventFixture.make(
             localUserID: profile.localUserID,
             deviceID: profile.deviceID
         )
@@ -52,7 +53,7 @@ final class AccountDeletionTests: XCTestCase {
         let profile = try await controller.activate(remoteUserID: account)
 
         try await FileTrainingEventStore(directory: profile.directory).append(
-            TrainingEventFixture.make(
+            try TrainingEventFixture.make(
                 localUserID: profile.localUserID,
                 deviceID: profile.deviceID
             )
@@ -83,7 +84,7 @@ final class AccountDeletionTests: XCTestCase {
         let bystander = UUID()
 
         let bystanderProfile = try await controller.activate(remoteUserID: bystander)
-        let event = TrainingEventFixture.make(
+        let event = try TrainingEventFixture.make(
             localUserID: bystanderProfile.localUserID,
             deviceID: bystanderProfile.deviceID
         )

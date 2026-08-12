@@ -12,6 +12,12 @@ packages:
     path: Packages/StrategyContent
   TrainingDomain:
     path: Packages/TrainingDomain
+  TrainingPersistence:
+    path: Packages/TrainingPersistence
+  SessionSimulation:
+    path: Packages/SessionSimulation
+  SessionPersistence:
+    path: Packages/SessionPersistence
 targets:
   PokerCoach:
     type: application
@@ -31,6 +37,9 @@ targets:
       - package: PokerCore
       - package: StrategyContent
       - package: TrainingDomain
+      - package: TrainingPersistence
+      - package: SessionSimulation
+      - package: SessionPersistence
     info:
       path: PokerCoach/Info.plist
       properties:

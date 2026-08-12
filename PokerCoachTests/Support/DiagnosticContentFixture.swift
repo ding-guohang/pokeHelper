@@ -106,6 +106,7 @@ enum DiagnosticContentFixture {
             abilityDimension: dimension,
             curriculumNodeID: dimension,
             heroSeatOffsetFromButton: seat,
+            facing: .unopened,
             heroCards: [Card(code: "Ad")!, Card(code: "Kc")!],
             board: board.map { Card(code: $0)! },
             decision: BettingDecisionContext(

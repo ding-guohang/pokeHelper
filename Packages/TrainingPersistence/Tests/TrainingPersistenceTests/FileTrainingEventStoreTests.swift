@@ -1,6 +1,7 @@
 import Foundation
 import Testing
-@testable import TrainingDomain
+import TrainingDomain
+@testable import TrainingPersistence
 
 @Test func eventStoreAppendsAndDeduplicatesByID() async throws {
     let directory = FileManager.default.temporaryDirectory

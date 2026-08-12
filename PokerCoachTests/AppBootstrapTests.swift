@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 import StrategyContent
 import TrainingDomain
+import TrainingPersistence
 @testable import PokerCoach
 
 @MainActor
@@ -9,7 +10,7 @@ final class AppBootstrapTests: XCTestCase {
     func testAvailableContentKeepsDashboardRecommendationsLoadableAfterExcellentDecision()
         async throws
     {
-        let pack = DecisionSessionFixture.makePack(
+        let pack = try DecisionSessionFixture.makePack(
             scenarioID: "cash-bet-sizing",
             abilityDimension: "bet-sizing"
         )

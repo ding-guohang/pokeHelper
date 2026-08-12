@@ -1,5 +1,6 @@
 import Foundation
 import TrainingDomain
+import TrainingPersistence
 import XCTest
 @testable import PokerCoach
 
@@ -26,8 +27,8 @@ final class TwoProfileConvergenceTests: XCTestCase {
         let phone = try Device(name: "phone", root: root, server: server)
         let tablet = try Device(name: "tablet", root: root, server: server)
 
-        let phoneEvent = ContractEventFixture.make(id: UUID())
-        let tabletEvent = ContractEventFixture.make(id: UUID())
+        let phoneEvent = try ContractEventFixture.make(id: UUID())
+        let tabletEvent = try ContractEventFixture.make(id: UUID())
         try await phone.store.append(phoneEvent)
         try await tablet.store.append(tabletEvent)
 
@@ -49,9 +50,9 @@ final class TwoProfileConvergenceTests: XCTestCase {
         let tablet = try Device(name: "tablet", root: root, server: server)
 
         for _ in 0 ..< 3 {
-            try await phone.store.append(ContractEventFixture.make(id: UUID()))
+            try await phone.store.append(try ContractEventFixture.make(id: UUID()))
         }
-        try await tablet.store.append(ContractEventFixture.make(id: UUID()))
+        try await tablet.store.append(try ContractEventFixture.make(id: UUID()))
 
         await phone.engine.synchronize(reason: .decisionCompleted)
         await tablet.engine.synchronize(reason: .decisionCompleted)
@@ -72,7 +73,7 @@ final class TwoProfileConvergenceTests: XCTestCase {
     func testRepeatedSynchronizationIsStable() async throws {
         let server = SharedServerDouble()
         let phone = try Device(name: "phone", root: root, server: server)
-        try await phone.store.append(ContractEventFixture.make())
+        try await phone.store.append(try ContractEventFixture.make())
 
         for _ in 0 ..< 3 {
             await phone.engine.synchronize(reason: .foreground)

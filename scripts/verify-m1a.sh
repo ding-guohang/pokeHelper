@@ -59,6 +59,12 @@ swift test --package-path Packages/StrategyContent
 echo "==> Test TrainingDomain"
 swift test --package-path Packages/TrainingDomain
 
+# The event store moved out of the domain package in M2A. Without this line
+# its tests — the concurrency ones included — stop running in M1A's gate while
+# the gate keeps reporting success.
+echo "==> Test TrainingPersistence"
+swift test --package-path Packages/TrainingPersistence
+
 echo "==> Test PokerCoach unit tests"
 xcodebuild test \
   -project PokerCoach.xcodeproj \

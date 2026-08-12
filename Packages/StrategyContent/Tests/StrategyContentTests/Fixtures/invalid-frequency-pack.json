@@ -20,6 +20,7 @@
       "title": "Button checks the flop",
       "abilityDimension": "postflop-cbet",
       "heroSeatOffsetFromButton": 0,
+      "facing": "unopened",
       "heroCards": [
         "As",
         "Kh"

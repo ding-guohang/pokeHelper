@@ -1,0 +1,750 @@
+transcript v1 seed=42 hands=30
+hand 0 button=0
+  hole 0 8c 4c
+  hole 1 Ac 6d
+  hole 2 9h Ts
+  hole 3 7h 3c
+  hole 4 Ks Tc
+  hole 5 5c Kd
+  board Qc 6h 8d 7c 7s
+  act 3 preflop call:100 pot=250
+  act 4 preflop fold pot=250
+  act 5 preflop fold pot=250
+  act 0 preflop fold pot=250
+  act 1 preflop fold pot=250
+  act 2 preflop check pot=250
+  act 2 flop bet:125 pot=375
+  act 3 flop call:125 pot=500
+  act 2 turn bet:100 pot=600
+  act 3 turn call:100 pot=700
+  act 2 river allin:9675 pot=10375
+  act 3 river fold pot=10375
+  street river
+  pot 10375 rake 0
+  award 10375 eligible=2 winners=2
+  delta 0,-50,375,-325,0,0
+  stacks 10000,9950,10375,9675,10000,10000
+hand 1 button=1
+  hole 0 6h Ah
+  hole 1 8h 5h
+  hole 2 9d 2h
+  hole 3 Th 5s
+  hole 4 Qs Kh
+  hole 5 Kc 8d
+  board 
+  act 4 preflop call:100 pot=250
+  act 5 preflop raise:275 pot=525
+  act 0 preflop fold pot=525
+  act 1 preflop fold pot=525
+  act 2 preflop fold pot=525
+  act 3 preflop fold pot=525
+  act 4 preflop fold pot=525
+  street preflop
+  pot 525 rake 0
+  award 525 eligible=5 winners=5
+  delta 0,0,-50,-100,-100,250
+  stacks 10000,9950,10325,9575,9900,10250
+hand 2 button=2
+  hole 0 8c 5d
+  hole 1 3h 2d
+  hole 2 8s Kh
+  hole 3 6c 3s
+  hole 4 4c Tc
+  hole 5 Ks 9s
+  board Jd Th Qd 7s Qh
+  act 5 preflop fold pot=150
+  act 0 preflop fold pot=150
+  act 1 preflop fold pot=150
+  act 2 preflop call:100 pot=250
+  act 3 preflop call:50 pot=300
+  act 4 preflop check pot=300
+  act 3 flop check pot=300
+  act 4 flop check pot=300
+  act 2 flop check pot=300
+  act 3 turn check pot=300
+  act 4 turn check pot=300
+  act 2 turn check pot=300
+  act 3 river check pot=300
+  act 4 river check pot=300
+  act 2 river bet:150 pot=450
+  act 3 river call:150 pot=600
+  act 4 river call:150 pot=750
+  street river
+  pot 750 rake 0
+  award 750 eligible=2/3/4 winners=4
+  delta 0,0,-250,-250,500,0
+  stacks 10000,9950,10075,9325,10400,10250
+hand 3 button=3
+  hole 0 8c 2c
+  hole 1 9s Qs
+  hole 2 7h 6s
+  hole 3 2h 3c
+  hole 4 Kc Qh
+  hole 5 Ah 3h
+  board 3s Th 9c Ts 7d
+  act 0 preflop call:100 pot=250
+  act 1 preflop fold pot=250
+  act 2 preflop call:100 pot=350
+  act 3 preflop call:100 pot=450
+  act 4 preflop fold pot=450
+  act 5 preflop check pot=450
+  act 5 flop check pot=450
+  act 0 flop check pot=450
+  act 2 flop check pot=450
+  act 3 flop check pot=450
+  act 5 turn bet:450 pot=900
+  act 0 turn fold pot=900
+  act 2 turn call:450 pot=1350
+  act 3 turn call:450 pot=1800
+  act 5 river check pot=1800
+  act 2 river bet:900 pot=2700
+  act 3 river call:900 pot=3600
+  act 5 river call:900 pot=4500
+  street river
+  pot 4500 rake 0
+  award 4500 eligible=2/3/5 winners=2
+  delta -100,0,3050,-1450,-50,-1450
+  stacks 9900,9950,13125,7875,10350,8800
+hand 4 button=4
+  hole 0 5h Qd
+  hole 1 Jc 5s
+  hole 2 5c 6h
+  hole 3 Jh Jd
+  hole 4 Qh Th
+  hole 5 3h Qs
+  board Ah 3d 7d 4s
+  act 1 preflop fold pot=150
+  act 2 preflop raise:225 pot=375
+  act 3 preflop raise:525 pot=900
+  act 4 preflop call:525 pot=1425
+  act 5 preflop call:475 pot=1900
+  act 0 preflop fold pot=1900
+  act 2 preflop fold pot=1900
+  act 5 flop bet:100 pot=2000
+  act 3 flop call:100 pot=2100
+  act 4 flop fold pot=2100
+  act 5 turn check pot=2100
+  act 3 turn bet:1050 pot=3150
+  act 5 turn fold pot=3150
+  street turn
+  pot 3150 rake 0
+  award 3150 eligible=3 winners=3
+  delta -100,0,-225,1475,-525,-625
+  stacks 9800,9950,12900,9350,9825,8175
+hand 5 button=5
+  hole 0 9c 7c
+  hole 1 Td 8d
+  hole 2 6s 9d
+  hole 3 As 7s
+  hole 4 Jc Kd
+  hole 5 Kh 7h
+  board Ks Ah 5s 2d Ad
+  act 2 preflop fold pot=150
+  act 3 preflop allin:9350 pot=9500
+  act 4 preflop fold pot=9500
+  act 5 preflop fold pot=9500
+  act 0 preflop call:9300 pot=18800
+  act 1 preflop fold pot=18800
+  street river
+  pot 18800 rake 0
+  award 18800 eligible=0/3 winners=3
+  delta -9350,-100,0,9450,0,0
+  stacks 450,9850,12900,18800,9825,8175
+hand 6 button=0
+  hole 0 Ks Qs
+  hole 1 4d Jd
+  hole 2 7c 7s
+  hole 3 Kd 3d
+  hole 4 4c 6d
+  hole 5 4h 5d
+  board 2c 8h 3s
+  act 3 preflop raise:225 pot=375
+  act 4 preflop fold pot=375
+  act 5 preflop fold pot=375
+  act 0 preflop call:225 pot=600
+  act 1 preflop fold pot=600
+  act 2 preflop call:125 pot=725
+  act 2 flop check pot=725
+  act 3 flop check pot=725
+  act 0 flop bet:100 pot=825
+  act 2 flop fold pot=825
+  act 3 flop fold pot=825
+  street flop
+  pot 825 rake 0
+  award 825 eligible=0 winners=0
+  delta 500,-50,-225,-225,0,0
+  stacks 950,9800,12675,18575,9825,8175
+hand 7 button=1
+  hole 0 2s 3h
+  hole 1 2h 7d
+  hole 2 4s Ac
+  hole 3 7h 8h
+  hole 4 5h 3c
+  hole 5 2c 8d
+  board 
+  act 4 preflop fold pot=150
+  act 5 preflop raise:225 pot=375
+  act 0 preflop fold pot=375
+  act 1 preflop fold pot=375
+  act 2 preflop fold pot=375
+  act 3 preflop fold pot=375
+  street preflop
+  pot 375 rake 0
+  award 375 eligible=5 winners=5
+  delta 0,0,-50,-100,0,150
+  stacks 950,9800,12625,18475,9825,8325
+hand 8 button=2
+  hole 0 Ac Ks
+  hole 1 Ah 7h
+  hole 2 8c Jd
+  hole 3 4d Td
+  hole 4 5h 9s
+  hole 5 6s 8d
+  board 6c Jh 7c Kd Qd
+  act 5 preflop fold pot=150
+  act 0 preflop fold pot=150
+  act 1 preflop call:100 pot=250
+  act 2 preflop call:100 pot=350
+  act 3 preflop fold pot=350
+  act 4 preflop check pot=350
+  act 4 flop check pot=350
+  act 1 flop check pot=350
+  act 2 flop check pot=350
+  act 4 turn check pot=350
+  act 1 turn check pot=350
+  act 2 turn check pot=350
+  act 4 river check pot=350
+  act 1 river check pot=350
+  act 2 river check pot=350
+  street river
+  pot 350 rake 0
+  award 350 eligible=1/2/4 winners=2
+  delta 0,-100,250,-50,-100,0
+  stacks 950,9700,12875,18425,9725,8325
+hand 9 button=3
+  hole 0 6h 9s
+  hole 1 Ts Kd
+  hole 2 4s 8c
+  hole 3 2h Kc
+  hole 4 Ad 9h
+  hole 5 Ah 5h
+  board 9d Jc 2s Tc Th
+  act 0 preflop call:100 pot=250
+  act 1 preflop fold pot=250
+  act 2 preflop fold pot=250
+  act 3 preflop fold pot=250
+  act 4 preflop fold pot=250
+  act 5 preflop bet:250 pot=500
+  act 0 preflop allin:850 pot=1350
+  act 5 preflop call:600 pot=1950
+  street river
+  pot 1950 rake 0
+  award 1950 eligible=0/5 winners=0
+  delta 1000,0,0,0,-50,-950
+  stacks 1950,9700,12875,18425,9675,7375
+hand 10 button=4
+  hole 0 2c 9s
+  hole 1 Th 7s
+  hole 2 Qs Qd
+  hole 3 4d 8d
+  hole 4 8h Ac
+  hole 5 9c 9d
+  board Td Qh Jd
+  act 1 preflop call:100 pot=250
+  act 2 preflop call:100 pot=350
+  act 3 preflop fold pot=350
+  act 4 preflop fold pot=350
+  act 5 preflop raise:150 pot=500
+  act 0 preflop fold pot=500
+  act 1 preflop call:100 pot=600
+  act 2 preflop call:100 pot=700
+  act 5 flop check pot=700
+  act 1 flop bet:100 pot=800
+  act 2 flop raise:200 pot=1000
+  act 5 flop fold pot=1000
+  act 1 flop fold pot=1000
+  street flop
+  pot 1000 rake 0
+  award 1000 eligible=2 winners=2
+  delta -100,-300,600,0,0,-200
+  stacks 1850,9400,13475,18425,9675,7175
+hand 11 button=5
+  hole 0 Qh Kc
+  hole 1 3d 9c
+  hole 2 5s Jh
+  hole 3 Qd Th
+  hole 4 Td 5d
+  hole 5 4h 2h
+  board Qc 7c Kd 6h
+  act 2 preflop fold pot=150
+  act 3 preflop fold pot=150
+  act 4 preflop raise:200 pot=350
+  act 5 preflop fold pot=350
+  act 0 preflop raise:650 pot=1000
+  act 1 preflop call:600 pot=1600
+  act 4 preflop fold pot=1600
+  act 0 flop check pot=1600
+  act 1 flop check pot=1600
+  act 0 turn bet:100 pot=1700
+  act 1 turn fold pot=1700
+  street turn
+  pot 1700 rake 0
+  award 1700 eligible=0 winners=0
+  delta 900,-700,0,0,-200,0
+  stacks 2750,8700,13475,18425,9475,7175
+hand 12 button=0
+  hole 0 Kc Th
+  hole 1 As Ah
+  hole 2 4c 8h
+  hole 3 2c Qh
+  hole 4 Ad 7c
+  hole 5 9s 8d
+  board 
+  act 3 preflop fold pot=150
+  act 4 preflop fold pot=150
+  act 5 preflop fold pot=150
+  act 0 preflop raise:200 pot=350
+  act 1 preflop allin:8650 pot=9000
+  act 2 preflop fold pot=9000
+  act 0 preflop fold pot=9000
+  street preflop
+  pot 9000 rake 0
+  award 9000 eligible=1 winners=1
+  delta -200,300,-100,0,0,0
+  stacks 2550,9000,13375,18425,9475,7175
+hand 13 button=1
+  hole 0 Jc 9d
+  hole 1 7s Jh
+  hole 2 2c 8h
+  hole 3 Qd 8c
+  hole 4 6c Ac
+  hole 5 Kd 4c
+  board Tc 5s Qs 8d 2h
+  act 4 preflop call:100 pot=250
+  act 5 preflop raise:200 pot=450
+  act 0 preflop call:200 pot=650
+  act 1 preflop raise:1050 pot=1700
+  act 2 preflop call:1000 pot=2700
+  act 3 preflop fold pot=2700
+  act 4 preflop call:950 pot=3650
+  act 5 preflop fold pot=3650
+  act 0 preflop fold pot=3650
+  act 2 flop bet:3650 pot=7300
+  act 4 flop call:3650 pot=10950
+  act 1 flop fold pot=10950
+  act 2 turn check pot=10950
+  act 4 turn check pot=10950
+  act 2 river bet:100 pot=11050
+  act 4 river fold pot=11050
+  street river
+  pot 11050 rake 0
+  award 11050 eligible=2 winners=2
+  delta -200,-1050,6250,-100,-4700,-200
+  stacks 2350,7950,19625,18325,4775,6975
+hand 14 button=2
+  hole 0 2h 9s
+  hole 1 Jh Jd
+  hole 2 Tc 9d
+  hole 3 2s Ks
+  hole 4 4c Js
+  hole 5 2d 5s
+  board Qd 5d 2c 9h Ah
+  act 5 preflop fold pot=150
+  act 0 preflop call:100 pot=250
+  act 1 preflop fold pot=250
+  act 2 preflop fold pot=250
+  act 3 preflop fold pot=250
+  act 4 preflop check pot=250
+  act 4 flop check pot=250
+  act 0 flop check pot=250
+  act 4 turn check pot=250
+  act 0 turn bet:250 pot=500
+  act 4 turn call:250 pot=750
+  act 4 river check pot=750
+  act 0 river check pot=750
+  street river
+  pot 750 rake 0
+  award 750 eligible=0/4 winners=0
+  delta 400,0,0,-50,-350,0
+  stacks 2750,7950,19625,18275,4425,6975
+hand 15 button=3
+  hole 0 8s 8c
+  hole 1 8d Ac
+  hole 2 Th 4h
+  hole 3 Qc 2c
+  hole 4 6s Ts
+  hole 5 Jd 2d
+  board 4s Qh As 6h 7h
+  act 0 preflop fold pot=150
+  act 1 preflop fold pot=150
+  act 2 preflop fold pot=150
+  act 3 preflop fold pot=150
+  act 4 preflop call:50 pot=200
+  act 5 preflop check pot=200
+  act 4 flop bet:100 pot=300
+  act 5 flop raise:300 pot=600
+  act 4 flop call:200 pot=800
+  act 4 turn check pot=800
+  act 5 turn check pot=800
+  act 4 river check pot=800
+  act 5 river check pot=800
+  street river
+  pot 800 rake 0
+  award 800 eligible=4/5 winners=4
+  delta 0,0,0,0,400,-400
+  stacks 2750,7950,19625,18275,4825,6575
+hand 16 button=4
+  hole 0 Qs 4s
+  hole 1 Ts 7h
+  hole 2 8c Qc
+  hole 3 Jh Tc
+  hole 4 5d 7d
+  hole 5 Kd 3s
+  board 6s 6h 4c
+  act 1 preflop fold pot=150
+  act 2 preflop call:100 pot=250
+  act 3 preflop call:100 pot=350
+  act 4 preflop fold pot=350
+  act 5 preflop fold pot=350
+  act 0 preflop check pot=350
+  act 0 flop bet:100 pot=450
+  act 2 flop fold pot=450
+  act 3 flop fold pot=450
+  street flop
+  pot 450 rake 0
+  award 450 eligible=0 winners=0
+  delta 250,0,-100,-100,0,-50
+  stacks 3000,7950,19525,18175,4825,6525
+hand 17 button=5
+  hole 0 Qh Tc
+  hole 1 3c 8d
+  hole 2 2c Ah
+  hole 3 Ad Qs
+  hole 4 9d 5d
+  hole 5 5s Td
+  board Js 4h 8c Jc 4c
+  act 2 preflop call:100 pot=250
+  act 3 preflop raise:450 pot=700
+  act 4 preflop fold pot=700
+  act 5 preflop fold pot=700
+  act 0 preflop call:400 pot=1100
+  act 1 preflop fold pot=1100
+  act 2 preflop fold pot=1100
+  act 0 flop check pot=1100
+  act 3 flop check pot=1100
+  act 0 turn check pot=1100
+  act 3 turn check pot=1100
+  act 0 river check pot=1100
+  act 3 river allin:17725 pot=18825
+  act 0 river fold pot=18825
+  street river
+  pot 18825 rake 0
+  award 18825 eligible=3 winners=3
+  delta -450,-100,-100,650,0,0
+  stacks 2550,7850,19425,18825,4825,6525
+hand 18 button=0
+  hole 0 Qd Qc
+  hole 1 9s 8c
+  hole 2 Ah 5c
+  hole 3 3d Jc
+  hole 4 Ts As
+  hole 5 2s 4d
+  board 
+  act 3 preflop fold pot=150
+  act 4 preflop fold pot=150
+  act 5 preflop call:100 pot=250
+  act 0 preflop fold pot=250
+  act 1 preflop fold pot=250
+  act 2 preflop bet:125 pot=375
+  act 5 preflop fold pot=375
+  street preflop
+  pot 375 rake 0
+  award 375 eligible=2 winners=2
+  delta 0,-50,150,0,0,-100
+  stacks 2550,7800,19575,18825,4825,6425
+hand 19 button=1
+  hole 0 Td Qh
+  hole 1 5s 9s
+  hole 2 4h Qd
+  hole 3 Ts Qc
+  hole 4 3h 2c
+  hole 5 9c As
+  board 6d 8h Qs Tc 9h
+  act 4 preflop call:100 pot=250
+  act 5 preflop call:100 pot=350
+  act 0 preflop raise:550 pot=900
+  act 1 preflop fold pot=900
+  act 2 preflop call:500 pot=1400
+  act 3 preflop fold pot=1400
+  act 4 preflop fold pot=1400
+  act 5 preflop raise:1375 pot=2775
+  act 0 preflop call:925 pot=3700
+  act 2 preflop call:925 pot=4625
+  act 2 flop check pot=4625
+  act 5 flop check pot=4625
+  act 0 flop check pot=4625
+  act 2 turn bet:4625 pot=9250
+  act 5 turn fold pot=9250
+  act 0 turn call:1075 pot=10325
+  street river
+  pot 10325 rake 0
+  award 6775 eligible=0/2 winners=0
+  award 3550 eligible=2 winners=2
+  delta 4225,0,-2550,-100,-100,-1475
+  stacks 6775,7800,17025,18725,4725,4950
+hand 20 button=2
+  hole 0 2c 3s
+  hole 1 2d Ks
+  hole 2 7h 8d
+  hole 3 9c 5s
+  hole 4 Kh 9s
+  hole 5 Ah 8c
+  board 5d 4d 4c Kd
+  act 5 preflop fold pot=150
+  act 0 preflop call:100 pot=250
+  act 1 preflop fold pot=250
+  act 2 preflop call:100 pot=350
+  act 3 preflop fold pot=350
+  act 4 preflop check pot=350
+  act 4 flop check pot=350
+  act 0 flop check pot=350
+  act 2 flop bet:175 pot=525
+  act 4 flop fold pot=525
+  act 0 flop call:175 pot=700
+  act 0 turn bet:100 pot=800
+  act 2 turn fold pot=800
+  street turn
+  pot 800 rake 0
+  award 800 eligible=0 winners=0
+  delta 425,0,-275,-50,-100,0
+  stacks 7200,7800,16750,18675,4625,4950
+hand 21 button=3
+  hole 0 6s 9h
+  hole 1 Tc 5c
+  hole 2 6h 4s
+  hole 3 9s 4d
+  hole 4 5h 8c
+  hole 5 Ad Td
+  board 9d Qs 4c Ac Ts
+  act 0 preflop call:100 pot=250
+  act 1 preflop fold pot=250
+  act 2 preflop raise:200 pot=450
+  act 3 preflop call:200 pot=650
+  act 4 preflop raise:550 pot=1200
+  act 5 preflop fold pot=1200
+  act 0 preflop fold pot=1200
+  act 2 preflop raise:800 pot=2000
+  act 3 preflop fold pot=2000
+  act 4 preflop call:400 pot=2400
+  act 4 flop check pot=2400
+  act 2 flop bet:1200 pot=3600
+  act 4 flop call:1200 pot=4800
+  act 4 turn bet:2400 pot=7200
+  act 2 turn call:2400 pot=9600
+  act 4 river check pot=9600
+  act 2 river check pot=9600
+  street river
+  pot 9600 rake 0
+  award 9600 eligible=2/4 winners=2
+  delta -100,0,5000,-200,-4600,-100
+  stacks 7100,7800,21750,18475,25,4850
+hand 22 button=4
+  hole 0 7c Qd
+  hole 1 8s 4d
+  hole 2 Kh Jh
+  hole 3 5s 2c
+  hole 4 Jd 7h
+  hole 5 4s 8c
+  board As 2s Qs 2h Qh
+  act 1 preflop call:100 pot=250
+  act 2 preflop call:100 pot=350
+  act 3 preflop fold pot=350
+  act 4 preflop fold pot=350
+  act 5 preflop fold pot=350
+  act 0 preflop bet:175 pot=525
+  act 1 preflop raise:875 pot=1400
+  act 2 preflop call:875 pot=2275
+  act 0 preflop call:700 pot=2975
+  act 0 flop check pot=2975
+  act 1 flop check pot=2975
+  act 2 flop check pot=2975
+  act 0 turn bet:100 pot=3075
+  act 1 turn fold pot=3075
+  act 2 turn call:100 pot=3175
+  act 0 river check pot=3175
+  act 2 river check pot=3175
+  street river
+  pot 3175 rake 0
+  award 3175 eligible=0/2 winners=0
+  delta 2100,-975,-1075,0,0,-50
+  stacks 9200,6825,20675,18475,25,4800
+hand 23 button=5
+  hole 0 Jd 2d
+  hole 1 3s Qh
+  hole 2 3d 6h
+  hole 3 5h 4c
+  hole 4 Ks Th
+  hole 5 Jc 3c
+  board 7d 6s 9d
+  act 2 preflop fold pot=150
+  act 3 preflop fold pot=150
+  act 4 preflop fold pot=150
+  act 5 preflop fold pot=150
+  act 0 preflop call:50 pot=200
+  act 1 preflop bet:100 pot=300
+  act 0 preflop call:100 pot=400
+  act 0 flop bet:100 pot=500
+  act 1 flop fold pot=500
+  street flop
+  pot 500 rake 0
+  award 500 eligible=0 winners=0
+  delta 200,-200,0,0,0,0
+  stacks 9400,6625,20675,18475,25,4800
+hand 24 button=0
+  hole 0 8h 9d
+  hole 1 9s 8c
+  hole 2 Ah 6c
+  hole 3 2h Qh
+  hole 4 2d Js
+  hole 5 5c 6d
+  board 7h 9h 7s Td 2s
+  act 3 preflop call:100 pot=250
+  act 4 preflop call:25 pot=275
+  act 5 preflop call:100 pot=375
+  act 0 preflop fold pot=375
+  act 1 preflop fold pot=375
+  act 2 preflop check pot=375
+  act 2 flop check pot=375
+  act 3 flop check pot=375
+  act 5 flop bet:375 pot=750
+  act 2 flop fold pot=750
+  act 3 flop fold pot=750
+  street river
+  pot 750 rake 0
+  award 125 eligible=4/5 winners=4
+  award 625 eligible=5 winners=5
+  delta 0,-50,-100,-100,100,150
+  stacks 9400,6575,20575,18375,125,4950
+hand 25 button=1
+  hole 0 7d Ts
+  hole 1 8s 6c
+  hole 2 9h Qs
+  hole 3 8h 5h
+  hole 4 Ks 3s
+  hole 5 9s 7h
+  board 4h Th Kc 6s Kd
+  act 4 preflop call:100 pot=250
+  act 5 preflop fold pot=250
+  act 0 preflop call:100 pot=350
+  act 1 preflop fold pot=350
+  act 2 preflop fold pot=350
+  act 3 preflop check pot=350
+  act 3 flop bet:100 pot=450
+  act 4 flop call:25 pot=475
+  act 0 flop fold pot=475
+  street river
+  pot 475 rake 0
+  award 400 eligible=3/4 winners=4
+  award 75 eligible=3 winners=3
+  delta -100,0,-50,-125,275,0
+  stacks 9300,6575,20525,18250,400,4950
+hand 26 button=2
+  hole 0 2s Ks
+  hole 1 Jc 9c
+  hole 2 4d 3s
+  hole 3 7c 8h
+  hole 4 Td Qd
+  hole 5 6s 9d
+  board Qc Ad Kc
+  act 5 preflop fold pot=150
+  act 0 preflop call:100 pot=250
+  act 1 preflop fold pot=250
+  act 2 preflop call:100 pot=350
+  act 3 preflop fold pot=350
+  act 4 preflop check pot=350
+  act 4 flop bet:100 pot=450
+  act 0 flop fold pot=450
+  act 2 flop fold pot=450
+  street flop
+  pot 450 rake 0
+  award 450 eligible=4 winners=4
+  delta -100,0,-100,-50,250,0
+  stacks 9200,6575,20425,18200,650,4950
+hand 27 button=3
+  hole 0 Ad Ah
+  hole 1 6h Td
+  hole 2 7c 8c
+  hole 3 Qs 3c
+  hole 4 Jh 9c
+  hole 5 Kc 4h
+  board 8h Js 7d 6d
+  act 0 preflop call:100 pot=250
+  act 1 preflop call:100 pot=350
+  act 2 preflop fold pot=350
+  act 3 preflop call:100 pot=450
+  act 4 preflop call:50 pot=500
+  act 5 preflop bet:500 pot=1000
+  act 0 preflop call:500 pot=1500
+  act 1 preflop call:500 pot=2000
+  act 3 preflop fold pot=2000
+  act 4 preflop fold pot=2000
+  act 5 flop check pot=2000
+  act 0 flop check pot=2000
+  act 1 flop check pot=2000
+  act 5 turn bet:100 pot=2100
+  act 0 turn fold pot=2100
+  act 1 turn fold pot=2100
+  street turn
+  pot 2100 rake 0
+  award 2100 eligible=5 winners=5
+  delta -600,-600,0,-100,-100,1400
+  stacks 8600,5975,20425,18100,550,6350
+hand 28 button=4
+  hole 0 Ac 7s
+  hole 1 Tc 8d
+  hole 2 4c Qd
+  hole 3 4s 5h
+  hole 4 Js 7h
+  hole 5 8c 3h
+  board Qh Qs 4h
+  act 1 preflop call:100 pot=250
+  act 2 preflop fold pot=250
+  act 3 preflop call:100 pot=350
+  act 4 preflop fold pot=350
+  act 5 preflop fold pot=350
+  act 0 preflop bet:350 pot=700
+  act 1 preflop call:350 pot=1050
+  act 3 preflop fold pot=1050
+  act 0 flop check pot=1050
+  act 1 flop bet:525 pot=1575
+  act 0 flop raise:1575 pot=3150
+  act 1 flop fold pot=3150
+  street flop
+  pot 3150 rake 0
+  award 3150 eligible=0 winners=0
+  delta 1125,-975,0,-100,0,-50
+  stacks 9725,5000,20425,18000,550,6300
+hand 29 button=5
+  hole 0 Td 7c
+  hole 1 Tc Jc
+  hole 2 Qs 7h
+  hole 3 6d Jh
+  hole 4 Qd 2s
+  hole 5 6c 5d
+  board 8s 2c 8h
+  act 2 preflop call:100 pot=250
+  act 3 preflop raise:275 pot=525
+  act 4 preflop fold pot=525
+  act 5 preflop fold pot=525
+  act 0 preflop fold pot=525
+  act 1 preflop call:175 pot=700
+  act 2 preflop fold pot=700
+  act 1 flop bet:100 pot=800
+  act 3 flop fold pot=800
+  street flop
+  pot 800 rake 0
+  award 800 eligible=1 winners=1
+  delta -50,425,-100,-275,0,0
+  stacks 9675,5425,20325,17725,550,6300
+final 9675,5425,20325,17725,550,6300
+total 60000

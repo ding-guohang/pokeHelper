@@ -19,6 +19,7 @@
 | PokerCore | `Packages/PokerCore/` | 牌、精确金额、合法行动和牌局规则 |
 | StrategyContent | `Packages/StrategyContent/` | 版本化课程、场景、频率、EV 和求解假设 |
 | TrainingDomain | `Packages/TrainingDomain/` | 评分、训练事件、能力画像和每日计划 |
+| SessionSimulation | `Packages/SessionSimulation/` | 种子发牌、虚拟对手、下注状态机与结算；只依赖 PokerCore |
 | SwiftUI App | `PokerCoach/` | iPhone/iPad 的今日、学习、训练和复盘体验 |
 | Sync Backend | `Server/` | 独立身份、设备会话、事件同步和用户数据治理 |
 
@@ -64,5 +65,6 @@ M1B 的服务端数据库是 MySQL 8.4+ InnoDB，取代早期设计中的 Postgr
 - [模块与组件](components.md)
 - [独立账号与同步](sync.md)
 - [隐性约定](implicit-contracts.md)
+- [已知缺口](known-gaps.md)
 - [已批准产品设计](../superpowers/specs/2026-08-06-texas-holdem-coach-design.md)
 - [实施路线](../superpowers/plans/2026-08-06-poker-coach-implementation-roadmap.md)

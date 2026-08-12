@@ -7,15 +7,36 @@ SwiftUI UI
   ↓ 绑定
 Feature ViewModel / Presentation
   ↓ 调用
-TrainingDomain
-  ↓ 读取
-StrategyContent → PokerCore
+TrainingDomain            SessionSimulation
+  ↓ 读取                    ↓ 只依赖
+StrategyContent   →      PokerCore
 
 Infrastructure
-  ├─ Local TrainingEventStore
+  ├─ Local TrainingEventStore（协议在 TrainingDomain，文件实现在 TrainingPersistence）
+  ├─ Session 记录存储（SessionPersistence，只依赖 SessionSimulation）
   ├─ Remote Synchronizer
   └─ Auth / Content / Hand Analysis API Clients
 ```
+
+`TrainingPersistence` 依赖 `TrainingDomain`，`SessionPersistence` 依赖
+`SessionSimulation`，方向都只有一条。它们是第 3 条规则的落地：JSON Lines 文件
+实现是具体存储，不能与评分、画像、计划或牌局引擎同处一个包；协议与领域类型留在
+上游包，实现在外面。
+
+两个存储包彼此不可见，`SessionPersistence` 也看不见 `TrainingDomain`——写入
+Session 记录的那条路径够不到 `TrainingEvent`，这是「Session 手牌不产生训练
+事件」的结构性一半。
+
+`SessionSimulation` 与 `TrainingDomain` 是**并列**的，不是上下游。牌局引擎
+不知道教学内容存在，训练领域不知道牌局引擎存在；两者各自向 `PokerCore`
+的 `SpotSignature` 产出签名，由 Feature 层——唯一同时看得见两边的层——做
+比较。
+
+比较用的键是 `SpotSignature.coverageKey`（街道、位置、面对情形、筹码分桶），
+不是整个签名：场景的示例手牌不参与「内容是否覆盖这个局面」的判定，英雄的实际
+手牌在覆盖成立之后再到该场景的范围表里查。同理，「这一手偏离范围多少」是
+Feature 层算出来交给 `KeyHandSelection` 的输入，不是引擎自己查的——引擎查得到
+内容的那一刻，答案就不再是关于这手牌的事实了。
 
 ## 调用规则
 
@@ -38,6 +59,16 @@ Infrastructure
 
 - `PokerCore → StrategyContent`
 - `PokerCore → TrainingDomain`
+- `PokerCore → SessionSimulation`
+- `SessionSimulation → StrategyContent`
+- `SessionSimulation → TrainingDomain`
+- `TrainingDomain → SessionSimulation`
+
+后四条是同一件事的两面。让 `SessionSimulation` 看见 `StrategyContent`
+之后，回答「这个决策点值不值得与内容对照」最省事的写法就是在引擎里查
+内容，而那个问题的答案就不再是关于这手牌的事实；反方向则直接构成环，
+因为引擎推进牌局时要向训练层提问。`Packages/SessionSimulation/Package.swift`
+的依赖列表是这条规则的执行点。
 - 领域包 → SwiftUI
 - 领域包 → 具体 HTTP 客户端
 - View → MySQL、文件系统或同步 DTO

@@ -59,11 +59,6 @@ final class LearnViewModel {
         nodes.count { !$0.hasInsufficientContentForMastery && $0.isMastered }
     }
 
-    /// Nodes the daily plan may draw from.
-    var plannableNodeIDs: Set<String> {
-        Set(nodes.filter { !$0.isContentUnavailable }.map(\.id))
-    }
-
     private let pack: StrategyPack
     private let events: [TrainingEvent]
     private let evaluator = MasteryEvaluator()

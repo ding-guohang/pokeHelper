@@ -7,7 +7,7 @@
   "effectiveStack": {
     "centiBB": 10000
   },
-  "rakeDescription": "5% capped at 3BB",
+  "rakeDescription": "not modelled; ranges assume a rake-free pot",
   "allowedBetSizeDescription": "2.5BB open (3BB from SB), 7.5BB 3bet, 16.5BB 4bet",
   "curriculum": [
     {
@@ -30,6 +30,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 3,
+      "facing": "unopened",
       "heroCards": [
         "Ad",
         "Kc"
@@ -388,6 +389,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 4,
+      "facing": "unopened",
       "heroCards": [
         "Ad",
         "Tc"
@@ -777,6 +779,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 5,
+      "facing": "unopened",
       "heroCards": [
         "Ah",
         "5h"
@@ -1255,9 +1258,10 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 0,
+      "facing": "unopened",
       "heroCards": [
-        "9d",
-        "8c"
+        "2h",
+        "2d"
       ],
       "board": [],
       "pot": {
@@ -1280,7 +1284,7 @@
             "kind": "raise",
             "toCentiBB": 250
           },
-          "frequencyBasisPoints": 6000,
+          "frequencyBasisPoints": 5000,
           "ev": {
             "milliBB": 0
           }
@@ -1289,7 +1293,7 @@
           "action": {
             "kind": "fold"
           },
-          "frequencyBasisPoints": 4000,
+          "frequencyBasisPoints": 5000,
           "ev": {
             "milliBB": 0
           }
@@ -1299,7 +1303,8 @@
         {
           "handClass": "22",
           "actionWeightsBasisPoints": {
-            "raise": 10000
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
@@ -1375,23 +1380,9 @@
           }
         },
         {
-          "handClass": "53s",
-          "actionWeightsBasisPoints": {
-            "fold": 7000,
-            "raise": 3000
-          }
-        },
-        {
           "handClass": "54s",
           "actionWeightsBasisPoints": {
             "raise": 10000
-          }
-        },
-        {
-          "handClass": "64s",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
           }
         },
         {
@@ -1403,14 +1394,8 @@
         {
           "handClass": "75s",
           "actionWeightsBasisPoints": {
-            "raise": 10000
-          }
-        },
-        {
-          "handClass": "76o",
-          "actionWeightsBasisPoints": {
-            "fold": 7000,
-            "raise": 3000
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
@@ -1420,23 +1405,9 @@
           }
         },
         {
-          "handClass": "85s",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
-          }
-        },
-        {
           "handClass": "86s",
           "actionWeightsBasisPoints": {
             "raise": 10000
-          }
-        },
-        {
-          "handClass": "87o",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
           }
         },
         {
@@ -1446,29 +1417,16 @@
           }
         },
         {
-          "handClass": "95s",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
-          }
-        },
-        {
           "handClass": "96s",
           "actionWeightsBasisPoints": {
-            "raise": 10000
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
           "handClass": "97s",
           "actionWeightsBasisPoints": {
             "raise": 10000
-          }
-        },
-        {
-          "handClass": "98o",
-          "actionWeightsBasisPoints": {
-            "fold": 4000,
-            "raise": 6000
           }
         },
         {
@@ -1480,7 +1438,8 @@
         {
           "handClass": "A2o",
           "actionWeightsBasisPoints": {
-            "raise": 10000
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
@@ -1641,13 +1600,6 @@
           }
         },
         {
-          "handClass": "J8o",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
-          }
-        },
-        {
           "handClass": "J8s",
           "actionWeightsBasisPoints": {
             "raise": 10000
@@ -1696,23 +1648,9 @@
           }
         },
         {
-          "handClass": "K5o",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
-          }
-        },
-        {
           "handClass": "K5s",
           "actionWeightsBasisPoints": {
             "raise": 10000
-          }
-        },
-        {
-          "handClass": "K6o",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
           }
         },
         {
@@ -1724,7 +1662,8 @@
         {
           "handClass": "K7o",
           "actionWeightsBasisPoints": {
-            "raise": 10000
+            "fold": 5000,
+            "raise": 5000
           }
         },
         {
@@ -1794,13 +1733,6 @@
           }
         },
         {
-          "handClass": "Q2s",
-          "actionWeightsBasisPoints": {
-            "fold": 5000,
-            "raise": 5000
-          }
-        },
-        {
           "handClass": "Q3s",
           "actionWeightsBasisPoints": {
             "fold": 5000,
@@ -1829,13 +1761,6 @@
           "handClass": "Q7s",
           "actionWeightsBasisPoints": {
             "raise": 10000
-          }
-        },
-        {
-          "handClass": "Q8o",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
           }
         },
         {
@@ -1881,13 +1806,6 @@
           }
         },
         {
-          "handClass": "T5s",
-          "actionWeightsBasisPoints": {
-            "fold": 7000,
-            "raise": 3000
-          }
-        },
-        {
           "handClass": "T6s",
           "actionWeightsBasisPoints": {
             "raise": 10000
@@ -1897,13 +1815,6 @@
           "handClass": "T7s",
           "actionWeightsBasisPoints": {
             "raise": 10000
-          }
-        },
-        {
-          "handClass": "T8o",
-          "actionWeightsBasisPoints": {
-            "fold": 6000,
-            "raise": 4000
           }
         },
         {
@@ -1926,7 +1837,7 @@
         }
       ],
       "explanation": {
-        "conclusion": "BTN 位以 2.5BB 开池，整段开池频率约 46.3%。",
+        "conclusion": "BTN 位以 2.5BB 开池，整段开池频率约 41.2%。",
         "rangeReasoning": "范围随位置靠后放宽；边缘手牌以混合频率开池。",
         "boardReasoning": "翻前无公共牌，决策只依赖位置、范围与筹码深度。",
         "opponentReasoning": "假设对手采用标准防守频率，不做针对性剥削。",
@@ -1941,6 +1852,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-rfi",
       "heroSeatOffsetFromButton": 1,
+      "facing": "unopened",
       "heroCards": [
         "Ad",
         "7c"
@@ -2540,6 +2452,7 @@
       "abilityDimension": "preflop-range",
       "curriculumNodeID": "preflop-vs-3bet",
       "heroSeatOffsetFromButton": 5,
+      "facing": "reraise",
       "heroCards": [
         "Ah",
         "Qh"

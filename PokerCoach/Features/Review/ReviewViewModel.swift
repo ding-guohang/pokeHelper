@@ -28,7 +28,9 @@ final class ReviewViewModel {
     private let reducer: PlayerModelReducer
     private let planner: TrainingPlanner
     private let catalog: [TrainingCatalogItem]
-    /// Review status of each installed pack, keyed by pack ID.
+    /// Optional, like Today's: Review still lists history with no content
+    /// installed, it just cannot resolve which repetitions are due.
+    private let strategyProvider: (any StrategyPackProviding)?
     /// Review status and origin of each installed pack, keyed by pack ID.
     private let installedContent: [String: (ReviewStatus, ContentOrigin)]
     private let now: @MainActor () -> Date
@@ -40,6 +42,7 @@ final class ReviewViewModel {
         catalog: [TrainingCatalogItem] = [],
         strategyContentAvailability: StrategyContentAvailability =
             .reviewedContentUnavailable,
+        strategyProvider: (any StrategyPackProviding)? = nil,
         installedContent: [String: (ReviewStatus, ContentOrigin)] = [:],
         now: @escaping @MainActor () -> Date = Date.init
     ) {
@@ -48,6 +51,7 @@ final class ReviewViewModel {
         self.planner = planner
         self.catalog = catalog
         self.strategyContentAvailability = strategyContentAvailability
+        self.strategyProvider = strategyProvider
         self.installedContent = installedContent
         self.now = now
     }
@@ -57,11 +61,20 @@ final class ReviewViewModel {
         do {
             let events = try await eventStore.allEvents()
             let profile = reducer.reduce(events: events)
-            abilities = profile.abilities.values.sorted(by: Self.isWeakerFirst)
+            abilities = profile.abilitiesWeakestFirst
             history = events.sorted(by: Self.isMoreRecentFirst)
+            // Same inputs as Today, due-repetition term included. Omitting it
+            // here let the two screens name different first items from the
+            // same profile and the same catalog.
+            let pack = try? await strategyProvider?.pack()
             suggestedTraining = planner.makePlan(
                 profile: profile,
                 catalog: catalog,
+                dueRepetitionNodeIDs: RepetitionScheduler().dueNodeIDs(
+                    events: events,
+                    pack: pack,
+                    now: now()
+                ),
                 now: now()
             ).items.first
             failureMessage = nil
@@ -97,22 +110,6 @@ final class ReviewViewModel {
             forReviewStatus: installed.0,
             origin: installed.1
         )
-    }
-
-    private static func isWeakerFirst(
-        _ lhs: AbilitySnapshot,
-        _ rhs: AbilitySnapshot
-    ) -> Bool {
-        if lhs.meanScore != rhs.meanScore {
-            return lhs.meanScore < rhs.meanScore
-        }
-        if lhs.highConfidenceErrorCount != rhs.highConfidenceErrorCount {
-            return lhs.highConfidenceErrorCount > rhs.highConfidenceErrorCount
-        }
-        if lhs.meanLossRateBasisPoints != rhs.meanLossRateBasisPoints {
-            return lhs.meanLossRateBasisPoints > rhs.meanLossRateBasisPoints
-        }
-        return lhs.dimension < rhs.dimension
     }
 
     private static func isMoreRecentFirst(

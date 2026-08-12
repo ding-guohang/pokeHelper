@@ -1,6 +1,8 @@
 import Foundation
+import SessionPersistence
 import StrategyContent
 import TrainingDomain
+import TrainingPersistence
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -8,16 +10,16 @@ import UIKit
 @MainActor
 final class AppDependencies {
     let eventStore: any TrainingEventStore
-    let strategyProvider: any StrategyPackProviding
+    private(set) var strategyProvider: any StrategyPackProviding
     let scorer: DecisionScorer
     let playerModelReducer: PlayerModelReducer
     let planner: TrainingPlanner
-    let localTrainingCatalog: [TrainingCatalogItem]
-    let strategyContentAvailability: StrategyContentAvailability
+    private(set) var localTrainingCatalog: [TrainingCatalogItem]
+    private(set) var strategyContentAvailability: StrategyContentAvailability
     /// Review status of each installed pack, keyed by pack ID. Review reads it
     /// to disclose the provenance of a history entry, which it can only do for
     /// packs that are actually present.
-    let installedContent: [String: (ReviewStatus, ContentOrigin)]
+    private(set) var installedContent: [String: (ReviewStatus, ContentOrigin)]
     let localUserID: UUID
     let deviceID: UUID
     let accountSession: AccountSessionController
@@ -25,6 +27,7 @@ final class AppDependencies {
     /// Bumped whenever local history changes, so Today and Review reload after
     /// a remote merge rather than showing a stale reduction.
     private(set) var eventStoreRevision: Int
+
 
     init(
         eventStore: any TrainingEventStore,
@@ -62,6 +65,22 @@ final class AppDependencies {
     /// foreground, and network-restored signals.
     let pendingRevocation: PendingRevocationProcessor
 
+    /// Where cash sessions are recorded.
+    ///
+    /// Optional because a build with no writable profile directory still has to
+    /// run — training does not depend on it, and a session screen with nowhere
+    /// to write says so rather than dealing hands it cannot store. Not synced:
+    /// design decision 2 keeps session records local, so this lives beside the
+    /// event store in the profile directory and never reaches the outbox.
+    private(set) var sessionStore: FileSessionRecordStore?
+
+    /// Installs the session store. Separate from `init` for the same reason
+    /// `installSyncCoordinator` is: it needs a resolved storage root, and tests
+    /// build dependencies without one.
+    func installSessionStore(directory: URL) throws {
+        sessionStore = try FileSessionRecordStore(directory: directory)
+    }
+
     /// Applies content updates. Present even while no source can offer one, so
     /// the path from launch to `checkForUpdate()` exists and is exercised
     /// rather than being written and left dormant.
@@ -87,7 +106,52 @@ final class AppDependencies {
         guard let contentUpdate else {
             return .noCandidate
         }
-        return (try? await contentUpdate.checkForUpdate()) ?? .noCandidate
+        let outcome = (try? await contentUpdate.checkForUpdate()) ?? .noCandidate
+        if case .adopted = outcome {
+            adoptContent(
+                pack: contentUpdate.currentPack,
+                availability: contentUpdate.availability
+            )
+        }
+        return outcome
+    }
+
+    /// Makes an adopted pack the content the app actually trains against.
+    ///
+    /// Without this the coordinator swapped its own `currentPack`, returned
+    /// `.adopted`, and nothing else moved: `strategyProvider` still served the
+    /// old pack, the catalog still listed the old scenarios, and the
+    /// disclosure still described the old review status. The whole update path
+    /// reported success and changed nothing a user could reach.
+    ///
+    /// There is deliberately no "content changed" signal here. Today and Review
+    /// capture their catalog when SwiftUI first builds their `@State` view
+    /// model, so a pack adopted after that point is not reflected until the
+    /// view model is rebuilt. Closing that window needs the two screens to
+    /// derive their catalog from the provider instead of from a captured copy;
+    /// it is not closed by adding a revision counter nothing reads, which is
+    /// the same kind of decoration as an adoption nothing installs. The window
+    /// is unreachable today — `BundledOnlyContentSource` never offers a
+    /// candidate — and must be closed before a real update source ships.
+    ///
+    /// Known limitation: `installedContent` is keyed by pack ID alone, so a
+    /// pack that changes review status between versions relabels the
+    /// provenance of history recorded under the earlier version. Events carry
+    /// `strategyContentVersion` too; keying on the pair would be more faithful
+    /// to "history keeps its own content version", but every past version
+    /// would then miss and fall back to "内容来源未知". Which of those is the
+    /// better answer is a product call, not one to settle silently here.
+    private func adoptContent(
+        pack: StrategyPack,
+        availability: StrategyContentAvailability
+    ) {
+        strategyProvider = InMemoryStrategyPackProvider(pack: pack)
+        localTrainingCatalog = RuntimeTrainingCatalog.items(from: pack)
+        strategyContentAvailability = availability
+        installedContent[pack.manifest.id] = (
+            pack.manifest.reviewStatus,
+            pack.manifest.origin
+        )
     }
 
     /// Assembles the account, profile, and sync layers. Without it each layer
@@ -174,6 +238,7 @@ final class AppDependencies {
                 localIdentity: localIdentity
             )
             dependencies.installSyncCoordinator(root: try liveProfileRoot())
+            installSessionStorage(dependencies, in: storageDirectory)
             return dependencies
         }
         let dependencies = availableContent(
@@ -185,8 +250,59 @@ final class AppDependencies {
         )
 #endif
         dependencies.installSyncCoordinator(root: try liveProfileRoot())
+        installSessionStorage(dependencies, in: storageDirectory)
         return dependencies
     }
+
+    /// Points the session store at this profile's directory, resetting it first
+    /// if a development build was asked to.
+    ///
+    /// Failure to create the directory leaves `sessionStore` nil and the
+    /// training tab explaining itself, rather than aborting a launch whose
+    /// other three tabs work.
+    private static func installSessionStorage(
+        _ dependencies: AppDependencies,
+        in storageDirectory: URL
+    ) {
+        let directory = storageDirectory.appending(
+            path: "sessions",
+            directoryHint: .isDirectory
+        )
+#if DEVELOPMENT_STRATEGY_FIXTURES
+        if CommandLine.arguments.contains("--reset-sessions") {
+            try? FileManager.default.removeItem(at: directory)
+        }
+#endif
+        try? dependencies.installSessionStore(directory: directory)
+    }
+
+    /// The seed the next session deals from.
+    ///
+    /// Random in a shipping build: two sessions in a row should not be the same
+    /// table. A development build honours `--session-seed <n>`, which is what
+    /// lets a UI test open a session whose hands are already known — the
+    /// alternative is a test that asserts a key hand reached the river and is
+    /// right most of the time.
+    var makeSessionSeed: @MainActor () -> UInt64 {
+#if DEVELOPMENT_STRATEGY_FIXTURES
+        if let fixed = AppDependencies.launchArgumentSessionSeed {
+            return { fixed }
+        }
+#endif
+        return { UInt64.random(in: 0 ..< UInt64.max) }
+    }
+
+#if DEVELOPMENT_STRATEGY_FIXTURES
+    static var launchArgumentSessionSeed: UInt64? {
+        let arguments = CommandLine.arguments
+        guard let flag = arguments.firstIndex(of: "--session-seed"),
+              arguments.index(after: flag) < arguments.endIndex
+        else {
+            return nil
+        }
+        return UInt64(arguments[arguments.index(after: flag)])
+    }
+#endif
 
     /// Root of the profile layout. Exposed so the coordinator can be installed
     /// against the same directory startup resolved from.

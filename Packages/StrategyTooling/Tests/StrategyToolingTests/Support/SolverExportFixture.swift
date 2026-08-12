@@ -49,6 +49,7 @@ enum SolverExportFixture {
             abilityDimension: "flop-cbet",
             curriculumNodeID: "flop-cbet",
             heroSeatOffsetFromButton: index % 6,
+            facing: .unopened,
             heroCards: ["As", "Kd"],
             board: ["7c", "8h", "2s"],
             pot: BBAmount(centiBB: 650),
