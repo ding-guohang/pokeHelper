@@ -55,12 +55,13 @@ xcodebuild test \
 # A capability that is computed and never rendered passes every unit test it
 # has. Only a UI test tells the two apart: this drives import, the standardized
 # preview and the personal library through the built app.
-echo "==> Hand Lab import, preview and library are reachable"
+echo "==> Hand Lab import, preview, library and analysis are reachable"
 xcodebuild test \
     -project PokerCoach.xcodeproj \
     -scheme PokerCoach \
     -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
-    -only-testing:PokerCoachUITests/M2BSurfaceTests >/dev/null
+    -only-testing:PokerCoachUITests/M2BSurfaceTests \
+    -only-testing:PokerCoachUITests/M2BAnalysisSurfaceTests >/dev/null
 
 echo "==> Package dependencies match the layer graph"
 bash scripts/check-package-layering.sh >/dev/null
@@ -125,6 +126,35 @@ if swift test --package-path Packages/HandHistory >/dev/null 2>&1; then
     exit 1
 fi
 cp "$scratch/Packages_HandHistory_Tests_Fixtures_sample-ps-6max-nlhe.model.json" "$golden"
+
+# The hero decision signatures have their own committed golden, produced by the
+# same writer under --signatures. Same two checks: it matches a fresh derivation
+# and it is load-bearing.
+echo "==> The committed signatures golden equals a fresh derivation"
+sig_golden="Packages/HandHistory/Tests/Fixtures/sample-ps-6max-nlhe.signatures.json"
+if ! diff <("$writer_bin" --signatures --fixture "$fixture") "$sig_golden" >/dev/null; then
+    echo "FAIL: hand-model-writer --signatures output no longer matches the committed golden" >&2
+    exit 1
+fi
+
+echo "==> The signatures golden is load-bearing"
+guard "$sig_golden"
+python3 - "$sig_golden" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path).read()
+# Flip the first stack-bucket value; any real hero signature carries one.
+for marker in ('"stackBucket" : "deep"', '"stackBucket" : "medium"', '"stackBucket" : "short"'):
+    if marker in text:
+        text = text.replace(marker, '"stackBucket" : "shallowest"', 1)
+        break
+open(path, "w").write(text)
+PY
+if swift test --package-path Packages/HandHistory >/dev/null 2>&1; then
+    echo "FAIL: the HandHistory suite passed with a corrupted signatures golden" >&2
+    exit 1
+fi
+cp "$scratch/Packages_HandHistory_Tests_Fixtures_sample-ps-6max-nlhe.signatures.json" "$sig_golden"
 
 echo "==> Cross-process determinism really uses a second process"
 if ! grep -rq "hand-model-writer" Packages/HandHistory/Tests; then

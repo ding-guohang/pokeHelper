@@ -1,4 +1,6 @@
 import HandHistory
+import HandHistoryPersistence
+import StrategyContent
 import SwiftUI
 
 /// The Hand Lab tab: paste a hand history, review the standardized preview, and
@@ -11,11 +13,25 @@ struct HandLabView: View {
     let dependencies: AppDependencies
 
     @State private var viewModel: HandImportViewModel?
+    /// Held so analysis reuses the one store this session opened. Reopening it
+    /// through `HandLabStorage.makeStore()` would re-honour `--reset-hand-library`
+    /// and wipe the hand the user just adopted; the analysis path takes this
+    /// instance instead.
+    @State private var libraryStore: FileHandLibraryStore?
 
     var body: some View {
         Group {
-            if let viewModel {
-                HandLabContentView(viewModel: viewModel)
+            if let viewModel, let libraryStore {
+                HandLabContentView(
+                    viewModel: viewModel,
+                    makeAnalysisViewModel: { identity, tableSize in
+                        makeAnalysisViewModel(
+                            store: libraryStore,
+                            identity: identity,
+                            tableSize: tableSize
+                        )
+                    }
+                )
             } else {
                 ContentUnavailableView(
                     "牌局实验室",
@@ -27,19 +43,46 @@ struct HandLabView: View {
         .navigationTitle("牌局实验室")
         .task {
             if viewModel == nil {
-                viewModel = makeViewModel()
+                let store = try? HandLabStorage.makeStore()
+                libraryStore = store
+                viewModel = makeViewModel(store: store)
                 await viewModel?.refreshLibrary()
             }
         }
     }
 
-    private func makeViewModel() -> HandImportViewModel? {
-        guard let store = try? HandLabStorage.makeStore() else { return nil }
+    private func makeViewModel(store: FileHandLibraryStore?) -> HandImportViewModel? {
+        guard let store else { return nil }
         let coordinator = HandImportCoordinator(
             libraryStore: store,
             eventStore: dependencies.eventStore
         )
         return HandImportViewModel(coordinator: coordinator)
+    }
+
+    /// Builds the analysis view model for one stored hand.
+    ///
+    /// The matcher is built from the preferred installed pack — reviewed content
+    /// ahead of any development fixture — so an imported line is judged against
+    /// the same range tables a shipping build trains on, not the demo pack. The
+    /// coordinator holds the event store and never writes it; analysis is a read.
+    private func makeAnalysisViewModel(
+        store: FileHandLibraryStore,
+        identity: String,
+        tableSize: Int
+    ) -> HandAnalysisViewModel {
+        let scenarios = (try? BundledContentLoader(bundle: .main).loadPreferredPack())?
+            .pack.scenarios ?? []
+        let coordinator = HandAnalysisCoordinator(
+            libraryStore: store,
+            eventStore: dependencies.eventStore,
+            matcher: ImportedHandContentMatcher(scenarios: scenarios)
+        )
+        return HandAnalysisViewModel(
+            coordinator: coordinator,
+            identity: identity,
+            tableSize: tableSize
+        )
     }
 }
 
@@ -52,6 +95,9 @@ struct HandLabView: View {
 /// container.
 private struct HandLabContentView: View {
     @Bindable var viewModel: HandImportViewModel
+    /// Builds the analysis view model for a stored hand, injected so the content
+    /// view stays unaware of how the coordinator and content matcher are wired.
+    let makeAnalysisViewModel: (_ identity: String, _ tableSize: Int) -> HandAnalysisViewModel
 
     @State private var text = ""
 
@@ -105,6 +151,13 @@ private struct HandLabContentView: View {
                 }
                 .buttonStyle(.bordered)
                 .accessibilityIdentifier("handlab.loadSample")
+
+                Button("载入偏离示例") {
+                    text = HandImportSampleText.appendixG
+                    viewModel.load(text: text)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier("handlab.loadDeviationSample")
 #endif
             }
         }
@@ -179,9 +232,20 @@ private struct HandLabContentView: View {
                 .font(.subheadline)
                 .accessibilityIdentifier("handlab.library.count")
             ForEach(Array(viewModel.libraryHands.enumerated()), id: \.offset) { index, hand in
-                Text("\(hand.heroPosition) · 抽水 \(hand.rake)")
-                    .font(.footnote.monospacedDigit())
-                    .accessibilityIdentifier("handlab.library.row.\(index)")
+                HStack {
+                    Text("\(hand.preview.heroPosition) · 抽水 \(hand.preview.rake)")
+                        .font(.footnote.monospacedDigit())
+                        .accessibilityIdentifier("handlab.library.row.\(index)")
+                    Spacer()
+                    NavigationLink {
+                        HandAnalysisView(
+                            viewModel: makeAnalysisViewModel(hand.identity, hand.tableSize)
+                        )
+                    } label: {
+                        Text("分析")
+                    }
+                    .accessibilityIdentifier("handlab.analyze.\(index)")
+                }
             }
         }
     }

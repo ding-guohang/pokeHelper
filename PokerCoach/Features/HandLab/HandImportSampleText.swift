@@ -41,5 +41,16 @@ enum HandImportSampleText {
     Total pot $14.50 | Rake $0.50
 
     """
+
+    /// Appendix G: appendix A with the hero holding `3s 2d` instead of `Ah Kd`.
+    /// Everything else is byte-for-byte appendix A, so the only thing that
+    /// changes is the hand class the preflop open is judged against. `32o` has no
+    /// cell in the shipped `rfi-btn` range, so opening it looks up as weight 0 —
+    /// a full-magnitude deviation. Used by the analysis surface test to reach a
+    /// hand with a genuine flagged deviation. Never ships.
+    static let appendixG = appendixA.replacingOccurrences(
+        of: "Dealt to Hero [Ah Kd]",
+        with: "Dealt to Hero [3s 2d]"
+    )
 }
 #endif

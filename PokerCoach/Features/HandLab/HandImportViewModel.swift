@@ -25,8 +25,20 @@ final class HandImportViewModel {
     private(set) var preview: HandImportPreview?
     private(set) var unresolvedConflicts: [HandImportConflict] = []
     private(set) var unsupportedMessage: String?
-    private(set) var libraryHands: [HandImportPreview] = []
+    private(set) var libraryHands: [StoredHandSummary] = []
     private(set) var lastAcceptedIdentity: String?
+
+    /// A stored hand as the library listing needs it: the display preview plus
+    /// the two facts analysis has to be launched with — which hand to read
+    /// (`identity`) and how many seats to name its positions against
+    /// (`tableSize`). The preview alone carries neither.
+    struct StoredHandSummary: Identifiable, Equatable {
+        let identity: String
+        let tableSize: Int
+        let preview: HandImportPreview
+
+        var id: String { identity }
+    }
 
     /// The parser's best-effort model for the current text, before resolutions.
     private var parsedHand: ObservedHand?
@@ -102,7 +114,13 @@ final class HandImportViewModel {
     /// Reloads the library listing after an adoption.
     func refreshLibrary() async {
         let hands = (try? await coordinator.libraryHands()) ?? []
-        libraryHands = hands.map(HandImportPreview.init)
+        libraryHands = hands.map { hand in
+            StoredHandSummary(
+                identity: hand.source.identity,
+                tableSize: hand.tableSize,
+                preview: HandImportPreview(hand)
+            )
+        }
     }
 
     // MARK: - Resolution
