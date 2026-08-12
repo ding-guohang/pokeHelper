@@ -24,3 +24,14 @@
 - 新增规格：5 个 Capabilities、12 个 Requirements、44 个 Scenarios（另修改 2 个既有 Capabilities）
 - 未交付：Session 记录跨设备同步（事件契约已冻结，推迟）；翻后局面等同（无翻后手牌分类法，推迟 M2B）
 - 遗留缺口：盲注不顺延（见 `docs/architecture/known-gaps.md`，发布前必修，本次归档后随即修复）
+
+## handlab-m2b-import-preview-20260812-01
+
+- 归档：2026-08-12 17:49
+- 位置：`openspec/changes/archive/handlab-m2b-import-preview-20260812-01-20260812-174946`
+- 新增能力：hand-history-import, import-conflict-review, personal-hand-library
+- 修改能力：无
+- 交付（M2B 第一切片，个人牌局实验室的导入前半段）：把受支持的 PokerStars NLHE 现金文本牌谱确定性解析为统一 `ObservedHand`（整数 centi-BB、位置由入座玩家绕按钮导出、盲注/自主行动分列、抽水捕获）；不受支持格式与无法无歧义解析的字段登记为可定位冲突、绝不猜测（非整除报冲突而非四舍五入）；采纳前标准化预览、含未解决冲突不可采纳、修正后可采纳；采纳的牌谱作为版本化个人资源本地保存、重复采纳保留旧版本、导入路径持有事件存储却不产生 `TrainingEvent`。新增 `HandHistory`/`HandHistoryPersistence` 两个包，Hand Lab 入口嵌在「复盘」下（四个核心标签不变）；`Street` 抽出为 PokerCore 独立文件
+- 新增规格：3 个 Capabilities、4 个 Requirements、18 个 Scenarios
+- 未交付（后续 M2B 切片）：关键节点选择、策略分析与漏洞标签、分支重放与反事实对比、补救训练生成、个人牌谱跨设备同步、PokerStars 以外格式
+- 已知限制（保守、不产错误数据）：摊牌对手明牌暂不读取、仅美元现金、ante/straddle 登记为冲突暂不建模
