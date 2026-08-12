@@ -46,3 +46,15 @@
 - 新增规格：2 个 Capabilities、3 个 Requirements、11 个 Scenarios
 - 复用（不改动）：`SpotSignature`/`SpotCoverageKey`、`RangeBaseline` 权重通路、偏离阈值 5000（本地重述，未 import `SessionSimulation.KeyHandSelection`）
 - 未交付（后续 M2B 切片）：分支重放与反事实对比、补救训练生成、漏洞标签落库；`bigSwing`/`bigPot` 理由（需派彩数据，`ObservedHand` 未携带）
+
+## handlab-m2b-remediation-20260812-01
+
+- 归档：2026-08-12 23:41
+- 位置：`openspec/changes/archive/handlab-m2b-remediation-20260812-01-20260812-234134`
+- 新增能力：imported-hand-remediation
+- 修改能力：无（`KeyNode` 追加 `coveringScenarioID` 为加法，不改 `imported-hand-analysis` 任何 scenario）
+- 交付（M2B 第三切片，闭环）：偏离关键节点保留其覆盖场景 ID；分析视图对偏离节点提供"练这个漏洞"，用该 ID 经既有 `DecisionSessionViewModel` 训练流程呈现——补救事件与直接训练同场景同提交的事件除 id/时间/设备外逐字段相等（含完整 grade），走既有归约与冻结契约（满足 M2 gate）。打开分析不写事件，只有完成补救训练才产生。复盘→Hand Lab→某手→分析→练这个漏洞可达
+- 新增规格：1 个 Capability、2 个 Requirements、5 个 Scenarios
+- 复用（不改）：`DecisionSessionViewModel`/`TrainingEvent`/冻结契约/`PlayerModelReducer`；`SpotCoverageKey`/`RangeBaseline`
+- 未交付（后续 M2B 切片）：分支重放与反事实对比、漏洞标签落库、手动场景构建器
+- 已知缺口：分析/补救的取包口径与内容采纳的陈旧问题同源（见 `docs/architecture/known-gaps.md`，接入真实更新源前对齐）
