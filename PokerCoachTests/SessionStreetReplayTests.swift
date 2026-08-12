@@ -130,7 +130,7 @@ final class SessionStreetReplayTests: XCTestCase {
         XCTAssertEqual(review.streets.map(\.actions.count), [8, 0, 0, 0])
         XCTAssertEqual(
             review.streets.map(\.potAtEnd.centiBB),
-            [13_387, 13_387, 13_387, 13_387]
+            [11_250, 11_250, 11_250, 11_250]
         )
     }
 

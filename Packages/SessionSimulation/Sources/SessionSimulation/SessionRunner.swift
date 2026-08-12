@@ -28,6 +28,11 @@ public struct SessionRun: Hashable, Sendable {
     public let hands: [PlayedHand]
     public let finalStacks: [BBAmount]
 
+    /// The table broke up before `handCount` hands: fewer than two seats held
+    /// chips, so no further hand could be dealt. A completed run leaves this
+    /// `false`.
+    public let endedEarly: Bool
+
     /// The whole table's chips. Fixed at `seatCount × 100BB` for a rake-free
     /// table with no rebuys, however the hands went.
     public var totalChips: BBAmount {
@@ -74,6 +79,15 @@ public struct SessionRunner: Sendable {
     /// The stacks every session starts from: 100BB in each of the six seats.
     public static var initialStacks: [BBAmount] {
         [BBAmount](repeating: TableRules.startingStack, count: TableRules.seatCount)
+    }
+
+    /// A hand needs at least this many seats holding chips: one to post the
+    /// small blind and one to post the big. With fewer there is no hand.
+    public static let minimumSeatsToDeal = 2
+
+    /// How many of these stacks still hold chips.
+    public static func seatsWithChips(_ stacks: [BBAmount]) -> Int {
+        stacks.count { $0.centiBB > 0 }
     }
 
     /// Plays one hand from a given set of stacks.
@@ -139,11 +153,21 @@ public struct SessionRunner: Sendable {
         hands.reserveCapacity(handCount)
 
         for handIndex in 0 ..< handCount {
+            // A hand with fewer than two funded seats has no blinds to post and
+            // is not a hand. The session ends here rather than dealing it.
+            guard Self.seatsWithChips(stacks) >= Self.minimumSeatsToDeal else {
+                break
+            }
             let played = playHand(handIndex: handIndex, stacks: stacks)
             stacks = played.endingStacks
             hands.append(played)
         }
 
-        return SessionRun(seed: seed, hands: hands, finalStacks: stacks)
+        return SessionRun(
+            seed: seed,
+            hands: hands,
+            finalStacks: stacks,
+            endedEarly: hands.count < handCount
+        )
     }
 }

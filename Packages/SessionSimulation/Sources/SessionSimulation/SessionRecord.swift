@@ -194,8 +194,22 @@ public struct SessionProgress: Hashable, Sendable {
         playedHands.count
     }
 
+    /// Whether the next hand can be dealt at all: a hand needs two funded
+    /// seats. Read off the carried stacks, so a table that has broken up is
+    /// recognised without a flag stored beside the hands.
+    public var tableCanContinue: Bool {
+        SessionRunner.seatsWithChips(stacks) >= SessionRunner.minimumSeatsToDeal
+    }
+
     public var isComplete: Bool {
-        playedHands.count >= record.handCount
+        playedHands.count >= record.handCount || !tableCanContinue
+    }
+
+    /// The session finished before its planned hand count because the table
+    /// broke up. Distinct from being paused mid-way: an interrupted session
+    /// still has two funded seats and can resume, one that ended early cannot.
+    public var endedEarly: Bool {
+        playedHands.count < record.handCount && !tableCanContinue
     }
 
     /// The stacks the next hand starts from.

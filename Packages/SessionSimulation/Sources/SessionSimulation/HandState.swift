@@ -154,14 +154,22 @@ public struct HandState: Hashable, Sendable {
         seatToAct = nil
         result = nil
 
-        postBlind(
-            seat: TableRules.seat(atOffset: 1, buttonSeat: dealtHand.buttonSeat),
-            amount: TableRules.smallBlind.centiBB
-        )
-        postBlind(
-            seat: TableRules.seat(atOffset: 2, buttonSeat: dealtHand.buttonSeat),
-            amount: TableRules.bigBlind.centiBB
-        )
+        // The blinds pass to the first seats after the button that still hold
+        // chips, so a hand is never dealt without them. Posting from fixed
+        // offsets and skipping a busted seat is how a hand ended up with no
+        // blind at all. When fewer than two seats have chips there is nothing
+        // to post; the guard below stands everyone down and the session-level
+        // check stops dealing.
+        let smallBlindSeat = firstSeatWithChips(startingAfter: dealtHand.buttonSeat)
+        let bigBlindSeat = smallBlindSeat.flatMap { firstSeatWithChips(startingAfter: $0) }
+        if let smallBlindSeat, let bigBlindSeat, smallBlindSeat != bigBlindSeat {
+            postBlind(seat: smallBlindSeat, amount: TableRules.smallBlind.centiBB)
+            postBlind(seat: bigBlindSeat, amount: TableRules.bigBlind.centiBB)
+            // Action opens on the first seat left of the big blind, wherever
+            // the blind landed. `nextSeatNeedingToAct` still skips folded and
+            // busted seats, so this only has to point at the right neighbour.
+            searchStartSeat = TableRules.seat(atOffset: 1, buttonSeat: bigBlindSeat)
+        }
         currentBet = committedThisStreet.max() ?? 0
 
         // The big blind still has the option when nobody raises, so everyone
@@ -381,6 +389,22 @@ public struct HandState: Hashable, Sendable {
 
     private var activeWithChipsCount: Int {
         (0 ..< TableRules.seatCount).count { !folded[$0] && stacks[$0] > 0 }
+    }
+
+    /// The first seat after `seat`, in action order, that still holds chips.
+    ///
+    /// `nil` when no other seat has chips — the caller reads that as "there is
+    /// no hand here" rather than posting a blind on a seat that cannot cover
+    /// it. The scan starts one seat along, so it never returns `seat` itself
+    /// unless it is the only seat with chips, which the caller rejects.
+    private func firstSeatWithChips(startingAfter seat: Int) -> Int? {
+        for step in 1 ... TableRules.seatCount {
+            let candidate = (seat + step) % TableRules.seatCount
+            if stacks[candidate] > 0 {
+                return candidate
+            }
+        }
+        return nil
     }
 
     private mutating func postBlind(seat: Int, amount: Int) {

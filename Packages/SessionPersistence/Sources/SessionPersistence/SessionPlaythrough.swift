@@ -40,6 +40,11 @@ public enum SessionPlaythrough {
             if let handLimit, played.count == handLimit {
                 break
             }
+            // The table has broken up: fewer than two seats hold chips, so
+            // there is no hand to deal. Stop rather than write a blindless hand.
+            guard SessionRunner.seatsWithChips(stacks) >= SessionRunner.minimumSeatsToDeal else {
+                break
+            }
 
             let hand = runner.playHand(handIndex: handIndex, stacks: stacks)
             stacks = hand.endingStacks
