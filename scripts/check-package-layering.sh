@@ -97,6 +97,20 @@ echo "==> StrategyContent may not see SessionSimulation or TrainingDomain"
 check_manifest StrategyContent PokerCore
 check_imports StrategyContent PokerCore
 
+# The hand-history parser only knows poker facts. Letting it see StrategyContent
+# or the training domain would make "what a real hand was" depend on what the
+# curriculum happens to teach — the same boundary SessionSimulation keeps.
+echo "==> HandHistory may only see PokerCore"
+check_manifest HandHistory PokerCore
+check_imports HandHistory PokerCore
+
+# The personal-hand file store sits outside the parser package, like the two
+# other persistence packages, and must not reach the training domain — that is
+# the structural half of "an imported hand produces no TrainingEvent."
+echo "==> HandHistoryPersistence may only see HandHistory and PokerCore"
+check_manifest HandHistoryPersistence PokerCore HandHistory
+check_imports HandHistoryPersistence PokerCore HandHistory
+
 echo "==> PokerCore depends on nothing in this repository"
 check_manifest PokerCore
 check_imports PokerCore
