@@ -1,0 +1,69 @@
+[
+  {
+    "action" : {
+      "amountCentiBB" : 300,
+      "kind" : "raiseTo",
+      "seat" : 1
+    },
+    "actionIndexInStreet" : 3,
+    "isAllIn" : false,
+    "signature" : {
+      "facing" : "unopened",
+      "handClass" : "AKo",
+      "heroSeatOffsetFromButton" : 0,
+      "stackBucket" : "deep",
+      "street" : "preflop"
+    },
+    "street" : "preflop"
+  },
+  {
+    "action" : {
+      "amountCentiBB" : 400,
+      "kind" : "bet",
+      "seat" : 1
+    },
+    "actionIndexInStreet" : 1,
+    "isAllIn" : false,
+    "signature" : {
+      "facing" : "unopened",
+      "handClass" : "AKo",
+      "heroSeatOffsetFromButton" : 0,
+      "stackBucket" : "deep",
+      "street" : "flop"
+    },
+    "street" : "flop"
+  },
+  {
+    "action" : {
+      "kind" : "check",
+      "seat" : 1
+    },
+    "actionIndexInStreet" : 1,
+    "isAllIn" : false,
+    "signature" : {
+      "facing" : "unopened",
+      "handClass" : "AKo",
+      "heroSeatOffsetFromButton" : 0,
+      "stackBucket" : "deep",
+      "street" : "turn"
+    },
+    "street" : "turn"
+  },
+  {
+    "action" : {
+      "amountCentiBB" : 800,
+      "kind" : "bet",
+      "seat" : 1
+    },
+    "actionIndexInStreet" : 1,
+    "isAllIn" : false,
+    "signature" : {
+      "facing" : "unopened",
+      "handClass" : "AKo",
+      "heroSeatOffsetFromButton" : 0,
+      "stackBucket" : "deep",
+      "street" : "river"
+    },
+    "street" : "river"
+  }
+]

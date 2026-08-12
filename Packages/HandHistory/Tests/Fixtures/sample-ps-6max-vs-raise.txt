@@ -1,0 +1,22 @@
+PokerStars Hand #240000000002:  Hold'em No Limit ($0.50/$1.00 USD) - 2026/01/15 21:00:00 ET
+Table 'Perseus' 6-max Seat #1 is the button
+Seat 1: Villain1 ($100 in chips)
+Seat 2: Villain2 ($100 in chips)
+Seat 3: Villain3 ($100 in chips)
+Seat 4: Villain4 ($100 in chips)
+Seat 5: Villain5 ($100 in chips)
+Seat 6: Hero ($100 in chips)
+Villain2: posts small blind $0.50
+Villain3: posts big blind $1
+*** HOLE CARDS ***
+Dealt to Hero [7c 2d]
+Villain4: raises $2 to $3
+Villain5: folds
+Hero: folds
+Villain1: folds
+Villain2: folds
+Villain3: folds
+Uncalled bet ($2) returned to Villain4
+Villain4 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0

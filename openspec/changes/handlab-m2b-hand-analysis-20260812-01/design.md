@@ -54,6 +54,7 @@ extension ObservedHand {
 - 逐街遍历：维护每座位「本街已投入」（`forcedPosts` 先于翻前自主行动计入盲注座）与「累计已投入」；`priorRaiseCount` = 英雄该行动之前本街出现的 `raiseTo`/`bet` 次数 → `FacingAction(priorRaiseCount:)`。
 - **effectiveStack 口径**：英雄该决策点的剩余筹码 = `startingStackCentiBB − 英雄在此行动之前累计已投入`，与 M2A `HandState.decisionContext` 用 `stacks[seat]` 一致 → `StackBucket(effectiveStack:)`。
   - 附录 A：翻前 10000；翻牌 9700（翻前投入 300）；转牌/河牌 9300（翻牌再投入 400）。
+  - 但附录 A 这四个 effectiveStack 全落在同一 `deep` 桶，只钉它们无法证伪一个「恒返回同一桶」的实现；因此另加专用跨桶夹具 `sample-ps-6max-short-crossing.txt`（英雄起始 4000 → `medium`，逐街投入后转牌剩余 1600 → `short`），断言 `Set(stackBucket).count >= 2` 才真正击穿常量实现。
 - `isAllIn` = 该行动后英雄累计已投入 == 其 `startingStackCentiBB`。
 
 `handClass = HandClass(hero.holeCards)`。附录 A：`Ah Kd` → `AKo`，四个决策点同一 handClass。

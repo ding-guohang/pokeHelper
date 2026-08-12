@@ -1,0 +1,31 @@
+PokerStars Hand #240000000010:  Hold'em No Limit ($0.50/$1.00 USD) - 2026/01/15 22:00:00 ET
+Table 'Cassiopeia' 6-max Seat #1 is the button
+Seat 1: Hero ($40 in chips)
+Seat 2: Villain2 ($100 in chips)
+Seat 3: Villain3 ($100 in chips)
+Seat 4: Villain4 ($100 in chips)
+Seat 5: Villain5 ($100 in chips)
+Seat 6: Villain6 ($100 in chips)
+Villain2: posts small blind $0.50
+Villain3: posts big blind $1
+*** HOLE CARDS ***
+Dealt to Hero [Qs Qh]
+Villain4: raises $2 to $3
+Villain5: folds
+Villain6: folds
+Hero: raises $9 to $12
+Villain2: folds
+Villain3: folds
+Villain4: calls $9
+*** FLOP *** [8d 5c 2h]
+Villain4: checks
+Hero: bets $12
+Villain4: calls $12
+*** TURN *** [8d 5c 2h] [Ks]
+Villain4: checks
+Hero: bets $8
+Villain4: folds
+Uncalled bet ($8) returned to Hero
+Hero collected $49.50 from pot
+*** SUMMARY ***
+Total pot $49.50 | Rake $0
