@@ -63,6 +63,17 @@ repo_root = pathlib.Path(sys.argv[1])
 proposal_path = pathlib.Path(sys.argv[2])
 proposal_text = proposal_path.read_text(encoding="utf-8")
 
+# Which door this run is guarding. An active proposal (still under
+# changes/<id>/) is about to replace the spec at archive time, so every spec
+# block must survive into it. An archived proposal already wrote its spec and a
+# later change may since have added requirements or scenarios to the same
+# capability -- that is not a regression. What would be one is a hand-edit, or a
+# careless later archive, that dropped or gutted something *this* change
+# introduced, so the archived direction checks the proposal's own blocks still
+# stand in the spec rather than demanding the proposal carry blocks that
+# postdate it.
+is_archived = "/changes/archive/" in str(proposal_path)
+
 failures = []
 
 
@@ -136,6 +147,10 @@ def capability_section(name):
     return match.group(1) if match else None
 
 
+def bullets(lines):
+    return sum(1 for line in lines if re.match(r"^- (GIVEN|WHEN|THEN|AND) ", line))
+
+
 for capability in modified:
     if capability in removed:
         continue
@@ -161,6 +176,46 @@ for capability in modified:
     # a requirement carried over under one capability would satisfy another.
     proposed = blocks(section, "####", "#####")
     existing = blocks(spec_path.read_text(encoding="utf-8"), "##", "###")
+
+    if is_archived:
+        # Post-archive: verify each block this change wrote still stands in the
+        # spec. A later change is free to add more; only a drop or a gutting of
+        # what this change introduced is a regression. `existing` (the current
+        # spec) is allowed to be a superset of `proposed`.
+        for (kind, name), body in proposed.items():
+            if (kind, name) not in existing:
+                demoted = any(
+                    other_kind != kind and other_name == name
+                    for other_kind, other_name in existing
+                )
+                detail = (
+                    f"now appears as a {'Scenario' if kind == 'Requirement' else 'Requirement'} "
+                    f"in the spec, which drops its original binding"
+                    if demoted
+                    else "was introduced by this change but is no longer in the spec"
+                )
+                failures.append(f"{capability}: {kind} “{name}” {detail}")
+                continue
+
+            # Not a raw line-count comparison: a proposal legitimately carries
+            # annotations (HTML comments, notes) that the spec merge strips, so
+            # the spec body is routinely a line or two shorter without anything
+            # binding being lost. What must survive is the SHALL of a
+            # requirement and the GIVEN/WHEN/THEN lines of a scenario.
+            spec_body = existing[(kind, name)]
+
+            if kind == "Requirement" and not any("SHALL" in line for line in spec_body):
+                failures.append(
+                    f"{capability}: Requirement “{name}” no longer states a SHALL in the spec"
+                )
+                continue
+
+            if kind == "Scenario" and bullets(spec_body) < bullets(body):
+                failures.append(
+                    f"{capability}: Scenario “{name}” lost "
+                    f"{bullets(body) - bullets(spec_body)} GIVEN/WHEN/THEN line(s) in the spec"
+                )
+        continue
 
     for (kind, name), body in existing.items():
         if (kind, name) not in proposed:
@@ -193,18 +248,11 @@ for capability in modified:
             )
             continue
 
-        if kind == "Scenario":
-            def bullets(lines):
-                return sum(
-                    1 for line in lines
-                    if re.match(r"^- (GIVEN|WHEN|THEN|AND) ", line)
-                )
-
-            if bullets(proposed_body) < bullets(body):
-                failures.append(
-                    f"{capability}: Scenario “{name}” dropped "
-                    f"{bullets(body) - bullets(proposed_body)} GIVEN/WHEN/THEN line(s)"
-                )
+        if kind == "Scenario" and bullets(proposed_body) < bullets(body):
+            failures.append(
+                f"{capability}: Scenario “{name}” dropped "
+                f"{bullets(body) - bullets(proposed_body)} GIVEN/WHEN/THEN line(s)"
+            )
 
 if failures:
     print("Modified capabilities drop existing behavior:\n", file=sys.stderr)
