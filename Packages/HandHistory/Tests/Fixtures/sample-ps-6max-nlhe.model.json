@@ -1,0 +1,192 @@
+{
+  "bigBlindCentiBB" : 100,
+  "buttonSeat" : 0,
+  "forcedPosts" : [
+    {
+      "amountCentiBB" : 50,
+      "kind" : "smallBlind",
+      "seat" : 2
+    },
+    {
+      "amountCentiBB" : 100,
+      "kind" : "bigBlind",
+      "seat" : 3
+    }
+  ],
+  "result" : {
+    "rakeCentiBB" : 50
+  },
+  "seats" : [
+    {
+      "holeCards" : {
+        "known" : {
+          "_0" : "Ah",
+          "_1" : "Kd"
+        }
+      },
+      "seat" : 1,
+      "seatOffsetFromButton" : 0,
+      "startingStackCentiBB" : 10000
+    },
+    {
+      "holeCards" : {
+        "unknown" : {
+
+        }
+      },
+      "seat" : 2,
+      "seatOffsetFromButton" : 1,
+      "startingStackCentiBB" : 10000
+    },
+    {
+      "holeCards" : {
+        "unknown" : {
+
+        }
+      },
+      "seat" : 3,
+      "seatOffsetFromButton" : 2,
+      "startingStackCentiBB" : 10000
+    },
+    {
+      "holeCards" : {
+        "unknown" : {
+
+        }
+      },
+      "seat" : 4,
+      "seatOffsetFromButton" : 3,
+      "startingStackCentiBB" : 10000
+    },
+    {
+      "holeCards" : {
+        "unknown" : {
+
+        }
+      },
+      "seat" : 5,
+      "seatOffsetFromButton" : 4,
+      "startingStackCentiBB" : 10000
+    },
+    {
+      "holeCards" : {
+        "unknown" : {
+
+        }
+      },
+      "seat" : 6,
+      "seatOffsetFromButton" : 5,
+      "startingStackCentiBB" : 10000
+    }
+  ],
+  "site" : "pokerStars",
+  "source" : {
+    "identity" : "c83b2f9a6f0cc451ff64498ea38faf1ed077f0cdcc1f6f799d53628e52c72b6a",
+    "rawText" : "PokerStars Hand #240000000001:  Hold'em No Limit ($0.50/$1.00 USD) - 2026/01/15 20:00:00 ET\nTable 'Andromeda' 6-max Seat #1 is the button\nSeat 1: Hero ($100 in chips)\nSeat 2: Villain2 ($100 in chips)\nSeat 3: Villain3 ($100 in chips)\nSeat 4: Villain4 ($100 in chips)\nSeat 5: Villain5 ($100 in chips)\nSeat 6: Villain6 ($100 in chips)\nVillain2: posts small blind $0.50\nVillain3: posts big blind $1\n*** HOLE CARDS ***\nDealt to Hero [Ah Kd]\nVillain4: folds\nVillain5: folds\nVillain6: folds\nHero: raises $2 to $3\nVillain2: folds\nVillain3: calls $2\n*** FLOP *** [Ac 7h 2s]\nVillain3: checks\nHero: bets $4\nVillain3: calls $4\n*** TURN *** [Ac 7h 2s] [Td]\nVillain3: checks\nHero: checks\n*** RIVER *** [Ac 7h 2s Td] [9c]\nVillain3: checks\nHero: bets $8\nVillain3: folds\nUncalled bet ($8) returned to Hero\nHero collected $14 from pot\n*** SUMMARY ***\nTotal pot $14.50 | Rake $0.50\n"
+  },
+  "streets" : [
+    {
+      "actions" : [
+        {
+          "kind" : "fold",
+          "seat" : 4
+        },
+        {
+          "kind" : "fold",
+          "seat" : 5
+        },
+        {
+          "kind" : "fold",
+          "seat" : 6
+        },
+        {
+          "amountCentiBB" : 300,
+          "kind" : "raiseTo",
+          "seat" : 1
+        },
+        {
+          "kind" : "fold",
+          "seat" : 2
+        },
+        {
+          "amountCentiBB" : 300,
+          "kind" : "call",
+          "seat" : 3
+        }
+      ],
+      "board" : [
+
+      ],
+      "street" : "preflop"
+    },
+    {
+      "actions" : [
+        {
+          "kind" : "check",
+          "seat" : 3
+        },
+        {
+          "amountCentiBB" : 400,
+          "kind" : "bet",
+          "seat" : 1
+        },
+        {
+          "amountCentiBB" : 400,
+          "kind" : "call",
+          "seat" : 3
+        }
+      ],
+      "board" : [
+        "Ac",
+        "7h",
+        "2s"
+      ],
+      "street" : "flop"
+    },
+    {
+      "actions" : [
+        {
+          "kind" : "check",
+          "seat" : 3
+        },
+        {
+          "kind" : "check",
+          "seat" : 1
+        }
+      ],
+      "board" : [
+        "Ac",
+        "7h",
+        "2s",
+        "Td"
+      ],
+      "street" : "turn"
+    },
+    {
+      "actions" : [
+        {
+          "kind" : "check",
+          "seat" : 3
+        },
+        {
+          "amountCentiBB" : 800,
+          "kind" : "bet",
+          "seat" : 1
+        },
+        {
+          "kind" : "fold",
+          "seat" : 3
+        }
+      ],
+      "board" : [
+        "Ac",
+        "7h",
+        "2s",
+        "Td",
+        "9c"
+      ],
+      "street" : "river"
+    }
+  ],
+  "tableSize" : 6
+}

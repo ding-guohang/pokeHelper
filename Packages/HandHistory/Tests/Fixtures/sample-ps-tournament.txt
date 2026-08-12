@@ -1,0 +1,16 @@
+PokerStars Hand #240000000003: Tournament #987654321, $10+$1 USD Hold'em No Limit - Level I (10/20) - 2026/01/15 20:00:00 ET
+Table '987654321 1' 9-max Seat #1 is the button
+Seat 1: Hero (1500 in chips)
+Seat 2: Villain2 (1500 in chips)
+Seat 3: Villain3 (1500 in chips)
+Villain2: posts small blind 10
+Villain3: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [Ah Kd]
+Hero: raises 40 to 60
+Villain2: folds
+Villain3: folds
+Uncalled bet (40) returned to Hero
+Hero collected 50 from pot
+*** SUMMARY ***
+Total pot 50 | Rake 0
