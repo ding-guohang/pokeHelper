@@ -9,7 +9,8 @@
 - **内容：** `AppDependencies.adoptContent` 会换掉 `strategyProvider`、`localTrainingCatalog`、`installedContent` 与披露状态，但 Today 与 Review 在 SwiftUI 首次构建其 `@State` 视图模型时就捕获了目录副本。在此之后采纳的包，要等视图模型重建才生效。
 - **为什么现在不修：** 该窗口今天不可达——`BundledOnlyContentSource.fetchCandidate()` 永远返回 nil，产品里不会发生采纳。让两个界面改从 provider 现算目录，会改动一批测试正在依赖的注入目录语义，代价不由现在这次修复承担。
 - **什么时候必须修：** 接入真实更新源之前。加一个没人读的版次计数器不算修——那与「采纳了却什么都没装上」是同一类装饰。
-- **发现时间：** 2026-08-11
+- **同源扩散（M2B）：** Hand Lab 的内容匹配（`ImportedHandContentMatcher`）与补救训练（`HandLabView.makeRemediationSession`）都从 `BundledContentLoader.loadPreferredPack()` 现读随包的已审核包，而非 `dependencies.strategyProvider`——这是故意的（dev 构建的 provider 是无 `rfi-btn` 的演示包，分析/补救必须对着已审核内容判定）。发布构建启动时二者相等，故补救事件与直接训练事件的 `strategyPackID`/`strategyContentVersion` 一致；但一旦 `adoptContent` 可达并换了包，分析与补救仍读旧的随包内容，补救事件会记陈旧包号。接入真实更新源时，分析/补救的取包口径要与被采纳内容一并对齐。
+- **发现时间：** 2026-08-11（M2B 补救切片扩散：2026-08-12）
 
 ## 历史条目的来源披露按 pack ID 解析，忽略内容版本
 
