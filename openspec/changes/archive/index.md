@@ -35,3 +35,14 @@
 - 新增规格：3 个 Capabilities、4 个 Requirements、18 个 Scenarios
 - 未交付（后续 M2B 切片）：关键节点选择、策略分析与漏洞标签、分支重放与反事实对比、补救训练生成、个人牌谱跨设备同步、PokerStars 以外格式
 - 已知限制（保守、不产错误数据）：摊牌对手明牌暂不读取、仅美元现金、ante/straddle 登记为冲突暂不建模
+
+## handlab-m2b-hand-analysis-20260812-01
+
+- 归档：2026-08-12 20:26
+- 位置：`openspec/changes/archive/handlab-m2b-hand-analysis-20260812-01-20260812-202626`
+- 新增能力：imported-hand-signatures, imported-hand-analysis
+- 修改能力：无
+- 交付（M2B 第二切片，节点粒度分析）：`ObservedHand.heroDecisionSignatures()` 重建下注状态、逐英雄决策点导出 `SpotSignature`（facing 由前同街加注次数、effectiveStack 由英雄剩余筹码、isAllIn 由投入达起始筹码，全纯扑克事实，只依赖 PokerCore）；App 层按 `SpotCoverageKey` 逐节点判覆盖并给"英雄行动 vs 范围表权重 + 偏离幅度(10000−权重)"的对照，翻后节点结构性一律 uncovered（无翻后手牌分类法，仿 SessionContentMatcher）；据 deviation(覆盖且权重<5000)/allIn 选关键节点、deviation 优先按幅度降序、上界 5、可为空；分析经持有事件存储却不写入的协调器，不产生 `TrainingEvent`。复盘→Hand Lab→某手→分析可达（四标签不变）；`hand-model-writer --signatures` + 签名黄金 + 跨进程门禁
+- 新增规格：2 个 Capabilities、3 个 Requirements、11 个 Scenarios
+- 复用（不改动）：`SpotSignature`/`SpotCoverageKey`、`RangeBaseline` 权重通路、偏离阈值 5000（本地重述，未 import `SessionSimulation.KeyHandSelection`）
+- 未交付（后续 M2B 切片）：分支重放与反事实对比、补救训练生成、漏洞标签落库；`bigSwing`/`bigPot` 理由（需派彩数据，`ObservedHand` 未携带）
