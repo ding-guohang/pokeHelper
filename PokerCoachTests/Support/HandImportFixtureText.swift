@@ -58,4 +58,15 @@ enum HandImportFixtureText {
         .replacingOccurrences(of: "Hero: bets $4", with: "Hero: sbets $4")
 
     static let heroFlopLine = 21
+
+    /// Two unrecognized verbs on the SAME street (preflop): Villain4's fold
+    /// (line 13) and the hero's raise (line 16). Resolving both must reinsert
+    /// them in their original positions regardless of the order the user
+    /// resolves them, which only holds if the rebuild is order-independent.
+    static let twoPreflopConflicts = appendixA
+        .replacingOccurrences(of: "Villain4: folds", with: "Villain4: xfolds")
+        .replacingOccurrences(of: "Hero: raises $2 to $3", with: "Hero: sprais $2 to $3")
+
+    /// The 1-based line Villain4's preflop fold sits on.
+    static let villain4PreflopLine = 13
 }

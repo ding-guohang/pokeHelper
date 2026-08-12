@@ -63,6 +63,39 @@ struct PokerStarsParseTests {
         #expect(labels == ["BTN", "SB", "BB", "UTG", "HJ", "CO"])
     }
 
+    @Test("非连续座位的 5 人局：偏移绕按钮排在座玩家，tableSize 为在座人数")
+    func fiveHandedNonContiguousSeats() throws {
+        let text = try Fixtures.text("sample-ps-6max-5handed.txt")
+        let pair = try #require(PokerStarsParser.parse(text).parsedPair, "5 人局应为 .parsed")
+        // Self-check: an empty shell would pass the position assertions vacuously.
+        #expect(!pair.hand.streets.isEmpty, "解析出的模型没有任何街")
+        let hand = pair.hand
+
+        // Header says "6-max" but only five seats are dealt in (seat 3 empty).
+        // The effective table size is the number of dealt-in players, not the
+        // header capacity, so the invariant seats.count == tableSize holds.
+        #expect(hand.tableSize == 5, "tableSize 应为在座人数 5，实际 \(hand.tableSize)")
+        #expect(hand.seats.count == hand.tableSize, "seats.count 应等于 tableSize")
+
+        let sorted = hand.seats.sorted { $0.seat < $1.seat }
+        #expect(sorted.map(\.seat) == [1, 2, 4, 5, 6], "座位号应为 1,2,4,5,6")
+        // Ranked clockwise from the button (seat 1): consecutive offsets 0...4,
+        // NOT seat-minus-button arithmetic against the header capacity (which
+        // would skip 2 for the empty seat 3).
+        #expect(
+            sorted.map(\.seatOffsetFromButton) == [0, 1, 2, 3, 4],
+            "偏移应为绕按钮的连续 0...4，实际 \(sorted.map(\.seatOffsetFromButton))"
+        )
+
+        let labels = try sorted.map { seat in
+            try TablePosition(
+                tableSize: hand.tableSize,
+                heroSeatOffsetFromButton: seat.seatOffsetFromButton
+            ).label
+        }
+        #expect(labels == ["BTN", "SB", "BB", "HJ", "CO"], "5 人局标签应为 BTN,SB,BB,HJ,CO")
+    }
+
     @Test("逐街行动按发生顺序完整还原")
     func actionsReconstructedPerStreet() throws {
         let hand = try parseAppendixA()

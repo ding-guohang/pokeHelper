@@ -1,0 +1,22 @@
+PokerStars Hand #240000000006:  Hold'em No Limit ($0.50/$1.00 USD) - 2026/01/15 23:00:00 ET
+Table 'AnteTable' 6-max Seat #1 is the button
+Seat 1: Hero ($100 in chips)
+Seat 2: Villain2 ($100 in chips)
+Seat 3: Villain3 ($100 in chips)
+Seat 4: Villain4 ($100 in chips)
+Seat 5: Villain5 ($100 in chips)
+Seat 6: Villain6 ($100 in chips)
+Villain3: posts the ante $0.20
+Villain2: posts small blind $0.50
+Villain3: posts big blind $1
+*** HOLE CARDS ***
+Dealt to Hero [Ah Kd]
+Villain4: folds
+Villain5: folds
+Villain6: folds
+Hero: folds
+Villain2: folds
+Uncalled bet ($0.50) returned to Villain3
+Villain3 collected $1.20 from pot
+*** SUMMARY ***
+Total pot $1.20 | Rake $0

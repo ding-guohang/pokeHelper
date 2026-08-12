@@ -95,6 +95,67 @@ struct HandImportConflictTests {
         #expect(pair.hand.result.rakeCentiBB != 17, "抽水被四舍五入")
     }
 
+    @Test("超过两位小数的金额报冲突而非被截断")
+    func moreThanTwoDecimalPlacesConflicts() throws {
+        // Appendix A with the hero's flop bet given three fractional digits. A
+        // truncating conversion would silently read "$4.125" as 412 centi-BB; a
+        // parser that never guesses must flag the line instead.
+        let base = try Fixtures.text("sample-ps-6max-nlhe.txt")
+        let withOverPrecision = base.replacingOccurrences(
+            of: "Hero: bets $4",
+            with: "Hero: bets $4.125"
+        )
+        #expect(withOverPrecision != base, "过精金额未插入")
+
+        let lines = withOverPrecision.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        let betLine = try #require(
+            lines.firstIndex(where: { $0.contains("Hero: bets $4.125") }).map { $0 + 1 },
+            "夹具缺少过精下注行"
+        )
+
+        let pair = try #require(PokerStarsParser.parse(withOverPrecision).parsedPair, "应为 .parsed")
+        let conflict = try #require(
+            pair.conflicts.first { $0.sourceLine == betLine },
+            "过精金额那行未报冲突：\(pair.conflicts)"
+        )
+        #expect(conflict.field.hasPrefix("amount"), "冲突字段 \(conflict.field) 不指向金额")
+
+        // No truncated value reached the model: neither 412 nor 413 centi-BB.
+        let flop = try #require(pair.hand.streets.first { $0.street == .flop })
+        for action in flop.actions {
+            #expect(action.amountCentiBB != 412, "金额被截断为 412")
+            #expect(action.amountCentiBB != 413, "金额被四舍五入为 413")
+        }
+    }
+
+    @Test("ante 下注登记为 ante 冲突，不被当作已捕获的强制下注")
+    func anteIsDeferredAsConflict() throws {
+        // Ante capture is deliberately deferred this slice: the PokerStars ante
+        // format is uncertain enough that the parser flags it rather than guess
+        // its role in the pot. The line must surface as an ante-tagged conflict,
+        // not be silently absorbed as a forced post.
+        let text = try Fixtures.text("sample-ps-6max-ante.txt")
+        let pair = try #require(PokerStarsParser.parse(text).parsedPair, "含 ante 的现金牌谱应为 .parsed")
+
+        let lines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        let anteLine = try #require(
+            lines.firstIndex(where: { $0.contains("posts the ante") }).map { $0 + 1 },
+            "夹具缺少 ante 行"
+        )
+
+        let conflict = try #require(
+            pair.conflicts.first { $0.sourceLine == anteLine },
+            "ante 行未报冲突：\(pair.conflicts)"
+        )
+        #expect(conflict.field.hasPrefix("ante"), "冲突字段 \(conflict.field) 应标识为 ante")
+
+        // The deferral is real: no ante forced post was captured.
+        #expect(
+            !pair.hand.forcedPosts.contains { $0.kind == .ante },
+            "本切片不应捕获 ante 强制下注：\(pair.hand.forcedPosts)"
+        )
+    }
+
     @Test("straddle 行登记为 straddle 冲突")
     func straddleConflicts() throws {
         // Constructed: appendix A with a straddle post inserted before HOLE CARDS.

@@ -93,7 +93,7 @@ public enum ForcedPostKind: String, Hashable, Sendable, Codable {
 ## 决断 2：抽水捕获、ante 捕获、straddle 判为冲突
 
 - **抽水**：`ObservedResult.rakeCentiBB`，可非零（附录 A = 50）。这是与模拟牌最直观的区别。
-- **ante**：作为 `ForcedPost(kind: .ante)` 记录（与盲注同列、不进自主行动流），`amountCentiBB` 为 ante 额。2–9 现金里 ante 少见但合法。（`ActionKind` 不含 `.post`，见决断 1。）
+- **ante**：本切片**不捕获**，作为冲突登记（与 straddle 同处理）。原计划记为 `ForcedPost(.ante)`，但评审指出 PokerStars 的 ante 行文（`posts the ante $X` 等）在无样例可核对时按格式猜测有风险；ante 在 2–9 现金里少见，推迟到有真实样例的后续切片再建模。`ForcedPostKind` 保留 `.ante` 取值备用，但解析器遇到 ante 行登记冲突而非猜测。一条 ante 冲突测试锁住这一行为。
 - **straddle / 其他 forced post 变体**：本切片不支持。解析器遇到 straddle 行登记冲突（`field: "straddle"`, `sourceLine: N`），不猜。理由：straddle 改变行动顺序与首个可操作位，正确建模需要额外规则，超出"前半段"。
 - **未知行动动词**（附录 B）：登记冲突，`field` 标该动作，`sourceLine` 指该行。
 
@@ -162,6 +162,14 @@ public enum HandImportResult: Sendable {
 - **PokerStars 格式变体** → 只认 2–9 NLHE 现金；header/桌型/盲注行任一不符即 `.unsupported`，附录 C 守住。
 - **解析器静默猜测** → 附录 A/B 仅差一行的成对断言 + 附录 D 非整除报冲突；proxy 键无法同时通过。
 - **隔离断言退化** → 协调器真持有事件存储，隔离场景加"库 +1"。
+
+## 本切片已知限制（评审记录，安全的保守行为，留待后续切片）
+
+这些是评审确认的"少读而非乱猜"的保守缺口——都不会产出错误数据，只是暂不支持，不构成本切片的 bug：
+
+- **摊牌显示的对手底牌未读取。** 底牌只从 `Dealt to` 行取；对手在 `shows [..]` 摊出的牌记为 `.unknown` 而非读入。保守（少读，不臆造）。附录 A 无摊牌，钉死场景不受影响。后续切片读取摊牌行。
+- **非整除金额在冲突字段上落 `0` 占位。** 该字段已被登记冲突、牌谱无法采纳，且 `0` 不是被四舍五入的值——满足"模型无被舍入的值"。属"未采纳前的占位"，非产出真值。
+- **仅支持美元现金。** 盲注/筹码正则锁 `$`；EUR/GBP 现金牌谱按"不受支持"明确拒绝（保守，非错误解析）。换算按大盲进行，货币与模型无关，后续切片可放宽。
 
 ## 测试策略
 - 包测试 Swift Testing；App 单测 XCTest；UI 可达 XCUITest。

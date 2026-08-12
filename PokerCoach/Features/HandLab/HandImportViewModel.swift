@@ -46,6 +46,13 @@ final class HandImportViewModel {
         parsedHand != nil && unresolvedConflicts.isEmpty && unsupportedMessage == nil
     }
 
+    /// The raw source text of the currently parsed hand, held unchanged from the
+    /// input. Exposed so a preview can be checked against the exact bytes it came
+    /// from; nil until something parses.
+    var loadedRawText: String? {
+        parsedHand?.source.rawText
+    }
+
     /// Parses `text` and prepares the preview. Resolutions from a previous text
     /// are dropped; nothing is written.
     func load(text: String) {
@@ -106,7 +113,13 @@ final class HandImportViewModel {
         guard !resolutions.isEmpty else { return hand }
 
         var streets = hand.streets
-        for (conflict, action) in resolutions {
+        // Reinsert by ascending source line, not `Dictionary` iteration order:
+        // each action's insertion index is computed against the original parsed
+        // sequence, so inserting the earlier line first keeps the later indices
+        // valid. Iterating the dictionary directly would reorder same-street
+        // actions nondeterministically across launches.
+        let orderedResolutions = resolutions.sorted { $0.key.sourceLine < $1.key.sourceLine }
+        for (conflict, action) in orderedResolutions {
             guard
                 let street = Self.street(forField: conflict.field),
                 let index = streets.firstIndex(where: { $0.street == street })

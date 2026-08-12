@@ -49,11 +49,16 @@ public enum PokerStarsParser {
             return .unsupported(reason: "big blind is zero", sourceLine: headerIndex + 1)
         }
 
-        // Table: "Table 'Andromeda' 6-max Seat #1 is the button".
+        // Table: "Table 'Andromeda' 6-max Seat #1 is the button". The "N-max" is
+        // the table's capacity, which is NOT the effective table size: players
+        // may sit in non-contiguous seats and leave chairs empty. The effective
+        // size — and the seat offsets — are derived from the dealt-in players
+        // below, so the header capacity is only used to confirm this is a ring
+        // (non-tournament) format within the supported range.
         guard
             let tableIndex = lines.firstIndex(where: { $0.hasPrefix("Table ") }),
             let sizeMatch = firstMatch(#"([0-9]+)-max"#, in: lines[tableIndex]),
-            let tableSize = Int(sizeMatch[1]),
+            let declaredTableSize = Int(sizeMatch[1]),
             let buttonMatch = firstMatch(#"Seat #([0-9]+) is the button"#, in: lines[tableIndex]),
             let buttonSeatNumber = Int(buttonMatch[1])
         else {
@@ -62,9 +67,9 @@ public enum PokerStarsParser {
                 sourceLine: (lines.firstIndex(where: { $0.hasPrefix("Table ") }) ?? headerIndex) + 1
             )
         }
-        guard (2...9).contains(tableSize) else {
+        guard (2...9).contains(declaredTableSize) else {
             return .unsupported(
-                reason: "table size \(tableSize) is outside 2...9",
+                reason: "table size \(declaredTableSize) is outside 2...9",
                 sourceLine: tableIndex + 1
             )
         }
@@ -125,10 +130,12 @@ public enum PokerStarsParser {
                 if let value = convert(amt, field: "forcedPost.bigBlind", line: lineNumber) {
                     forcedPosts.append(ForcedPost(seat: seat, kind: .bigBlind, amountCentiBB: value))
                 }
-            } else if post.rest.hasPrefix("ante"), let amt = amount(in: post.rest) {
-                if let value = convert(amt, field: "forcedPost.ante", line: lineNumber) {
-                    forcedPosts.append(ForcedPost(seat: seat, kind: .ante, amountCentiBB: value))
-                }
+            } else if post.rest.hasPrefix("ante") || post.rest.hasPrefix("the ante") {
+                // Ante capture is deferred this slice: the ante's role in the pot
+                // and the several PokerStars ante formats are uncertain enough
+                // that we flag the line rather than guess. It is registered as a
+                // conflict, not absorbed as a forced post.
+                conflicts.append(HandImportConflict(field: "ante", sourceLine: lineNumber))
             } else if post.rest.hasPrefix("straddle") {
                 // A straddle changes the action order and the first seat to act;
                 // modeling it correctly is out of scope, so it is flagged, not guessed.
@@ -247,8 +254,20 @@ public enum PokerStarsParser {
             return .unsupported(reason: "button seat not among seated players", sourceLine: tableIndex + 1)
         }
 
-        let observedSeats: [ObservedSeat] = sortedSeats.map { raw in
-            let offset = ((raw.seat - buttonSeatNumber) % tableSize + tableSize) % tableSize
+        // Positions come from the dealt-in players ranked clockwise from the
+        // button, not from seat arithmetic against the header capacity: with a
+        // gapped or short-handed table those disagree. The dealt-in count is the
+        // effective table size, so seats.count == tableSize by construction.
+        let dealtInCount = sortedSeats.count
+        guard (2...9).contains(dealtInCount) else {
+            return .unsupported(
+                reason: "dealt-in player count \(dealtInCount) is outside 2...9",
+                sourceLine: tableIndex + 1
+            )
+        }
+
+        let observedSeats: [ObservedSeat] = sortedSeats.enumerated().map { index, raw in
+            let offset = (index - buttonIndex + dealtInCount) % dealtInCount
             let holeCards: HoleCards
             if raw.name == heroName, let cards = heroCards {
                 holeCards = .known(cards.0, cards.1)
@@ -266,7 +285,7 @@ public enum PokerStarsParser {
         let hand = ObservedHand(
             source: HandSource(rawText: text),
             site: .pokerStars,
-            tableSize: tableSize,
+            tableSize: dealtInCount,
             buttonSeat: buttonIndex,
             bigBlindCentiBB: convertBigBlind(bigBlindCents),
             seats: observedSeats,
@@ -355,6 +374,11 @@ public enum PokerStarsParser {
         }
         let fractionRaw = String(parts[1])
         guard fractionRaw.allSatisfy(\.isNumber) else { return nil }
+        // A dollar figure carries at most two fractional digits (cents). More
+        // than two is a value we cannot read as an integer number of cents, so
+        // return nil and let the caller flag it — padding-and-truncating would
+        // silently drop the extra digits and fabricate a value.
+        guard fractionRaw.count <= 2 else { return nil }
         let padded = fractionRaw.padding(toLength: 2, withPad: "0", startingAt: 0)
         guard let fraction = Int(padded) else { return nil }
         return dollars * 100 + fraction

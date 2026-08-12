@@ -76,6 +76,12 @@ final class HandImportPreviewTests: XCTestCase {
         // Result: the non-zero rake, as big blinds.
         XCTAssertEqual(model.result.rakeCentiBB, 50)
         XCTAssertEqual(preview.rake, "0.5 BB")
+
+        // The raw source text survives parsing and preview byte-for-byte: the
+        // view model still holds exactly the input it was given, so nothing was
+        // rewritten on the way to the model.
+        XCTAssertEqual(model.source.rawText, HandImportFixtureText.appendixA)
+        XCTAssertEqual(viewModel.loadedRawText, HandImportFixtureText.appendixA)
     }
 
     // MARK: - 2. A hand with a conflict cannot be adopted
@@ -142,12 +148,58 @@ final class HandImportPreviewTests: XCTestCase {
             twoConflictVM.unresolvedConflicts.map(\.sourceLine).sorted(),
             [HandImportFixtureText.heroPreflopLine, HandImportFixtureText.heroFlopLine]
         )
+        // Each conflict locates to a field identifier, not only a line: the
+        // preflop verb and the flop verb are named by the street they sit on.
+        let byLine = Dictionary(
+            uniqueKeysWithValues: twoConflictVM.unresolvedConflicts.map { ($0.sourceLine, $0.field) }
+        )
+        XCTAssertEqual(byLine[HandImportFixtureText.heroPreflopLine], "action.preflop")
+        XCTAssertEqual(byLine[HandImportFixtureText.heroFlopLine], "action.flop")
         XCTAssertFalse(twoConflictVM.canAccept)
 
         let (cleanVM, _) = try makeViewModel()
         cleanVM.load(text: HandImportFixtureText.appendixA)
         XCTAssertTrue(cleanVM.unresolvedConflicts.isEmpty, "附录 A 在同一视图应显示零冲突")
         XCTAssertTrue(cleanVM.canAccept)
+    }
+
+    // MARK: - 5. Resolving two conflicts on one street is order-independent
+
+    @MainActor
+    func testResolvingTwoSameStreetConflictsIsOrderIndependent() async throws {
+        // The expected full preflop sequence once both flagged actions are put
+        // back in their original positions.
+        let expected = ["UTG 弃牌", "HJ 弃牌", "CO 弃牌", "BTN 加注至 3 BB", "SB 弃牌", "BB 跟注 3 BB"]
+
+        func preflopAfterResolving(inLineOrder ascending: Bool) throws -> [String] {
+            let (viewModel, _) = try makeViewModel()
+            viewModel.load(text: HandImportFixtureText.twoPreflopConflicts)
+            XCTAssertEqual(viewModel.unresolvedConflicts.count, 2, "应恰有两条同街冲突")
+
+            let sortedByLine = viewModel.unresolvedConflicts.sorted { $0.sourceLine < $1.sourceLine }
+            let ordered = ascending ? sortedByLine : sortedByLine.reversed()
+            for conflict in ordered {
+                // Villain4's fold (line 13) vs the hero's raise (line 16).
+                if conflict.sourceLine == HandImportFixtureText.villain4PreflopLine {
+                    viewModel.resolve(conflict, seat: 4, kind: .fold, amountCentiBB: nil)
+                } else {
+                    viewModel.resolve(conflict, seat: 1, kind: .raiseTo, amountCentiBB: 300)
+                }
+            }
+
+            XCTAssertTrue(viewModel.canAccept, "两条冲突清空后应可采纳")
+            let preflop = try XCTUnwrap(viewModel.preview?.streets.first { $0.street == .preflop })
+            return preflop.actions
+        }
+
+        // Resolving in either order must reconstruct the same, correct sequence:
+        // the rebuild reinserts by ascending source line, not dictionary order.
+        let ascendingResult = try preflopAfterResolving(inLineOrder: true)
+        let descendingResult = try preflopAfterResolving(inLineOrder: false)
+
+        XCTAssertEqual(ascendingResult, expected)
+        XCTAssertEqual(descendingResult, expected)
+        XCTAssertEqual(ascendingResult, descendingResult, "解决顺序不应改变还原结果")
     }
 
     // MARK: - Support
