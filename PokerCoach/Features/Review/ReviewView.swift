@@ -30,6 +30,7 @@ struct ReviewView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                handLabEntry
                 switch viewModel.state {
                 case .loading:
                     ProgressView("正在加载复盘记录…")
@@ -84,6 +85,18 @@ struct ReviewView: View {
         .navigationDestination(item: $selectedScenarioID) { scenarioID in
             DecisionSessionView(viewModel: makeSessionViewModel(scenarioID))
         }
+    }
+
+    /// Hand Lab is a review-time tool, not a fifth primary destination, so it is
+    /// reached from within 复盘 rather than the tab bar.
+    private var handLabEntry: some View {
+        NavigationLink {
+            HandLabView(dependencies: dependencies)
+        } label: {
+            Label("牌局实验室", systemImage: "tray.and.arrow.down.fill")
+                .font(.headline)
+        }
+        .accessibilityIdentifier("review.handLab")
     }
 
     private var abilities: some View {

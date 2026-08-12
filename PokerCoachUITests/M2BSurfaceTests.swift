@@ -55,16 +55,22 @@ final class M2BSurfaceTests: XCTestCase {
         )
     }
 
-    /// The Hand Lab sits behind a tab on iPhone and a sidebar row on iPad.
+    /// Hand Lab is reached from within 复盘 (Review), not a primary tab: open the
+    /// Review destination — a tab on iPhone, a sidebar row on iPad — then tap the
+    /// Hand Lab entry inside it.
     private func openHandLab(_ app: XCUIApplication) {
-        let title = "牌局实验室"
-        if app.tabBars.buttons[title].waitForExistence(timeout: 10) {
-            app.tabBars.buttons[title].tap()
+        let review = "复盘"
+        if app.tabBars.buttons[review].waitForExistence(timeout: 10) {
+            app.tabBars.buttons[review].tap()
         } else {
-            let row = app.cells.staticTexts[title]
-            XCTAssertTrue(row.waitForExistence(timeout: 5), "侧栏里找不到牌局实验室")
+            let row = app.cells.staticTexts[review]
+            XCTAssertTrue(row.waitForExistence(timeout: 10), "侧栏里找不到复盘")
             row.tap()
         }
+
+        let entry = app.buttons["review.handLab"]
+        XCTAssertTrue(entry.waitForExistence(timeout: 10), "复盘里找不到牌局实验室入口")
+        entry.tap()
     }
 
     /// Polls until an element's label matches, since the label changes after an
