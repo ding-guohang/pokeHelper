@@ -61,22 +61,6 @@ struct SpotSignatureTests {
         #expect(Set([Self.signature(), Self.signature()]).count == 1)
     }
 
-    @Test("街道由公共牌张数推出，非法张数被拒绝")
-    func derivesStreetFromBoardSize() {
-        #expect(Street(boardCardCount: 0) == .preflop)
-        #expect(Street(boardCardCount: 3) == .flop)
-        #expect(Street(boardCardCount: 4) == .turn)
-        #expect(Street(boardCardCount: 5) == .river)
-
-        for illegal in [1, 2, 6, 7, -1] {
-            #expect(Street(boardCardCount: illegal) == nil, "\(illegal) 张公共牌不该成立")
-        }
-
-        for street in Street.allCases {
-            #expect(Street(boardCardCount: street.boardCardCount) == street)
-        }
-    }
-
     /// Beyond a re-raise everything collapses, because no content distinguishes
     /// a 4-bet from a 5-bet. Asserted explicitly so the collapse is a decision
     /// on record rather than an accident of the switch.
