@@ -1,5 +1,8 @@
 # Capability: cash-decision-domain
 
+<!-- 归档时整块替换 openspec/specs/cash-decision-domain/spec.md；
+     由 scripts/check-proposal-completeness.sh 机械校验。 -->
+
 ## Requirement: 精确扑克值
 
 The system SHALL represent pot and stack amounts as integer centi-big-blinds, EV as integer milli-big-blinds, and strategy frequencies as integer basis points.
@@ -31,7 +34,7 @@ The system SHALL parse and serialize a card using a stable two-character rank/su
 
 ## Requirement: 合法行动过滤
 
-The system SHALL derive the available fold, check, call, bet, raise, and all-in actions from a stored betting decision context.
+The system SHALL derive the available fold, check, call, bet, raise, and all-in actions from a stored betting decision context, in which amount-to-call is the amount the acting player must actually put in and therefore never exceeds the effective stack.
 
 ### Scenario: 未面对下注
 
@@ -46,6 +49,14 @@ The system SHALL derive the available fold, check, call, bet, raise, and all-in 
 - WHEN 系统计算合法行动
 - THEN 包含 fold、call、达到最小加注要求的 raise 和 all-in
 - AND 低于 minimum-raise-to 的配置尺度被排除
+
+### Scenario: 须跟注额被上游封顶到有效筹码
+
+- GIVEN 上游下注为 5BB 而该玩家只剩 3BB
+- WHEN 上游构造决策上下文
+- THEN amount-to-call 为 3BB，等于有效筹码
+- AND 合法行动集合恰为 `{.fold, .call(to: 3BB)}`
+- AND 该集合不含独立的 all-in 项——筹码用尽时的 call 就是全下
 
 ## Requirement: 稳定行动 JSON
 
