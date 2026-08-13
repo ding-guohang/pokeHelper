@@ -190,3 +190,17 @@
 - 构建期依赖：Rust（`~/.cargo`），不链接进 App、不入 `project.yml`；`scripts/verify-tournament-content.sh` 重生成逐位一致
 - 协作说明：本 change 的 propose/design/plan（Task 1–2）由一个并行会话完成后停止，其余（Task 3–9：求解导出、校验、导出/导入、真实批次、审核交接、终验）由本会话接手实现
 - 未做（有意）：9-max/ante/ICM/limp/翻后；把内容接入可玩随机发牌训练 UI（下一步）；人工审核晋升
+
+## tournament-pushfold-trainer-20260813-01
+
+- 归档：2026-08-14 00:14
+- 位置：`openspec/changes/archive/tournament-pushfold-trainer-20260813-01-20260814-001411`
+- 新增能力：tournament-pushfold-training
+- 修改能力：无（`m1a-release-safety` 既有要求不变）
+- 交付（首个消费真实锦标赛内容的可玩训练，dogfood/debug）：把 20 个 `unverifiedDraft` push/fold 包打进 debug/dogfood（`Config/Release.xcconfig` 的 `EXCLUDED_SOURCE_FILE_NAMES` 追加 `tourn-hu-chip-ev-noante-*.json` 将其排除出 store）；`TournamentPushFoldLoader` 按深度加载（store 无包→入口消失）；训练器发随机 spot（深度×位置×发牌）、查该手 `rangeCell` 合成 per-hand `DecisionScenario`、用**未改动的 `DecisionScorer`** 评分、产生 `TrainingEvent`；作答与反馈两屏都披露"未经策略审核"。入口在「复盘」下（`review.tournamentPushFold`，四标签不变）
+- 新增规格：1 个 Capability、4 个 Requirements
+- 释安全：store 构建排除未审核包、`check-release-content.sh` 通过（store 仅 reviewed）、`verify-m1c.sh` 三频道 + 篡改探针全绿
+- 附带修复：`ContentAuditTests` 跳过锦标赛导出（`export.tournament != nil`）——其现金局不变量（6-max 位置/下注树/整段频率）不适用于单挑 push/fold（此为归档的内容导入 change 落地后经陈旧缓存掩盖的回归，本次一并修）
+- 验证：VM 单测（AA@10bb 全下 100/损失 0；弃牌 3478 milliBB blunder；空 bundle→不可用；手类映射）；UI 测试（复盘→训练器可达、披露未审核、作答→反馈）；`AdaptiveNavigationTests` 绿；四包套件绿
+- 已知（不属本 change 的先存问题）：`check-m1b-release-secrets.sh` 的二进制串扫描对 `DevStrategyPack` 标记失败——该字面量来自 `BundledContentLoader.resourceNames`（既有 main 代码，非本 change 引入）
+- 未做（有意）：ICM/多路/9-max/翻后训练；把未审核内容标 reviewed 或送 store；人工审核晋升

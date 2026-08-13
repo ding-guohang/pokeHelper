@@ -23,8 +23,9 @@ debug/dogfood** 可用(store 构建不打包该内容),且界面**必须披露"�
 
 ### Modified Capabilities
 
-- `m1a-release-safety` — 未审核锦标赛内容随包进 debug/dogfood、被 store 排除;发布内容
-  门禁与频道断言继续成立(store 仍只 `reviewed`)。
+无。`m1a-release-safety` 的既有要求不变——store 仍只 `reviewed`;本切片只新增了一类
+落在 dogfood/debug、被 store 排除的未审核内容,`check-release-content.sh` 与频道断言按
+既有规则继续成立(`verify-m1c.sh` 三频道验证通过)。
 
 ## Capabilities Detail
 
