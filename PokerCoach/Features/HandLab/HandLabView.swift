@@ -18,6 +18,9 @@ struct HandLabView: View {
     /// and wipe the hand the user just adopted; the analysis path takes this
     /// instance instead.
     @State private var libraryStore: FileHandLibraryStore?
+    /// The store hand-built spots are saved into, opened once alongside the
+    /// library so a save does not re-honour `--reset-hand-library`.
+    @State private var constructedSpotStore: FileConstructedSpotStore?
 
     var body: some View {
         Group {
@@ -30,6 +33,9 @@ struct HandLabView: View {
                             identity: identity,
                             tableSize: tableSize
                         )
+                    },
+                    makeScenarioBuilderViewModel: constructedSpotStore.map { store in
+                        { makeScenarioBuilderViewModel(store: store) }
                     }
                 )
             } else {
@@ -45,6 +51,7 @@ struct HandLabView: View {
             if viewModel == nil {
                 let store = try? HandLabStorage.makeStore()
                 libraryStore = store
+                constructedSpotStore = try? HandLabStorage.makeConstructedSpotStore()
                 viewModel = makeViewModel(store: store)
                 await viewModel?.refreshLibrary()
             }
@@ -81,6 +88,25 @@ struct HandLabView: View {
             coordinator: coordinator,
             identity: identity,
             tableSize: tableSize,
+            makeRemediationSession: { scenarioID in
+                makeRemediationSession(scenarioID: scenarioID, pack: preferredPack?.pack)
+            }
+        )
+    }
+
+    /// Builds the manual scenario builder view model.
+    ///
+    /// It judges hand-built spots against the same preferred pack analysis judges
+    /// imported lines against, and its remediation drills the same reviewed
+    /// content — so a covered constructed BTN open finds `rfi-btn` and trains it,
+    /// not a fixture scenario the demo pack happens to carry.
+    private func makeScenarioBuilderViewModel(
+        store: FileConstructedSpotStore
+    ) -> ScenarioBuilderViewModel {
+        let preferredPack = try? BundledContentLoader(bundle: .main).loadPreferredPack()
+        return ScenarioBuilderViewModel(
+            matcher: ImportedHandContentMatcher(scenarios: preferredPack?.pack.scenarios ?? []),
+            store: store,
             makeRemediationSession: { scenarioID in
                 makeRemediationSession(scenarioID: scenarioID, pack: preferredPack?.pack)
             }
@@ -130,12 +156,24 @@ private struct HandLabContentView: View {
     /// Builds the analysis view model for a stored hand, injected so the content
     /// view stays unaware of how the coordinator and content matcher are wired.
     let makeAnalysisViewModel: (_ identity: String, _ tableSize: Int) -> HandAnalysisViewModel
+    /// Builds the manual scenario builder, nil only when no writable spot store
+    /// could be opened — in which case the entry is hidden rather than dangling.
+    let makeScenarioBuilderViewModel: (() -> ScenarioBuilderViewModel)?
 
     @State private var text = ""
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                if let makeScenarioBuilderViewModel {
+                    NavigationLink {
+                        ScenarioBuilderView(viewModel: makeScenarioBuilderViewModel())
+                    } label: {
+                        Label("构造场景", systemImage: "square.and.pencil")
+                            .font(.headline)
+                    }
+                    .accessibilityIdentifier("handlab.scenarioBuilder")
+                }
                 importEntry
                 if let message = viewModel.unsupportedMessage {
                     Text(message)

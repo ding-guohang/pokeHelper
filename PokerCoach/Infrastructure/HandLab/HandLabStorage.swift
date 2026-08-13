@@ -18,14 +18,36 @@ enum HandLabStorage {
         return try FileHandLibraryStore(directory: directory)
     }
 
+    /// Where hand-built spots are kept — beside the hand library, under the same
+    /// profile data. Honours `--reset-hand-library` in a development build so a
+    /// UI test starts from an empty builder store just as it does an empty
+    /// library.
+    static func makeConstructedSpotStore() throws -> FileConstructedSpotStore {
+        let directory = try constructedSpotDirectory()
+#if DEVELOPMENT_STRATEGY_FIXTURES
+        if CommandLine.arguments.contains("--reset-hand-library") {
+            try? FileManager.default.removeItem(at: directory)
+        }
+#endif
+        return try FileConstructedSpotStore(directory: directory)
+    }
+
     private static func libraryDirectory() throws -> URL {
+        try base().appending(path: "handLibrary", directoryHint: .isDirectory)
+    }
+
+    private static func constructedSpotDirectory() throws -> URL {
+        try base().appending(path: "constructedSpots", directoryHint: .isDirectory)
+    }
+
+    private static func base() throws -> URL {
         guard let library = FileManager.default.urls(
             for: .libraryDirectory,
             in: .userDomainMask
         ).first else {
             throw HandLabStorageError.libraryDirectoryUnavailable
         }
-        return library.appending(path: "PokerCoach/handLibrary", directoryHint: .isDirectory)
+        return library.appending(path: "PokerCoach", directoryHint: .isDirectory)
     }
 }
 

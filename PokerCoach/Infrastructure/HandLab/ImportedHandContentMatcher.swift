@@ -59,6 +59,27 @@ struct ImportedHandContentMatcher {
     /// range table's vocabulary, so there is no comparison to draw even though
     /// the situation is covered.
     func classify(_ signature: HeroDecisionSignature) -> NodeCoverage {
+        // The `HeroDecisionSignature` overload is a thin adapter over the core:
+        // it hands the core the imported decision's spot signature and the
+        // `PokerCore` action its observed line maps to, and adds nothing of its
+        // own. A constructed spot reaches the same core with its own signature
+        // and action, so an imported line and a hand-built one with the same
+        // facts are judged identically.
+        classify(
+            signature: signature.signature,
+            action: Self.decisionAction(from: signature.action)
+        )
+    }
+
+    /// Whether content covers this spot, and the weight it gives `action` — the
+    /// import-and-construct core both the observed-hand overload and the manual
+    /// scenario builder call.
+    ///
+    /// Uncovered when the spot is not preflop, when no scenario shares its
+    /// coverage key, or when the scenario cannot weigh the action — a check has
+    /// no name in a range table's vocabulary, so there is no comparison to draw
+    /// even though the situation is covered.
+    func classify(signature: SpotSignature, action: DecisionAction) -> NodeCoverage {
         // Preflop only, enforced here rather than inferred from the shipped pack,
         // exactly as `SessionContentMatcher.matches(in:)` does. Postflop
         // equivalence needs a hand-class taxonomy this project has not defined,
@@ -68,15 +89,16 @@ struct ImportedHandContentMatcher {
         // does contain a postflop scenario — the app's own development fixture
         // ships flop scenarios — it is the difference between the spec and an
         // accident. Uncovered here is structural, independent of what is loaded.
-        guard signature.signature.street == .preflop else {
+        // A constructed spot is always preflop, so it always clears this guard.
+        guard signature.street == .preflop else {
             return .uncovered
         }
-        guard let scenario = scenariosByCoverageKey[signature.signature.coverageKey] else {
+        guard let scenario = scenariosByCoverageKey[signature.coverageKey] else {
             return .uncovered
         }
         guard let weight = scenario.rangeWeightBasisPoints(
-            forHandClass: signature.signature.handClass,
-            action: Self.decisionAction(from: signature.action)
+            forHandClass: signature.handClass,
+            action: action
         ) else {
             return .uncovered
         }
