@@ -5,8 +5,8 @@ private let level1 = BlindLevel(level: 1, smallBlindChips: 50, bigBlindChips: 10
 private let level3 = BlindLevel(level: 3, smallBlindChips: 100, bigBlindChips: 200, anteChips: 25)
 
 @Test func sameChipsAreShallowerAtAHigherLevel() {
-    let atLevel1 = effectiveBigBlinds(chips: 3000, level: level1)
-    let atLevel3 = effectiveBigBlinds(chips: 3000, level: level3)
+    let atLevel1 = effectiveBigBlinds(chips: 3000, atLevel: level1)
+    let atLevel3 = effectiveBigBlinds(chips: 3000, atLevel: level3)
 
     #expect(atLevel1 == 30)
     #expect(atLevel3 == 15)
@@ -16,9 +16,9 @@ private let level3 = BlindLevel(level: 3, smallBlindChips: 100, bigBlindChips: 2
 }
 
 @Test func depthFloorsTowardZero() {
-    #expect(effectiveBigBlinds(chips: 250, level: level1) == 2)
+    #expect(effectiveBigBlinds(chips: 250, atLevel: level1) == 2)
 }
 
 @Test func zeroChipsAreZeroBigBlinds() {
-    #expect(effectiveBigBlinds(chips: 0, level: level1) == 0)
+    #expect(effectiveBigBlinds(chips: 0, atLevel: level1) == 0)
 }

@@ -78,6 +78,15 @@ private let legalLevels = [
     }
 }
 
+@Test func rejectsNegativeSmallBlind() {
+    let levels = [
+        BlindLevel(level: 1, smallBlindChips: -10, bigBlindChips: 100, anteChips: 0),
+    ]
+    #expect(throws: BlindScheduleError.negativeSmallBlind(level: 1)) {
+        _ = try BlindSchedule(levels: levels)
+    }
+}
+
 @Test func rejectsBigBlindNotStrictlyIncreasing() {
     let levels = [
         BlindLevel(level: 1, smallBlindChips: 50, bigBlindChips: 100, anteChips: 0),
@@ -88,7 +97,7 @@ private let legalLevels = [
     }
 }
 
-@Test func theSevenErrorsArePairwiseDistinct() {
+@Test func theEightErrorsArePairwiseDistinct() {
     let errors: [BlindScheduleError] = [
         .empty,
         .levelsNotStartingAtOne,
@@ -97,6 +106,7 @@ private let legalLevels = [
         .smallBlindExceedsBigBlind(level: 1),
         .nonPositiveBigBlind(level: 1),
         .negativeAnte(level: 1),
+        .negativeSmallBlind(level: 1),
     ]
     for i in errors.indices {
         for j in errors.indices where j != i {

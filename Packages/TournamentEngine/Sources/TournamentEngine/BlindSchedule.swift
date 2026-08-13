@@ -1,4 +1,4 @@
-public enum BlindScheduleError: Error, Equatable {
+public enum BlindScheduleError: Error, Equatable, Sendable {
     case empty
     case levelsNotStartingAtOne
     case levelsNotConsecutive
@@ -6,6 +6,7 @@ public enum BlindScheduleError: Error, Equatable {
     case smallBlindExceedsBigBlind(level: Int)
     case nonPositiveBigBlind(level: Int)
     case negativeAnte(level: Int)
+    case negativeSmallBlind(level: Int)
 }
 
 public struct BlindSchedule: Hashable, Sendable {
@@ -29,6 +30,9 @@ public struct BlindSchedule: Hashable, Sendable {
                 throw BlindScheduleError.nonPositiveBigBlind(level: level.level)
             }
             guard level.anteChips >= 0 else { throw BlindScheduleError.negativeAnte(level: level.level) }
+            guard level.smallBlindChips >= 0 else {
+                throw BlindScheduleError.negativeSmallBlind(level: level.level)
+            }
             guard level.smallBlindChips <= level.bigBlindChips else {
                 throw BlindScheduleError.smallBlindExceedsBigBlind(level: level.level)
             }
