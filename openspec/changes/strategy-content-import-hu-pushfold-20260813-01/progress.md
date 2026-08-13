@@ -84,3 +84,24 @@ Completed 2026-08-13.
   imported; AA open-jam raise EV +2978 milli-BB at 10BB. Golden manifest binds
   locked source, normalized, export, and pack hashes. `scripts/verify-tournament-content.sh`
   regenerates and byte-compares end to end.
+
+## Tasks 8–9 — review handoff and final verification
+
+Completed 2026-08-13.
+
+- Task 8: offline-only local-export converter (rejects URLs/symlinks, requires
+  license evidence + same-source per-action EV) + human-review template +
+  commercial-export README. Filling the template promotes nothing.
+- Task 9 gates: StrategyContent (54) + StrategyTooling (25) Swift suites green;
+  33 tournament Python tests green; layering gate passes; proposal-completeness
+  confirms the two modified capabilities keep every existing requirement;
+  protected TournamentICM UI files untouched since the proposal commit.
+- Reproducibility: `verify-tournament-content.sh` regenerated the full batch
+  from the locked solver and confirmed normalized files, exports, and pack JSON
+  are byte-identical to the committed artifacts (depth-10 NashConv reproduced
+  3.856e-8). A sidecar-filename bug in the gate (looked for `NAME.json.sha256`
+  vs the `NAME.sha256` convention) was fixed; packs, sidecars, and the golden
+  manifest were then confirmed byte-identical.
+- `review.md` records: content status unverifiedDraft/solver, 20 depths / 39
+  tables / 6591 rows, locked source + hashes, max NashConv 2.135e-7, pack
+  hashes via golden-manifest.json, human strategy review pending.

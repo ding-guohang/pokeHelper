@@ -50,8 +50,9 @@ python3 Content/import-tournament-packs.py \
     --strategy-import Packages/StrategyTooling/.build/release/strategy-import >/dev/null
 for depth in $(seq -w 1 20); do
     name="tourn-hu-chip-ev-noante-${depth}bb.json"
+    sidecar="tourn-hu-chip-ev-noante-${depth}bb.sha256"
     diff "$scratch/packs/$name" "Content/packs/$name" >/dev/null
-    diff "$scratch/packs/$name.sha256" "Content/packs/$name.sha256" >/dev/null
+    diff "$scratch/packs/$sidecar" "Content/packs/$sidecar" >/dev/null
 done
 
 echo "==> Rebuild golden manifest and compare"
