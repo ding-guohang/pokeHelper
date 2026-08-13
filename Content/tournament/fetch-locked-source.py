@@ -25,6 +25,34 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _locked_entries(manifest):
+    try:
+        license_entry = manifest["license"]
+        files = manifest["files"]
+        commit = manifest["commit"]
+    except (KeyError, TypeError) as error:
+        raise SourceLockError("invalid source lock") from error
+    if not isinstance(files, list) or not files or not isinstance(commit, str) or len(commit) != 40:
+        raise SourceLockError("source lock must contain a commit and non-empty files list")
+    try:
+        license_input = {
+            "path": license_entry["path"],
+            "url": license_entry["url"],
+            "sha256": license_entry["sha256"],
+        }
+    except (KeyError, TypeError) as error:
+        raise SourceLockError("invalid license entry in source lock") from error
+    entries = [*files, license_input]
+    for entry in entries:
+        try:
+            url = entry["url"]
+        except (KeyError, TypeError) as error:
+            raise SourceLockError("invalid file entry in source lock") from error
+        if f"/{commit}/" not in url:
+            raise SourceLockError(f"locked URL is not pinned to commit {commit}: {url}")
+    return entries
+
+
 def fetch_locked_source(
     lock_path: Union[str, Path],
     destination: Union[str, Path],
@@ -43,11 +71,9 @@ def fetch_locked_source(
 
     try:
         manifest = json.loads(lock_path.read_text(encoding="utf-8"))
-        files = manifest["files"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as error:
         raise SourceLockError(f"invalid source lock: {lock_path}") from error
-    if not isinstance(files, list) or not files:
-        raise SourceLockError("source lock must contain a non-empty files list")
+    entries = _locked_entries(manifest)
 
     fetch = fetch_bytes or (lambda url: urlopen(url).read())
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -55,7 +81,7 @@ def fetch_locked_source(
         staged = Path(temporary) / "source"
         staged.mkdir()
         paths = set()
-        for entry in files:
+        for entry in entries:
             try:
                 relative = _validate_relative_path(entry["path"])
                 url = entry["url"]
@@ -81,7 +107,7 @@ def fetch_locked_source(
             target.write_bytes(content)
 
         # Re-check staged bytes so publication has a single, explicit integrity gate.
-        for entry in files:
+        for entry in entries:
             relative = _validate_relative_path(entry["path"])
             if _sha256((staged / relative).read_bytes()) != entry["sha256"].lower():
                 raise SourceLockError(f"sha256 mismatch after staging for {relative}")

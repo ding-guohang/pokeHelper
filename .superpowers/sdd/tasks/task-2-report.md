@@ -55,3 +55,25 @@ are used deliberately.
 The fetcher intentionally refuses an existing destination rather than replacing
 it. Callers that want a refresh must create a new destination and switch it
 after their own verification; this preserves the no-overwrite fail-closed rule.
+
+## Fix round 1 — raw source and license verification
+
+The lock now uses immutable `raw.githubusercontent.com` commit URLs, rather
+than Git Blob API URLs whose default response is JSON.  The fetcher makes the
+commit-to-URL relationship explicit for every source and license URL, and
+treats the declared license as another staged, hash-verified input.  A license
+mismatch now fails before publication.
+
+### RED evidence
+
+Before the fix, newly added license tests failed: the staged directory lacked
+`LICENSE.md`, and a bad license hash did not raise `SourceLockError`.
+
+### GREEN evidence
+
+```text
+python3 -m unittest Content.tournament.tests.test_fetch_locked_source -v
+Ran 5 tests ... OK
+PYTHONPYCACHEPREFIX=/private/tmp/pycache python3 -m py_compile Content/tournament/fetch-locked-source.py
+git diff --check
+```
