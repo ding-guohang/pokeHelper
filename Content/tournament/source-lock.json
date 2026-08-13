@@ -30,6 +30,11 @@
       "sha256": "31f40d9069bccf6c0bb06d172ef7f2d3ad11d80caa498c5bbeec684c0d23ce48"
     },
     {
+      "path": "src/game_node.rs",
+      "url": "https://raw.githubusercontent.com/b-inary/poker-cfr/a5347082007ba1eda7932ef2fe7fad43cb3be2a1/src/game_node.rs",
+      "sha256": "3942c96323da393772104e763049ff34299b3a29a13db679816a15e2f53c0085"
+    },
+    {
       "path": "static/heads_up_pre_flop_equity.bin",
       "url": "https://raw.githubusercontent.com/b-inary/poker-cfr/a5347082007ba1eda7932ef2fe7fad43cb3be2a1/static/heads_up_pre_flop_equity.bin",
       "sha256": "006404b36d257fc9455da0d0f0ab89aef3e80ece56c8f3e770bad926cfe5ec8a"
