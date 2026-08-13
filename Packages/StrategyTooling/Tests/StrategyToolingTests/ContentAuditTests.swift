@@ -342,7 +342,13 @@ struct ContentAuditTests {
             .sorted()
 
         #expect(!names.isEmpty, "Content/exports 下没有任何导出")
-        return try names.map { (name: $0, export: try load($0)) }
+        // These audits encode cash-game assumptions (6-max position labels, a
+        // declared bet tree, a range-wide prose frequency). Tournament push/fold
+        // content is heads-up, jam-or-fold with no bet tree, so those invariants
+        // do not apply; it is validated by its own dedicated gates instead.
+        return try names
+            .map { (name: $0, export: try load($0)) }
+            .filter { $0.export.tournament == nil }
     }
 
     private func repositoryRoot() -> URL {

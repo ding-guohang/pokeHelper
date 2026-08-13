@@ -119,6 +119,19 @@ struct ReviewView: View {
                     .font(.headline)
             }
             .accessibilityIdentifier("review.progressTrend")
+
+            // Push/fold trainer over the bundled unverified tournament packs.
+            // Only present when those packs are bundled (debug/dogfood); the
+            // store build excludes them, so this entry disappears there.
+            if !dependencies.tournamentPushFoldLoader.availableDepths().isEmpty {
+                NavigationLink {
+                    TournamentPushFoldView(viewModel: dependencies.makeTournamentPushFoldViewModel())
+                } label: {
+                    Label("单挑 Push/Fold 训练", systemImage: "suit.spade.fill")
+                        .font(.headline)
+                }
+                .accessibilityIdentifier("review.tournamentPushFold")
+            }
         }
     }
 

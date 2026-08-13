@@ -478,6 +478,22 @@ final class AppDependencies {
         )
     }
 
+    /// Reads the bundled unverified push/fold packs. Empty in the store build,
+    /// where the packs are excluded, so the trainer entry disappears there.
+    var tournamentPushFoldLoader: TournamentPushFoldLoader {
+        TournamentPushFoldLoader(bundle: .main)
+    }
+
+    func makeTournamentPushFoldViewModel() -> TournamentPushFoldViewModel {
+        TournamentPushFoldViewModel(
+            loader: tournamentPushFoldLoader,
+            scorer: scorer,
+            eventStore: eventStore,
+            localUserID: localUserID,
+            deviceID: deviceID
+        )
+    }
+
 #if DEVELOPMENT_STRATEGY_FIXTURES
     private static func resetTrainingEventsIfRequested(
         storageDirectory: URL
