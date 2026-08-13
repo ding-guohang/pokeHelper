@@ -109,6 +109,16 @@ struct ReviewView: View {
                     .font(.headline)
             }
             .accessibilityIdentifier("review.tournamentICM")
+
+            // A read-only trend over the user's own training history — pure
+            // aggregation, no strategy content.
+            NavigationLink {
+                ProgressTrendView(eventStore: dependencies.eventStore)
+            } label: {
+                Label("训练进度", systemImage: "chart.line.uptrend.xyaxis")
+                    .font(.headline)
+            }
+            .accessibilityIdentifier("review.progressTrend")
         }
     }
 

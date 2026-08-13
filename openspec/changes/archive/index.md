@@ -166,3 +166,14 @@
 - 修改规格：tournament-icm-calculator 追加 1 Requirement、3 Scenarios
 - 验证：ViewModel 单测（`12000,3000`@BB`1000`→12/3 BB；阈值 10 只标 3BB 那家；大盲 0/负、阈值 -1 报错、留空只权益）；UI 测试填 BB`250`→4 BB 且阈值 10 标 push/fold；`AdaptiveNavigationTests` 绿；层禁 OK；Release 构建通过
 - 未做（有意）：完整升盲表输入/逐级推进；push/fold 范围或打法建议（策略真值）；ante 对深度/M 值换算
+
+## training-progress-trend-20260813-01
+
+- 归档：2026-08-13 16:18
+- 位置：`openspec/changes/archive/training-progress-trend-20260813-01-20260813-161801`
+- 新增能力：training-progress-trend
+- 修改能力：无
+- 交付（内容无关，聚合用户自己的训练历史）：TrainingDomain 新增 `DailyProgress` + `ProgressTrend.daily(events:calendar:)`——按 `calendar.startOfDay` 分组累加 `grade.score`/计数/`quality==.blunder`，升序返回，均值 `scoreTotal/sampleCount` 整除（日历由调用方注入，纯函数）；复盘下新增只读「训练进度」视图（`review.progressTrend`）显示每日行 + 总览或空态。纯聚合，无策略内容、不产生事件、不改 `TrainingEvent`/契约。四核心标签不变
+- 新增规格：1 个 Capability、2 个 Requirements、4 个 Scenarios
+- 验证：TrainingDomain Swift Testing（三事件两日 `140/2/1→70`、`100/1/0→100` 升序；空→空）；App 单测（注入桩存储 → 两日行 + 总览「共 3 手 · 2 天 · 总平均 80 分」；空→空态）；UI 测试复盘→训练进度可达、重置后空态；`AdaptiveNavigationTests` 绿；层禁 OK（TrainingDomain 仍只 PokerCore/StrategyContent）；Release 构建通过
+- 未做（有意）：图表库；周/月桶；按维度拆分趋势；导出/同步
