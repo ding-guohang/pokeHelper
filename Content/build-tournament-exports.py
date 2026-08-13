@@ -66,8 +66,19 @@ def _explanation(depth, position, primary_desc):
 
 def _open_jam_node(pack_id, depth, rows):
     centi = depth * 100
+    call_amount = 50
+    effective = centi - 50
     aa = _row_lookup(rows)["AA"]
     weights, evs = aa["actionWeightsBasisPoints"], aa["actionEVsMilliBB"]
+    # When the shove exceeds the call, jamming is an all-in raise (range key
+    # `raise`). At 1BB the SB has exactly the call behind, so "jam" is an all-in
+    # call — the only legal aggressive action — and the range key is `call`.
+    if effective > call_amount:
+        aggressive = {"kind": "allIn", "toCentiBB": effective}
+        range_key = "raise"
+    else:
+        aggressive = {"kind": "call", "toCentiBB": call_amount}
+        range_key = "call"
     return {
         "id": f"{pack_id}-open-jam",
         "title": f"{depth}BB 单挑开局 Push/Fold（小盲）",
@@ -78,17 +89,16 @@ def _open_jam_node(pack_id, depth, rows):
         "heroCards": ["As", "Ah"],
         "board": [],
         "pot": _bb(150),
-        "amountToCall": _bb(50),
+        "amountToCall": _bb(call_amount),
         "minimumRaiseTo": None,
         "configuredBetSizes": [],
         "facingRaiseTo": None,
-        "decisionEffectiveStack": _bb(centi - 50),
+        "decisionEffectiveStack": _bb(effective),
         "actions": [
             {"action": {"kind": "fold"}, "frequencyBasisPoints": weights["fold"], "ev": _ev(evs["fold"])},
-            {"action": {"kind": "allIn", "toCentiBB": centi - 50},
-             "frequencyBasisPoints": weights["allIn"], "ev": _ev(evs["allIn"])},
+            {"action": aggressive, "frequencyBasisPoints": weights["allIn"], "ev": _ev(evs["allIn"])},
         ],
-        "rangeCells": _range_cells(rows, "allIn", "raise"),
+        "rangeCells": _range_cells(rows, "allIn", range_key),
         "explanation": _explanation(depth, "小盲开局", "全下"),
     }
 
@@ -136,7 +146,7 @@ def build_export_doc(depth, normalized, content_version):
         "gameType": "NLHE tournament",
         "tableSize": 2,
         "effectiveStack": _bb(centi),
-        "rakeDescription": "no rake (tournament)",
+        "rakeDescription": "rake=0",
         "allowedBetSizeDescription": "jam-or-fold only",
         "tournament": {
             "effectiveBigBlinds": depth,

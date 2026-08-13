@@ -61,3 +61,26 @@ Implementation decisions:
 - Verified: depth-10 NashConv 3.855e-8 matches the upstream `push_fold`
   reference; AA/22/ATs jam, 72o folds; SB fold EV −500, BB fold EV −1000;
   169 rows; 1BB omits Call-Jam; cross-run bytes identical.
+
+## Tasks 4–7 — validation, exports, import, and the real batch
+
+Completed 2026-08-13.
+
+- Task 4 validator is JSON-only (no solver import); 13 cases cover coverage,
+  bps totals, key vocabulary, null EV, fold-EV invariants, snapshot hash,
+  NashConv threshold, testOnly, and source-hash mismatch.
+- Task 5 exporter builds one immutable SolverExport per depth. Betting-context
+  edge case at 1BB: the SB has exactly the call behind, so `legalActions`
+  yields `call` (all-in call), not `allIn` — the 1BB open node therefore uses
+  `call` / range key `call`; depths ≥2 use `allIn` / range key `raise`.
+- Task 6 import wrapper is fixed to `unverifiedDraft`/`solver` with no
+  review-status flag; strategy-import gains a defence-in-depth guard rejecting
+  reviewed tournament content.
+- `rakeDescription` must be exactly `rake=0` (the validator's `isZeroRake`
+  accepts only `0`/`rake=0`/`rake 0`).
+- Task 7 real batch: all 20 depths converged at the first 10,000-iteration
+  checkpoint (NashConv 2e-8…2e-7, max 2.135e-7, well under 0.001). Validator:
+  20 depths / 39 tables / 6591 rows PASS. 20 unverified `origin=solver` packs
+  imported; AA open-jam raise EV +2978 milli-BB at 10BB. Golden manifest binds
+  locked source, normalized, export, and pack hashes. `scripts/verify-tournament-content.sh`
+  regenerates and byte-compares end to end.

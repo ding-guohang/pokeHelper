@@ -1,0 +1,265 @@
+{
+  "contentVersion": "2026.08.13-hu-pf.1",
+  "coverage": {
+    "depths": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "maxNashConvBB": 2.1349537054904388e-07,
+    "rowCount": 6591,
+    "tableCount": 39
+  },
+  "depths": [
+    {
+      "callJamRows": 0,
+      "depth": 1,
+      "exploitabilityBB": 8.879615792656281e-17,
+      "exportSHA256": "558260a16410ca40f0e11259d241e37d82590a58b7723761bc596f4f2039f106",
+      "iterations": 10000,
+      "nashConvBB": 1.7759231585312563e-16,
+      "normalizedSHA256": "6d23c3ca1ac1831b4b3d1d9c36a3029a8b3dc36ae402df08b4162442e76ab91d",
+      "openJamRows": 169,
+      "packSHA256": "9aea7b8a92564212a51f62aad3d742eea1377d616c84fc40dee4c48d7368104d"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 2,
+      "exploitabilityBB": 1.5945906865766357e-08,
+      "exportSHA256": "d4930784137dfce8b3a7a3d638b7563bb20b306707f101dc53702f535a531a90",
+      "iterations": 10000,
+      "nashConvBB": 3.1891813731532714e-08,
+      "normalizedSHA256": "5cf5c11d44037a9f1d2301cc49608015a59aca8c612928d86761d208dcc3ce3a",
+      "openJamRows": 169,
+      "packSHA256": "6bc40611d5e90287d849511839c5b40ea985652ee84c60b8dc2ee80c9922d479"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 3,
+      "exploitabilityBB": 6.331810373585989e-08,
+      "exportSHA256": "a342fabff3c8dc62f2571b9390ae5e047a3eb8a6a926101cb8aa0c597bc9ae41",
+      "iterations": 10000,
+      "nashConvBB": 1.2663620747171977e-07,
+      "normalizedSHA256": "c31aa1962ae479c23ee6372067ec522953b118be1adc20b6bea58b0c804ac944",
+      "openJamRows": 169,
+      "packSHA256": "2a3bef07845148ef0e6e96a53410bd420f50a0545e06ce0bc3b5b32b6f9d82f0"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 4,
+      "exploitabilityBB": 3.002339571400725e-09,
+      "exportSHA256": "c87654d726d12a89954bca91b25ddfedaf81ca77f5eff8e5a9bb1baec8434ad2",
+      "iterations": 10000,
+      "nashConvBB": 6.00467914280145e-09,
+      "normalizedSHA256": "eaa33348bfc1d5ab2bbbd5d525a2f0c78ed32842f3a2fe7fdd9fdae5b18fef88",
+      "openJamRows": 169,
+      "packSHA256": "e587c761bcb2036f67dc180892ee2719726da65d44232c07cc12d6ebc0515b07"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 5,
+      "exploitabilityBB": 4.4613896122563945e-08,
+      "exportSHA256": "03141409ecb2a8b2cf9a453fdd8854dfa2d3c3ca5fa1a51a5a6ecc4847ef8c64",
+      "iterations": 10000,
+      "nashConvBB": 8.922779224512789e-08,
+      "normalizedSHA256": "5c62772b761f71f8a99cf8ad7f1a6fec2b9f390a5cf1ebe484255bc6b8ff7136",
+      "openJamRows": 169,
+      "packSHA256": "9a057069dbcce6d5df935dbfd7285f393633384d321cefac5f6643974e28d4f7"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 6,
+      "exploitabilityBB": 1.827662838085886e-08,
+      "exportSHA256": "f1c8cc57487ff7a667b28db58a74180ebf1b5afac98dc33a2e566849392351f7",
+      "iterations": 10000,
+      "nashConvBB": 3.655325676171772e-08,
+      "normalizedSHA256": "24e634ced5d7a14ac129e9c7a18b357a72fa3fc6cb6309b2b43887dd30a42f39",
+      "openJamRows": 169,
+      "packSHA256": "bc40667de5a59f942c829c16b8a25c014e53be5235e59c5103e8aacca6453204"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 7,
+      "exploitabilityBB": 5.401829060100449e-08,
+      "exportSHA256": "792bee8ae013858234444e32957d3978dc759551cc4a3461c93f693f9fcd51ae",
+      "iterations": 10000,
+      "nashConvBB": 1.0803658120200899e-07,
+      "normalizedSHA256": "2c420da676706e949a09921f9d520c65499c0d2d7e1eb38353707c072b3e9873",
+      "openJamRows": 169,
+      "packSHA256": "e09643f035fc15f68ff2b88c2290db4ef446b7ba5b4a5c583a3a27cd16f740e6"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 8,
+      "exploitabilityBB": 6.300371210767736e-08,
+      "exportSHA256": "2f91a20945c37d601d73e7c134ed79beb0a1781c974b479413147d7fc5fe197f",
+      "iterations": 10000,
+      "nashConvBB": 1.260074242153547e-07,
+      "normalizedSHA256": "66898b5372820dbf4df5aed6ab1c8d7c441602a891ea89b1c2b78f1905b75381",
+      "openJamRows": 169,
+      "packSHA256": "efda25e72fd7852e5d65fc7ec73ed60625a782ef1ebb3c259b69dd45487071a6"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 9,
+      "exploitabilityBB": 1.8009484695213906e-08,
+      "exportSHA256": "0d255e11c6e93d4e4b30e017a06a6d9b6d905b4599a6fc03234e048fcb3b1420",
+      "iterations": 10000,
+      "nashConvBB": 3.601896939042781e-08,
+      "normalizedSHA256": "8d90a51645ce5249d239ed3c458f88f413518a0a9f168aebd181d0062eb8fab9",
+      "openJamRows": 169,
+      "packSHA256": "3ac3cfcbb69dfbc83cbc17f3433c25fc535c845eccb558dccc19eb983055672f"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 10,
+      "exploitabilityBB": 1.9277780316517834e-08,
+      "exportSHA256": "97a0854765370094fd42bd4a788598d69be41928358d65ccfc21ea2f786f35b0",
+      "iterations": 10000,
+      "nashConvBB": 3.855556063303567e-08,
+      "normalizedSHA256": "d483a99f3d3122f32698b994969fb95ef2f9e7b1f84f4166b7aa8c8107e62753",
+      "openJamRows": 169,
+      "packSHA256": "468fbd9ee6df9223a21ec13fc9b3bebac8f6a8757f861ed1b93801f40f9f8b10"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 11,
+      "exploitabilityBB": 3.204455989447297e-08,
+      "exportSHA256": "634278573134334ef864a05eea4a6a5a8bae819e4bdc661e8cfed7411d1b5c0f",
+      "iterations": 10000,
+      "nashConvBB": 6.408911978894594e-08,
+      "normalizedSHA256": "92e5752755ca8f4c9985982c1b9298b426b59b35899bdb2be7b02b67271b991f",
+      "openJamRows": 169,
+      "packSHA256": "68ec03329d10684c27b574a727bf97c2efbc3e4fa15488cb6aa00cc4b3e3db30"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 12,
+      "exploitabilityBB": 7.178294320064893e-09,
+      "exportSHA256": "abe79ec3803835d207e8661149b04b0b6e81e2ca225fecc0790834e0fb0527c2",
+      "iterations": 10000,
+      "nashConvBB": 1.4356588640129786e-08,
+      "normalizedSHA256": "c3b2e817770a6da97e88522722d6dadcc9a2d8fb9492d768c702bec7e016f9da",
+      "openJamRows": 169,
+      "packSHA256": "a6b519a2a00efd8b6b56d392fefff461898d3da61b0596941e90a34e90c7e2be"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 13,
+      "exploitabilityBB": 1.36988358850898e-08,
+      "exportSHA256": "dda17d7bb829ecf11c857e9bf69dd8db366dd0934b4f3e4147b9f20894d1a455",
+      "iterations": 10000,
+      "nashConvBB": 2.73976717701796e-08,
+      "normalizedSHA256": "c1f404e4cf42975c32068ffd5911c5531be9ccc719aedfd625aff975cd0ea7f0",
+      "openJamRows": 169,
+      "packSHA256": "ad5266a8659965ee9941074e1a4042a559d2b36a1f10aac576349c6ed0652498"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 14,
+      "exploitabilityBB": 1.6634092173117843e-08,
+      "exportSHA256": "3e5e9fb552964d08152437778e0d1338de37b65c4783d6159ce129a944e868ef",
+      "iterations": 10000,
+      "nashConvBB": 3.3268184346235685e-08,
+      "normalizedSHA256": "883da24c416aef32a4f15fc9fd3bbfd53c0882d338de948ec6771e4cd86c4fb7",
+      "openJamRows": 169,
+      "packSHA256": "bebbd833563907533695e30e3120c438b03645340fb1dae80d542ba85516fced"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 15,
+      "exploitabilityBB": 3.4186508984790365e-08,
+      "exportSHA256": "ba10ce5fe221f32bb92db8b58ef5ce49b5a148013021e409684fc17f0a44fb54",
+      "iterations": 10000,
+      "nashConvBB": 6.837301796958073e-08,
+      "normalizedSHA256": "729ea6f499e1d16e65e0f97a9546746f1b4a208a338832022dd200d54c14137a",
+      "openJamRows": 169,
+      "packSHA256": "0a83a49f2cc2a2d67335f6d39d807a312665eb19694fe028b6e7007222bb49e1"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 16,
+      "exploitabilityBB": 2.310390564974618e-08,
+      "exportSHA256": "f82f392213d74b03797cec6fe8b2cebd15ecd10e36a2ff64cc618f8b5e7e68f1",
+      "iterations": 10000,
+      "nashConvBB": 4.620781129949236e-08,
+      "normalizedSHA256": "e2e5a61d33e670091db26115118b1060a3986d442852e0ae31df1ad8cf992def",
+      "openJamRows": 169,
+      "packSHA256": "83fe03f3226ae117bdfb17660878233422cb370c16066ebadae5135851929a4e"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 17,
+      "exploitabilityBB": 1.0674768527452194e-07,
+      "exportSHA256": "390e49a6bd37a137ed32a9541bc742128424b5d2b8e5fcbc3b462b8bdb578006",
+      "iterations": 10000,
+      "nashConvBB": 2.1349537054904388e-07,
+      "normalizedSHA256": "707a5cce5ab764a38553667622497cc6c85f1e01be51f654befc72789c0773d3",
+      "openJamRows": 169,
+      "packSHA256": "c91d7576b5af6890b9790096a681760352e7eeb3e8d036e42c783baa228318a7"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 18,
+      "exploitabilityBB": 2.5851978682767118e-08,
+      "exportSHA256": "1671db8fa23624ec5c53746c0cdd80852ae66d58b7cf1195ba2f0892ec438c81",
+      "iterations": 10000,
+      "nashConvBB": 5.1703957365534237e-08,
+      "normalizedSHA256": "69fa57ae0325f051d96b38bdbff0dbbbf6e154ac921acdd15b736426a094b00c",
+      "openJamRows": 169,
+      "packSHA256": "41da408d9614e64145b5f01490f28025234bf8be6e82a9882f472a26ba10ac13"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 19,
+      "exploitabilityBB": 1.2228224557930822e-08,
+      "exportSHA256": "293eb1538b5a787b4fc21ff9e2d2f6954b192a9cec7b389e1a255eea1b8f3e2c",
+      "iterations": 10000,
+      "nashConvBB": 2.4456449115861645e-08,
+      "normalizedSHA256": "850f2cbeb4abc2d6498cda9aafc53ce37f5b12a3a2d48c0ee417521a155c274f",
+      "openJamRows": 169,
+      "packSHA256": "c689c1ef320f66ca437e3d69a4a5bf584e7db461f02ac656ab3a8fdc27d09c9d"
+    },
+    {
+      "callJamRows": 169,
+      "depth": 20,
+      "exploitabilityBB": 2.292722256491686e-08,
+      "exportSHA256": "114a5b60457bab5923b69249d0b582062ce2d4c055b4f464bc6cf2458f621bf5",
+      "iterations": 10000,
+      "nashConvBB": 4.585444512983372e-08,
+      "normalizedSHA256": "87cd41e405fcc1c7a5e92f2b24a621cfe7ecf7fef4d0b4c217598dbc2d7a653e",
+      "openJamRows": 169,
+      "packSHA256": "215a8945f342ec39dbba3cbf0e3bdf5182437d6e4d376861c4166af7eac74c84"
+    }
+  ],
+  "source": {
+    "commit": "a5347082007ba1eda7932ef2fe7fad43cb3be2a1",
+    "licenseSpdx": "BSD-2-Clause",
+    "lockedHashes": {
+      "Cargo.lock": "f47cd3cbfbedb2fe35169b1e897f8d8a4d2581fe2eba00038ad43906d3c0bc27",
+      "Cargo.toml": "386a67bcde9a4f8f791e562fce5d280d237d16a03f5d2fe3479fc282563bda1a",
+      "src/cfr.rs": "6e67183dc0d05b34e3a866fecd3e0e76847b4feb406f37ea01f70563ba9bd6bf",
+      "src/game_node.rs": "3942c96323da393772104e763049ff34299b3a29a13db679816a15e2f53c0085",
+      "src/game_push_fold.rs": "31f40d9069bccf6c0bb06d172ef7f2d3ad11d80caa498c5bbeec684c0d23ce48",
+      "static/heads_up_pre_flop_equity.bin": "006404b36d257fc9455da0d0f0ab89aef3e80ece56c8f3e770bad926cfe5ec8a"
+    },
+    "repository": "b-inary/poker-cfr"
+  }
+}

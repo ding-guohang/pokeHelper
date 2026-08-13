@@ -1,0 +1,3763 @@
+{
+  "configuration": {
+    "anteDescription": "no ante (rake=0), heads-up SB=0.5BB/BB=1BB chipEV",
+    "bigBlindCentiBB": 100,
+    "checkpoints": [
+      10000,
+      20000,
+      40000,
+      80000,
+      160000
+    ],
+    "equilibrium": "chipEV",
+    "hasAnte": false,
+    "nashConvThresholdBB": 0.001,
+    "rayonThreads": 1,
+    "rustVersion": "1.56.0",
+    "smallBlindCentiBB": 50
+  },
+  "effectiveBigBlinds": 12,
+  "exploitabilityBB": 7.178294320064893e-09,
+  "exportedAt": "2026-08-13T00:00:00Z",
+  "iterations": 10000,
+  "nashConvBB": 1.4356588640129786e-08,
+  "snapshotSHA256": "f0af66f4146b6ffeff14ff227b2cf3af20b832a43239e5e8120e4675467e70d6",
+  "source": {
+    "commit": "a5347082007ba1eda7932ef2fe7fad43cb3be2a1",
+    "licenseSpdx": "BSD-2-Clause",
+    "lockedHashes": {
+      "Cargo.lock": "f47cd3cbfbedb2fe35169b1e897f8d8a4d2581fe2eba00038ad43906d3c0bc27",
+      "Cargo.toml": "386a67bcde9a4f8f791e562fce5d280d237d16a03f5d2fe3479fc282563bda1a",
+      "src/cfr.rs": "6e67183dc0d05b34e3a866fecd3e0e76847b4feb406f37ea01f70563ba9bd6bf",
+      "src/game_node.rs": "3942c96323da393772104e763049ff34299b3a29a13db679816a15e2f53c0085",
+      "src/game_push_fold.rs": "31f40d9069bccf6c0bb06d172ef7f2d3ad11d80caa498c5bbeec684c0d23ce48",
+      "static/heads_up_pre_flop_equity.bin": "006404b36d257fc9455da0d0f0ab89aef3e80ece56c8f3e770bad926cfe5ec8a"
+    },
+    "repository": "b-inary/poker-cfr"
+  },
+  "tables": {
+    "callJam": [
+      {
+        "actionEVsMilliBB": {
+          "call": -620,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "22"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4631,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "32o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3754,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "32s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -172,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "33"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4483,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "42o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3611,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "42s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4147,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "43o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3299,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "43s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 360,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "44"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4332,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "52o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3466,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "52s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3977,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "53o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3132,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "53s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3603,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "54o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2781,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "54s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 939,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "55"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4541,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "62o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3657,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "62s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4177,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "63o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3319,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "63s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3785,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "64o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2946,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "64s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3395,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "65o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2582,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "65s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1506,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "66"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4682,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "72o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3784,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "72s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4326,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "73o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3454,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "73s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3917,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "74o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3068,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "74s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3517,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "75o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2694,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "75s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3144,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "76o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2341,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "76s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 2090,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "77"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4508,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "82o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3617,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "82s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4476,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "83o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3589,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "83s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4065,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "84o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3207,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "84s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3655,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "85o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2820,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "85s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3275,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "86o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2460,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "86s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2896,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "87o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2110,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "87s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 2848,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "88"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4195,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "92o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3316,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "92s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4095,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "93o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3227,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "93s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -4004,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "94o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3144,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "94s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3580,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "95o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2745,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "95s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3192,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "96o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2378,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "96s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2815,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "97o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2025,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "97s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2508,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "98o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1745,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "98s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 3696,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "99"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -267,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 415,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -87,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 580,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 105,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 756,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 355,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 985,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 395,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1024,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 767,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1371,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1263,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1836,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1608,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 2157,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "A9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 8309,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "AA"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 2599,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "AJo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 3082,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "AJs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 3545,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "AKo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 3964,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "AKs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 2976,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "AQo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 3433,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "AQs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 2246,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "ATo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 2753,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "ATs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3475,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2626,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3372,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2533,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3201,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2373,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3012,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2201,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2903,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2098,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2509,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1728,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2061,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1314,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1519,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "J9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -807,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "J9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 5217,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "JJ"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -889,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "JTo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -217,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "JTs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1998,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "K2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1216,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "K2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1856,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "K3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1089,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "K3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1666,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "K4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -915,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1428,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "K5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -696,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1166,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "K6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -450,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -862,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -167,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -457,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 213,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 121,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 752,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "K9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1097,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "KJo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1663,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "KJs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 7013,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "KK"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1467,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "KQo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 2008,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "KQs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 760,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "KTo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 1350,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "KTs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2894,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2065,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2789,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1970,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2606,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1805,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2407,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1622,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2224,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1451,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2101,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1335,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1576,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -847,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "Q8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1034,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "Q9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -340,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "Q9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -109,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "QJo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 523,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "QJs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 5952,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "QQ"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -410,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "QTo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 244,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "QTs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3863,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3000,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3761,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2908,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3603,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2763,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3488,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2659,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -3099,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2288,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2717,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1930,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -2333,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1577,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1790,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": -1069,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 0,
+          "fold": 10000
+        },
+        "handClass": "T9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "call": 4528,
+          "fold": -1000
+        },
+        "actionWeightsBasisPoints": {
+          "call": 10000,
+          "fold": 0
+        },
+        "handClass": "TT"
+      }
+    ],
+    "openJam": [
+      {
+        "actionEVsMilliBB": {
+          "allIn": 295,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "22"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -1052,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "32o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -741,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "32s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 472,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "33"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -991,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "42o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -684,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "42s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -846,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "43o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -548,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "43s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 651,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "44"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -933,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "52o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -629,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "52s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -786,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "53o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -491,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "53s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -644,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "54o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -359,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "54s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 833,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "55"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -1008,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "62o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -698,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "62s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -860,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "63o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -560,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "63s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -717,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "64o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -427,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "64s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -578,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "65o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -297,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "65s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 987,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "66"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -1076,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "72o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -763,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "72s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -929,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "73o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -626,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "73s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -787,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "74o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -493,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "74s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -644,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "75o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -359,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "75s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -515,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "76o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -238,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "76s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1153,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "77"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -1015,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "82o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -705,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "82s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -984,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "83o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -677,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "83s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -842,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "84o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -544,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "84s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -698,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "85o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -409,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "85s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -565,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "86o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -284,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "86s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -467,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "87o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -194,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "87s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1350,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "88"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -983,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "92o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -674,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "92s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -927,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "93o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -623,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "93s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -900,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "94o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -597,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "94s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -755,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "95o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -462,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "95s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -622,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "96o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -337,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "96s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -520,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "97o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -242,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "97s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -412,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "98o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -141,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "98s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1561,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "99"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 212,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 442,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 263,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 489,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 320,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 541,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 397,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 613,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 410,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 626,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 565,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 769,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 720,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 913,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 884,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1065,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "A9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 3087,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "AA"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1337,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "AJo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1485,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "AJs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1725,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "AKo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1837,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "AKs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1501,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "AQo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1637,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "AQs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1175,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "ATo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1335,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "ATs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -891,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "J2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -589,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "J2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -836,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "J3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -537,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "J3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -784,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "J4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -490,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "J4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -731,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "J5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -440,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "J5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -710,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "J6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -419,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "J6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -610,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "J7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -328,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "J7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -493,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "J8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -218,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "J8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -360,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "J9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -95,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "J9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 2075,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "JJ"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -151,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "JTo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 98,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "JTs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -536,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "K2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -255,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -484,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -207,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -431,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -159,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -376,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -108,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -319,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -54,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -249,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 10,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -142,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 109,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 69,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 305,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "K9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 504,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "KJo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 708,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "KJs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 2619,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "KK"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 658,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "KQo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 851,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "KQs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 359,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "KTo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 574,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "KTs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -774,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "Q2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -477,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -720,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "Q3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -427,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -670,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "Q4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -380,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -617,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "Q5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -331,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -573,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "Q6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -289,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -575,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "Q7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -293,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -445,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -172,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -297,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -35,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "Q9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 80,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "QJo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 315,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "QJs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 2334,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "QQ"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -55,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "QTo"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 189,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "QTs"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -933,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T2o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -629,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T2s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -877,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T3o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -578,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T3s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -826,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T4o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -530,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T4s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -795,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T5o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -502,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 3,
+          "fold": 9997
+        },
+        "handClass": "T5s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -665,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T6o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -379,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "T6s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -562,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 0,
+          "fold": 10000
+        },
+        "handClass": "T7o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -285,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "T7s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -444,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "T8o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -174,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "T8s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -326,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "T9o"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": -64,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "T9s"
+      },
+      {
+        "actionEVsMilliBB": {
+          "allIn": 1831,
+          "fold": -500
+        },
+        "actionWeightsBasisPoints": {
+          "allIn": 10000,
+          "fold": 0
+        },
+        "handClass": "TT"
+      }
+    ]
+  },
+  "testOnly": false
+}
