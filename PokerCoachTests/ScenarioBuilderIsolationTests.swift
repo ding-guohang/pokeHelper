@@ -52,7 +52,9 @@ final class ScenarioBuilderIsolationTests: XCTestCase {
                     scorer: DecisionScorer(),
                     eventStore: eventStore,
                     localUserID: self.localUserID,
-                    deviceID: self.deviceID
+                    deviceID: self.deviceID,
+                    makeEventID: { UUID(uuidString: "30000000-0000-0000-0000-0000000000C1")! },
+                    now: { Date(timeIntervalSince1970: 1_786_000_300) }
                 )
             }
         )

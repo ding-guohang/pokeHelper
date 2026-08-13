@@ -67,6 +67,63 @@ struct ConstructedSpotTests {
         #expect(jiaAgain.identity == jia.identity)
     }
 
+    // FIX B — hole-card input order must not change identity. Two spots built with
+    // the two cards swapped are the same spot: equal stored order, canonical bytes,
+    // identity and signature.
+    @Test("交换手牌顺序不改变身份")
+    func swappedHoleCardOrderYieldsEqualIdentity() throws {
+        let ab = try ConstructedSpot(
+            heroSeatOffsetFromButton: 0,
+            holeCardCodes: ["As", "Kd"],
+            facing: FacingAction(priorRaiseCount: 0),
+            effectiveStackCentiBB: 10_000,
+            action: .raise(to: BBAmount(centiBB: 300))
+        )
+        let ba = try ConstructedSpot(
+            heroSeatOffsetFromButton: 0,
+            holeCardCodes: ["Kd", "As"],
+            facing: FacingAction(priorRaiseCount: 0),
+            effectiveStackCentiBB: 10_000,
+            action: .raise(to: BBAmount(centiBB: 300))
+        )
+
+        #expect(ab.holeCards == ba.holeCards)
+        #expect(try ab.canonicalJSON() == ba.canonicalJSON())
+        #expect(ab.identity == ba.identity)
+        #expect(ab.signature() == ba.signature())
+    }
+
+    // FIX C — a wrong hole-card *count* is distinct from a *duplicate*. One or three
+    // parseable cards throw `.wrongCardCount`; two equal cards still throw
+    // `.duplicateCards`.
+    @Test("张数错误抛 wrongCardCount，两张相同仍抛 duplicateCards")
+    func wrongCountAndDuplicateAreDistinct() throws {
+        func errorFrom(codes: [String]) -> ConstructedSpotError? {
+            do {
+                _ = try ConstructedSpot(
+                    heroSeatOffsetFromButton: 0,
+                    holeCardCodes: codes,
+                    facing: FacingAction(priorRaiseCount: 0),
+                    effectiveStackCentiBB: 10_000,
+                    action: .fold
+                )
+                return nil
+            } catch let error as ConstructedSpotError {
+                return error
+            } catch {
+                return nil
+            }
+        }
+
+        #expect(errorFrom(codes: ["Ah"]) == .wrongCardCount(1))
+        #expect(errorFrom(codes: ["Ah", "Kh", "Qh"]) == .wrongCardCount(3))
+        #expect(errorFrom(codes: ["Ah", "Ah"]) == .duplicateCards)
+
+        // The count carried distinguishes counts, and a count is never a duplicate.
+        #expect(ConstructedSpotError.wrongCardCount(1) != .wrongCardCount(3))
+        #expect(ConstructedSpotError.wrongCardCount(2) != .duplicateCards)
+    }
+
     // T1 covers:2 — each illegal build throws the one error its input earns, and
     // the four errors are mutually distinguishable.
     @Test("四种非法各因被拒且错误互不相等")

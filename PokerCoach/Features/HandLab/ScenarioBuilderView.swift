@@ -37,6 +37,19 @@ enum ScenarioBuilderAction: String, CaseIterable, Identifiable {
     }
 }
 
+/// The one thing the builder needs from a constructed-spot store: persist a
+/// spot, and report if that write fails.
+///
+/// A protocol, not the concrete `FileConstructedSpotStore`, so `save()` can be
+/// exercised against a store that throws — the view model must show a failure,
+/// not a false "已保存". `FileConstructedSpotStore` conforms unchanged; its
+/// actor-isolated `save` witnesses the `async` requirement.
+protocol ConstructedSpotStoring: Sendable {
+    func save(_ spot: ConstructedSpot) async throws
+}
+
+extension FileConstructedSpotStore: ConstructedSpotStoring {}
+
 /// Assembles a preflop spot by hand, asks whether installed content covers it,
 /// and — when it does — offers the same remediation drill an imported deviation
 /// would.
@@ -74,11 +87,14 @@ final class ScenarioBuilderViewModel {
     private(set) var validationError: ConstructedSpotError?
     /// The identity a successful save wrote under, so the view can confirm it.
     private(set) var savedIdentity: String?
+    /// Whether the last save attempt failed to write, so the view shows a failure
+    /// rather than a false confirmation. A write that throws must not read as saved.
+    private(set) var saveFailed: Bool = false
     /// The last spot that built cleanly.
     private(set) var spot: ConstructedSpot?
 
     private let matcher: ImportedHandContentMatcher
-    private let store: FileConstructedSpotStore
+    private let store: any ConstructedSpotStoring
     /// Builds the training session for a covered spot's scenario, injected so the
     /// view model stays unaware of how the grader, event store and identity are
     /// wired — the ordinary training factory, so a remediation drill is the
@@ -87,7 +103,7 @@ final class ScenarioBuilderViewModel {
 
     init(
         matcher: ImportedHandContentMatcher,
-        store: FileConstructedSpotStore,
+        store: any ConstructedSpotStoring,
         makeRemediationSession: @escaping (String) -> DecisionSessionViewModel
     ) {
         self.matcher = matcher
@@ -130,16 +146,19 @@ final class ScenarioBuilderViewModel {
             spot = built
             validationError = nil
             savedIdentity = nil
+            saveFailed = false
             coverage = matcher.classify(signature: built.signature(), action: built.action)
         } catch let error as ConstructedSpotError {
             spot = nil
             coverage = nil
             savedIdentity = nil
+            saveFailed = false
             validationError = error
         } catch {
             spot = nil
             coverage = nil
             savedIdentity = nil
+            saveFailed = false
             validationError = nil
         }
     }
@@ -149,8 +168,16 @@ final class ScenarioBuilderViewModel {
     /// training answer.
     func save() async {
         guard let spot else { return }
-        try? await store.save(spot)
-        savedIdentity = spot.identity
+        do {
+            try await store.save(spot)
+            savedIdentity = spot.identity
+            saveFailed = false
+        } catch {
+            // A failed write must not read as saved: surface the failure and
+            // leave `savedIdentity` nil so the view shows no confirmation.
+            savedIdentity = nil
+            saveFailed = true
+        }
     }
 
     /// The training session that drills a covered spot's scenario, or nil when
@@ -178,6 +205,8 @@ private func message(for error: ConstructedSpotError) -> String {
     switch error {
     case let .unparseableCard(code):
         "无法识别的牌：\(code)"
+    case let .wrongCardCount(count):
+        "需要恰好两张手牌，收到 \(count) 张"
     case .duplicateCards:
         "两张手牌必须是不同的牌"
     case .nonPositiveStack:
@@ -322,6 +351,11 @@ struct ScenarioBuilderView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("scenarioBuilder.saved")
+            } else if viewModel.saveFailed {
+                Text("保存失败，请重试")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .accessibilityIdentifier("scenarioBuilder.saveFailed")
             }
         }
     }

@@ -13,6 +13,15 @@ import XCTest
 /// A covered spot exposes the covering scenario's ID for "练这个漏洞"; an
 /// uncovered spot exposes none, and there is nothing to train against.
 final class ScenarioBuilderTests: XCTestCase {
+    /// A store whose every write fails, so `save()` can be exercised on the
+    /// failure path without touching a real filesystem.
+    private struct ThrowingConstructedSpotStore: ConstructedSpotStoring {
+        struct WriteFailed: Error {}
+        func save(_ spot: ConstructedSpot) async throws {
+            throw WriteFailed()
+        }
+    }
+
     private func temporaryDirectory() -> URL {
         FileManager.default.temporaryDirectory
             .appending(path: UUID().uuidString, directoryHint: .isDirectory)
@@ -105,6 +114,54 @@ final class ScenarioBuilderTests: XCTestCase {
         XCTAssertEqual(viewModel.coverage, .uncovered)
         XCTAssertNil(viewModel.remediationScenarioID)
         XCTAssertNil(viewModel.remediationSession())
+    }
+
+    // GIVEN 内容覆盖该 spot，但存储写入失败
+    // WHEN 保存
+    // THEN 不报告已保存，暴露保存失败状态
+    @MainActor
+    func testSaveFailureSurfacesFailureAndDoesNotReportSaved() async throws {
+        let provider = InMemoryStrategyPackProvider(
+            pack: try DecisionSessionFixture.makePack()
+        )
+        let signature = try btnOpenSpot().signature()
+        let scenario = try HandLabContentFixture.scenario(
+            id: "covers-constructed-btn",
+            covering: signature.coverageKey,
+            handClass: signature.handClass,
+            actionKey: RangeBaseline.raiseKey,
+            weightBasisPoints: 6_234
+        )
+        let viewModel = ScenarioBuilderViewModel(
+            matcher: ImportedHandContentMatcher(scenarios: [scenario]),
+            store: ThrowingConstructedSpotStore(),
+            makeRemediationSession: { scenarioID in
+                DecisionSessionViewModel(
+                    scenarioID: scenarioID,
+                    strategyProvider: provider,
+                    scorer: DecisionScorer(),
+                    eventStore: InMemoryTrainingEventStore(),
+                    localUserID: UUID(),
+                    deviceID: UUID()
+                )
+            }
+        )
+        viewModel.heroSeatOffsetFromButton = 0
+        viewModel.firstCardCode = "Ah"
+        viewModel.secondCardCode = "Kh"
+        viewModel.facing = .unopened
+        viewModel.effectiveStackBB = 100
+        viewModel.actionVerb = .raise
+        viewModel.actionToBB = 2.5
+
+        viewModel.build()
+        XCTAssertNil(viewModel.validationError)
+        XCTAssertNotNil(viewModel.spot, "spot 应已构造，保存路径才有意义")
+
+        await viewModel.save()
+
+        XCTAssertNil(viewModel.savedIdentity, "写入失败不应报告已保存")
+        XCTAssertTrue(viewModel.saveFailed, "写入失败应暴露失败状态")
     }
 
     // GIVEN 非法输入（同一张牌两次）
