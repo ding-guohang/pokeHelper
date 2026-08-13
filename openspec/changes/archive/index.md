@@ -81,3 +81,14 @@
 - 新增规格：1 个 Capability、2 个 Requirements、5 个 Scenarios
 - 复用（不改语义）：`ObservedHand.streets`/`heroDecisionSignatures`/matcher/第三切片补救/`DecisionSessionViewModel`
 - 未做（有意）：派生底池展示、对手重模拟/真正 what-if 续打（后者只在 M2A Session 的虚拟对手下成立）
+
+## tournament-m3-structure-20260813-01
+
+- 归档：2026-08-13 14:06
+- 位置：`openspec/changes/archive/tournament-m3-structure-20260813-01-20260813-140652`
+- 新增能力：tournament-structure
+- 修改能力：无
+- 交付（M3 第一切片，锦标赛结构地基）：新包 `TournamentEngine`（只依赖 PokerCore）——升盲/ante 级别表 `BlindSchedule`（校验：非空、级别从 1 连续、大盲严格递增、SB≤BB、BB>0、ante≥0、SB≥0，共 8 类各以可判等原因拒），按固定手数取当前级别并在末级 clamp；整数锦标赛筹码（非 `BBAmount`，因 BB 逐级升）；`effectiveBigBlinds(chips:atLevel:)` 向下取整据算有效深度。全整数、内容无关（无范围/ICM/push-fold）。接入 `check-package-layering.sh`（TournamentEngine 只见 PokerCore + 反向失败）并更新 `layering.md` 层图
+- 新增规格：1 个 Capability、2 个 Requirements、4 个 Scenarios
+- 未做（有意，硬边界）：push/fold 与 ICM 的策略内容/范围（策略真值，不编造，待你提供审核）；可玩赛事推进（对手打法=内容）；ICM 计算器（下一切片，含精确表示设计）
+- 评审加固：BlindScheduleError 补 Sendable；补 negativeSmallBlind 校验（术语要求非负）
