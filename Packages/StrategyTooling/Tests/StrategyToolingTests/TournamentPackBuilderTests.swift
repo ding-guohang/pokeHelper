@@ -38,10 +38,10 @@ import Testing
         packID: source.packID,
         generatedSource: source.generatedSource,
         exportedAt: source.exportedAt,
-        gameType: source.gameType,
-        tableSize: source.tableSize,
+        gameType: "NLHE tournament",
+        tableSize: 2,
         effectiveStack: source.effectiveStack,
-        rakeDescription: source.rakeDescription,
+        rakeDescription: "0",
         allowedBetSizeDescription: source.allowedBetSizeDescription,
         tournament: .init(
             effectiveBigBlinds: 100,

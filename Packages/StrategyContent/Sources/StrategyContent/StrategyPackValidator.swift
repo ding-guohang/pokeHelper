@@ -215,11 +215,14 @@ public struct StrategyPackValidator: Sendable {
     private func validateTournamentContent(in scenario: DecisionScenario) throws {
         guard let tournament = scenario.assumptions.tournament else { return }
 
-        guard tournament.effectiveBigBlinds > 0,
-              tournament.smallBlindCentiBB > 0,
-              tournament.bigBlindCentiBB > 0,
-              tournament.hasAnte || !tournament.anteDescription
-                  .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard scenario.assumptions.tableSize == 2,
+              tournament.effectiveBigBlinds > 0,
+              tournament.smallBlindCentiBB == 50,
+              tournament.bigBlindCentiBB == 100,
+              !tournament.hasAnte,
+              !tournament.anteDescription
+                  .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              isZeroRake(scenario.assumptions.rakeDescription)
         else {
             throw StrategyPackValidationError.invalidTournamentAssumptions(
                 scenarioID: scenario.id
@@ -270,6 +273,13 @@ public struct StrategyPackValidator: Sendable {
                 )
             }
         }
+    }
+
+    private func isZeroRake(_ description: String) -> Bool {
+        let normalized = description
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        return normalized == "0" || normalized == "rake=0" || normalized == "rake 0"
     }
 
     private static let canonicalTournamentHands: Set<String> = {
