@@ -24,12 +24,10 @@ final class TournamentICMSurfaceTests: XCTestCase {
         app.textFields["icm.payouts"].tap()
         app.textFields["icm.payouts"].typeText("5000,3000,2000")
 
-        // Naming both seats also asks for the bubble factor. With equal stacks
-        // and this ladder the ratio is 4/3 regardless of scale.
+        // Naming the hero seat asks for the bubble factor against each other
+        // seat. With equal stacks and this ladder the ratio is 4/3 for both.
         app.textFields["icm.hero"].tap()
         app.textFields["icm.hero"].typeText("0")
-        app.textFields["icm.opponent"].tap()
-        app.textFields["icm.opponent"].typeText("1")
 
         app.buttons["icm.compute"].tap()
 
@@ -40,10 +38,11 @@ final class TournamentICMSurfaceTests: XCTestCase {
         XCTAssertEqual(equity0.label, "座位 0：3333.33")
         XCTAssertTrue(app.staticTexts["icm.equity.2"].exists, "没有显示全部三家权益")
 
-        // Bubble factor 4/3 → 1.33.
-        let bubbleFactor = app.staticTexts["icm.bubbleFactor"]
-        XCTAssertTrue(bubbleFactor.waitForExistence(timeout: 10), "没有显示泡沫系数")
-        XCTAssertTrue(bubbleFactor.label.contains("1.33"), "泡沫系数不是 1.33：\(bubbleFactor.label)")
+        // Bubble factor of hero (seat 0) vs each opponent: 4/3 → 1.33.
+        let bubbleFactorVs1 = app.staticTexts["icm.bubbleFactor.1"]
+        XCTAssertTrue(bubbleFactorVs1.waitForExistence(timeout: 10), "没有显示对座位 1 的泡沫系数")
+        XCTAssertTrue(bubbleFactorVs1.label.contains("1.33"), "对座位 1 的泡沫系数不是 1.33：\(bubbleFactorVs1.label)")
+        XCTAssertTrue(app.staticTexts["icm.bubbleFactor.2"].exists, "没有显示对座位 2 的泡沫系数")
 
         // Malformed stacks surface an error, not a number.
         clear(stacks)

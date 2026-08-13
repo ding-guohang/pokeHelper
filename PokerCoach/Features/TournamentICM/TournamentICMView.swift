@@ -20,13 +20,10 @@ struct TournamentICMView: View {
                 field(title: "各家筹码（逗号分隔）", text: $viewModel.stacksInput, identifier: "icm.stacks")
                 field(title: "派彩结构（逗号分隔，第 1 名起）", text: $viewModel.payoutsInput, identifier: "icm.payouts")
 
-                Text("可选：填入英雄与对手座位编号，计算两者间泡沫系数。")
+                Text("可选：填入英雄座位编号，计算其对每位对手的泡沫系数。")
                     .font(.callout)
                     .foregroundStyle(.secondary)
-                HStack(spacing: 12) {
-                    field(title: "英雄座位", text: $viewModel.heroSeatInput, identifier: "icm.hero")
-                    field(title: "对手座位", text: $viewModel.opponentSeatInput, identifier: "icm.opponent")
-                }
+                field(title: "英雄座位", text: $viewModel.heroSeatInput, identifier: "icm.hero")
 
                 ActionButton(
                     title: "计算",
@@ -53,9 +50,15 @@ struct TournamentICMView: View {
                     }
                 }
 
-                if let bubbleFactorText = viewModel.bubbleFactorText {
-                    LabeledContent("泡沫系数", value: bubbleFactorText)
-                        .accessibilityIdentifier("icm.bubbleFactor")
+                if !viewModel.bubbleFactorLines.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("泡沫系数（英雄对每位对手）")
+                            .font(.headline)
+                        ForEach(viewModel.bubbleFactorLines) { line in
+                            Text(line.text)
+                                .accessibilityIdentifier("icm.bubbleFactor.\(line.opponentSeat)")
+                        }
+                    }
                 }
             }
             .padding()

@@ -18,16 +18,36 @@ The system SHALL, from within the 复盘 tab, let the user enter chip stacks and
 - THEN 得 `"3333.33"`
 - AND `Fraction(2, 3)` places 2 → `"0.67"`（进位四舍五入）、`Fraction(1, 1)` places 2 → `"1.00"`、`Fraction(-4, 3)` places 2 → `"-1.33"`（符号保留）、`Fraction(1999, 1000)` places 2 → `"2.00"`（进位入整数位）
 
-## Requirement: 可选泡沫系数
+## Requirement: 显示英雄对每位对手的泡沫系数
 
-The system SHALL, when the user supplies a hero seat and a distinct opponent seat, display the bubble factor between them as a fixed-point decimal, and otherwise show only per-seat equities.
+The system SHALL, when a valid hero seat is provided, display the bubble factor between the hero and each other seat as a fixed-point decimal, one row per opponent, and show a readable reason in place of a number for any opponent whose factor cannot be formed.
 
-### Scenario: 选定 hero/opp 显示泡沫系数
+### Scenario: 英雄座位下显示对每位对手的泡沫系数
 
-- GIVEN 筹码 `1000,1000,1000`、派彩 `500,300,200`（或同比例 `5000,3000,2000`）、hero=`0`、opp=`1`
+- GIVEN 筹码 `1000,1000,1000`、派彩 `500,300,200`、英雄座位 `0`
 - WHEN 点计算
-- THEN 显示泡沫系数 `1.33`（`4/3` 两位）
+- THEN 显示两行泡沫系数：「对 座位 1：1.33」「对 座位 2：1.33」（等筹码下对称，均 `4/3`）
 - AND 各家权益仍同时显示
+
+### Scenario: 非对称筹码下各对手泡沫系数可不同
+
+- GIVEN 筹码 `3000,1000,2000`、派彩 `500,300,200`、英雄座位 `0`
+- WHEN 点计算
+- THEN 显示对 座位 1 的泡沫系数为 `1.07`（`31/29`）
+- AND 显示对 座位 2 的泡沫系数（另一行，独立计算，可与对座位 1 不同）
+
+### Scenario: 平坦派彩下每行显示无增益原因而非数字
+
+- GIVEN 筹码 `1000,1000,1000`、派彩 `300,300,300`（平坦）、英雄座位 `0`
+- WHEN 点计算
+- THEN 每行泡沫系数处显示无增益的可读原因（源自 `noEquityGain`），不显示数字
+- AND 各家权益仍显示（平坦派彩下权益本身合法：各 `300`）
+
+### Scenario: 非法或空英雄座位
+
+- GIVEN 筹码 `1000,1000,1000`、派彩 `500,300,200`
+- WHEN 英雄座位为 `9`（越界）或 `abc` → 显示顶层错误 `icm.error`，无泡沫系数行
+- AND 不填英雄座位 → 只显示各家权益、无泡沫系数行
 
 ## Requirement: 非法输入映射为可读错误，绝不静默或编造
 

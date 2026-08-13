@@ -14,17 +14,24 @@ final class TournamentICMViewModel {
     var stacksInput = ""
     var payoutsInput = ""
     var heroSeatInput = ""
-    var opponentSeatInput = ""
 
     private(set) var equityLines: [String] = []
-    private(set) var bubbleFactorText: String?
+    /// One line per opponent seat when a hero seat is set: the bubble factor of
+    /// the hero against that seat, or a readable reason if it cannot be formed.
+    private(set) var bubbleFactorLines: [BubbleFactorLine] = []
     private(set) var errorText: String?
+
+    struct BubbleFactorLine: Identifiable {
+        let opponentSeat: Int
+        let text: String
+        var id: Int { opponentSeat }
+    }
 
     private static let decimalPlaces = 2
 
     func compute() {
         equityLines = []
-        bubbleFactorText = nil
+        bubbleFactorLines = []
         errorText = nil
 
         guard let stacks = Self.parseIntegers(stacksInput) else {
@@ -51,26 +58,34 @@ final class TournamentICMViewModel {
             "座位 \(index)：\(TournamentICMPresentation.decimalString(equity, places: Self.decimalPlaces))"
         }
 
-        // The bubble factor is optional: only when the user names both seats.
+        // The bubble factor is optional: only when the user names a hero seat.
+        // Then the hero is measured against every other seat — the pro's read
+        // of who they can and cannot afford to clash with.
         let hero = heroSeatInput.trimmingCharacters(in: .whitespaces)
-        let opponent = opponentSeatInput.trimmingCharacters(in: .whitespaces)
-        guard !hero.isEmpty || !opponent.isEmpty else { return }
-        guard let heroIndex = Int(hero), let opponentIndex = Int(opponent) else {
-            errorText = "英雄与对手座位需为整数。"
+        guard !hero.isEmpty else { return }
+        guard let heroIndex = Int(hero), heroIndex >= 0, heroIndex < stacks.count else {
+            errorText = "英雄座位需为 0 到 \(stacks.count - 1) 之间的整数。"
             return
         }
-        do {
-            let bubbleFactor = try ICMPressure.bubbleFactor(
-                chipStacks: stacks,
-                payouts: payouts,
-                heroIndex: heroIndex,
-                opponentIndex: opponentIndex
-            )
-            bubbleFactorText = TournamentICMPresentation.decimalString(bubbleFactor, places: Self.decimalPlaces)
-        } catch let error as ICMError {
-            errorText = TournamentICMPresentation.message(for: error)
-        } catch {
-            errorText = "计算失败。"
+
+        for opponentIndex in stacks.indices where opponentIndex != heroIndex {
+            let text: String
+            do {
+                let bubbleFactor = try ICMPressure.bubbleFactor(
+                    chipStacks: stacks,
+                    payouts: payouts,
+                    heroIndex: heroIndex,
+                    opponentIndex: opponentIndex
+                )
+                text = "对 座位 \(opponentIndex)：\(TournamentICMPresentation.decimalString(bubbleFactor, places: Self.decimalPlaces))"
+            } catch let error as ICMError {
+                // A single opponent that cannot be formed (e.g. flat payouts →
+                // noEquityGain) shows its reason inline without aborting the rest.
+                text = "对 座位 \(opponentIndex)：\(TournamentICMPresentation.message(for: error))"
+            } catch {
+                text = "对 座位 \(opponentIndex)：计算失败。"
+            }
+            bubbleFactorLines.append(BubbleFactorLine(opponentSeat: opponentIndex, text: text))
         }
     }
 

@@ -144,3 +144,14 @@
 - 验证：展示转换单测 `10000/3→3333.33`、`2/3→0.67`、`1/1→1.00`、`-4/3→-1.33`、`1999/1000→2.00`；UI 测试经复盘→计算器→ 见 `3333.33` 与泡沫系数 `1.33`、非法输入见 `icm.error`；`AdaptiveNavigationTests` 绿；层禁 OK（TournamentEngine 仍只 PokerCore）；Release 模拟器构建通过
 - 内容边界：纯 ICM 数学计算器，无范围/无评分/无打法建议/无训练事件；文案中性
 - 未做（有意）：push/fold 或 ICM 压力范围建议（策略真值，待审核）；多路泡沫系数；计算历史持久化/同步；货币符号/本地化格式
+
+## tournament-m3-icm-bf-row-20260813-01
+
+- 归档：2026-08-13 15:59
+- 位置：`openspec/changes/archive/tournament-m3-icm-bf-row-20260813-01-20260813-155956`
+- 新增能力：无
+- 修改能力：tournament-icm-calculator（泡沫系数从「英雄 vs 单一对手，需填两个座位」改为「填英雄座位 → 显示英雄对**每位**其他座位的泡沫系数」；移除对手座位输入；单对手仍是其中一行，能力不减）
+- 交付（M3 第六切片，内容无关）：ICM 计算器填英雄座位后，对每个 `j != hero` 调 `ICMPressure.bubbleFactor` 渲染一行「对 座位 j：X.XX」（`icm.bubbleFactor.j`）；某对手不可算（如平坦派彩 `noEquityGain`）就地显示可读原因、不崩不编造不影响其他行；英雄座位越界/非整数报顶层 `icm.error`，不填英雄只显示权益。这是职业读 ICM 压力的方式（对谁能/不能对拼）
+- 修改规格：tournament-icm-calculator 的「泡沫系数」Requirement 整体替换为「显示英雄对每位对手的泡沫系数」（4 Scenarios）
+- 验证：ViewModel 单测（等筹码两行均 1.33；`[3000,1000,2000]` 对座位1=1.07=31/29 且对座位2 独立不同；平坦每行显无增益原因且权益仍显；越界报错/空英雄无行）；UI 测试改断言 `icm.bubbleFactor.1` 含 1.33；`AdaptiveNavigationTests` 绿；层禁 OK；Release 构建通过
+- 未做（有意）：非英雄视角的两两泡沫系数矩阵；泡沫系数驱动的打法建议（策略真值）；多路同池联合淘汰
