@@ -34,6 +34,13 @@ struct HandLabView: View {
                             tableSize: tableSize
                         )
                     },
+                    makeReplayViewModel: { identity, tableSize in
+                        makeReplayViewModel(
+                            store: libraryStore,
+                            identity: identity,
+                            tableSize: tableSize
+                        )
+                    },
                     makeScenarioBuilderViewModel: constructedSpotStore.map { store in
                         { makeScenarioBuilderViewModel(store: store) }
                     }
@@ -88,6 +95,30 @@ struct HandLabView: View {
             coordinator: coordinator,
             identity: identity,
             tableSize: tableSize,
+            makeRemediationSession: { scenarioID in
+                makeRemediationSession(scenarioID: scenarioID, pack: preferredPack?.pack)
+            }
+        )
+    }
+
+    /// Builds the replay view model for one stored hand.
+    ///
+    /// It judges each hero decision against the same preferred pack analysis
+    /// uses, and its remediation drills that same reviewed content — so a covered
+    /// node's "练这个漏洞" trains the exact spot the counterfactual was measured
+    /// against, the ordinary training flow by another name. The library store is
+    /// the one this session already opened; a replay reads it and writes nothing.
+    private func makeReplayViewModel(
+        store: FileHandLibraryStore,
+        identity: String,
+        tableSize: Int
+    ) -> HandReplayViewModel {
+        let preferredPack = try? BundledContentLoader(bundle: .main).loadPreferredPack()
+        return HandReplayViewModel(
+            libraryStore: store,
+            identity: identity,
+            tableSize: tableSize,
+            matcher: ImportedHandContentMatcher(scenarios: preferredPack?.pack.scenarios ?? []),
             makeRemediationSession: { scenarioID in
                 makeRemediationSession(scenarioID: scenarioID, pack: preferredPack?.pack)
             }
@@ -156,6 +187,9 @@ private struct HandLabContentView: View {
     /// Builds the analysis view model for a stored hand, injected so the content
     /// view stays unaware of how the coordinator and content matcher are wired.
     let makeAnalysisViewModel: (_ identity: String, _ tableSize: Int) -> HandAnalysisViewModel
+    /// Builds the replay view model for a stored hand, wired the same way as
+    /// analysis so the two surfaces judge a line against the same content.
+    let makeReplayViewModel: (_ identity: String, _ tableSize: Int) -> HandReplayViewModel
     /// Builds the manual scenario builder, nil only when no writable spot store
     /// could be opened — in which case the entry is hidden rather than dangling.
     let makeScenarioBuilderViewModel: (() -> ScenarioBuilderViewModel)?
@@ -307,6 +341,14 @@ private struct HandLabContentView: View {
                         .font(.footnote.monospacedDigit())
                         .accessibilityIdentifier("handlab.library.row.\(index)")
                     Spacer()
+                    NavigationLink {
+                        HandReplayView(
+                            viewModel: makeReplayViewModel(hand.identity, hand.tableSize)
+                        )
+                    } label: {
+                        Text("回放")
+                    }
+                    .accessibilityIdentifier("handlab.replay.\(index)")
                     NavigationLink {
                         HandAnalysisView(
                             viewModel: makeAnalysisViewModel(hand.identity, hand.tableSize)

@@ -63,7 +63,8 @@ xcodebuild test \
     -only-testing:PokerCoachUITests/M2BSurfaceTests \
     -only-testing:PokerCoachUITests/M2BAnalysisSurfaceTests \
     -only-testing:PokerCoachUITests/M2BRemediationSurfaceTests \
-    -only-testing:PokerCoachUITests/M2BScenarioBuilderSurfaceTests >/dev/null
+    -only-testing:PokerCoachUITests/M2BScenarioBuilderSurfaceTests \
+    -only-testing:PokerCoachUITests/M2BReplaySurfaceTests >/dev/null
 
 echo "==> Package dependencies match the layer graph"
 bash scripts/check-package-layering.sh >/dev/null
