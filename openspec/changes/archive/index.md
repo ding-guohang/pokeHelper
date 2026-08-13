@@ -70,3 +70,14 @@
 - 复用（不改语义）：`SpotSignature`/matcher 判定/第三切片补救/`DecisionSessionViewModel`/契约
 - 未交付（M2B 尾）：分支重放/反事实对比、漏洞标签聚合
 - 已知缺口：分析/补救/构造的取包口径与内容采纳陈旧同源（见 `docs/architecture/known-gaps.md`）
+
+## handlab-m2b-branching-replay-20260813-01
+
+- 归档：2026-08-13 12:39
+- 位置：`openspec/changes/archive/handlab-m2b-branching-replay-20260813-01-20260813-123955`
+- 新增能力：hand-lab-replay
+- 修改能力：无
+- 交付（M2B 第五切片，逐街回放与内容反事实）：把已存储个人牌谱逐街回放（每街可见公共牌+该街自主行动，逐字来自 `ObservedHand.streets`，含所有玩家），每个英雄决策点给"你的行动 vs 内容在该局面的权重"反事实（命中查范围表、未命中记 `NodeCoverage.uncovered` 不编造）；命中节点可复用第三切片补救。**不显示派生底池**（ObservedHand 无底池字段，避免为导入牌重实现结算/边池而显示错误底池）、**不重模拟对手**（真实对手后续未知，臆造即编造）、回放不产生 `TrainingEvent`（仅完成补救才产生）。复盘→Hand Lab→某手→回放可达（四核心标签不变）
+- 新增规格：1 个 Capability、2 个 Requirements、5 个 Scenarios
+- 复用（不改语义）：`ObservedHand.streets`/`heroDecisionSignatures`/matcher/第三切片补救/`DecisionSessionViewModel`
+- 未做（有意）：派生底池展示、对手重模拟/真正 what-if 续打（后者只在 M2A Session 的虚拟对手下成立）
