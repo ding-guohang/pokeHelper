@@ -92,3 +92,16 @@
 - 新增规格：1 个 Capability、2 个 Requirements、4 个 Scenarios
 - 未做（有意，硬边界）：push/fold 与 ICM 的策略内容/范围（策略真值，不编造，待你提供审核）；可玩赛事推进（对手打法=内容）；ICM 计算器（下一切片，含精确表示设计）
 - 评审加固：BlindScheduleError 补 Sendable；补 negativeSmallBlind 校验（术语要求非负）
+
+## tournament-m3-icm-20260813-01
+
+- 归档：2026-08-13 14:33
+- 位置：`openspec/changes/archive/tournament-m3-icm-20260813-01-20260813-143340`
+- 新增能力：tournament-icm
+- 修改能力：无
+- 交付（M3 第二切片，ICM 权益计算器，纯数学、内容无关）：`TournamentEngine` 新增精确有理数 `Fraction`（`Int/Int`，构造即约分、分母恒正、`0`→`0/1`，`Sendable/Hashable/Comparable`；具名 throwing 算术 `adding`/`multiplied(by:)`/`multiplied(byInteger:)`，先约分再相乘、每步 `*ReportingOverflow`，溢出即抛 `ICMError.overflow`，绝不回退浮点或截断）；`ICMCalculator.equities(chipStacks:payouts:)` 按 Malmuth-Harville **只枚举入钱名次**（O(n^K)，把中间分母压到至多 K 个剩余总和连乘，避免 O(n!) 全枚举溢出），未入钱名次派彩为 0，**先按筹码 gcd 归一**（ICM 只依赖比例）使现实决赛桌落进 `Int`；六级校验（noPlayers/emptyPayouts/nonPositiveStack/negativePayout/morePayoutsThanPlayers/tooManySeats）+ overflow 共 7 个可判等 `ICMError`。全整数/有理、无策略真值（不含范围/频率/求解器）
+- 新增规格：1 个 Capability、3 个 Requirements、13 个 Scenarios
+- 逐家精确值独立手算校验：三家 `[5000,3000,2000]`+`[500,300,200]` → `5375/14`、`655/2`、`2020/7`，和 `1000/1`；三家等筹码 → 各 `10000/3`、和 `10000/1`（浮点判别关卡）
+- 评审加固（含正反双向）：溢出用 `Int.max` payout 固定输入 + 阈值下成功配对；补 `tooManySeats`（>64 座位位掩码丢位→拒绝而非悄悄算错）+ 64 座位成功配对；chip 总和改 `addingReportingOverflow` 与 `Fraction` 同守「宁报错不静默」契约；补 `adding` 溢出/零分子/负数/×0 直测
+- 诚实边界（有意，非缺陷）：互质大筹码满座赛场其精确权益分母本就超 `Int64`，此时抛 `overflow` 是正确行为（换 Int128/大数也只是抬高天花板、病态输入总会溢出）；现实决赛桌筹码共用单位、归一后很小，落在精确范围内
+- 未做（有意，硬边界）：push/fold 与 ICM 压力下的开牌/跟注范围（策略真值，待审核）；泡沫/决赛桌决策建议；ICM 近似加速；`Fraction`→百分比/货币的展示层（接入锦标赛特性时）
