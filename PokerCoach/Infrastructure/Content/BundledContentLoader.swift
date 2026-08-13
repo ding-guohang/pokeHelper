@@ -41,11 +41,20 @@ struct BundledContentLoader {
     /// Resource names, most trustworthy first. The order is also the preference
     /// order when several are present, which is how a dogfooding build that
     /// carries both ends up training against the reviewed pack.
-    static let resourceNames = [
-        "CoreStrategyPack",
-        "UnverifiedStrategyPack",
-        "DevStrategyPack",
-    ]
+    ///
+    /// The development fixture name is compiled in only under the development
+    /// flag, so its literal never reaches a release binary — the fixture is
+    /// excluded from release/dogfood bundles anyway, and a debug build loads it
+    /// through the dedicated development path, so this list never needs it
+    /// outside development. The release-secret scan asserts the literal's
+    /// absence.
+    static let resourceNames: [String] = {
+        #if DEVELOPMENT_STRATEGY_FIXTURES
+        ["CoreStrategyPack", "UnverifiedStrategyPack", "DevStrategyPack"]
+        #else
+        ["CoreStrategyPack", "UnverifiedStrategyPack"]
+        #endif
+    }()
 
     /// One bundled resource: its bytes and the digest recorded beside it.
     struct Resource {
