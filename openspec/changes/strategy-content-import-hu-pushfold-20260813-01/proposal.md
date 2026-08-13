@@ -22,7 +22,8 @@ GTO Wizard 等商业平台内容仅接受用户依其授权条款手工导出的
 - `tournament-strategy-source-adapter` — 从锁定版本的 HU Push/Fold CFR+ 求解结果生成规范化、
   可追溯的 169 手牌频率表。
 - `tournament-strategy-content-import` — 校验并导入 1–20BB 的 HU ChipEV Open-Jam 与
-  Call-Jam 表，按精确深度生成 20 个确定性的未审核锦标赛策略包及审核报告。
+  2–20BB 的 Call-Jam 表，按精确深度生成 20 个确定性的未审核锦标赛策略包及审核报告；
+  1BB 包仅含 Open-Jam，因为 BB 已把整副 1BB 筹码作为大盲投入，不存在后续跟注决策。
 
 ### Modified Capabilities
 
@@ -142,17 +143,20 @@ reach denominators, not an unweighted average of already-rounded combo EVs.
 
 #### Requirement: 覆盖 1–20BB 且记录收敛质量
 
-The system SHALL generate Open-Jam and Call-Jam tables for each integer
-effective depth from 1BB through 20BB and SHALL reject a table whose measured
-NashConv exceeds the approved convergence threshold. If a report also displays
-the conventional two-player exploitability, it SHALL label it explicitly as
-`NashConv / 2`; the two values SHALL NOT be conflated.
+The system SHALL generate Open-Jam tables for each integer effective depth from
+1BB through 20BB and Call-Jam tables for each integer effective depth from 2BB
+through 20BB. It SHALL NOT create a 1BB Call-Jam decision because the BB has no
+chips remaining after posting the 1BB blind. The system SHALL reject a table
+whose measured NashConv exceeds the approved convergence threshold. If a
+report also displays the conventional two-player exploitability, it SHALL
+label it explicitly as `NashConv / 2`; the two values SHALL NOT be conflated.
 
 ##### Scenario: 首批覆盖完整
 
 - GIVEN 深度集合 `{1, 2, ..., 20}`
 - WHEN 完成批量生成
-- THEN 恰有 20 张 Open-Jam 表和 20 张 Call-Jam 表
+- THEN 恰有 20 张 Open-Jam 表和 19 张 Call-Jam 表
+- AND 1BB 只有 Open-Jam，2–20BB 各有 Open-Jam 与 Call-Jam
 - AND 每张表标明对应的精确 `effectiveBigBlinds`
 - AND 每张表的 NashConv 不超过同一份生成配置中声明的阈值
 
@@ -175,10 +179,10 @@ so the existing pack-level `effectiveStack` remains truthful.
 
 ##### Scenario: 合法批次导入
 
-- GIVEN 40 张通过来源、完整性、bps 与收敛门禁的规范化表
+- GIVEN 39 张通过来源、完整性、bps 与收敛门禁的规范化表
 - WHEN 执行锦标赛策略导入
-- THEN 产生 20 个 pack ID 含精确深度的内容包，每包恰有 SB Open-Jam 与 BB Call-Jam
-  两个语义对应场景
+- THEN 产生 20 个 pack ID 含精确深度的内容包
+- AND 1BB 包仅有 SB Open-Jam；2–20BB 每包恰有 SB Open-Jam 与 BB Call-Jam
 - AND Open-Jam 使用 `tableSize=2`、`heroSeatOffsetFromButton=0`、`facing=unopened`
 - AND Call-Jam 使用 `tableSize=2`、`heroSeatOffsetFromButton=1`、`facing=singleRaise`
 - AND 求解假设可读取精确深度、`hasAnte=false` 与明确的无 ante 描述
@@ -187,7 +191,7 @@ so the existing pack-level `effectiveStack` remains truthful.
 
 ##### Scenario: 批次缺少一张表
 
-- GIVEN 批次缺少 7BB Call-Jam 表但其余 39 张表均合法
+- GIVEN 批次缺少 7BB Call-Jam 表但其余 38 张表均合法
 - WHEN 执行导入
 - THEN 导入以非零码失败并指出缺少 7BB Call-Jam
 - AND 不产生策略包或 checksum
@@ -247,6 +251,90 @@ bps, assumption, review, and license-evidence gates.
 
 ### Capability: strategy-content-pipeline
 
+#### Requirement: 求解器输出导入
+
+The system SHALL import solver output into versioned strategy packs such that every decision node in the input has a semantically equal counterpart in the output, and SHALL reject any input that does not satisfy the existing decision-node semantics.
+
+##### Scenario: 合法求解器导出导入
+
+- GIVEN 一份含 N 个决策节点的求解器导出，每个节点带位置、街道、有效筹码、行动频率与 EV
+- WHEN 导入工具生成策略包
+- THEN 生成包的场景数等于 N
+- AND 对导出中的每一条 (position, street, action, frequencyBasisPoints, ev)，生成包中存在字段逐一相等的 StrategyOption
+- AND 生成的包通过 StrategyPackValidator 的全部语义校验
+- AND manifest 记录 pack ID、schema version、content version、generatedSource 与导出时间
+- AND 每个场景使用 tableSize 与 heroSeatOffsetFromButton 表示位置
+
+##### Scenario: 求解器导出不满足语义约束
+
+- GIVEN 一份导出中某决策节点的行动频率总和不是 10,000 basis points
+- WHEN 导入工具处理该导出
+- THEN 导入以非零码失败并指明场景 ID 与实际频率总和
+- AND 输出路径下不存在任何文件
+
+##### Scenario: 导入是确定性的
+
+- GIVEN 同一份求解器导出
+- WHEN 导入工具在两个独立进程中各运行一次，两次的工作目录、系统时钟与哈希种子均不同
+- THEN 两次产出的策略包字节完全相同
+- AND 其 SHA-256 等于仓库中签入的黄金 checksum
+
+#### Requirement: 内容升级黄金回归
+
+The system SHALL run a golden-data regression on every content upgrade and SHALL report each scenario whose grading outcome moves beyond tolerance, as required by `docs/standards/strategy-content.md:35`.
+
+##### Scenario: 升级改变了评分结果
+
+- GIVEN 黄金数据集中某场景在旧内容下的 lossRateBasisPoints 为 40，新内容下为 260
+- WHEN 运行升级回归
+- THEN 回归以非零码失败
+- AND 报告列出该场景 ID、旧值 40、新值 260 与其跨越的 quality 边界（acceptable → improvable）
+
+##### Scenario: 升级在容差内
+
+- GIVEN 黄金数据集中所有场景的 lossRateBasisPoints 变化都不超过容差且不跨越 quality 边界
+- WHEN 运行升级回归
+- THEN 回归以零码通过
+- AND 报告仍逐条列出实际变化量，而不是只输出一个通过结论
+
+#### Requirement: 内容随包交付与可选更新
+
+The system SHALL ship a bundled strategy pack that works with no network, and SHALL replace it only with a pack whose checksum verifies and whose content version is strictly higher.
+
+##### Scenario: 首次离线启动使用内置内容
+
+- GIVEN 设备从未联网且从未拉取过内容
+- WHEN 用户打开 APP
+- THEN `StrategyContentAvailability` 为 `.reviewedContentAvailable`
+- AND 当前 pack ID 等于随包内置的核心集 pack ID
+- AND 从启动到可作答期间网络层记录 0 次请求
+
+##### Scenario: 校验通过且版本更高的更新包被采用
+
+- GIVEN 本机当前内容版本为 `2026.08.06`，服务端提供 `2026.09.01` 的包且其 SHA-256 与声明一致
+- WHEN 客户端评估并应用更新
+- THEN 此后新生成的训练题的 content version 为 `2026.09.01`
+- AND 既有训练事件记录的 content version 仍为 `2026.08.06`
+
+##### Scenario: 更新包 checksum 不匹配
+
+- GIVEN 服务端提供 `2026.09.01` 的包但其 SHA-256 与声明不符
+- WHEN 客户端校验下载内容
+- THEN 拒绝该更新并返回 checksum-specific typed error
+- AND 当前内容版本仍为 `2026.08.06`，训练不中断
+
+##### Scenario: 更新包内容版本等于当前
+
+- GIVEN 本机当前内容版本为 `2026.08.06`，服务端提供的包也是 `2026.08.06`
+- WHEN 客户端评估是否替换
+- THEN 不替换
+
+##### Scenario: 更新包内容版本低于当前
+
+- GIVEN 本机当前内容版本为 `2026.09.01`，服务端提供的是 `2026.08.06`
+- WHEN 客户端评估是否替换
+- THEN 不替换
+
 #### Requirement: 锦标赛求解器输出导入
 
 The system SHALL extend solver-output import with tournament exact-depth,
@@ -263,7 +351,7 @@ golden regression behavior of the existing strategy content pipeline.
 
 ##### Scenario: 原子失败
 
-- GIVEN 第 40 张表违反 bps 总和或来源哈希门禁
+- GIVEN 第 39 张表违反 bps 总和或来源哈希门禁
 - WHEN 导入完整批次
 - THEN 命令以非零码失败
 - AND 最终输出目录不存在部分策略包或部分 checksum
@@ -279,10 +367,97 @@ beyond the configured tolerance.
 
 - GIVEN 通过全部门禁的首批未审核策略包
 - WHEN 建立黄金基线
-- THEN 仓库记录 20 个策略包的 SHA-256、40 张表的输入哈希与关键覆盖统计
+- THEN 仓库记录 20 个策略包的 SHA-256、39 张表的输入哈希与关键覆盖统计
 - AND 后续同版本重建得到相同字节
 
 ### Capability: versioned-strategy-content
+
+#### Requirement: 策略包来源可追溯
+
+The system SHALL load strategy packs that identify schema version, content version, review status, generated source, game assumptions, and decision scenarios.
+
+##### Scenario: 合法策略包加载
+
+- GIVEN 策略包 schema version 为 1、来源非空且场景完整
+- WHEN loader 完成 checksum、解码和语义校验
+- THEN 返回不可变 StrategyPack
+- AND manifest 与场景中的求解假设可供反馈界面读取
+- AND 场景使用 tableSize 与 heroSeatOffsetFromButton 表示可验证的 2–9 人桌位置
+
+##### Scenario: checksum 不匹配
+
+- GIVEN 下载内容的 SHA-256 与期望值不同
+- WHEN loader 加载策略包
+- THEN 在解码前拒绝内容
+- AND 返回 checksum-specific typed error
+
+#### Requirement: 决策节点语义校验
+
+The system SHALL reject a strategy decision node that violates card uniqueness, legal-action, action uniqueness, or frequency-total rules.
+
+##### Scenario: 频率总和错误
+
+- GIVEN 一个场景的行动频率总和不是 10,000 basis points
+- WHEN validator 校验
+- THEN 策略包被拒绝
+- AND 错误包含场景 ID 和实际频率总和
+
+##### Scenario: 非法行动进入策略
+
+- GIVEN 策略选项包含 BettingDecisionContext 未提供的行动
+- WHEN validator 校验
+- THEN 策略包被拒绝
+- AND 该内容不能进入训练流程
+
+#### Requirement: 审核状态约束
+
+The system SHALL distinguish `testFixture`, `unverifiedDraft`, `reviewed`, and `retired` strategy content; SHALL require both a reviewer identity and a review time on `reviewed` content; and SHALL NOT present content of any other status as verified poker advice.
+
+##### Scenario: 已审核内容缺少审核时间
+
+- GIVEN review status 为 `reviewed` 且 reviewed-at 为空
+- WHEN validator 校验
+- THEN 策略包被拒绝
+
+##### Scenario: 已审核内容缺少审核人
+
+- GIVEN review status 为 `reviewed`、reviewed-at 非空、但 reviewed-by 为空
+- WHEN validator 校验
+- THEN 策略包被拒绝
+- AND 错误指明缺失的是审核人而非其他 manifest 字段
+
+##### Scenario: 已审核内容元数据齐备
+
+- GIVEN review status 为 `reviewed`，reviewed-by 与 reviewed-at 均非空，且场景通过语义校验
+- WHEN validator 校验
+- THEN 策略包被接受
+- AND 反馈界面可以读到审核人与审核时间
+
+##### Scenario: 开发内容展示
+
+- GIVEN APP 使用 `testFixture` 内容
+- WHEN 用户查看训练或反馈
+- THEN 界面明确显示“开发演示数据”
+- AND 不把数据描述为已审核扑克建议
+
+##### Scenario: 未审核内容必须披露
+
+- GIVEN APP 使用 `unverifiedDraft` 内容
+- WHEN 用户查看训练、反馈或能力画像
+- THEN 界面明确显示“未经策略审核”
+- AND 不把数据描述为已审核扑克建议
+- AND 该提示与 `testFixture` 的“开发演示数据”是两条不同的文案
+
+#### Requirement: 内容版本不可原地修改
+
+The system SHALL treat a published content version as immutable and SHALL record the pack ID and content version on every training event.
+
+##### Scenario: 内容升级后历史仍可追溯
+
+- GIVEN 本机已有使用 content version `2026.08.06` 作答的训练事件
+- WHEN 安装 content version `2026.09.01` 的内容包
+- THEN 既有事件记录的 pack ID 与 content version 仍为 `2026.08.06` 的取值
+- AND 复盘界面对该条历史显示 `2026.08.06`
 
 #### Requirement: 锦标赛求解假设可追溯
 
@@ -349,18 +524,18 @@ semantics.
 
 1. 锁定并验证 `b-inary/poker-cfr@a5347082007ba1eda7932ef2fe7fad43cb3be2a1`
    与预计算 equity 输入哈希，许可证记录为 BSD-2-Clause。
-2. 生成 HU、SB=0.5BB、BB=1BB、无 ante、rake=0、chipEV、1–20BB 的 20 张 Open-Jam
-   与 20 张 Call-Jam 表；每张恰有 169 手牌，每行行动 bps 和为 10,000，并含每个合法
-   行动的同源反事实 EV（milli-BB）。
+2. 生成 HU、SB=0.5BB、BB=1BB、无 ante、rake=0、chipEV 的 1–20BB Open-Jam 20 张
+   与 2–20BB Call-Jam 19 张表；1BB 不创建不存在的 BB 跟注决策。每张恰有 169 手牌，
+   每行行动 bps 和为 10,000，并含每个合法行动的同源反事实 EV（milli-BB）。
 3. 每个深度记录 iterations 与 NashConv，任何超过声明阈值的表不能导入；若另报
    conventional exploitability，必须明确等于 NashConv/2。
 4. 每个深度的频率、行动 EV 与 NashConv 来自同一平均策略快照，并用 snapshot
    SHA-256 绑定；combo-level 阻断生效后才聚合为 169 类。
    SB fold EV 必须为 `-500` milli-BB；可达的 BB fold EV 必须为 `-1000` milli-BB；
    BB reach 零分母必须失败。
-5. 按 1–20BB 生成 20 个精确深度内容包，每包只有对应深度的 Open-Jam 与 Call-Jam；
-   产物为 `origin=solver` + `reviewStatus=unverifiedDraft`，包含 solver commit、配置、
-   输入哈希、content version 与生成时间。
+5. 按 1–20BB 生成 20 个精确深度内容包；1BB 包仅含 Open-Jam，2–20BB 包含对应深度的
+   Open-Jam 与 Call-Jam。产物为 `origin=solver` + `reviewStatus=unverifiedDraft`，
+   包含 solver commit、配置、输入哈希、content version 与生成时间。
 6. 同输入在两个独立进程逐包生成字节一致的策略包与 SHA-256；失败不留下部分产物。
 7. `StrategyPackValidator`、StrategyContent/StrategyTooling 单测、旧现金包兼容测试与
    首批黄金基线检查全部通过。

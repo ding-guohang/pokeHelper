@@ -8,7 +8,8 @@ status: designed
 ## 1. 目标与可信度边界
 
 本 change 交付第一批真实求解的锦标赛策略内容：单挑、SB=0.5BB、BB=1BB、无 ante、
-rake=0、chipEV、1–20BB，每个深度包含 SB Open-Jam 与 BB Call-Jam。
+rake=0、chipEV。1–20BB 均包含 SB Open-Jam；2–20BB 包含 BB Call-Jam。1BB 时 BB 已把
+整副筹码作为大盲投入，不存在后续跟注或弃牌决策，因此不创建 Call-Jam 训练节点。
 
 数字不由生成模型或人工规则填写。频率、每手每行动 EV 和收敛指标来自同一份冻结 CFR+
 平均策略快照，且每次生成都能追溯到固定源码、固定 equity 数据、固定参数与输入哈希。
@@ -214,7 +215,8 @@ content-tourn-hu-pushfold-chip-ev-noante-01bb
 content-tourn-hu-pushfold-chip-ev-noante-20bb
 ```
 
-每包仅两个 scenario。`SolverAssumptions.effectiveStack` 表示开局总深度 `S`；新增
+1BB 包仅一个 Open-Jam scenario；2–20BB 每包两个 scenario。
+`SolverAssumptions.effectiveStack` 表示开局总深度 `S`；新增
 `SolverNode.decisionEffectiveStack` 表示决策时尚可投入的筹码：
 
 - SB：`S - 0.5BB`，`amountToCall=0.5BB`，`pot=1.5BB`；
@@ -273,7 +275,7 @@ reviewedAt=nil
 
 ### 规范化与内容门禁
 
-- 20 个深度 × 2 张表；
+- 20 个 Open-Jam 深度 + 19 个 Call-Jam 深度，共 39 张表；
 - 每表恰有 169 个不重复 canonical hand classes；
 - 每行合法行动齐备且 bps 和为 10,000；
 - 每行频率键与 EV 键一致；

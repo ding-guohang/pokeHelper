@@ -12,13 +12,14 @@
 |---|---:|---:|---|
 | `tournament-strategy-source-adapter` | 4 | 10 | OK |
 | `tournament-strategy-content-import` | 3 | 7 | OK |
-| `strategy-content-pipeline` | 2 | 3 | OK |
-| `versioned-strategy-content` | 1 | 2 | OK |
+| `strategy-content-pipeline` | 5 | 13 | OK |
+| `versioned-strategy-content` | 5 | 12 | OK |
 
 ### 关键审查结论
 
-1. 首批覆盖已钉死为 HU、SB=0.5BB、BB=1BB、无 ante、rake=0、chipEV、1–20BB，
-   每个深度一个不可变内容包，每包仅含 Open-Jam 与 Call-Jam。
+1. 首批覆盖已钉死为 HU、SB=0.5BB、BB=1BB、无 ante、rake=0、chipEV；Open-Jam
+   覆盖 1–20BB，Call-Jam 覆盖 2–20BB。每个深度一个不可变内容包；1BB 仅含
+   Open-Jam，避免制造 BB 已无剩余筹码时不存在的跟注决策。
 2. 来源锁定为 BSD-2-Clause 的
    `b-inary/poker-cfr@a5347082007ba1eda7932ef2fe7fad43cb3be2a1`；商业平台仅接受
    用户合法手工导出的本地文件，不允许自动抓取。
