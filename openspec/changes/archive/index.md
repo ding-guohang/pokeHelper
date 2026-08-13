@@ -58,3 +58,15 @@
 - 复用（不改）：`DecisionSessionViewModel`/`TrainingEvent`/冻结契约/`PlayerModelReducer`；`SpotCoverageKey`/`RangeBaseline`
 - 未交付（后续 M2B 切片）：分支重放与反事实对比、漏洞标签落库、手动场景构建器
 - 已知缺口：分析/补救的取包口径与内容采纳的陈旧问题同源（见 `docs/architecture/known-gaps.md`，接入真实更新源前对齐）
+
+## handlab-m2b-scenario-builder-20260813-01
+
+- 归档：2026-08-13 11:07
+- 位置：`openspec/changes/archive/handlab-m2b-scenario-builder-20260813-01-20260813-110719`
+- 新增能力：manual-scenario-builder
+- 修改能力：无（`ImportedHandContentMatcher` 抽出 `classify(signature:action:)` 核心为加法，既有入口转调）
+- 交付（M2B 第四切片，手动场景构建器）：用户手搭翻前 spot（位置/两张牌/facing/筹码/行动）→ `ConstructedSpot`（HandHistory，只依赖 PokerCore；自校验：无法解析/牌数错/重复牌/非正筹码各以可判等原因拒，座位借 `TablePosition`；底牌规范排序使身份与顺序无关；Codable+规范编码+SHA-256 身份）→ `SpotSignature` → 复用匹配判覆盖：命中给范围表权重对照并可在覆盖场景上补救、未命中记 `NodeCoverage.uncovered` 绝不编造、无覆盖不评分；构造 spot 版本化存 `FileConstructedSpotStore`，构造/保存不产生 `TrainingEvent`，只有完成补救才产生。复盘→Hand Lab→构造场景可达（四核心标签不变）
+- 新增规格：1 个 Capability、3 个 Requirements、6 个 Scenarios
+- 复用（不改语义）：`SpotSignature`/matcher 判定/第三切片补救/`DecisionSessionViewModel`/契约
+- 未交付（M2B 尾）：分支重放/反事实对比、漏洞标签聚合
+- 已知缺口：分析/补救/构造的取包口径与内容采纳陈旧同源（见 `docs/architecture/known-gaps.md`）
