@@ -131,3 +131,16 @@
 - 内容边界：泡沫系数是描述性度量（同 ICM 权益一类的事实），不推荐跟/弃、不评分、不含范围；泡沫系数驱动的范围留作审核内容
 - 评审加固：修正 proposal 输局筹码笔误 `[2000,1000,2000]`→`[2000,2000,2000]` 并把 scenario3 从「返回 Fraction」钉成精确 `31/29`；补单挑 →1 正向例；`reciprocal` 对零前置崩溃、除法路径先 `noEquityGain` 挡零
 - 未做（有意）：泡沫系数驱动的跟注/开牌范围（策略真值，待审核）；多路同池联合淘汰泡沫系数（只做 hero vs 单一对手）；并列/同时淘汰；展示层
+
+## tournament-m3-icm-calc-20260813-01
+
+- 归档：2026-08-13 15:08
+- 位置：`openspec/changes/archive/tournament-m3-icm-calc-20260813-01-20260813-150846`
+- 新增能力：tournament-icm-calculator
+- 修改能力：无（四核心标签不变，`AdaptiveNavigationTests` 仍断言 `[今日,学习,训练,复盘]`）
+- 交付（M3 第五切片，把锦标赛引擎做成用户可见工具，内容无关）：复盘下新增「锦标赛 ICM 计算器」入口（`review.tournamentICM`，仿牌局实验室嵌在复盘、不加主标签）；输入各家筹码 + 派彩（+ 可选 hero/opp 座位）→ 调 `ICMCalculator.equities`/`ICMPressure.bubbleFactor` → 结果 `Fraction` 在展示层用**整数长除法**（`magnitude` 防溢出/`Int.min`、半入进位传播）转定点小数呈现，**不引入** `Double`/`NumberFormatter`；非法输入与每个 `ICMError` 映射为中文错误、绝不静默或编造、不产生 `TrainingEvent`。App 首次依赖并 `import TournamentEngine`（`project.yml` 加包与 target 依赖）
+- 新增规格：1 个 Capability、3 个 Requirements、5 个 Scenarios
+- 新增文件：`PokerCoach/Features/TournamentICM/{TournamentICMView,TournamentICMViewModel,TournamentICMPresentation}.swift`、`PokerCoachTests/TournamentICMPresentationTests.swift`、`PokerCoachUITests/TournamentICMSurfaceTests.swift`
+- 验证：展示转换单测 `10000/3→3333.33`、`2/3→0.67`、`1/1→1.00`、`-4/3→-1.33`、`1999/1000→2.00`；UI 测试经复盘→计算器→ 见 `3333.33` 与泡沫系数 `1.33`、非法输入见 `icm.error`；`AdaptiveNavigationTests` 绿；层禁 OK（TournamentEngine 仍只 PokerCore）；Release 模拟器构建通过
+- 内容边界：纯 ICM 数学计算器，无范围/无评分/无打法建议/无训练事件；文案中性
+- 未做（有意）：push/fold 或 ICM 压力范围建议（策略真值，待审核）；多路泡沫系数；计算历史持久化/同步；货币符号/本地化格式

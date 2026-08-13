@@ -88,15 +88,28 @@ struct ReviewView: View {
     }
 
     /// Hand Lab is a review-time tool, not a fifth primary destination, so it is
-    /// reached from within 复盘 rather than the tab bar.
+    /// reached from within 复盘 rather than the tab bar. The tournament ICM
+    /// calculator is another such review-time tool.
     private var handLabEntry: some View {
-        NavigationLink {
-            HandLabView(dependencies: dependencies)
-        } label: {
-            Label("牌局实验室", systemImage: "tray.and.arrow.down.fill")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 12) {
+            NavigationLink {
+                HandLabView(dependencies: dependencies)
+            } label: {
+                Label("牌局实验室", systemImage: "tray.and.arrow.down.fill")
+                    .font(.headline)
+            }
+            .accessibilityIdentifier("review.handLab")
+
+            // A content-free analysis calculator (pure ICM math, no strategy
+            // content, no training events), reached from within 复盘 like Hand Lab.
+            NavigationLink {
+                TournamentICMView()
+            } label: {
+                Label("锦标赛 ICM 计算器", systemImage: "function")
+                    .font(.headline)
+            }
+            .accessibilityIdentifier("review.tournamentICM")
         }
-        .accessibilityIdentifier("review.handLab")
     }
 
     private var abilities: some View {
