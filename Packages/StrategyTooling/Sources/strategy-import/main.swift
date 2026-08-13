@@ -41,6 +41,15 @@ struct StrategyImport {
             from: exportData
         )
 
+        // Defence in depth: freshly imported tournament solver content is never
+        // reviewed. Human promotion is a separate future operation that consumes
+        // review evidence, not this raw import path.
+        if export.tournament != nil, options.reviewStatus != .unverifiedDraft {
+            throw UsageError(
+                message: "tournament solver content must be imported as unverifiedDraft, got \(options.reviewStatus.rawValue)"
+            )
+        }
+
         if options.printRangeTables {
             print(RangeTableReport().render(export))
             return
