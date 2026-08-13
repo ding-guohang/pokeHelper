@@ -76,6 +76,26 @@ import Testing
     #expect(product == Fraction(numerator: -1, denominator: 2))
 }
 
+@Test func subtractionIsExact() throws {
+    let difference = try Fraction(numerator: 1300, denominator: 3).subtracting(Fraction(numerator: 1000, denominator: 3))
+    #expect(difference == Fraction(numerator: 100, denominator: 1))
+}
+
+@Test func negationFlipsSign() {
+    #expect(Fraction(numerator: 2, denominator: 3).negated() == Fraction(numerator: -2, denominator: 3))
+    #expect(Fraction(0).negated() == Fraction(0))
+}
+
+@Test func divisionEqualsMultiplyingByReciprocal() throws {
+    let quotient = try Fraction(numerator: 400, denominator: 3).divided(by: Fraction(numerator: 100, denominator: 1))
+    #expect(quotient == Fraction(numerator: 4, denominator: 3))
+}
+
+@Test func reciprocalOfNegativeFractionKeepsPositiveDenominator() {
+    let reciprocal = Fraction(numerator: -3, denominator: 4).reciprocal()
+    #expect(reciprocal == Fraction(numerator: -4, denominator: 3))
+}
+
 @Test func additionOverflowThrows() {
     // Denominators 2 and (Int.max) are coprime, so the combined denominator
     // 2 * Int.max cannot be represented and addition reports overflow.

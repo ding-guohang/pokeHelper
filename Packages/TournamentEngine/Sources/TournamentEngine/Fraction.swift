@@ -92,6 +92,31 @@ public struct Fraction: Sendable, Hashable, Comparable {
         return Fraction(numerator: num, denominator: denominator / g)
     }
 
+    /// `-self`. Exact; the denominator is already positive, so only the
+    /// numerator flips sign.
+    public func negated() -> Fraction {
+        Fraction(numerator: -numerator, denominator: denominator)
+    }
+
+    /// `self - other`, exact or `ICMError.overflow`.
+    public func subtracting(_ other: Fraction) throws -> Fraction {
+        try adding(other.negated())
+    }
+
+    /// `1 / self`. A zero fraction has no reciprocal — that is a programmer
+    /// error, and every caller (the bubble-factor path guards its divisor with
+    /// `noEquityGain` first) ensures a non-zero value, so it traps.
+    public func reciprocal() -> Fraction {
+        precondition(numerator != 0, "Zero has no reciprocal")
+        return Fraction(numerator: denominator, denominator: numerator)
+    }
+
+    /// `self / other`, exact or `ICMError.overflow`. `other` must be non-zero
+    /// (see `reciprocal()`).
+    public func divided(by other: Fraction) throws -> Fraction {
+        try multiplied(by: other.reciprocal())
+    }
+
     public static func < (lhs: Fraction, rhs: Fraction) -> Bool {
         // Both denominators are positive, so the inequality direction survives
         // cross-multiplication. Comparison is not on the ICM computation path

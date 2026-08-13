@@ -62,10 +62,11 @@ import Testing
     }
 }
 
-@Test func theSevenICMErrorsArePairwiseDistinct() {
+@Test func theICMErrorsArePairwiseDistinct() {
     let errors: [ICMError] = [
         .noPlayers, .emptyPayouts, .nonPositiveStack,
-        .negativePayout, .morePayoutsThanPlayers, .tooManySeats, .overflow,
+        .negativePayout, .morePayoutsThanPlayers, .tooManySeats,
+        .noEquityGain, .sameSeat, .seatOutOfRange, .overflow,
     ]
     for i in errors.indices {
         for j in errors.indices where j != i {

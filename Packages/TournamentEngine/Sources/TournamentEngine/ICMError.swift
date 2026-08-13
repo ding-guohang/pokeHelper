@@ -16,5 +16,13 @@ public enum ICMError: Error, Equatable, Sendable {
     /// in an `Int` bit mask, which holds 64 bits. Real poker tables are far
     /// smaller; this guards a public API against a silently-wrong result.
     case tooManySeats
+    /// A bubble-factor query where winning the all-in does not change the hero's
+    /// ICM equity (e.g. a flat prize structure), so the ratio has a zero
+    /// denominator and cannot be formed. Reported rather than dividing by zero.
+    case noEquityGain
+    /// A bubble-factor query naming the same seat as hero and opponent.
+    case sameSeat
+    /// A bubble-factor query naming a seat outside `0..<count`.
+    case seatOutOfRange
     case overflow
 }

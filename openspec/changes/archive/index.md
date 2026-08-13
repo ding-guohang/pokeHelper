@@ -118,3 +118,16 @@
 - 有意偏离任务初拟：**不复用**现金 `BettingDecisionContext`/`DecisionAction`（centi-BB，锦标赛筹码不整除 BB，强塞会 floor 丢精度，违反精确数据铁律）→ 改用筹码计原生类型
 - 评审加固：`options()` 的「无 range API」从可测 THEN 移出（不可证伪）→ 改断言与深度无关；补深度无关正向断言；阈值溢出用 `multipliedReportingOverflow` 报错而非 trap；`.fold` 假定英雄面对下注（免费过牌不建模，已文档化）
 - 未做（有意）：按（位置,面对情形,深度）范围查表（内容切片）；jam EV/ICM 压力评分；泡沫/决赛桌建议
+
+## tournament-m3-bubble-20260813-01
+
+- 归档：2026-08-13 14:54
+- 位置：`openspec/changes/archive/tournament-m3-bubble-20260813-01-20260813-145406`
+- 新增能力：tournament-bubble-factor
+- 修改能力：tournament-icm（`Fraction` 追加精确 `negated`/`subtracting`/`reciprocal`/`divided(by:)`，加法式扩展，溢出仍抛 `overflow`；未改既有 ICM scenario）
+- 交付（M3 第四切片，ICM 风险溢价/泡沫系数，纯数学、内容无关）：`ICMPressure.bubbleFactor(chipStacks:payouts:heroIndex:opponentIndex:)` 在 ICM 权益之上精确算英雄对单一对手一次全下的泡沫系数 `BF=(equityNow−equityLose)/(equityWin−equityNow)`（约分 `Fraction`）；全下有效额 `r=min(hero,opp)`，短/等码方输则出局领第 N 名派彩、剩余 N−1 人竞争 `payouts.prefix(N−1)`（重索引），双方存活则全场 ICM；无增益（平坦派彩→分母 0）抛 `noEquityGain` 绝不除零；座位校验 `sameSeat`/`seatOutOfRange`，沿用 ICM 六类输入校验
+- 新增规格：1 个 Capability、3 个 Requirements、10 个 Scenarios
+- 手算钉死并经对抗评审复核：等码 `[1000×3]`+`[500,300,200]` → `4/3`（>1）；赢家通吃 `[1000]` → `1`；大码 `[3000,1000,2000]` → `31/29`（>1）；单挑 → `1`（无阶梯）
+- 内容边界：泡沫系数是描述性度量（同 ICM 权益一类的事实），不推荐跟/弃、不评分、不含范围；泡沫系数驱动的范围留作审核内容
+- 评审加固：修正 proposal 输局筹码笔误 `[2000,1000,2000]`→`[2000,2000,2000]` 并把 scenario3 从「返回 Fraction」钉成精确 `31/29`；补单挑 →1 正向例；`reciprocal` 对零前置崩溃、除法路径先 `noEquityGain` 挡零
+- 未做（有意）：泡沫系数驱动的跟注/开牌范围（策略真值，待审核）；多路同池联合淘汰泡沫系数（只做 hero vs 单一对手）；并列/同时淘汰；展示层
