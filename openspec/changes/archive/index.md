@@ -105,3 +105,16 @@
 - 评审加固（含正反双向）：溢出用 `Int.max` payout 固定输入 + 阈值下成功配对；补 `tooManySeats`（>64 座位位掩码丢位→拒绝而非悄悄算错）+ 64 座位成功配对；chip 总和改 `addingReportingOverflow` 与 `Fraction` 同守「宁报错不静默」契约；补 `adding` 溢出/零分子/负数/×0 直测
 - 诚实边界（有意，非缺陷）：互质大筹码满座赛场其精确权益分母本就超 `Int64`，此时抛 `overflow` 是正确行为（换 Int128/大数也只是抬高天花板、病态输入总会溢出）；现实决赛桌筹码共用单位、归一后很小，落在精确范围内
 - 未做（有意，硬边界）：push/fold 与 ICM 压力下的开牌/跟注范围（策略真值，待审核）；泡沫/决赛桌决策建议；ICM 近似加速；`Fraction`→百分比/货币的展示层（接入锦标赛特性时）
+
+## tournament-m3-pushfold-20260813-01
+
+- 归档：2026-08-13 14:42
+- 位置：`openspec/changes/archive/tournament-m3-pushfold-20260813-01-20260813-144254`
+- 新增能力：tournament-pushfold
+- 修改能力：无
+- 交付（M3 第三切片，短筹码 push/fold 决策上下文，引擎、内容无关）：`TournamentEngine` 新增筹码计（`Int`）锦标赛原生的 `PushFoldContext`（throwing init 校验 `effectiveChips>0`、`bigBlindChips>0`）——`isAtOrBelow(thresholdBigBlinds:)` 用整数比较 `effectiveChips ≤ threshold×bigBlindChips` **精确**判定短筹码局面（含等号边界、无 floor 损失，阈值×BB 溢出抛 `thresholdOverflow`），`effectiveBigBlinds`（复用 slice-1，floored）仅供展示；`options()` 返回 jam-or-fold 简化模型的两个候选 `[.fold, .jam(toChips: effectiveChips)]`（**与深度无关、披露式**，不冒充合法穷尽/最优/推荐）。`PushFoldOption`/`PushFoldError`（4 个可判等 case）
+- 新增规格：1 个 Capability、3 个 Requirements、5 个 Scenarios
+- 三条硬边界（不编造策略真值）：不主张合法性穷尽（跛入/最小加注仍合法，现金侧 `BettingDecisionContext.legalActions()` 保有更宽合法集）；不内置/背书任何阈值（调用方传入）；不含 push/fold 范围与评分（该 jam 哪些手=策略真值，待审核）
+- 有意偏离任务初拟：**不复用**现金 `BettingDecisionContext`/`DecisionAction`（centi-BB，锦标赛筹码不整除 BB，强塞会 floor 丢精度，违反精确数据铁律）→ 改用筹码计原生类型
+- 评审加固：`options()` 的「无 range API」从可测 THEN 移出（不可证伪）→ 改断言与深度无关；补深度无关正向断言；阈值溢出用 `multipliedReportingOverflow` 报错而非 trap；`.fold` 假定英雄面对下注（免费过牌不建模，已文档化）
+- 未做（有意）：按（位置,面对情形,深度）范围查表（内容切片）；jam EV/ICM 压力评分；泡沫/决赛桌建议
