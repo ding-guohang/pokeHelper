@@ -44,6 +44,20 @@ final class TournamentICMSurfaceTests: XCTestCase {
         XCTAssertTrue(bubbleFactorVs1.label.contains("1.33"), "对座位 1 的泡沫系数不是 1.33：\(bubbleFactorVs1.label)")
         XCTAssertTrue(app.staticTexts["icm.bubbleFactor.2"].exists, "没有显示对座位 2 的泡沫系数")
 
+        // A big blind adds an effective-depth row per seat; a threshold flags
+        // the short seat as push/fold. Three 1000-chip stacks at BB 250 → 4 BB
+        // each; threshold 10 flags all as push/fold.
+        app.textFields["icm.bigBlind"].tap()
+        app.textFields["icm.bigBlind"].typeText("250")
+        app.textFields["icm.threshold"].tap()
+        app.textFields["icm.threshold"].typeText("10")
+        app.buttons["icm.compute"].tap()
+
+        let depth0 = app.staticTexts["icm.depth.0"]
+        XCTAssertTrue(depth0.waitForExistence(timeout: 10), "没有显示座位 0 的有效深度")
+        XCTAssertTrue(depth0.label.contains("4 BB"), "座位 0 深度应为 4 BB：\(depth0.label)")
+        XCTAssertTrue(depth0.label.contains("push/fold"), "4BB ≤ 10 应标 push/fold：\(depth0.label)")
+
         // Malformed stacks surface an error, not a number.
         clear(stacks)
         stacks.typeText("1000,abc")

@@ -50,6 +50,53 @@ final class TournamentICMViewModelTests: XCTestCase {
         }
     }
 
+    func testEffectiveDepthAndPushFoldZone() {
+        let viewModel = TournamentICMViewModel()
+        viewModel.stacksInput = "12000,3000"
+        viewModel.payoutsInput = "100,60"
+        viewModel.bigBlindInput = "1000"
+        viewModel.compute()
+
+        XCTAssertNil(viewModel.errorText)
+        XCTAssertEqual(viewModel.depthLines.count, 2)
+        XCTAssertEqual(viewModel.depthLines[0].text, "座位 0：12 BB")
+        XCTAssertEqual(viewModel.depthLines[1].text, "座位 1：3 BB")
+
+        // With a threshold, only the seat at/below it is flagged as push/fold.
+        viewModel.pushFoldThresholdInput = "10"
+        viewModel.compute()
+        XCTAssertNil(viewModel.errorText)
+        XCTAssertFalse(viewModel.depthLines[0].text.contains("push/fold"), "12BB 不应标 push/fold")
+        XCTAssertTrue(viewModel.depthLines[1].text.contains("push/fold 区"), "3BB 应标 push/fold：\(viewModel.depthLines[1].text)")
+    }
+
+    func testDepthInputValidation() {
+        let badBigBlind = TournamentICMViewModel()
+        badBigBlind.stacksInput = "12000,3000"
+        badBigBlind.payoutsInput = "100,60"
+        badBigBlind.bigBlindInput = "0"
+        badBigBlind.compute()
+        XCTAssertNotNil(badBigBlind.errorText)
+        XCTAssertTrue(badBigBlind.depthLines.isEmpty)
+
+        let badThreshold = TournamentICMViewModel()
+        badThreshold.stacksInput = "12000,3000"
+        badThreshold.payoutsInput = "100,60"
+        badThreshold.bigBlindInput = "1000"
+        badThreshold.pushFoldThresholdInput = "-1"
+        badThreshold.compute()
+        XCTAssertNotNil(badThreshold.errorText)
+
+        // No big blind → no depth section, equities still shown.
+        let noDepth = TournamentICMViewModel()
+        noDepth.stacksInput = "12000,3000"
+        noDepth.payoutsInput = "100,60"
+        noDepth.compute()
+        XCTAssertNil(noDepth.errorText)
+        XCTAssertTrue(noDepth.depthLines.isEmpty)
+        XCTAssertEqual(noDepth.equityLines.count, 2)
+    }
+
     func testInvalidHeroSeatErrorsAndEmptyHeroShowsNoBubbleFactorRows() {
         let outOfRange = TournamentICMViewModel()
         outOfRange.stacksInput = "1000,1000,1000"

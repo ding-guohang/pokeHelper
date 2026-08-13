@@ -14,12 +14,23 @@ final class TournamentICMViewModel {
     var stacksInput = ""
     var payoutsInput = ""
     var heroSeatInput = ""
+    var bigBlindInput = ""
+    var pushFoldThresholdInput = ""
 
     private(set) var equityLines: [String] = []
+    /// One line per seat when a big blind is set: the seat's effective depth in
+    /// big blinds, optionally flagged as a disclosed jam-or-fold zone.
+    private(set) var depthLines: [DepthLine] = []
     /// One line per opponent seat when a hero seat is set: the bubble factor of
     /// the hero against that seat, or a readable reason if it cannot be formed.
     private(set) var bubbleFactorLines: [BubbleFactorLine] = []
     private(set) var errorText: String?
+
+    struct DepthLine: Identifiable {
+        let seat: Int
+        let text: String
+        var id: Int { seat }
+    }
 
     struct BubbleFactorLine: Identifiable {
         let opponentSeat: Int
@@ -31,6 +42,7 @@ final class TournamentICMViewModel {
 
     func compute() {
         equityLines = []
+        depthLines = []
         bubbleFactorLines = []
         errorText = nil
 
@@ -57,6 +69,11 @@ final class TournamentICMViewModel {
         equityLines = equities.enumerated().map { index, equity in
             "座位 \(index)：\(TournamentICMPresentation.decimalString(equity, places: Self.decimalPlaces))"
         }
+
+        // Effective depth is optional: only when the user gives a big blind.
+        // A push/fold threshold, if also given, flags the disclosed jam-or-fold
+        // zone — the engine endorses no threshold and offers no range.
+        if !computeDepth(stacks: stacks) { return }
 
         // The bubble factor is optional: only when the user names a hero seat.
         // Then the hero is measured against every other seat — the pro's read
@@ -86,6 +103,59 @@ final class TournamentICMViewModel {
                 text = "对 座位 \(opponentIndex)：计算失败。"
             }
             bubbleFactorLines.append(BubbleFactorLine(opponentSeat: opponentIndex, text: text))
+        }
+    }
+
+    /// Fills `depthLines` from the optional big blind and push/fold threshold.
+    /// Returns false (and sets `errorText`) if an input is malformed, so the
+    /// caller can stop.
+    private func computeDepth(stacks: [Int]) -> Bool {
+        let bigBlindTrimmed = bigBlindInput.trimmingCharacters(in: .whitespaces)
+        guard !bigBlindTrimmed.isEmpty else { return true }
+        guard let bigBlind = Int(bigBlindTrimmed), bigBlind > 0 else {
+            errorText = "大盲（筹码）需为正整数。"
+            return false
+        }
+        let level = BlindLevel(level: 1, smallBlindChips: bigBlind / 2, bigBlindChips: bigBlind, anteChips: 0)
+
+        let thresholdTrimmed = pushFoldThresholdInput.trimmingCharacters(in: .whitespaces)
+        var threshold: Int?
+        if !thresholdTrimmed.isEmpty {
+            guard let parsed = Int(thresholdTrimmed), parsed >= 0 else {
+                errorText = "push/fold 阈值（BB）需为非负整数。"
+                return false
+            }
+            threshold = parsed
+        }
+
+        for (index, stack) in stacks.enumerated() {
+            var text = "座位 \(index)：\(effectiveBigBlinds(chips: stack, atLevel: level)) BB"
+            if let threshold {
+                do {
+                    // Stack > 0 is guaranteed: equities already rejected nonPositiveStack.
+                    let context = try PushFoldContext(effectiveChips: stack, level: level)
+                    if try context.isAtOrBelow(thresholdBigBlinds: threshold) {
+                        text += "（push/fold 区：全下/弃牌模型）"
+                    }
+                } catch let error as PushFoldError {
+                    errorText = Self.pushFoldMessage(for: error)
+                    return false
+                } catch {
+                    errorText = "计算失败。"
+                    return false
+                }
+            }
+            depthLines.append(DepthLine(seat: index, text: text))
+        }
+        return true
+    }
+
+    private static func pushFoldMessage(for error: PushFoldError) -> String {
+        switch error {
+        case .nonPositiveEffectiveStack: "筹码必须为正整数。"
+        case .nonPositiveBigBlind: "大盲（筹码）需为正整数。"
+        case .negativeThreshold: "push/fold 阈值（BB）不能为负。"
+        case .thresholdOverflow: "阈值过大，超出计算范围。"
         }
     }
 

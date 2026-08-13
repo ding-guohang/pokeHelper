@@ -65,3 +65,27 @@ The system SHALL map malformed input and every engine error to a readable messag
 - WHEN 点计算
 - THEN 显示对应中文错误（源自 `ICMError.morePayoutsThanPlayers`），无权益数字
 - AND 泡沫系数选定平坦派彩 `300,300,300` 时显示无增益错误（源自 `noEquityGain`）
+
+## Requirement: 显示每家有效深度与 push/fold 区
+
+The system SHALL, when a positive big blind (in chips) is provided, display each seat's effective depth in big blinds (floored), and, when a non-negative push/fold threshold (in big blinds) is also provided, flag which seats sit at or below it as a disclosed jam-or-fold zone — endorsing no threshold and offering no range.
+
+### Scenario: 填大盲显示每家有效深度
+
+- GIVEN 计算器筹码 `12000,3000`、大盲 `1000`
+- WHEN 点计算
+- THEN 显示「座位 0：12 BB」「座位 1：3 BB」（`chips / bigBlind` 向下取整）
+
+### Scenario: 填阈值标出 push/fold 区（精确整数比较）
+
+- GIVEN 筹码 `12000,3000`、大盲 `1000`、push/fold 阈值 `10`
+- WHEN 点计算
+- THEN 座位 1（`3000 ≤ 10×1000`）标为 push/fold 区（全下/弃牌模型）；座位 0（`12000 > 10000`）不标
+- AND 标注是披露式模型，不主张该座位必须 push/fold、不给范围
+
+### Scenario: 大盲非正与阈值非法被拒
+
+- GIVEN 筹码 `12000,3000`
+- WHEN 大盲填 `0` 或负数 → 显示可读错误，不显示深度区
+- AND 大盲 `1000` 且阈值填 `-1` 或非整数 → 显示可读错误
+- AND 大盲 `1000`、阈值留空 → 只显示深度、不显示 push/fold 标注

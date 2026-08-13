@@ -155,3 +155,14 @@
 - 修改规格：tournament-icm-calculator 的「泡沫系数」Requirement 整体替换为「显示英雄对每位对手的泡沫系数」（4 Scenarios）
 - 验证：ViewModel 单测（等筹码两行均 1.33；`[3000,1000,2000]` 对座位1=1.07=31/29 且对座位2 独立不同；平坦每行显无增益原因且权益仍显；越界报错/空英雄无行）；UI 测试改断言 `icm.bubbleFactor.1` 含 1.33；`AdaptiveNavigationTests` 绿；层禁 OK；Release 构建通过
 - 未做（有意）：非英雄视角的两两泡沫系数矩阵；泡沫系数驱动的打法建议（策略真值）；多路同池联合淘汰
+
+## tournament-m3-icm-depth-20260813-01
+
+- 归档：2026-08-13 16:06
+- 位置：`openspec/changes/archive/tournament-m3-icm-depth-20260813-01-20260813-160618`
+- 新增能力：无
+- 修改能力：tournament-icm-calculator（新增「显示每家有效深度与 push/fold 区」Requirement，加法，不改既有权益/泡沫系数行为）
+- 交付（M3 第七切片，内容无关，暴露此前无 UI 的 slice 1/3）：计算器新增两个可选输入——大盲（筹码/BB）与 push/fold 阈值（BB）。填大盲即用 slice-1 `effectiveBigBlinds` 显示每家向下取整 BB 深度（`icm.depth.k`）；再填阈值即用 slice-3 `PushFoldContext.isAtOrBelow`（整数精确比较 `chips ≤ 阈值×大盲`，无 floor 损失）标出短筹码「push/fold 区（全下/弃牌模型）」。披露式、不主张必须 push/fold、不含范围、不评分；大盲留空则行为完全不变
+- 修改规格：tournament-icm-calculator 追加 1 Requirement、3 Scenarios
+- 验证：ViewModel 单测（`12000,3000`@BB`1000`→12/3 BB；阈值 10 只标 3BB 那家；大盲 0/负、阈值 -1 报错、留空只权益）；UI 测试填 BB`250`→4 BB 且阈值 10 标 push/fold；`AdaptiveNavigationTests` 绿；层禁 OK；Release 构建通过
+- 未做（有意）：完整升盲表输入/逐级推进；push/fold 范围或打法建议（策略真值）；ante 对深度/M 值换算

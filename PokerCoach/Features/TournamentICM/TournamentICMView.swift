@@ -20,6 +20,14 @@ struct TournamentICMView: View {
                 field(title: "各家筹码（逗号分隔）", text: $viewModel.stacksInput, identifier: "icm.stacks")
                 field(title: "派彩结构（逗号分隔，第 1 名起）", text: $viewModel.payoutsInput, identifier: "icm.payouts")
 
+                Text("可选：填入大盲（筹码/BB）显示每家有效深度；再填 push/fold 阈值（BB）标出短筹码区。")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                HStack(spacing: 12) {
+                    field(title: "大盲（筹码）", text: $viewModel.bigBlindInput, identifier: "icm.bigBlind")
+                    field(title: "push/fold 阈值（BB）", text: $viewModel.pushFoldThresholdInput, identifier: "icm.threshold")
+                }
+
                 Text("可选：填入英雄座位编号，计算其对每位对手的泡沫系数。")
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -46,6 +54,17 @@ struct TournamentICMView: View {
                         ForEach(Array(viewModel.equityLines.enumerated()), id: \.offset) { index, line in
                             Text(line)
                                 .accessibilityIdentifier("icm.equity.\(index)")
+                        }
+                    }
+                }
+
+                if !viewModel.depthLines.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("有效深度")
+                            .font(.headline)
+                        ForEach(viewModel.depthLines) { line in
+                            Text(line.text)
+                                .accessibilityIdentifier("icm.depth.\(line.seat)")
                         }
                     }
                 }
