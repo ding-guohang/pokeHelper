@@ -111,6 +111,13 @@ echo "==> HandHistoryPersistence may only see HandHistory and PokerCore"
 check_manifest HandHistoryPersistence PokerCore HandHistory
 check_imports HandHistoryPersistence PokerCore HandHistory
 
+# The tournament engine only knows poker facts — blind levels, chips, depth. It
+# must not reach the cash engine or teaching content, the same boundary
+# SessionSimulation and HandHistory keep.
+echo "==> TournamentEngine may only see PokerCore"
+check_manifest TournamentEngine PokerCore
+check_imports TournamentEngine PokerCore
+
 echo "==> PokerCore depends on nothing in this repository"
 check_manifest PokerCore
 check_imports PokerCore

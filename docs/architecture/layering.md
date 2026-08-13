@@ -7,16 +7,19 @@ SwiftUI UI
   ↓ 绑定
 Feature ViewModel / Presentation
   ↓ 调用
-TrainingDomain            SessionSimulation
-  ↓ 读取                    ↓ 只依赖
+TrainingDomain     SessionSimulation   HandHistory   TournamentEngine
+  ↓ 读取                    ↓ 只依赖 PokerCore（并列，互不依赖）
 StrategyContent   →      PokerCore
 
 Infrastructure
   ├─ Local TrainingEventStore（协议在 TrainingDomain，文件实现在 TrainingPersistence）
   ├─ Session 记录存储（SessionPersistence，只依赖 SessionSimulation）
+  ├─ 个人牌谱/构造场景存储（HandHistoryPersistence，只依赖 HandHistory）
   ├─ Remote Synchronizer
   └─ Auth / Content / Hand Analysis API Clients
 ```
+
+`SessionSimulation`（现金模拟）、`HandHistory`（个人牌谱解析）、`TournamentEngine`（M3 锦标赛盲注/筹码结构）都是**只依赖 `PokerCore` 的并列引擎包**，彼此不可见，也不依赖 `StrategyContent`——牌局/结构不知道教学内容存在。`TournamentEngine` 承载锦标赛专属结构（升盲级别表、整数筹码、有效深度），不碰现金局与历史评分；push/fold 与 ICM 的策略内容不入此包。`check-package-layering.sh` 逐包把这些边界钉成门禁。
 
 `TrainingPersistence` 依赖 `TrainingDomain`，`SessionPersistence` 依赖
 `SessionSimulation`，方向都只有一条。它们是第 3 条规则的落地：JSON Lines 文件
