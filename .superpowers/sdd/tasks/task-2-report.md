@@ -34,6 +34,25 @@ PYTHONPYCACHEPREFIX=/private/tmp/pycache python3 -m py_compile Content/tournamen
 git diff --check
 ```
 
+## Fix round 2 — exact raw repository binding
+
+The URL gate now parses every source and license URL and requires HTTPS,
+`raw.githubusercontent.com`, and the exact
+`/<repository>/<commit>/` path prefix from the manifest.  Regression tests
+reject a foreign host and foreign repository that reuse the same commit text.
+
+### RED/GREEN evidence
+
+The two new rejection tests first failed because the former substring check
+accepted both URLs. After the parser-based gate:
+
+```text
+python3 -m unittest Content.tournament.tests.test_fetch_locked_source -v
+Ran 7 tests ... OK
+PYTHONPYCACHEPREFIX=/private/tmp/pycache python3 -m py_compile Content/tournament/fetch-locked-source.py
+git diff --check
+```
+
 Tests cover hash-mismatch non-publication, all-file staging, an existing
 destination rejection, and the committed lock's required commit/source hashes.
 

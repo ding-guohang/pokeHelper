@@ -8,6 +8,7 @@ from pathlib import Path, PurePosixPath
 import tempfile
 from typing import Callable, Union
 from urllib.request import urlopen
+from urllib.parse import urlparse
 
 
 class SourceLockError(RuntimeError):
@@ -25,14 +26,36 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _validate_commit_pinned_url(url, repository, commit):
+    parsed = urlparse(url)
+    expected_prefix = f"/{repository}/{commit}/"
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname != "raw.githubusercontent.com"
+        or not parsed.path.startswith(expected_prefix)
+        or parsed.params
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise SourceLockError(f"locked URL is not pinned to repository {repository} at commit {commit}: {url}")
+
+
 def _locked_entries(manifest):
     try:
         license_entry = manifest["license"]
         files = manifest["files"]
         commit = manifest["commit"]
+        repository = manifest["repository"]
     except (KeyError, TypeError) as error:
         raise SourceLockError("invalid source lock") from error
-    if not isinstance(files, list) or not files or not isinstance(commit, str) or len(commit) != 40:
+    if (
+        not isinstance(files, list)
+        or not files
+        or not isinstance(commit, str)
+        or len(commit) != 40
+        or not isinstance(repository, str)
+        or repository.count("/") != 1
+    ):
         raise SourceLockError("source lock must contain a commit and non-empty files list")
     try:
         license_input = {
@@ -48,8 +71,7 @@ def _locked_entries(manifest):
             url = entry["url"]
         except (KeyError, TypeError) as error:
             raise SourceLockError("invalid file entry in source lock") from error
-        if f"/{commit}/" not in url:
-            raise SourceLockError(f"locked URL is not pinned to commit {commit}: {url}")
+        _validate_commit_pinned_url(url, repository, commit)
     return entries
 
 

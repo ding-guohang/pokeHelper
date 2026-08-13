@@ -86,6 +86,26 @@ class LockedSourceTests(unittest.TestCase):
 
             self.assertFalse(destination.exists())
 
+    def test_foreign_host_with_locked_commit_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            lock = self.write_manifest(root, [{
+                "path": "src/cfr.rs", "url": "https://evil.example/b-inary/poker-cfr/" + "a" * 40 + "/src/cfr.rs", "sha256": sha256(b"source"),
+            }])
+
+            with self.assertRaisesRegex(SourceLockError, "not pinned to repository"):
+                fetch_locked_source(lock, root / "source", lambda _: b"source")
+
+    def test_foreign_repository_with_locked_commit_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            lock = self.write_manifest(root, [{
+                "path": "src/cfr.rs", "url": "https://raw.githubusercontent.com/other/poker-cfr/" + "a" * 40 + "/src/cfr.rs", "sha256": sha256(b"source"),
+            }])
+
+            with self.assertRaisesRegex(SourceLockError, "not pinned to repository"):
+                fetch_locked_source(lock, root / "source", lambda _: b"source")
+
     def test_rejects_destination_that_already_exists(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
