@@ -1,0 +1,38 @@
+{
+  "repository": "b-inary/poker-cfr",
+  "commit": "a5347082007ba1eda7932ef2fe7fad43cb3be2a1",
+  "license": {
+    "spdx": "BSD-2-Clause",
+    "path": "LICENSE.md",
+    "url": "https://api.github.com/repos/b-inary/poker-cfr/git/blobs/1a5b707b0fb6f5a4bbf5d277036e71a17f9717c2",
+    "sha256": "ee7dfe5dcfb39ddf633bf0fa099726d6f93dcb20c57616c5ba8203e9d1aad878"
+  },
+  "rustVersion": "1.56.0",
+  "files": [
+    {
+      "path": "Cargo.toml",
+      "url": "https://api.github.com/repos/b-inary/poker-cfr/git/blobs/6fe83763c3b7390d018abe06afd1172e7585ac1b",
+      "sha256": "386a67bcde9a4f8f791e562fce5d280d237d16a03f5d2fe3479fc282563bda1a"
+    },
+    {
+      "path": "Cargo.lock",
+      "url": "https://api.github.com/repos/b-inary/poker-cfr/git/blobs/0ce471c440f259896f77451afb8e9997ce76431b",
+      "sha256": "f47cd3cbfbedb2fe35169b1e897f8d8a4d2581fe2eba00038ad43906d3c0bc27"
+    },
+    {
+      "path": "src/cfr.rs",
+      "url": "https://api.github.com/repos/b-inary/poker-cfr/git/blobs/4ebd8acda2ae5ecb3f990588dfdc489dde4bbfa1",
+      "sha256": "6e67183dc0d05b34e3a866fecd3e0e76847b4feb406f37ea01f70563ba9bd6bf"
+    },
+    {
+      "path": "src/game_push_fold.rs",
+      "url": "https://api.github.com/repos/b-inary/poker-cfr/git/blobs/53324d7379a2abe6efb4657a955afa9607a5821a",
+      "sha256": "31f40d9069bccf6c0bb06d172ef7f2d3ad11d80caa498c5bbeec684c0d23ce48"
+    },
+    {
+      "path": "static/heads_up_pre_flop_equity.bin",
+      "url": "https://api.github.com/repos/b-inary/poker-cfr/git/blobs/6bc763b78182dc5806f77f93759d980fd2645390",
+      "sha256": "006404b36d257fc9455da0d0f0ab89aef3e80ece56c8f3e770bad926cfe5ec8a"
+    }
+  ]
+}
