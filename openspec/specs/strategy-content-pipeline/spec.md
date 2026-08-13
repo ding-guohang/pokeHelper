@@ -80,6 +80,41 @@ The system SHALL ship a bundled strategy pack that works with no network, and SH
 
 ### Scenario: 更新包内容版本低于当前
 
-- GIVEN 本机当前内容版本为 `2026.09.01`，服务端提供的包是 `2026.08.06`
+- GIVEN 本机当前内容版本为 `2026.09.01`，服务端提供的是 `2026.08.06`
 - WHEN 客户端评估是否替换
 - THEN 不替换
+
+## Requirement: 锦标赛求解器输出导入
+
+The system SHALL extend solver-output import with tournament exact-depth,
+ante-assumption, 169-hand completeness, convergence, and provenance validation,
+while preserving deterministic output, atomic writes, semantic validation, and
+golden regression behavior of the existing strategy content pipeline.
+
+### Scenario: 同一批次确定性导入
+
+- GIVEN 同一份锁定的 40 表输入、相同 manifest 和相同 content version
+- WHEN 在两个独立进程中各导入一次
+- THEN 两次生成的 20 个策略包逐包字节与 SHA-256 完全相同
+- AND 不把系统时钟、临时路径或字典哈希顺序写入产物
+
+### Scenario: 原子失败
+
+- GIVEN 第 39 张表违反 bps 总和或来源哈希门禁
+- WHEN 导入完整批次
+- THEN 命令以非零码失败
+- AND 最终输出目录不存在部分策略包或部分 checksum
+
+## Requirement: 首批内容黄金回归基线
+
+The system SHALL create a signed-in-repository golden baseline for all 20 packs
+in the first unverified HU batch and SHALL require later content versions to
+report all frequency and action-EV changes and fail on unapproved changes
+beyond the configured tolerance.
+
+### Scenario: 首次建立基线
+
+- GIVEN 通过全部门禁的首批未审核策略包
+- WHEN 建立黄金基线
+- THEN 仓库记录 20 个策略包的 SHA-256、39 张表的输入哈希与关键覆盖统计
+- AND 后续同版本重建得到相同字节

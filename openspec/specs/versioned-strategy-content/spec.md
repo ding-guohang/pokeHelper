@@ -86,3 +86,25 @@ The system SHALL treat a published content version as immutable and SHALL record
 - WHEN 安装 content version `2026.09.01` 的内容包
 - THEN 既有事件记录的 pack ID 与 content version 仍为 `2026.08.06` 的取值
 - AND 复盘界面对该条历史显示 `2026.08.06`
+
+## Requirement: 锦标赛求解假设可追溯
+
+The system SHALL expose exact effective big blinds and ante assumptions on
+tournament strategy scenarios without changing the meaning of existing cash
+content, and SHALL decode legacy schema-1 cash packs with their current
+semantics.
+
+### Scenario: 锦标赛假设加载
+
+- GIVEN 一个合法 HU no-ante tournament scenario
+- WHEN loader 解码并校验
+- THEN 可读取精确整数 `effectiveBigBlinds`
+- AND 可读取 `hasAnte=false` 与非空 `anteDescription`
+- AND 现金内容现有 `effectiveStack`、rake 与下注尺度字段语义不变
+
+### Scenario: 旧现金包兼容
+
+- GIVEN 当前已发布的 schema-1 现金策略包不含新增锦标赛可选字段
+- WHEN 新版 loader 加载
+- THEN 解码与校验结果保持成功
+- AND 不把缺失字段解释为未经声明的锦标赛假设

@@ -177,3 +177,16 @@
 - 新增规格：1 个 Capability、2 个 Requirements、4 个 Scenarios
 - 验证：TrainingDomain Swift Testing（三事件两日 `140/2/1→70`、`100/1/0→100` 升序；空→空）；App 单测（注入桩存储 → 两日行 + 总览「共 3 手 · 2 天 · 总平均 80 分」；空→空态）；UI 测试复盘→训练进度可达、重置后空态；`AdaptiveNavigationTests` 绿；层禁 OK（TrainingDomain 仍只 PokerCore/StrategyContent）；Release 构建通过
 - 未做（有意）：图表库；周/月桶；按维度拆分趋势；导出/同步
+
+## strategy-content-import-hu-pushfold-20260813-01
+
+- 归档：2026-08-13 22:11
+- 位置：`openspec/changes/archive/strategy-content-import-hu-pushfold-20260813-01-20260813-221136`
+- 新增能力：tournament-strategy-source-adapter、tournament-strategy-content-import
+- 修改能力：strategy-content-pipeline（+锦标赛求解器输出导入、首批黄金基线）、versioned-strategy-content（+锦标赛求解假设可追溯）
+- 交付（首批真实求解的锦标赛策略内容，`unverifiedDraft`）：从锁定开源 CFR+ 求解器 `b-inary/poker-cfr@a5347082`（BSD-2-Clause）生成单挑 SB=0.5/BB=1、无 ante、rake=0、chipEV 的 push/fold GTO 内容，覆盖 1–20BB（Open-Jam 全部、Call-Jam 2–20），**20 个不可变内容包 / 39 张 169 手表 / 6591 行**，含每手每行动的同源反事实 EV。链路：锁定来源(hash 门禁) → 只读导出补丁(combo 频率+条件 EV，evaluate 同快照、ΣN/ΣD 聚合、bps/milliBB 量化) → 独立 JSON 校验 → 20 个 `SolverExport` → `strategy-import` 产 `origin=solver`+`reviewStatus=unverifiedDraft` 包 + 黄金基线。全部深度首个 10k 迭代 checkpoint 即达 NashConv ≤ 0.001（最大 2.135e-7）；depth-10 与上游参照 3.856e-8 一致
+- 新增规格：2 个新 Capability（7 Requirements）+ 2 个 Capability 各加 2 Requirements
+- 硬边界（不编造策略真值）：数字全部来自锁定求解器、收敛度自证；自动导入永不产 `reviewed`（strategy-import 有防御守卫）；商业平台不抓取，仅用户本地合法导出经隔离转换；晋升需具名人工审核 + 新内容版本（`review-template.md`）
+- 构建期依赖：Rust（`~/.cargo`），不链接进 App、不入 `project.yml`；`scripts/verify-tournament-content.sh` 重生成逐位一致
+- 协作说明：本 change 的 propose/design/plan（Task 1–2）由一个并行会话完成后停止，其余（Task 3–9：求解导出、校验、导出/导入、真实批次、审核交接、终验）由本会话接手实现
+- 未做（有意）：9-max/ante/ICM/limp/翻后；把内容接入可玩随机发牌训练 UI（下一步）；人工审核晋升
