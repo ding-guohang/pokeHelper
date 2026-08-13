@@ -138,7 +138,7 @@ public struct PackBuilder: Sendable {
             board: try cards(node.board, scenarioID: node.id),
             decision: BettingDecisionContext(
                 pot: node.pot,
-                effectiveStack: export.effectiveStack,
+                effectiveStack: node.decisionEffectiveStack ?? export.effectiveStack,
                 amountToCall: node.amountToCall,
                 minimumRaiseTo: node.minimumRaiseTo,
                 configuredBetSizes: node.configuredBetSizes
@@ -153,7 +153,8 @@ public struct PackBuilder: Sendable {
             rangeCells: node.rangeCells.map {
                 RangeCell(
                     handClass: $0.handClass,
-                    actionWeightsBasisPoints: $0.actionWeightsBasisPoints
+                    actionWeightsBasisPoints: $0.actionWeightsBasisPoints,
+                    actionEVs: $0.actionEVs
                 )
             },
             assumptions: SolverAssumptions(
@@ -161,7 +162,8 @@ public struct PackBuilder: Sendable {
                 tableSize: export.tableSize,
                 effectiveStack: export.effectiveStack,
                 rakeDescription: export.rakeDescription,
-                allowedBetSizeDescription: export.allowedBetSizeDescription
+                allowedBetSizeDescription: export.allowedBetSizeDescription,
+                tournament: export.tournament
             ),
             explanation: StructuredExplanation(
                 conclusion: node.explanation.conclusion,

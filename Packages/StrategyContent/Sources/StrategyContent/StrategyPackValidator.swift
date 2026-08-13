@@ -49,6 +49,7 @@ public struct StrategyPackValidator: Sendable {
             try validatePosition(in: scenario)
             try validateCards(in: scenario)
             try validateOptions(in: scenario)
+            try validateTournamentContent(in: scenario)
         }
     }
 
@@ -210,4 +211,74 @@ public struct StrategyPackValidator: Sendable {
             }
         }
     }
+
+    private func validateTournamentContent(in scenario: DecisionScenario) throws {
+        guard let tournament = scenario.assumptions.tournament else { return }
+
+        guard tournament.effectiveBigBlinds > 0,
+              tournament.smallBlindCentiBB > 0,
+              tournament.bigBlindCentiBB > 0,
+              tournament.hasAnte || !tournament.anteDescription
+                  .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else {
+            throw StrategyPackValidationError.invalidTournamentAssumptions(
+                scenarioID: scenario.id
+            )
+        }
+
+        guard scenario.assumptions.effectiveStack.centiBB ==
+                tournament.effectiveBigBlinds * 100
+        else {
+            throw StrategyPackValidationError.inconsistentTournamentEffectiveStack(
+                scenarioID: scenario.id
+            )
+        }
+
+        let canonicalHands = Self.canonicalTournamentHands
+        let handClasses = scenario.rangeCells.map(\.handClass)
+        guard handClasses.count == canonicalHands.count,
+              Set(handClasses) == canonicalHands
+        else {
+            throw StrategyPackValidationError.invalidTournamentRangeCoverage(
+                scenarioID: scenario.id
+            )
+        }
+
+        for cell in scenario.rangeCells {
+            guard let actionEVs = cell.actionEVs,
+                  Set(cell.actionWeightsBasisPoints.keys) == Set(actionEVs.keys)
+            else {
+                throw StrategyPackValidationError.invalidTournamentRangeActions(
+                    scenarioID: scenario.id,
+                    handClass: cell.handClass
+                )
+            }
+
+            let actions = Set(cell.actionWeightsBasisPoints.keys)
+            guard actions == ["fold", "raise"] || actions == ["fold", "call"] else {
+                throw StrategyPackValidationError.invalidTournamentRangeActions(
+                    scenarioID: scenario.id,
+                    handClass: cell.handClass
+                )
+            }
+
+            let total = cell.actionWeightsBasisPoints.values.reduce(0, +)
+            guard total == 10_000 else {
+                throw StrategyPackValidationError.invalidTournamentRangeFrequency(
+                    scenarioID: scenario.id,
+                    handClass: cell.handClass
+                )
+            }
+        }
+    }
+
+    private static let canonicalTournamentHands: Set<String> = {
+        let ranks = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
+        return Set(ranks.enumerated().flatMap { row, high in
+            ranks.enumerated().map { column, low in
+                if row == column { return high + low }
+                return row < column ? high + low + "s" : low + high + "o"
+            }
+        })
+    }()
 }

@@ -99,19 +99,22 @@ public struct SolverAssumptions: Codable, Hashable, Sendable {
     public let effectiveStack: BBAmount
     public let rakeDescription: String
     public let allowedBetSizeDescription: String
+    public let tournament: TournamentSolverAssumptions?
 
     public init(
         gameType: String,
         tableSize: Int,
         effectiveStack: BBAmount,
         rakeDescription: String,
-        allowedBetSizeDescription: String
+        allowedBetSizeDescription: String,
+        tournament: TournamentSolverAssumptions? = nil
     ) {
         self.gameType = gameType
         self.tableSize = tableSize
         self.effectiveStack = effectiveStack
         self.rakeDescription = rakeDescription
         self.allowedBetSizeDescription = allowedBetSizeDescription
+        self.tournament = tournament
     }
 }
 
@@ -146,10 +149,16 @@ public struct StructuredExplanation: Codable, Hashable, Sendable {
 public struct RangeCell: Codable, Hashable, Sendable {
     public let handClass: String
     public let actionWeightsBasisPoints: [String: Int]
+    public let actionEVs: [String: EVAmount]?
 
-    public init(handClass: String, actionWeightsBasisPoints: [String: Int]) {
+    public init(
+        handClass: String,
+        actionWeightsBasisPoints: [String: Int],
+        actionEVs: [String: EVAmount]? = nil
+    ) {
         self.handClass = handClass
         self.actionWeightsBasisPoints = actionWeightsBasisPoints
+        self.actionEVs = actionEVs
     }
 }
 
@@ -255,6 +264,11 @@ public enum StrategyPackValidationError: Error, Equatable {
     case unknownPrerequisite(nodeID: String, prerequisiteID: String)
     case cyclicCurriculum(nodeIDs: [String])
     case duplicateCurriculumNodeID(String)
+    case invalidTournamentAssumptions(scenarioID: String)
+    case inconsistentTournamentEffectiveStack(scenarioID: String)
+    case invalidTournamentRangeCoverage(scenarioID: String)
+    case invalidTournamentRangeActions(scenarioID: String, handClass: String)
+    case invalidTournamentRangeFrequency(scenarioID: String, handClass: String)
 }
 
 public enum StrategyPackLookupError: Error, Equatable {

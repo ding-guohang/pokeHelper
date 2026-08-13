@@ -1,5 +1,6 @@
 import Foundation
 import PokerCore
+import StrategyContent
 
 /// The input format the importer reads.
 ///
@@ -17,6 +18,7 @@ public struct SolverExport: Codable, Sendable {
     public let effectiveStack: BBAmount
     public let rakeDescription: String
     public let allowedBetSizeDescription: String
+    public let tournament: TournamentSolverAssumptions?
     public let curriculum: [SolverCurriculumNode]
     public let nodes: [SolverNode]
 
@@ -29,6 +31,7 @@ public struct SolverExport: Codable, Sendable {
         effectiveStack: BBAmount,
         rakeDescription: String,
         allowedBetSizeDescription: String,
+        tournament: TournamentSolverAssumptions? = nil,
         curriculum: [SolverCurriculumNode],
         nodes: [SolverNode]
     ) {
@@ -40,6 +43,7 @@ public struct SolverExport: Codable, Sendable {
         self.effectiveStack = effectiveStack
         self.rakeDescription = rakeDescription
         self.allowedBetSizeDescription = allowedBetSizeDescription
+        self.tournament = tournament
         self.curriculum = curriculum
         self.nodes = nodes
     }
@@ -72,10 +76,16 @@ public struct SolverAction: Codable, Sendable {
 public struct SolverRangeCell: Codable, Sendable {
     public let handClass: String
     public let actionWeightsBasisPoints: [String: Int]
+    public let actionEVs: [String: EVAmount]?
 
-    public init(handClass: String, actionWeightsBasisPoints: [String: Int]) {
+    public init(
+        handClass: String,
+        actionWeightsBasisPoints: [String: Int],
+        actionEVs: [String: EVAmount]? = nil
+    ) {
         self.handClass = handClass
         self.actionWeightsBasisPoints = actionWeightsBasisPoints
+        self.actionEVs = actionEVs
     }
 }
 
@@ -132,6 +142,7 @@ public struct SolverNode: Codable, Sendable {
     /// risked, and that cannot be recovered from the pot and the amount owed
     /// alone — those two leave the hero's prior investment unknown.
     public let facingRaiseTo: BBAmount?
+    public let decisionEffectiveStack: BBAmount?
     public let actions: [SolverAction]
     public let rangeCells: [SolverRangeCell]
     public let explanation: SolverExplanation
@@ -150,6 +161,7 @@ public struct SolverNode: Codable, Sendable {
         minimumRaiseTo: BBAmount?,
         configuredBetSizes: [BBAmount],
         facingRaiseTo: BBAmount? = nil,
+        decisionEffectiveStack: BBAmount? = nil,
         actions: [SolverAction],
         rangeCells: [SolverRangeCell],
         explanation: SolverExplanation
@@ -167,6 +179,7 @@ public struct SolverNode: Codable, Sendable {
         self.minimumRaiseTo = minimumRaiseTo
         self.configuredBetSizes = configuredBetSizes
         self.facingRaiseTo = facingRaiseTo
+        self.decisionEffectiveStack = decisionEffectiveStack
         self.actions = actions
         self.rangeCells = rangeCells
         self.explanation = explanation
