@@ -6,6 +6,7 @@
 
 - [核心学习与评分规则](learning-rules.md)
 - [产品范围与里程碑](scope-and-milestones.md)
+- [锦标赛策略内容需求](tournament-strategy-content-requirements.md) — 要把 M3 引擎变成可玩训练，需提供的策略内容格式/假设/审核要求
 
 ## 产品真值
 
