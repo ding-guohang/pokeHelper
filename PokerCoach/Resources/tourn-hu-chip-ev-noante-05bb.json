@@ -1,1 +1,5237 @@
-{"curriculum":[{"id":"tournament-hu-push-fold","prerequisiteNodeIDs":[],"title":"单挑 Push/Fold"}],"manifest":{"contentVersion":"2026.08.13-hu-pf.1","generatedSource":"poker-cfr@a5347082007ba1eda7932ef2fe7fad43cb3be2a1 HU chipEV push/fold 5BB · iters=10000 · NashConv=8.923e-08 · snapshot=2ed1fc1eb7c2b9ba (unverified solver output) · exported 2026-08-13T00:00:00Z","id":"content-tourn-hu-pushfold-chip-ev-noante-05bb","origin":"solver","reviewStatus":"unverifiedDraft","schemaVersion":1},"scenarios":[{"abilityDimension":"tournament-push-fold","assumptions":{"allowedBetSizeDescription":"jam-or-fold only","effectiveStack":{"centiBB":500},"gameType":"NLHE tournament","rakeDescription":"rake=0","tableSize":2,"tournament":{"anteDescription":"no ante (heads-up SB=0.5BB/BB=1BB, rake=0, chipEV)","bigBlindCentiBB":100,"effectiveBigBlinds":5,"equilibrium":"chipEV","hasAnte":false,"smallBlindCentiBB":50}},"board":[],"curriculumNodeID":"tournament-hu-push-fold","decision":{"amountToCall":{"centiBB":50},"configuredBetSizes":[],"effectiveStack":{"centiBB":450},"pot":{"centiBB":150}},"explanation":{"boardReasoning":"翻前无公共牌；决策只依赖手牌、位置与有效深度。","conclusion":"5BB 单挑 小盲开局 的 ChipEV 纳什 push/fold 均衡策略。","futurePlan":"这是全下或弃牌的一次性全下决策，无后续街。","gtoBaseline":"ChipEV 纳什均衡（无 ICM、无 ante、rake=0）。","opponentReasoning":"对手为同一均衡下的最优回应，不做针对性剥削。","rangeReasoning":"频率来自锁定开源 CFR+ 求解器的均衡平均策略，未经人工审核。"},"facing":"unopened","heroCards":["As","Ah"],"heroSeatOffsetFromButton":0,"id":"content-tourn-hu-pushfold-chip-ev-noante-05bb-open-jam","options":[{"action":{"kind":"fold"},"ev":{"milliBB":-500},"frequencyBasisPoints":0},{"action":{"kind":"allIn","toCentiBB":450},"ev":{"milliBB":2494},"frequencyBasisPoints":10000}],"rangeCells":[{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":251}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"22"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-884}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"32o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-644}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"32s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":392}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"33"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-839}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"42o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-601}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"42s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-728}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"43o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-497}},"actionWeightsBasisPoints":{"fold":1,"raise":9999},"handClass":"43s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":534}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"44"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-795}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"52o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-561}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"52s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-682}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"53o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-455}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"53s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-574}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"54o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-354}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"54s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":686}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"55"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-855}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"62o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-616}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"62s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-741}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"63o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-510}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"63s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-630}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"64o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-406}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"64s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-524}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"65o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-308}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"65s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":832}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"66"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-895}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"72o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-654}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"72s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-782}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"73o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-548}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"73s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-671}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"74o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-445}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"74s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-563}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"75o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-345}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"75s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-464}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"76o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-252}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"76s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":996}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"77"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-837}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"82o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-599}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"82s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-814}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"83o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-577}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"83s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-703}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"84o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-474}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"84s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-595}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"85o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-373}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"85s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-489}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"86o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-275}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"86s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-398}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"87o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-191}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"87s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1177}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"88"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-784}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"92o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-548}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"92s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-742}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"93o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-509}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"93s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-720}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"94o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-489}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"94s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-610}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"95o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-388}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"95s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-500}},"actionWeightsBasisPoints":{"fold":8427,"raise":1573},"handClass":"96o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-285}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"96s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-395}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"97o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-187}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"97s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-273}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"98o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-74}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"98s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1361}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"99"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":446}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A2o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":613}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A2s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":486}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A3o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":649}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A3s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":529}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A4o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":688}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A4s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":593}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A5o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":747}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A5s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":606}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A6o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":759}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A6s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":704}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A7o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":849}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A7s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":789}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A8o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":928}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A8s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":872}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A9o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1004}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"A9s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":2494}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"AA"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1125}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"AJo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1239}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"AJs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1328}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"AKo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1427}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"AKs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1233}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"AQo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1337}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"AQs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1032}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"ATo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1153}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"ATs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-538}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"J2o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-316}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J2s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-497}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J3o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-278}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J3s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-453}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J4o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-238}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J4s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-399}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J5o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-188}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J5s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-354}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J6o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-147}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J6s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-217}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J7o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-19}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J7s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-80}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J8o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":109}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J8s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":60}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J9o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":239}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"J9s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1754}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"JJ"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":220}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"JTo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":388}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"JTs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":40}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K2o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":230}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K2s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":81}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K3o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":267}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K3s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":125}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K4o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":308}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K4s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":192}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K5o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":369}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K5s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":262}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K6o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":433}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K6s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":347}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K7o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":512}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K7s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":420}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K8o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":580}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K8s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":565}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K9o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":715}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"K9s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":814}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"KJo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":945}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"KJs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":2227}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"KK"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":918}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"KQo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1040}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"KQs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":725}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"KTo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":863}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"KTs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-281}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q2o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-74}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q2s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-240}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q3o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-36}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q3s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-195}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q4o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":5}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q4s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-128}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q5o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":66}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q5s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-59}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q6o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":130}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q6s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":13}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q7o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":196}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q7s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":154}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q8o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":328}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q8s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":298}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q9o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":462}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"Q9s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":544}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"QJo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":689}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"QJs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1973}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"QQ"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":458}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"QTo"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":611}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"QTs"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-687}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"T2o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-456}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T2s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-646}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"T3o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-418}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T3s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-604}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"T4o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-380}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T4s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-576}},"actionWeightsBasisPoints":{"fold":10000,"raise":0},"handClass":"T5o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-355}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T5s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-464}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T6o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-251}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T6s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-344}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T7o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-140}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T7s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-212}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T8o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-16}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T8s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":-74}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T9o"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":113}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"T9s"},{"actionEVs":{"fold":{"milliBB":-500},"raise":{"milliBB":1572}},"actionWeightsBasisPoints":{"fold":0,"raise":10000},"handClass":"TT"}],"title":"5BB 单挑开局 Push/Fold（小盲）"},{"abilityDimension":"tournament-push-fold","assumptions":{"allowedBetSizeDescription":"jam-or-fold only","effectiveStack":{"centiBB":500},"gameType":"NLHE tournament","rakeDescription":"rake=0","tableSize":2,"tournament":{"anteDescription":"no ante (heads-up SB=0.5BB/BB=1BB, rake=0, chipEV)","bigBlindCentiBB":100,"effectiveBigBlinds":5,"equilibrium":"chipEV","hasAnte":false,"smallBlindCentiBB":50}},"board":[],"curriculumNodeID":"tournament-hu-push-fold","decision":{"amountToCall":{"centiBB":400},"configuredBetSizes":[],"effectiveStack":{"centiBB":400},"pot":{"centiBB":600}},"explanation":{"boardReasoning":"翻前无公共牌；决策只依赖手牌、位置与有效深度。","conclusion":"5BB 单挑 大盲防守 的 ChipEV 纳什 push/fold 均衡策略。","futurePlan":"这是跟注或弃牌的一次性全下决策，无后续街。","gtoBaseline":"ChipEV 纳什均衡（无 ICM、无 ante、rake=0）。","opponentReasoning":"对手为同一均衡下的最优回应，不做针对性剥削。","rangeReasoning":"频率来自锁定开源 CFR+ 求解器的均衡平均策略，未经人工审核。"},"facing":"singleRaise","heroCards":["As","Ah"],"heroSeatOffsetFromButton":1,"id":"content-tourn-hu-pushfold-chip-ev-noante-05bb-call-jam","options":[{"action":{"kind":"fold"},"ev":{"milliBB":-1000},"frequencyBasisPoints":0},{"action":{"kind":"call","toCentiBB":400},"ev":{"milliBB":3499},"frequencyBasisPoints":10000}],"rangeCells":[{"actionEVs":{"call":{"milliBB":-129},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"22"},{"actionEVs":{"call":{"milliBB":-1881},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"32o"},{"actionEVs":{"call":{"milliBB":-1511},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"32s"},{"actionEVs":{"call":{"milliBB":89},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"33"},{"actionEVs":{"call":{"milliBB":-1816},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"42o"},{"actionEVs":{"call":{"milliBB":-1449},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"42s"},{"actionEVs":{"call":{"milliBB":-1662},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"43o"},{"actionEVs":{"call":{"milliBB":-1304},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"43s"},{"actionEVs":{"call":{"milliBB":336},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"44"},{"actionEVs":{"call":{"milliBB":-1745},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"52o"},{"actionEVs":{"call":{"milliBB":-1382},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"52s"},{"actionEVs":{"call":{"milliBB":-1583},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"53o"},{"actionEVs":{"call":{"milliBB":-1230},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"53s"},{"actionEVs":{"call":{"milliBB":-1422},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"54o"},{"actionEVs":{"call":{"milliBB":-1078},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"54s"},{"actionEVs":{"call":{"milliBB":594},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"55"},{"actionEVs":{"call":{"milliBB":-1850},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"62o"},{"actionEVs":{"call":{"milliBB":-1478},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"62s"},{"actionEVs":{"call":{"milliBB":-1685},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"63o"},{"actionEVs":{"call":{"milliBB":-1325},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"63s"},{"actionEVs":{"call":{"milliBB":-1516},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"64o"},{"actionEVs":{"call":{"milliBB":-1166},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"64s"},{"actionEVs":{"call":{"milliBB":-1343},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"65o"},{"actionEVs":{"call":{"milliBB":-1004},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"65s"},{"actionEVs":{"call":{"milliBB":855},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"66"},{"actionEVs":{"call":{"milliBB":-1892},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"72o"},{"actionEVs":{"call":{"milliBB":-1516},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"72s"},{"actionEVs":{"call":{"milliBB":-1729},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"73o"},{"actionEVs":{"call":{"milliBB":-1365},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"73s"},{"actionEVs":{"call":{"milliBB":-1557},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"74o"},{"actionEVs":{"call":{"milliBB":-1203},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"74s"},{"actionEVs":{"call":{"milliBB":-1378},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"75o"},{"actionEVs":{"call":{"milliBB":-1035},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"75s"},{"actionEVs":{"call":{"milliBB":-1235},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"76o"},{"actionEVs":{"call":{"milliBB":-903},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"76s"},{"actionEVs":{"call":{"milliBB":1150},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"77"},{"actionEVs":{"call":{"milliBB":-1758},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"82o"},{"actionEVs":{"call":{"milliBB":-1388},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"82s"},{"actionEVs":{"call":{"milliBB":-1732},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"83o"},{"actionEVs":{"call":{"milliBB":-1365},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"83s"},{"actionEVs":{"call":{"milliBB":-1556},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"84o"},{"actionEVs":{"call":{"milliBB":-1200},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"84s"},{"actionEVs":{"call":{"milliBB":-1375},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"85o"},{"actionEVs":{"call":{"milliBB":-1031},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"85s"},{"actionEVs":{"call":{"milliBB":-1213},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"86o"},{"actionEVs":{"call":{"milliBB":-881},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"86s"},{"actionEVs":{"call":{"milliBB":-1042},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"87o"},{"actionEVs":{"call":{"milliBB":-722},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"87s"},{"actionEVs":{"call":{"milliBB":1460},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"88"},{"actionEVs":{"call":{"milliBB":-1626},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"92o"},{"actionEVs":{"call":{"milliBB":-1262},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"92s"},{"actionEVs":{"call":{"milliBB":-1571},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"93o"},{"actionEVs":{"call":{"milliBB":-1213},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"93s"},{"actionEVs":{"call":{"milliBB":-1525},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"94o"},{"actionEVs":{"call":{"milliBB":-1170},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"94s"},{"actionEVs":{"call":{"milliBB":-1342},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"95o"},{"actionEVs":{"call":{"milliBB":-999},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":9991,"fold":9},"handClass":"95s"},{"actionEVs":{"call":{"milliBB":-1177},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"96o"},{"actionEVs":{"call":{"milliBB":-844},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"96s"},{"actionEVs":{"call":{"milliBB":-1000},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":7514,"fold":2486},"handClass":"97o"},{"actionEVs":{"call":{"milliBB":-680},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"97s"},{"actionEVs":{"call":{"milliBB":-807},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"98o"},{"actionEVs":{"call":{"milliBB":-500},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"98s"},{"actionEVs":{"call":{"milliBB":1759},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"99"},{"actionEVs":{"call":{"milliBB":181},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A2o"},{"actionEVs":{"call":{"milliBB":447},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A2s"},{"actionEVs":{"call":{"milliBB":264},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A3o"},{"actionEVs":{"call":{"milliBB":523},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A3s"},{"actionEVs":{"call":{"milliBB":350},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A4o"},{"actionEVs":{"call":{"milliBB":601},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A4s"},{"actionEVs":{"call":{"milliBB":438},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A5o"},{"actionEVs":{"call":{"milliBB":683},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A5s"},{"actionEVs":{"call":{"milliBB":482},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A6o"},{"actionEVs":{"call":{"milliBB":725},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A6s"},{"actionEVs":{"call":{"milliBB":621},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A7o"},{"actionEVs":{"call":{"milliBB":855},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A7s"},{"actionEVs":{"call":{"milliBB":748},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A8o"},{"actionEVs":{"call":{"milliBB":972},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A8s"},{"actionEVs":{"call":{"milliBB":853},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A9o"},{"actionEVs":{"call":{"milliBB":1070},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"A9s"},{"actionEVs":{"call":{"milliBB":3499},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"AA"},{"actionEVs":{"call":{"milliBB":1248},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"AJo"},{"actionEVs":{"call":{"milliBB":1438},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"AJs"},{"actionEVs":{"call":{"milliBB":1525},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"AKo"},{"actionEVs":{"call":{"milliBB":1697},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"AKs"},{"actionEVs":{"call":{"milliBB":1390},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"AQo"},{"actionEVs":{"call":{"milliBB":1571},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"AQs"},{"actionEVs":{"call":{"milliBB":1103},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"ATo"},{"actionEVs":{"call":{"milliBB":1303},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"ATs"},{"actionEVs":{"call":{"milliBB":-1216},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"J2o"},{"actionEVs":{"call":{"milliBB":-872},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J2s"},{"actionEVs":{"call":{"milliBB":-1147},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"J3o"},{"actionEVs":{"call":{"milliBB":-810},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J3s"},{"actionEVs":{"call":{"milliBB":-1066},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"J4o"},{"actionEVs":{"call":{"milliBB":-736},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J4s"},{"actionEVs":{"call":{"milliBB":-976},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J5o"},{"actionEVs":{"call":{"milliBB":-653},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J5s"},{"actionEVs":{"call":{"milliBB":-890},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J6o"},{"actionEVs":{"call":{"milliBB":-571},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J6s"},{"actionEVs":{"call":{"milliBB":-680},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J7o"},{"actionEVs":{"call":{"milliBB":-376},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J7s"},{"actionEVs":{"call":{"milliBB":-468},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J8o"},{"actionEVs":{"call":{"milliBB":-177},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J8s"},{"actionEVs":{"call":{"milliBB":-261},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J9o"},{"actionEVs":{"call":{"milliBB":16},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"J9s"},{"actionEVs":{"call":{"milliBB":2393},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"JJ"},{"actionEVs":{"call":{"milliBB":-19},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"JTo"},{"actionEVs":{"call":{"milliBB":242},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"JTs"},{"actionEVs":{"call":{"milliBB":-392},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K2o"},{"actionEVs":{"call":{"milliBB":-94},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K2s"},{"actionEVs":{"call":{"milliBB":-311},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K3o"},{"actionEVs":{"call":{"milliBB":-20},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K3s"},{"actionEVs":{"call":{"milliBB":-225},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K4o"},{"actionEVs":{"call":{"milliBB":59},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K4s"},{"actionEVs":{"call":{"milliBB":-134},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K5o"},{"actionEVs":{"call":{"milliBB":143},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K5s"},{"actionEVs":{"call":{"milliBB":-7},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K6o"},{"actionEVs":{"call":{"milliBB":263},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K6s"},{"actionEVs":{"call":{"milliBB":113},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K7o"},{"actionEVs":{"call":{"milliBB":374},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K7s"},{"actionEVs":{"call":{"milliBB":219},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K8o"},{"actionEVs":{"call":{"milliBB":473},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K8s"},{"actionEVs":{"call":{"milliBB":426},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K9o"},{"actionEVs":{"call":{"milliBB":666},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"K9s"},{"actionEVs":{"call":{"milliBB":804},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"KJo"},{"actionEVs":{"call":{"milliBB":1019},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"KJs"},{"actionEVs":{"call":{"milliBB":3112},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"KK"},{"actionEVs":{"call":{"milliBB":944},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"KQo"},{"actionEVs":{"call":{"milliBB":1149},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"KQs"},{"actionEVs":{"call":{"milliBB":671},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"KTo"},{"actionEVs":{"call":{"milliBB":894},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"KTs"},{"actionEVs":{"call":{"milliBB":-838},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q2o"},{"actionEVs":{"call":{"milliBB":-515},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q2s"},{"actionEVs":{"call":{"milliBB":-759},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q3o"},{"actionEVs":{"call":{"milliBB":-443},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q3s"},{"actionEVs":{"call":{"milliBB":-674},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q4o"},{"actionEVs":{"call":{"milliBB":-366},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q4s"},{"actionEVs":{"call":{"milliBB":-582},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q5o"},{"actionEVs":{"call":{"milliBB":-280},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q5s"},{"actionEVs":{"call":{"milliBB":-462},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q6o"},{"actionEVs":{"call":{"milliBB":-167},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q6s"},{"actionEVs":{"call":{"milliBB":-366},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q7o"},{"actionEVs":{"call":{"milliBB":-78},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q7s"},{"actionEVs":{"call":{"milliBB":-150},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q8o"},{"actionEVs":{"call":{"milliBB":124},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q8s"},{"actionEVs":{"call":{"milliBB":58},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q9o"},{"actionEVs":{"call":{"milliBB":318},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"Q9s"},{"actionEVs":{"call":{"milliBB":425},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"QJo"},{"actionEVs":{"call":{"milliBB":660},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"QJs"},{"actionEVs":{"call":{"milliBB":2749},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"QQ"},{"actionEVs":{"call":{"milliBB":299},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"QTo"},{"actionEVs":{"call":{"milliBB":543},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"QTs"},{"actionEVs":{"call":{"milliBB":-1465},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"T2o"},{"actionEVs":{"call":{"milliBB":-1108},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"T2s"},{"actionEVs":{"call":{"milliBB":-1408},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"T3o"},{"actionEVs":{"call":{"milliBB":-1057},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"T3s"},{"actionEVs":{"call":{"milliBB":-1331},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"T4o"},{"actionEVs":{"call":{"milliBB":-986},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T4s"},{"actionEVs":{"call":{"milliBB":-1277},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"T5o"},{"actionEVs":{"call":{"milliBB":-937},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T5s"},{"actionEVs":{"call":{"milliBB":-1091},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":0,"fold":10000},"handClass":"T6o"},{"actionEVs":{"call":{"milliBB":-763},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T6s"},{"actionEVs":{"call":{"milliBB":-895},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T7o"},{"actionEVs":{"call":{"milliBB":-580},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T7s"},{"actionEVs":{"call":{"milliBB":-691},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T8o"},{"actionEVs":{"call":{"milliBB":-389},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T8s"},{"actionEVs":{"call":{"milliBB":-484},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T9o"},{"actionEVs":{"call":{"milliBB":-196},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"T9s"},{"actionEVs":{"call":{"milliBB":2079},"fold":{"milliBB":-1000}},"actionWeightsBasisPoints":{"call":10000,"fold":0},"handClass":"TT"}],"title":"5BB 单挑面对全下（大盲）"}]}
+{
+  "curriculum": [
+    {
+      "id": "tournament-hu-push-fold",
+      "prerequisiteNodeIDs": [],
+      "title": "单挑 Push/Fold"
+    }
+  ],
+  "manifest": {
+    "contentVersion": "2026.08.14-hu-pf.reviewed.1",
+    "generatedSource": "poker-cfr@a5347082007ba1eda7932ef2fe7fad43cb3be2a1 HU chipEV push/fold 5BB · iters=10000 · NashConv=8.923e-08 · snapshot=2ed1fc1eb7c2b9ba (unverified solver output) · exported 2026-08-13T00:00:00Z",
+    "id": "content-tourn-hu-pushfold-chip-ev-noante-05bb",
+    "origin": "solver",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-14T07:59:02Z",
+    "reviewedBy": "Meow Ding",
+    "schemaVersion": 1
+  },
+  "scenarios": [
+    {
+      "abilityDimension": "tournament-push-fold",
+      "assumptions": {
+        "allowedBetSizeDescription": "jam-or-fold only",
+        "effectiveStack": {
+          "centiBB": 500
+        },
+        "gameType": "NLHE tournament",
+        "rakeDescription": "rake=0",
+        "tableSize": 2,
+        "tournament": {
+          "anteDescription": "no ante (heads-up SB=0.5BB/BB=1BB, rake=0, chipEV)",
+          "bigBlindCentiBB": 100,
+          "effectiveBigBlinds": 5,
+          "equilibrium": "chipEV",
+          "hasAnte": false,
+          "smallBlindCentiBB": 50
+        }
+      },
+      "board": [],
+      "curriculumNodeID": "tournament-hu-push-fold",
+      "decision": {
+        "amountToCall": {
+          "centiBB": 50
+        },
+        "configuredBetSizes": [],
+        "effectiveStack": {
+          "centiBB": 450
+        },
+        "pot": {
+          "centiBB": 150
+        }
+      },
+      "explanation": {
+        "boardReasoning": "翻前无公共牌；决策只依赖手牌、位置与有效深度。",
+        "conclusion": "5BB 单挑 小盲开局 的 ChipEV 纳什 push/fold 均衡策略。",
+        "futurePlan": "这是全下或弃牌的一次性全下决策，无后续街。",
+        "gtoBaseline": "ChipEV 纳什均衡（无 ICM、无 ante、rake=0）。",
+        "opponentReasoning": "对手为同一均衡下的最优回应，不做针对性剥削。",
+        "rangeReasoning": "频率来自锁定开源 CFR+ 求解器的均衡平均策略，未经人工审核。"
+      },
+      "facing": "unopened",
+      "heroCards": [
+        "As",
+        "Ah"
+      ],
+      "heroSeatOffsetFromButton": 0,
+      "id": "content-tourn-hu-pushfold-chip-ev-noante-05bb-open-jam",
+      "options": [
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "ev": {
+            "milliBB": -500
+          },
+          "frequencyBasisPoints": 0
+        },
+        {
+          "action": {
+            "kind": "allIn",
+            "toCentiBB": 450
+          },
+          "ev": {
+            "milliBB": 2494
+          },
+          "frequencyBasisPoints": 10000
+        }
+      ],
+      "rangeCells": [
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 251
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "22"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -884
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "32o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -644
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "32s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 392
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "33"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -839
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "42o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -601
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "42s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -728
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "43o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -497
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 1,
+            "raise": 9999
+          },
+          "handClass": "43s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 534
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "44"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -795
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "52o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -561
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "52s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -682
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "53o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -455
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "53s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -574
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "54o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -354
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "54s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 686
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "55"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -855
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "62o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -616
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "62s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -741
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "63o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -510
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "63s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -630
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "64o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -406
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "64s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -524
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "65o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -308
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "65s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 832
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "66"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -895
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "72o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -654
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "72s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -782
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "73o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -548
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "73s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -671
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "74o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -445
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "74s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -563
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "75o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -345
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "75s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -464
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "76o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -252
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "76s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 996
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "77"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -837
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "82o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -599
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "82s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -814
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "83o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -577
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "83s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -703
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "84o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -474
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "84s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -595
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "85o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -373
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "85s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -489
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "86o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -275
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "86s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -398
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "87o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -191
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "87s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1177
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "88"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -784
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "92o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -548
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "92s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -742
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "93o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -509
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "93s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -720
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "94o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -489
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "94s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -610
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "95o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -388
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "95s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -500
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 8427,
+            "raise": 1573
+          },
+          "handClass": "96o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -285
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "96s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -395
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "97o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -187
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "97s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -273
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "98o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -74
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "98s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1361
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "99"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 446
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A2o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 613
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A2s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 486
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A3o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 649
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A3s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 529
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A4o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 688
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A4s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 593
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A5o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 747
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A5s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 606
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A6o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 759
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A6s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 704
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A7o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 849
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A7s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 789
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A8o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 928
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A8s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 872
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A9o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1004
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "A9s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 2494
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "AA"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1125
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "AJo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1239
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "AJs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1328
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "AKo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1427
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "AKs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1233
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "AQo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1337
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "AQs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1032
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "ATo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1153
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "ATs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -538
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "J2o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -316
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J2s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -497
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J3o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -278
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J3s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -453
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J4o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -238
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J4s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -399
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J5o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -188
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J5s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -354
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J6o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -147
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J6s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -217
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J7o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -19
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J7s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -80
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J8o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 109
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J8s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 60
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J9o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 239
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "J9s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1754
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "JJ"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 220
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "JTo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 388
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "JTs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 40
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K2o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 230
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K2s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 81
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K3o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 267
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K3s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 125
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K4o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 308
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K4s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 192
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K5o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 369
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K5s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 262
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K6o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 433
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K6s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 347
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K7o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 512
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K7s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 420
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K8o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 580
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K8s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 565
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K9o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 715
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "K9s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 814
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "KJo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 945
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "KJs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 2227
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "KK"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 918
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "KQo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1040
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "KQs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 725
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "KTo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 863
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "KTs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -281
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q2o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -74
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q2s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -240
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q3o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -36
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q3s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -195
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q4o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 5
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q4s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -128
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q5o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 66
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q5s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -59
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q6o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 130
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q6s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 13
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q7o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 196
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q7s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 154
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q8o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 328
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q8s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 298
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q9o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 462
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "Q9s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 544
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "QJo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 689
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "QJs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1973
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "QQ"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 458
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "QTo"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 611
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "QTs"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -687
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "T2o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -456
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T2s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -646
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "T3o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -418
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T3s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -604
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "T4o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -380
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T4s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -576
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 10000,
+            "raise": 0
+          },
+          "handClass": "T5o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -355
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T5s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -464
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T6o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -251
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T6s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -344
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T7o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -140
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T7s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -212
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T8o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -16
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T8s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": -74
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T9o"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 113
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "T9s"
+        },
+        {
+          "actionEVs": {
+            "fold": {
+              "milliBB": -500
+            },
+            "raise": {
+              "milliBB": 1572
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "fold": 0,
+            "raise": 10000
+          },
+          "handClass": "TT"
+        }
+      ],
+      "title": "5BB 单挑开局 Push/Fold（小盲）"
+    },
+    {
+      "abilityDimension": "tournament-push-fold",
+      "assumptions": {
+        "allowedBetSizeDescription": "jam-or-fold only",
+        "effectiveStack": {
+          "centiBB": 500
+        },
+        "gameType": "NLHE tournament",
+        "rakeDescription": "rake=0",
+        "tableSize": 2,
+        "tournament": {
+          "anteDescription": "no ante (heads-up SB=0.5BB/BB=1BB, rake=0, chipEV)",
+          "bigBlindCentiBB": 100,
+          "effectiveBigBlinds": 5,
+          "equilibrium": "chipEV",
+          "hasAnte": false,
+          "smallBlindCentiBB": 50
+        }
+      },
+      "board": [],
+      "curriculumNodeID": "tournament-hu-push-fold",
+      "decision": {
+        "amountToCall": {
+          "centiBB": 400
+        },
+        "configuredBetSizes": [],
+        "effectiveStack": {
+          "centiBB": 400
+        },
+        "pot": {
+          "centiBB": 600
+        }
+      },
+      "explanation": {
+        "boardReasoning": "翻前无公共牌；决策只依赖手牌、位置与有效深度。",
+        "conclusion": "5BB 单挑 大盲防守 的 ChipEV 纳什 push/fold 均衡策略。",
+        "futurePlan": "这是跟注或弃牌的一次性全下决策，无后续街。",
+        "gtoBaseline": "ChipEV 纳什均衡（无 ICM、无 ante、rake=0）。",
+        "opponentReasoning": "对手为同一均衡下的最优回应，不做针对性剥削。",
+        "rangeReasoning": "频率来自锁定开源 CFR+ 求解器的均衡平均策略，未经人工审核。"
+      },
+      "facing": "singleRaise",
+      "heroCards": [
+        "As",
+        "Ah"
+      ],
+      "heroSeatOffsetFromButton": 1,
+      "id": "content-tourn-hu-pushfold-chip-ev-noante-05bb-call-jam",
+      "options": [
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "ev": {
+            "milliBB": -1000
+          },
+          "frequencyBasisPoints": 0
+        },
+        {
+          "action": {
+            "kind": "call",
+            "toCentiBB": 400
+          },
+          "ev": {
+            "milliBB": 3499
+          },
+          "frequencyBasisPoints": 10000
+        }
+      ],
+      "rangeCells": [
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -129
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "22"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1881
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "32o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1511
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "32s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 89
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "33"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1816
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "42o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1449
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "42s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1662
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "43o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1304
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "43s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 336
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "44"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1745
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "52o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1382
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "52s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1583
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "53o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1230
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "53s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1422
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "54o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1078
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "54s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 594
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "55"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1850
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "62o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1478
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "62s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1685
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "63o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1325
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "63s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1516
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "64o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1166
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "64s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1343
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "65o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1004
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "65s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 855
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "66"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1892
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "72o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1516
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "72s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1729
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "73o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1365
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "73s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1557
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "74o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1203
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "74s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1378
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "75o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1035
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "75s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1235
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "76o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -903
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "76s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1150
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "77"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1758
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "82o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1388
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "82s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1732
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "83o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1365
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "83s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1556
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "84o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1200
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "84s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1375
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "85o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1031
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "85s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1213
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "86o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -881
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "86s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1042
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "87o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -722
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "87s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1460
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "88"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1626
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "92o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1262
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "92s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1571
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "93o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1213
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "93s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1525
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "94o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1170
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "94s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1342
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "95o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -999
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 9991,
+            "fold": 9
+          },
+          "handClass": "95s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1177
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "96o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -844
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "96s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1000
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 7514,
+            "fold": 2486
+          },
+          "handClass": "97o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -680
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "97s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -807
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "98o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -500
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "98s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1759
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "99"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 181
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A2o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 447
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A2s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 264
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A3o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 523
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A3s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 350
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A4o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 601
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A4s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 438
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A5o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 683
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A5s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 482
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A6o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 725
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A6s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 621
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A7o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 855
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A7s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 748
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A8o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 972
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A8s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 853
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A9o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1070
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "A9s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 3499
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "AA"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1248
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "AJo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1438
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "AJs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1525
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "AKo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1697
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "AKs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1390
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "AQo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1571
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "AQs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1103
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "ATo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1303
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "ATs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1216
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "J2o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -872
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J2s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1147
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "J3o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -810
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J3s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1066
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "J4o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -736
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J4s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -976
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J5o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -653
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J5s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -890
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J6o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -571
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J6s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -680
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J7o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -376
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J7s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -468
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J8o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -177
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J8s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -261
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J9o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 16
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "J9s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 2393
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "JJ"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -19
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "JTo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 242
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "JTs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -392
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K2o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -94
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K2s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -311
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K3o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -20
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K3s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -225
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K4o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 59
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K4s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -134
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K5o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 143
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K5s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -7
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K6o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 263
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K6s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 113
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K7o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 374
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K7s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 219
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K8o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 473
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K8s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 426
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K9o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 666
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "K9s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 804
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KJo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1019
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KJs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 3112
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KK"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 944
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KQo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 1149
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KQs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 671
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KTo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 894
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KTs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -838
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q2o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -515
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q2s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -759
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q3o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -443
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q3s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -674
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q4o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -366
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q4s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -582
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q5o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -280
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q5s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -462
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q6o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -167
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q6s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -366
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q7o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -78
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q7s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -150
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q8o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 124
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q8s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 58
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q9o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 318
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Q9s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 425
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "QJo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 660
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "QJs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 2749
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "QQ"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 299
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "QTo"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 543
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "QTs"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1465
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "T2o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1108
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "T2s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1408
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "T3o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1057
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "T3s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1331
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "T4o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -986
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T4s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1277
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "T5o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -937
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T5s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -1091
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "T6o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -763
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T6s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -895
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T7o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -580
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T7s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -691
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T8o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -389
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T8s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -484
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T9o"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": -196
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "T9s"
+        },
+        {
+          "actionEVs": {
+            "call": {
+              "milliBB": 2079
+            },
+            "fold": {
+              "milliBB": -1000
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "TT"
+        }
+      ],
+      "title": "5BB 单挑面对全下（大盲）"
+    }
+  ]
+}

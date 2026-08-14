@@ -4,7 +4,8 @@ PC_CONTENT_CHANNEL = store
 
 // A store release carries reviewed content only. The gate reads the
 // channel back out of the built Info.plist and enforces that.
-// The tournament push/fold packs are unverifiedDraft, so they are excluded
-// from store here (kept in debug/dogfood); check-release-content.sh is the
+// The tournament push/fold packs are now `reviewed` (named human sign-off,
+// content version 2026.08.14-hu-pf.reviewed.1), so they ship in store; only
+// the development fixture stays excluded. check-release-content.sh is the
 // manifest-scan backstop if this line is ever wrong.
-EXCLUDED_SOURCE_FILE_NAMES = DevStrategyPack.json tourn-hu-chip-ev-noante-*.json
+EXCLUDED_SOURCE_FILE_NAMES = DevStrategyPack.json

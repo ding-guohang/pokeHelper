@@ -59,7 +59,7 @@ final class TournamentPushFoldViewModelTests: XCTestCase {
 
     func testEmptyBundleMakesTrainerUnavailable() {
         let store = RecordingEventStore()
-        let loader = TournamentPushFoldLoader(resource: { _ in nil })  // store channel: no packs
+        let loader = TournamentPushFoldLoader(resource: { _ in nil })  // no packs bundled at all
         let vm = makeViewModel(store: store, loader: loader)
         XCTAssertTrue(vm.availableDepths.isEmpty)
         var rng = SystemRandomNumberGenerator()

@@ -120,9 +120,10 @@ struct ReviewView: View {
             }
             .accessibilityIdentifier("review.progressTrend")
 
-            // Push/fold trainer over the bundled unverified tournament packs.
-            // Only present when those packs are bundled (debug/dogfood); the
-            // store build excludes them, so this entry disappears there.
+            // Push/fold trainer over the bundled `reviewed` tournament packs.
+            // Present whenever the packs are bundled (all channels now, store
+            // included); the guard stays so the entry disappears if a build ever
+            // ships without them.
             if !dependencies.tournamentPushFoldLoader.availableDepths().isEmpty {
                 NavigationLink {
                     TournamentPushFoldView(viewModel: dependencies.makeTournamentPushFoldViewModel())

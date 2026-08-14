@@ -1,11 +1,11 @@
 import Foundation
 import StrategyContent
 
-/// Loads the bundled unverified HU push/fold packs by effective depth.
+/// Loads the bundled HU push/fold packs by effective depth.
 ///
-/// These packs are `unverifiedDraft` and are bundled only in debug/dogfood
-/// builds; the store build excludes them, so `availableDepths()` is empty there
-/// and the trainer entry disappears. Bundled bytes are not trusted: every pack
+/// These packs are `reviewed` (named human sign-off, content version
+/// 2026.08.14-hu-pf.reviewed.1) and ship in every channel, so `availableDepths()`
+/// is populated in store too. Bundled bytes are still not trusted: every pack
 /// goes through the same checksum + semantic validation as `BundledContentLoader`.
 struct TournamentPushFoldLoader {
     static let minDepth = 1

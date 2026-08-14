@@ -3,7 +3,8 @@
 PC_CONTENT_CHANNEL = dogfood
 
 // This channel is permitted to carry unverifiedDraft content; none currently
-// exists, so it ships the same resources as a store release and differs only
-// by channel. The distinction stays because the gate enforces it and the
-// moment unverified content returns it must not need re-inventing.
+// ships (the tournament packs were promoted to `reviewed`), so it carries the
+// same resources as a store release and differs only by channel. The
+// distinction stays because the gate enforces it and the moment unverified
+// content returns it must not need re-inventing.
 EXCLUDED_SOURCE_FILE_NAMES = DevStrategyPack.json

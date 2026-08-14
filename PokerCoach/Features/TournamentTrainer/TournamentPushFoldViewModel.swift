@@ -11,15 +11,15 @@ enum TournamentTrainerState: Equatable {
     case failed(message: String)
 }
 
-/// Drives the heads-up push/fold trainer over the bundled `unverifiedDraft`
+/// Drives the heads-up push/fold trainer over the bundled `reviewed`
 /// tournament packs.
 ///
 /// It deals a spot (depth × position × hero hand), looks up the dealt hand's
 /// range cell, synthesizes a per-hand `DecisionScenario` (the pack scenario with
 /// the dealt hand's own options), and scores the hero's jam/fold with the
-/// unchanged `DecisionScorer`, recording a `TrainingEvent`. Because the content
-/// is unverified, the view discloses that; the trainer is absent from the store
-/// build where no packs are bundled.
+/// unchanged `DecisionScorer`, recording a `TrainingEvent`. The content is
+/// `reviewed` + `origin=solver`, so `disclosure` is nil and no unverified banner
+/// shows; the trainer ships in every channel including store.
 @MainActor
 @Observable
 final class TournamentPushFoldViewModel {
@@ -42,7 +42,8 @@ final class TournamentPushFoldViewModel {
     private(set) var validationMessage: String?
     private(set) var isSaving = false
 
-    /// Always non-nil for a loaded spot: the packs are `unverifiedDraft`.
+    /// Nil for the shipped `reviewed` packs; set only if a lesser-status pack is
+    /// ever loaded (e.g. a dev fixture in a debug build).
     private(set) var disclosure: String?
 
     private let loader: TournamentPushFoldLoader
