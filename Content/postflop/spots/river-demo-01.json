@@ -1,0 +1,15 @@
+{
+  "id": "river-demo-01",
+  "note": "Trust-chain demonstration spot (single-raised-pot proxy). NOT curated teaching content yet — used to prove the postflop pipeline end to end.",
+  "oopRange": "66+,A8s+,AJo+,KQo,QTs+,JTs",
+  "ipRange": "QQ-22,AQs-A2s,ATo+,KJo+",
+  "flop": "Td9d6h",
+  "turn": "Qc",
+  "river": "2s",
+  "startingPotChips": 200,
+  "effectiveStackChips": 900,
+  "oopBetSizes": "50%",
+  "ipBetSizes": "50%",
+  "maxIterations": 2000,
+  "targetExploitabilityFraction": 0.001
+}
