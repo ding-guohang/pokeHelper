@@ -41,14 +41,11 @@ struct StrategyImport {
             from: exportData
         )
 
-        // Defence in depth: freshly imported tournament solver content is never
-        // reviewed. Human promotion is a separate future operation that consumes
-        // review evidence, not this raw import path.
-        if export.tournament != nil, options.reviewStatus != .unverifiedDraft {
-            throw UsageError(
-                message: "tournament solver content must be imported as unverifiedDraft, got \(options.reviewStatus.rawValue)"
-            )
-        }
+        // Reviewed tournament content is produced only by the deliberate
+        // promotion path (promote-tournament-packs.py), which requires a named
+        // review record; the auto-import wrapper never passes `reviewed`, and
+        // the validator refuses `reviewed` without a reviewer. So this tool does
+        // not special-case tournament status here.
 
         if options.printRangeTables {
             print(RangeTableReport().render(export))

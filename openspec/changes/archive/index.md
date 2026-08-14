@@ -204,3 +204,14 @@
 - 验证：VM 单测（AA@10bb 全下 100/损失 0；弃牌 3478 milliBB blunder；空 bundle→不可用；手类映射）；UI 测试（复盘→训练器可达、披露未审核、作答→反馈）；`AdaptiveNavigationTests` 绿；四包套件绿
 - 已知（不属本 change 的先存问题）：`check-m1b-release-secrets.sh` 的二进制串扫描对 `DevStrategyPack` 标记失败——该字面量来自 `BundledContentLoader.resourceNames`（既有 main 代码，非本 change 引入）
 - 未做（有意）：ICM/多路/9-max/翻后训练；把未审核内容标 reviewed 或送 store；人工审核晋升
+
+## tournament-content-promotion-20260814-01
+
+- 归档：2026-08-14 11:34
+- 位置：`openspec/changes/archive/tournament-content-promotion-20260814-01-20260814-113441`
+- 新增能力：tournament-content-promotion（M5 晋升路径）
+- 修改能力：无（`strategy-import` 移除冗余锦标赛守卫，reviewed 审核人要求由校验器强制）
+- 交付：`promote-tournament-packs.py`——校验完整审核记录（具名审核人 + ISO8601 时间 + approved + 三项证据阈值：equity 重算 Δ≤1e-6、可利用度≤0.02BB、逐位可复现），用新内容版本把导出重导入为 `reviewed`+`origin=solver`+审核人/时间，并做**黄金回归**（reviewed 包去 manifest 后与 unverifiedDraft 基线逐字节一致——只重标不改内容）；任一缺失/不一致失败关闭、原子发布不留残件。生成方不能自我背书（晋升与自动导入分离、需人签署）
+- 新增规格：1 Capability、2 Requirements、4 Scenarios
+- 验证：7 个 unittest（缺审核人/未批准/证据不达标/不可复现各拒；完整记录→20 个 reviewed 包、策略与基线逐字节一致、manifest 正确重标；不完整不产出）；StrategyTooling 25 测试绿
+- 我未运行真实晋升、未提交任何 reviewed 内容——签署留给你 + codex
