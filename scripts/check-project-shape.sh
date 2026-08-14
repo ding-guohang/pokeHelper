@@ -16,3 +16,4 @@ test "$(grep -Fc -- '-warnings-as-errors' Packages/StrategyContent/Package.swift
 test "$(grep -Fc -- '-warnings-as-errors' Packages/TrainingDomain/Package.swift)" -eq 2
 test "$(grep -Fc -- '-warnings-as-errors' Packages/TrainingPersistence/Package.swift)" -eq 2
 test "$(grep -Fc -- '-warnings-as-errors' Packages/SessionPersistence/Package.swift)" -eq 3
+test "$(grep -Fc -- '-warnings-as-errors' Packages/Entitlements/Package.swift)" -eq 2

@@ -122,6 +122,10 @@ echo "==> PokerCore depends on nothing in this repository"
 check_manifest PokerCore
 check_imports PokerCore
 
+echo "==> Entitlements depends on nothing in this repository"
+check_manifest Entitlements
+check_imports Entitlements
+
 if (( status )); then
     echo
     echo "See docs/architecture/layering.md. These are not style rules:"
