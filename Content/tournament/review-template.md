@@ -16,6 +16,8 @@
 - 求解器仓库 / commit:`b-inary/poker-cfr@a5347082007ba1eda7932ef2fe7fad43cb3be2a1`（BSD-2-Clause）
 - 锁定输入 SHA-256（见 `source-lock.json` 与 `golden-manifest.json`）核对:是 / 否
 - `bash scripts/verify-tournament-content.sh` 重跑逐位一致:是 / 否
+- **独立 equity 重算**（`verify-equities.py` → `equity-verify-report.md`）：从零实现的评估器 +
+  全枚举与锁定 equity 表逐项比对，最大偏差 `________`（本批次 0.00e+00，消除「equity 与求解器共享同源」的顾虑）
 - 每深度 iterations 与 NashConv（见 `golden-manifest.json`）:最大 NashConv `________` BB/hand
 
 ## 3. 独立参照与许可
