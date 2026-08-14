@@ -1,12 +1,15 @@
 # Poker Coach
 
-Poker Coach（仓库名 `porkHelper`）是一个原生 iPhone/iPad 德州扑克决策训练应用。M1 的三个切片均已实现：
+Poker Coach（仓库名 `porkHelper`）是一个原生 iPhone/iPad 德州扑克决策训练应用。已实现并归档的切片：
 
 - **M1A** 可离线运行的现金桌训练纵向切片
 - **M1B** 独立账号、设备会话与事件同步（Go + MySQL 服务端在 `Server/`）
 - **M1C** 自适应现金局课程：随包交付的已审核翻前内容、初始诊断、能力树掌握判定、间隔复练与今日计划
+- **M2A** 现金局 Session：种子确定发牌、可披露的确定性虚拟对手、可中断续打、关键手复盘与逐街回放、跨 Session 翻前频率报告
+- **M2B** 个人牌局实验室（Hand Lab）：PokerStars 现金牌谱导入与冲突登记、节点粒度偏离分析、偏离补救训练、手动场景构建器、逐街回放与内容反事实
+- **M3** 锦标赛地基（`TournamentEngine`：升盲结构、精确有理数 ICM 权益计算器、短筹码 push/fold 决策上下文）+ 首个消费真实锦标赛内容的 HU push/fold 训练器；HU push/fold 求解内容已具名人工审核晋升为 `reviewed` 并随所有频道（含 store）交付
 
-每个切片有各自的验证脚本：`verify-m1b.sh` 会先跑 `verify-m1a.sh`，`verify-m1c.sh` 独立运行（它覆盖领域包、工具链、三种构建频道与内容门禁）。
+每个切片有各自的验证脚本：`verify-m1b.sh` 会先跑 `verify-m1a.sh`；`verify-m1c.sh`、`verify-m2a.sh`、`verify-m2b.sh` 各自独立运行；`verify-tournament-content.sh` 是锦标赛内容的可复现性 + 回归门禁。
 
 ## 开发环境
 
@@ -130,6 +133,29 @@ swift run --package-path Packages/StrategyTooling strategy-golden \
 
 内容的**来源**（`origin`）与**审核状态**（`reviewStatus`）分开记录：当前核心集由模型生成、由仓库所有者逐范围表审核，因此是 `origin: generativeModel` + `reviewStatus: reviewed`，界面据此披露“非求解器产出，已人工审核”。翻后内容不在 M1C 交付范围内。
 
+## M2A / M2B 验证
+
+M2A 加入现金局 Session（模拟引擎、虚拟对手、Session 记录），M2B 加入个人牌局实验室（牌谱解析、冲突模型、版本化个人牌谱库）。两个脚本各自独立运行，且每个只能通过的门禁都会对刻意构造的坏输入再跑一次——只会成功的门禁与永远成功的门禁无法区分。
+
+```bash
+bash scripts/verify-m2a.sh
+bash scripts/verify-m2b.sh
+```
+
+M2A 保证模拟引擎不知道教学内容存在、Session 手牌不产生 `TrainingEvent`（只有复盘「重打」才走带信心的训练管线）；M2B 保证解析器不知道教学内容存在、导入手不会变成 `TrainingEvent`。新入口（Session、Hand Lab）都挂在「复盘」标签下，四个核心标签保持不变。
+
+## 锦标赛内容验证
+
+M3 的 `TournamentEngine` 是内容无关的地基（升盲结构、精确有理数 ICM、短筹码 push/fold 决策上下文），策略真值来自锁定的开源 CFR+ 求解器而非编造。HU push/fold 内容的可复现性 + 回归门禁：
+
+```bash
+bash scripts/verify-tournament-content.sh
+```
+
+它从锁定求解器（`b-inary/poker-cfr`，BSD-2-Clause，hash 门禁）在临时目录重生成归一批次、重校验、重建导出/包与黄金 manifest，并与在库文件逐字节比对，再跑受影响的 Swift 套件与包层门禁。需要 Rust 工具链和一次网络拉取锁定来源。
+
+内容分两步落地：`Content/tournament/` 的流水线产出 20 个 `origin=solver` + `reviewStatus=unverifiedDraft` 包（存 `Content/packs/`，作为可复现性锚点）；`Content/promote-tournament-packs.py` 在校验完整审核记录（具名审核人 + ISO8601 + approved + 三项证据阈值）并做黄金回归后，用新内容版本晋升为 `reviewed`（存 `Content/packs-reviewed/`）。自动导入永不产 `reviewed`——生成方不能自我背书，晋升需人签署。当前随包的 20 个 HU push/fold 包已完成晋升，随 store 在内的所有频道交付，界面不再显示“未经策略审核”横幅。
+
 ## 设计与路线
 
 - [已批准的产品设计](docs/superpowers/specs/2026-08-06-texas-holdem-coach-design.md)
@@ -137,4 +163,7 @@ swift run --package-path Packages/StrategyTooling strategy-golden \
 - [M1A 模块边界与 M1B 交接](docs/architecture/m1a-module-boundaries.md)
 - [M1B 身份与同步设计](docs/superpowers/specs/2026-08-07-m1b-identity-sync-design.md)
 - [M1C 自适应课程设计](openspec/changes/archive/curriculum-m1c-adaptive-cash-20260810-01-20260810-230421/design.md)
-- 当前生效的主规格在 [`openspec/specs/`](openspec/specs/)，历史变更在 [`openspec/changes/archive/`](openspec/changes/archive/index.md)。
+- [M2A 现金局 Session 设计](openspec/changes/archive/session-m2a-cash-simulation-20260810-01-20260812-092232/design.md)
+- [M2B 个人牌局实验室（导入切片）设计](openspec/changes/archive/handlab-m2b-import-preview-20260812-01-20260812-174946/design.md)
+- [M3 锦标赛结构地基设计](openspec/changes/archive/tournament-m3-structure-20260813-01-20260813-140652/design.md)
+- 当前生效的主规格在 [`openspec/specs/`](openspec/specs/)（39 个能力域），历史变更在 [`openspec/changes/archive/`](openspec/changes/archive/index.md)。
