@@ -41,7 +41,14 @@ def make_normalized_doc(depth):
     doc = {
         "effectiveBigBlinds": depth,
         "source": {"repository": "b-inary/poker-cfr", "commit": "a" * 40, "licenseSpdx": "BSD-2-Clause", "lockedHashes": {}},
-        "configuration": {"nashConvThresholdBB": 0.001, "equilibrium": "chipEV"},
+        "configuration": {
+            "nashConvThresholdBB": 0.001,
+            "equilibrium": "chipEV",
+            "smallBlindCentiBB": 50,
+            "bigBlindCentiBB": 100,
+            "hasAnte": False,
+            "anteDescription": "no ante (rake=0), heads-up SB=0.5BB/BB=1BB chipEV",
+        },
         "iterations": 10_000,
         "nashConvBB": 0.0001,
         "exploitabilityBB": 0.00005,

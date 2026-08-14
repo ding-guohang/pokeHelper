@@ -54,59 +54,72 @@ def ensure_source(lock: dict, cache_dir: Path) -> Path:
     commit = lock["commit"]
     repository = lock["repository"]
     crate = cache_dir / f"poker-cfr-{commit}"
-    marker = crate / ".verified"
-    if marker.exists() and marker.read_text(encoding="utf-8").strip() == commit:
-        return crate
 
+    # Clone once, but VERIFY every locked hash on EVERY call — the checkout is
+    # kept pristine (the export bin is built in a throwaway copy, see
+    # build_solver), so re-verification is meaningful and a tampered/altered
+    # cache fails closed rather than being trusted via a marker.
+    need_clone = True
     if crate.exists():
-        shutil.rmtree(crate)
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        ["git", "clone", "--quiet", f"https://github.com/{repository}", str(crate)],
-        check=True,
-    )
-    subprocess.run(["git", "-C", str(crate), "checkout", "--quiet", commit], check=True)
-    head = subprocess.run(
-        ["git", "-C", str(crate), "rev-parse", "HEAD"],
-        check=True, capture_output=True, text=True,
-    ).stdout.strip()
-    if head != commit:
-        shutil.rmtree(crate)
-        raise SolverError(f"checkout HEAD {head} != locked commit {commit}")
+        head = subprocess.run(
+            ["git", "-C", str(crate), "rev-parse", "HEAD"],
+            capture_output=True, text=True,
+        ).stdout.strip()
+        need_clone = head != commit
+    if need_clone:
+        if crate.exists():
+            shutil.rmtree(crate)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["git", "clone", "--quiet", f"https://github.com/{repository}", str(crate)], check=True)
+        subprocess.run(["git", "-C", str(crate), "checkout", "--quiet", commit], check=True)
+        head = subprocess.run(
+            ["git", "-C", str(crate), "rev-parse", "HEAD"], check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        if head != commit:
+            shutil.rmtree(crate)
+            raise SolverError(f"checkout HEAD {head} != locked commit {commit}")
 
     for entry in [lock["license"], *lock["files"]]:
         path = crate / entry["path"]
         if not path.is_file():
-            shutil.rmtree(crate)
             raise SolverError(f"locked input missing from checkout: {entry['path']}")
         actual = _sha256(path.read_bytes())
         if actual != entry["sha256"]:
-            shutil.rmtree(crate)
-            raise SolverError(
-                f"sha256 mismatch for {entry['path']}: {actual} != {entry['sha256']}"
-            )
-    marker.write_text(commit, encoding="utf-8")
+            raise SolverError(f"sha256 mismatch for {entry['path']}: {actual} != {entry['sha256']}")
     return crate
 
 
-def build_solver(crate: Path) -> Path:
-    """Drop the read-only export bin into the verified crate and build it.
-
-    Only additive: a new source file and a Cargo `[[bin]]` stanza; no locked
-    source is modified."""
-    shutil.copyfile(EXPORT_BIN_SRC, crate / "src" / "main_hu_export.rs")
-    cargo = crate / "Cargo.toml"
-    text = cargo.read_text(encoding="utf-8")
-    if 'name = "hu_export"' not in text:
-        text += '\n[[bin]]\nname = "hu_export"\npath = "src/main_hu_export.rs"\n'
-        cargo.write_text(text, encoding="utf-8")
+def verify_toolchain(lock: dict) -> str:
+    """Return the running rustc version, failing if it does not match the lock's
+    declared toolchain — float determinism across LLVM versions is not
+    guaranteed, so the version that reproduces the content is pinned."""
+    declared = lock.get("rustVersion")
     env = dict(os.environ)
     env["PATH"] = f"{Path.home() / '.cargo' / 'bin'}:{env.get('PATH', '')}"
-    subprocess.run(
-        ["cargo", "build", "--release", "--bin", "hu_export"],
-        cwd=crate, check=True, env=env,
-    )
-    return crate / "target" / "release" / "hu_export"
+    out = subprocess.run(["rustc", "--version"], check=True, capture_output=True, text=True, env=env).stdout
+    # "rustc 1.97.1 (…)" -> "1.97.1"
+    actual = out.split()[1] if len(out.split()) >= 2 else ""
+    if declared and actual != declared:
+        raise SolverError(f"rustc version {actual!r} != locked {declared!r}")
+    return actual
+
+
+def build_solver(crate: Path, cache_dir: Path) -> Path:
+    """Build the read-only export bin in a THROWAWAY COPY of the verified crate,
+    so no locked source (Cargo.toml included) is ever modified in place."""
+    build_dir = cache_dir / f"{crate.name}-build"
+    if build_dir.exists():
+        shutil.rmtree(build_dir)
+    shutil.copytree(crate, build_dir)
+    shutil.copyfile(EXPORT_BIN_SRC, build_dir / "src" / "main_hu_export.rs")
+    cargo = build_dir / "Cargo.toml"
+    text = cargo.read_text(encoding="utf-8")
+    if 'name = "hu_export"' not in text:
+        cargo.write_text(text + '\n[[bin]]\nname = "hu_export"\npath = "src/main_hu_export.rs"\n', encoding="utf-8")
+    env = dict(os.environ)
+    env["PATH"] = f"{Path.home() / '.cargo' / 'bin'}:{env.get('PATH', '')}"
+    subprocess.run(["cargo", "build", "--release", "--bin", "hu_export"], cwd=build_dir, check=True, env=env)
+    return build_dir / "target" / "release" / "hu_export"
 
 
 _BINARY_CACHE: dict = {}
@@ -115,8 +128,9 @@ _BINARY_CACHE: dict = {}
 def _solver_binary(lock: dict, cache_dir: Path) -> Path:
     key = str(cache_dir)
     if key not in _BINARY_CACHE:
-        crate = ensure_source(lock, cache_dir)
-        _BINARY_CACHE[key] = build_solver(crate)
+        verify_toolchain(lock)
+        crate = ensure_source(lock, cache_dir)  # re-verifies all locked hashes
+        _BINARY_CACHE[key] = build_solver(crate, cache_dir)
     return _BINARY_CACHE[key]
 
 

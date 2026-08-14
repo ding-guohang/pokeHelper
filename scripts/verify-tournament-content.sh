@@ -62,6 +62,29 @@ python3 Content/tournament/build-golden-manifest.py \
 # The manifest hashes the tracked artifacts, so build against the repo, then diff.
 diff "$scratch/golden-manifest.json" "Content/tournament/golden-manifest.json" >/dev/null
 
+echo "==> Independent evidence: equity recompute + exploitability cross-check"
+# The generate step above populated the locked solver checkout in the default
+# cache; the upstream equity table lives at <crate>/static. Both tools re-verify
+# the table's SHA-256 against source-lock and exit non-zero if a threshold is
+# exceeded, and we byte-diff the regenerated reports so a stale committed report
+# also fails the gate.
+solver_cache="$(python3 -c 'import tempfile; print(tempfile.gettempdir())')/pokerhelper-solver-cache"
+commit="$(python3 -c "import json; print(json.load(open('Content/tournament/source-lock.json'))['commit'])")"
+equity_bin="$solver_cache/poker-cfr-$commit/static/heads_up_pre_flop_equity.bin"
+if [ ! -f "$equity_bin" ]; then
+    echo "FAIL: locked equity table missing at $equity_bin (solver cache not populated)" >&2
+    exit 1
+fi
+python3 Content/tournament/verify-equities.py \
+    --equity "$equity_bin" --source-lock Content/tournament/source-lock.json \
+    --report "$scratch/equity-verify-report.md" >/dev/null
+diff "$scratch/equity-verify-report.md" "Content/tournament/equity-verify-report.md" >/dev/null
+python3 Content/tournament/cross-check-exploitability.py \
+    --normalized Content/tournament-normalized --equity "$equity_bin" \
+    --source-lock Content/tournament/source-lock.json \
+    --report "$scratch/cross-check-report.md" >/dev/null
+diff "$scratch/cross-check-report.md" "Content/tournament/cross-check-report.md" >/dev/null
+
 echo "==> Content and tooling suites"
 swift test --package-path Packages/StrategyContent >/dev/null
 swift test --package-path Packages/StrategyTooling >/dev/null

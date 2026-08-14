@@ -32,221 +32,221 @@
       "callJamRows": 0,
       "depth": 1,
       "exploitabilityBB": 8.879615792656281e-17,
-      "exportSHA256": "558260a16410ca40f0e11259d241e37d82590a58b7723761bc596f4f2039f106",
+      "exportSHA256": "cdcc7254c6f646dcdc87fd65f000db471df94ed78b16e7e7ee8e68505342b936",
       "iterations": 10000,
       "nashConvBB": 1.7759231585312563e-16,
-      "normalizedSHA256": "6d23c3ca1ac1831b4b3d1d9c36a3029a8b3dc36ae402df08b4162442e76ab91d",
+      "normalizedSHA256": "21fc9b32b87de0a244e136e7adf6910d602525f43e429c245675173bf0c13152",
       "openJamRows": 169,
-      "packSHA256": "9aea7b8a92564212a51f62aad3d742eea1377d616c84fc40dee4c48d7368104d"
+      "packSHA256": "2e5aecc1b5bf2d1e6b0846f647e48f5c84b3af8d1278c7834fff4e19f8823520"
     },
     {
       "callJamRows": 169,
       "depth": 2,
       "exploitabilityBB": 1.5945906865766357e-08,
-      "exportSHA256": "d4930784137dfce8b3a7a3d638b7563bb20b306707f101dc53702f535a531a90",
+      "exportSHA256": "6b438cedb152b585e32f62eb4f43d08f3e6766fd8f955347850f5f61c6d58b06",
       "iterations": 10000,
       "nashConvBB": 3.1891813731532714e-08,
-      "normalizedSHA256": "5cf5c11d44037a9f1d2301cc49608015a59aca8c612928d86761d208dcc3ce3a",
+      "normalizedSHA256": "7f248f76fa70ac1534a19e941d3b0c253a0c8382d0ea65e3901540d395c34936",
       "openJamRows": 169,
-      "packSHA256": "6bc40611d5e90287d849511839c5b40ea985652ee84c60b8dc2ee80c9922d479"
+      "packSHA256": "82dc1ef456bdd9cff719cde502b88dbd4bea0a4ce0b322a80b338932da9e4dab"
     },
     {
       "callJamRows": 169,
       "depth": 3,
       "exploitabilityBB": 6.331810373585989e-08,
-      "exportSHA256": "a342fabff3c8dc62f2571b9390ae5e047a3eb8a6a926101cb8aa0c597bc9ae41",
+      "exportSHA256": "a7500492bbf9b8572b84fb2dda9122d6ca886d10628368ac4b9045b59397584f",
       "iterations": 10000,
       "nashConvBB": 1.2663620747171977e-07,
-      "normalizedSHA256": "c31aa1962ae479c23ee6372067ec522953b118be1adc20b6bea58b0c804ac944",
+      "normalizedSHA256": "4d348429fa1f024edfded1e8b4460135e40bcc6790a180e1ff2bae19239667b0",
       "openJamRows": 169,
-      "packSHA256": "2a3bef07845148ef0e6e96a53410bd420f50a0545e06ce0bc3b5b32b6f9d82f0"
+      "packSHA256": "25994e302c5112371f3f4fa3607d55ce8660bb89f0de2172696f4c882d6f3142"
     },
     {
       "callJamRows": 169,
       "depth": 4,
       "exploitabilityBB": 3.002339571400725e-09,
-      "exportSHA256": "c87654d726d12a89954bca91b25ddfedaf81ca77f5eff8e5a9bb1baec8434ad2",
+      "exportSHA256": "9f2612167d8d909bad702012dc3d8b96bd166e0300a351001d28460938394808",
       "iterations": 10000,
       "nashConvBB": 6.00467914280145e-09,
-      "normalizedSHA256": "eaa33348bfc1d5ab2bbbd5d525a2f0c78ed32842f3a2fe7fdd9fdae5b18fef88",
+      "normalizedSHA256": "1a73a87344e69b03f6416c1acf75e4cd250a748aa5b18786be6eda87177ef204",
       "openJamRows": 169,
-      "packSHA256": "e587c761bcb2036f67dc180892ee2719726da65d44232c07cc12d6ebc0515b07"
+      "packSHA256": "68ae6143a3f4f7d5f9cd701cfa6a1aad5f1c8fb8283c75cb0b6df3303f9b6dda"
     },
     {
       "callJamRows": 169,
       "depth": 5,
       "exploitabilityBB": 4.4613896122563945e-08,
-      "exportSHA256": "03141409ecb2a8b2cf9a453fdd8854dfa2d3c3ca5fa1a51a5a6ecc4847ef8c64",
+      "exportSHA256": "2dd9743e77ab087104c968a5bef1c4e7e8545c343960ef42654e5523b72fd3a7",
       "iterations": 10000,
       "nashConvBB": 8.922779224512789e-08,
-      "normalizedSHA256": "5c62772b761f71f8a99cf8ad7f1a6fec2b9f390a5cf1ebe484255bc6b8ff7136",
+      "normalizedSHA256": "463a43a2539600a22d00ce3689aca3209caeeb4cdc2e594cc8345225105a1624",
       "openJamRows": 169,
-      "packSHA256": "9a057069dbcce6d5df935dbfd7285f393633384d321cefac5f6643974e28d4f7"
+      "packSHA256": "54970eb9399f72a3ad2d4a101f62b1df861223442f886113a5e23b0ff5f413f1"
     },
     {
       "callJamRows": 169,
       "depth": 6,
       "exploitabilityBB": 1.827662838085886e-08,
-      "exportSHA256": "f1c8cc57487ff7a667b28db58a74180ebf1b5afac98dc33a2e566849392351f7",
+      "exportSHA256": "ce285b7e34ff09a5ef6c42845d760b234052302ff2c142ac255d81af8f60329c",
       "iterations": 10000,
       "nashConvBB": 3.655325676171772e-08,
-      "normalizedSHA256": "24e634ced5d7a14ac129e9c7a18b357a72fa3fc6cb6309b2b43887dd30a42f39",
+      "normalizedSHA256": "0501e79f795ec92a8ec8582ed372f9354ea6a3ed1ca3ecb48f8d8ac051ee9e64",
       "openJamRows": 169,
-      "packSHA256": "bc40667de5a59f942c829c16b8a25c014e53be5235e59c5103e8aacca6453204"
+      "packSHA256": "5d17563a9edd69844650d53b0c6d8eb28885e8a247c0bd013ad7a59a71d5de70"
     },
     {
       "callJamRows": 169,
       "depth": 7,
       "exploitabilityBB": 5.401829060100449e-08,
-      "exportSHA256": "792bee8ae013858234444e32957d3978dc759551cc4a3461c93f693f9fcd51ae",
+      "exportSHA256": "b3b60e4bddf35c36a2c1c50fa29b7504a45c4f06c8ba433e66a1d50a2927dd8c",
       "iterations": 10000,
       "nashConvBB": 1.0803658120200899e-07,
-      "normalizedSHA256": "2c420da676706e949a09921f9d520c65499c0d2d7e1eb38353707c072b3e9873",
+      "normalizedSHA256": "92916d2e95416aec24bf3628db69ad56b79fc854f79dd0f6a756db097a15f7c8",
       "openJamRows": 169,
-      "packSHA256": "e09643f035fc15f68ff2b88c2290db4ef446b7ba5b4a5c583a3a27cd16f740e6"
+      "packSHA256": "a0ad9478e8b0277b5123c0b90edee12441f24ea77080b067143c44aa2c059b29"
     },
     {
       "callJamRows": 169,
       "depth": 8,
       "exploitabilityBB": 6.300371210767736e-08,
-      "exportSHA256": "2f91a20945c37d601d73e7c134ed79beb0a1781c974b479413147d7fc5fe197f",
+      "exportSHA256": "17531662d0a4164d0a6506204459e5771b33ae1bad678f499e00e6165dd77131",
       "iterations": 10000,
       "nashConvBB": 1.260074242153547e-07,
-      "normalizedSHA256": "66898b5372820dbf4df5aed6ab1c8d7c441602a891ea89b1c2b78f1905b75381",
+      "normalizedSHA256": "309f6fa35a59e719ea90bbe49a1d17cc3a8f83f48f795567f03788cee7f4936e",
       "openJamRows": 169,
-      "packSHA256": "efda25e72fd7852e5d65fc7ec73ed60625a782ef1ebb3c259b69dd45487071a6"
+      "packSHA256": "2d0829525e9b172fff7fa0e80b2cf9944fd22e68ed5fed840dd0ceafab8db6de"
     },
     {
       "callJamRows": 169,
       "depth": 9,
       "exploitabilityBB": 1.8009484695213906e-08,
-      "exportSHA256": "0d255e11c6e93d4e4b30e017a06a6d9b6d905b4599a6fc03234e048fcb3b1420",
+      "exportSHA256": "bb9c4c9bacf8e1c1c9b5668de05220f7f59644aaa6cb21337efca9c59c9f56e4",
       "iterations": 10000,
       "nashConvBB": 3.601896939042781e-08,
-      "normalizedSHA256": "8d90a51645ce5249d239ed3c458f88f413518a0a9f168aebd181d0062eb8fab9",
+      "normalizedSHA256": "1cad9d4325d3f17678615dd310d9d40edbdf4efe98311ebc708240ead7ec9ed1",
       "openJamRows": 169,
-      "packSHA256": "3ac3cfcbb69dfbc83cbc17f3433c25fc535c845eccb558dccc19eb983055672f"
+      "packSHA256": "9a6d6c2d3b49914618b365d56c6623c529f58d29d650faae74e029088c4047f6"
     },
     {
       "callJamRows": 169,
       "depth": 10,
       "exploitabilityBB": 1.9277780316517834e-08,
-      "exportSHA256": "97a0854765370094fd42bd4a788598d69be41928358d65ccfc21ea2f786f35b0",
+      "exportSHA256": "1824eb0016b467b8be35169e8d78076d48e8e6ac202a6f653ebb89cde73b7358",
       "iterations": 10000,
       "nashConvBB": 3.855556063303567e-08,
-      "normalizedSHA256": "d483a99f3d3122f32698b994969fb95ef2f9e7b1f84f4166b7aa8c8107e62753",
+      "normalizedSHA256": "5a4fdae47ceb421ba8ea3d5acefdb273041fee733053e477240aaddb52a487f1",
       "openJamRows": 169,
-      "packSHA256": "468fbd9ee6df9223a21ec13fc9b3bebac8f6a8757f861ed1b93801f40f9f8b10"
+      "packSHA256": "bb80b5f6bab881e857293e2651a59483344d068828913c5bd6a0dcbf5d259251"
     },
     {
       "callJamRows": 169,
       "depth": 11,
       "exploitabilityBB": 3.204455989447297e-08,
-      "exportSHA256": "634278573134334ef864a05eea4a6a5a8bae819e4bdc661e8cfed7411d1b5c0f",
+      "exportSHA256": "410e14155852503bf429f7a2a0ae4102fe08e04b9333a5a181a22fc58303ba50",
       "iterations": 10000,
       "nashConvBB": 6.408911978894594e-08,
-      "normalizedSHA256": "92e5752755ca8f4c9985982c1b9298b426b59b35899bdb2be7b02b67271b991f",
+      "normalizedSHA256": "50e7aafb27ca5ca7b8c36566125b62082f0583e975faa5271410edc83756b176",
       "openJamRows": 169,
-      "packSHA256": "68ec03329d10684c27b574a727bf97c2efbc3e4fa15488cb6aa00cc4b3e3db30"
+      "packSHA256": "d5a76bddb7619cab0e5d05327f41c90a44b4c015817e12db916aa30c2b6c8f17"
     },
     {
       "callJamRows": 169,
       "depth": 12,
       "exploitabilityBB": 7.178294320064893e-09,
-      "exportSHA256": "abe79ec3803835d207e8661149b04b0b6e81e2ca225fecc0790834e0fb0527c2",
+      "exportSHA256": "db1869dc2030696da1fd5a207b844dbd5f0b56015932fa9be52cd0ba608ac076",
       "iterations": 10000,
       "nashConvBB": 1.4356588640129786e-08,
-      "normalizedSHA256": "c3b2e817770a6da97e88522722d6dadcc9a2d8fb9492d768c702bec7e016f9da",
+      "normalizedSHA256": "fddd086994c347775d36bfe21c01c2c83b9931744b5b024e7cfb8da8f84dbb46",
       "openJamRows": 169,
-      "packSHA256": "a6b519a2a00efd8b6b56d392fefff461898d3da61b0596941e90a34e90c7e2be"
+      "packSHA256": "29125a3a39d4cbdb5feb2c3e430844aaceb04bdf2226f13c3a1e06bd9fac5671"
     },
     {
       "callJamRows": 169,
       "depth": 13,
       "exploitabilityBB": 1.36988358850898e-08,
-      "exportSHA256": "dda17d7bb829ecf11c857e9bf69dd8db366dd0934b4f3e4147b9f20894d1a455",
+      "exportSHA256": "fc630dbb015610b2d0728b27781143a940ba542b3e14f9db64aceb8581c5be8c",
       "iterations": 10000,
       "nashConvBB": 2.73976717701796e-08,
-      "normalizedSHA256": "c1f404e4cf42975c32068ffd5911c5531be9ccc719aedfd625aff975cd0ea7f0",
+      "normalizedSHA256": "eba5c44260cbb14338eed75b0f140644c82e909d25730a61a1676125c241254a",
       "openJamRows": 169,
-      "packSHA256": "ad5266a8659965ee9941074e1a4042a559d2b36a1f10aac576349c6ed0652498"
+      "packSHA256": "3f8c8f3ada6512ccc1d3685b15c830ff79157316835ad48e69cd62e8669762f2"
     },
     {
       "callJamRows": 169,
       "depth": 14,
       "exploitabilityBB": 1.6634092173117843e-08,
-      "exportSHA256": "3e5e9fb552964d08152437778e0d1338de37b65c4783d6159ce129a944e868ef",
+      "exportSHA256": "160edbd8e8523369fff202c0bb6b2e0e4de4f24df4421dc2ec085e46a055d386",
       "iterations": 10000,
       "nashConvBB": 3.3268184346235685e-08,
-      "normalizedSHA256": "883da24c416aef32a4f15fc9fd3bbfd53c0882d338de948ec6771e4cd86c4fb7",
+      "normalizedSHA256": "9d3ba986d8195d7082f98a8a55a376d7e67bb2eecce0b90f0b29c001a4e57bc2",
       "openJamRows": 169,
-      "packSHA256": "bebbd833563907533695e30e3120c438b03645340fb1dae80d542ba85516fced"
+      "packSHA256": "b6a060ea0cb2bc9b1b2be6462ec8e6b2c38178613116118cc9d6b4fff229633c"
     },
     {
       "callJamRows": 169,
       "depth": 15,
       "exploitabilityBB": 3.4186508984790365e-08,
-      "exportSHA256": "ba10ce5fe221f32bb92db8b58ef5ce49b5a148013021e409684fc17f0a44fb54",
+      "exportSHA256": "9b8b179ef8b793de5a1e964c58f3687ae706f83b50ec2ac8611091c584c57eb4",
       "iterations": 10000,
       "nashConvBB": 6.837301796958073e-08,
-      "normalizedSHA256": "729ea6f499e1d16e65e0f97a9546746f1b4a208a338832022dd200d54c14137a",
+      "normalizedSHA256": "64431842edca0b6b589b52632fd8820aa58f8eb88a3133767c6b814431c9ba8a",
       "openJamRows": 169,
-      "packSHA256": "0a83a49f2cc2a2d67335f6d39d807a312665eb19694fe028b6e7007222bb49e1"
+      "packSHA256": "8409cb4cafc423a14c64e0c3de37aa0cfb68256344c4bab51ef48358396c5210"
     },
     {
       "callJamRows": 169,
       "depth": 16,
       "exploitabilityBB": 2.310390564974618e-08,
-      "exportSHA256": "f82f392213d74b03797cec6fe8b2cebd15ecd10e36a2ff64cc618f8b5e7e68f1",
+      "exportSHA256": "96237af458b94d07233091235144ded8d42ba7c6f1394e0029d2f22303bd7c05",
       "iterations": 10000,
       "nashConvBB": 4.620781129949236e-08,
-      "normalizedSHA256": "e2e5a61d33e670091db26115118b1060a3986d442852e0ae31df1ad8cf992def",
+      "normalizedSHA256": "ef787ab5fe10d2f7d0a99d5658604b57063ba4ce3022386c63bfa9c0ce5a4762",
       "openJamRows": 169,
-      "packSHA256": "83fe03f3226ae117bdfb17660878233422cb370c16066ebadae5135851929a4e"
+      "packSHA256": "836e0183f152eb57cd0bdf258678aecb079605efcfa57848dd636256b1d725ea"
     },
     {
       "callJamRows": 169,
       "depth": 17,
       "exploitabilityBB": 1.0674768527452194e-07,
-      "exportSHA256": "390e49a6bd37a137ed32a9541bc742128424b5d2b8e5fcbc3b462b8bdb578006",
+      "exportSHA256": "7425026b90c17066896ee62df83810ab8f207d48a0326d7896ede3142cd9795b",
       "iterations": 10000,
       "nashConvBB": 2.1349537054904388e-07,
-      "normalizedSHA256": "707a5cce5ab764a38553667622497cc6c85f1e01be51f654befc72789c0773d3",
+      "normalizedSHA256": "b0a2849276237b712b9c39e60e42d070520bfe5ab6808e4002674d4183546c14",
       "openJamRows": 169,
-      "packSHA256": "c91d7576b5af6890b9790096a681760352e7eeb3e8d036e42c783baa228318a7"
+      "packSHA256": "14cc1677f34fcbb5872a541622ef9376cef66220595e6633ea0f56eb08d74ca5"
     },
     {
       "callJamRows": 169,
       "depth": 18,
       "exploitabilityBB": 2.5851978682767118e-08,
-      "exportSHA256": "1671db8fa23624ec5c53746c0cdd80852ae66d58b7cf1195ba2f0892ec438c81",
+      "exportSHA256": "8bee9dcccd68a928836a6008c8adbb0d65e596e3f205425b395db962a1423ecd",
       "iterations": 10000,
       "nashConvBB": 5.1703957365534237e-08,
-      "normalizedSHA256": "69fa57ae0325f051d96b38bdbff0dbbbf6e154ac921acdd15b736426a094b00c",
+      "normalizedSHA256": "474b7e5332678839d307258ea6c2637fb3e7b79db5c7a9c69b6524e76d548bef",
       "openJamRows": 169,
-      "packSHA256": "41da408d9614e64145b5f01490f28025234bf8be6e82a9882f472a26ba10ac13"
+      "packSHA256": "4804a919584609eb9bc9530a3aef4bf849c32059b3f3a9ff0007a297cdf5a1d2"
     },
     {
       "callJamRows": 169,
       "depth": 19,
       "exploitabilityBB": 1.2228224557930822e-08,
-      "exportSHA256": "293eb1538b5a787b4fc21ff9e2d2f6954b192a9cec7b389e1a255eea1b8f3e2c",
+      "exportSHA256": "d5d5f4f05883e71ef9e873d7088f18d4e43265d28c89b3362c7377a87b28ffe1",
       "iterations": 10000,
       "nashConvBB": 2.4456449115861645e-08,
-      "normalizedSHA256": "850f2cbeb4abc2d6498cda9aafc53ce37f5b12a3a2d48c0ee417521a155c274f",
+      "normalizedSHA256": "8477570c23883f898e12a9e95d1ab532258b9976870804dfe0388eb6538ddf1b",
       "openJamRows": 169,
-      "packSHA256": "c689c1ef320f66ca437e3d69a4a5bf584e7db461f02ac656ab3a8fdc27d09c9d"
+      "packSHA256": "16b18224629a29ec4b77ed000ec3af7aabf3d81512a59cc796df88561e628697"
     },
     {
       "callJamRows": 169,
       "depth": 20,
       "exploitabilityBB": 2.292722256491686e-08,
-      "exportSHA256": "114a5b60457bab5923b69249d0b582062ce2d4c055b4f464bc6cf2458f621bf5",
+      "exportSHA256": "148c3d9abd467cf40c19151a570ca3b1cc9597cffb39e0cc7a5d2c706f011b5d",
       "iterations": 10000,
       "nashConvBB": 4.585444512983372e-08,
-      "normalizedSHA256": "87cd41e405fcc1c7a5e92f2b24a621cfe7ecf7fef4d0b4c217598dbc2d7a653e",
+      "normalizedSHA256": "c6eab309961c28d12611933d1bd82156d96b9328da790ab8c24da8e87b134229",
       "openJamRows": 169,
-      "packSHA256": "215a8945f342ec39dbba3cbf0e3bdf5182437d6e4d376861c4166af7eac74c84"
+      "packSHA256": "5efa727bd6a1fcc681d0dc48585b65482cbdbf8e626fe15af59938eba0bdf8d2"
     }
   ],
   "source": {

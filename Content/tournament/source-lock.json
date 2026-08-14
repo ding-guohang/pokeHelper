@@ -7,7 +7,7 @@
     "url": "https://raw.githubusercontent.com/b-inary/poker-cfr/a5347082007ba1eda7932ef2fe7fad43cb3be2a1/LICENSE.md",
     "sha256": "ee7dfe5dcfb39ddf633bf0fa099726d6f93dcb20c57616c5ba8203e9d1aad878"
   },
-  "rustVersion": "1.56.0",
+  "rustVersion": "1.97.1",
   "files": [
     {
       "path": "Cargo.toml",

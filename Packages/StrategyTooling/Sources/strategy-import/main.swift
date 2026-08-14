@@ -41,11 +41,18 @@ struct StrategyImport {
             from: exportData
         )
 
-        // Reviewed tournament content is produced only by the deliberate
-        // promotion path (promote-tournament-packs.py), which requires a named
-        // review record; the auto-import wrapper never passes `reviewed`, and
-        // the validator refuses `reviewed` without a reviewer. So this tool does
-        // not special-case tournament status here.
+        // Reviewed tournament content is NEVER minted by this raw tool: it is
+        // produced only by the deliberate promotion path
+        // (promote-tournament-packs.py), which re-labels the golden unverified
+        // baseline in place after verifying a named review record and re-running
+        // the independent evidence. A non-empty reviewer passed here would
+        // otherwise satisfy the validator, so the tool refuses reviewed
+        // tournament status outright.
+        if export.tournament != nil, options.reviewStatus == .reviewed {
+            throw UsageError(
+                message: "reviewed tournament content is produced only by the promotion path, not strategy-import"
+            )
+        }
 
         if options.printRangeTables {
             print(RangeTableReport().render(export))

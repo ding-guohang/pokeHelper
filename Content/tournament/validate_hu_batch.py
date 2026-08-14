@@ -114,17 +114,38 @@ def _validate_document(depth: int, doc: dict, source_lock: dict = None):
     config = doc.get("configuration") or {}
     threshold = config.get("nashConvThresholdBB")
     nash = doc.get("nashConvBB")
-    if threshold is None or nash is None or nash > threshold:
-        raise BatchValidationError(
-            f"{depth}BB: NashConv {nash} exceeds threshold {threshold}"
-        )
+    # A NaN would slip past `>` comparisons, so reject non-finite explicitly.
+    if not isinstance(nash, (int, float)) or nash != nash or nash == float("inf"):
+        raise BatchValidationError(f"{depth}BB: NashConv is not a finite number: {nash!r}")
+    if threshold is None or nash > threshold:
+        raise BatchValidationError(f"{depth}BB: NashConv {nash} exceeds threshold {threshold}")
+
+    # Assumptions must be exactly the audited game, not just internally consistent.
+    if config.get("smallBlindCentiBB") != 50 or config.get("bigBlindCentiBB") != 100:
+        raise BatchValidationError(f"{depth}BB: blinds must be SB=50/BB=100 centiBB")
+    if config.get("hasAnte") is not False:
+        raise BatchValidationError(f"{depth}BB: hasAnte must be false")
+    if not (config.get("anteDescription") or "").strip():
+        raise BatchValidationError(f"{depth}BB: anteDescription must be non-empty")
+    if config.get("equilibrium") != "chipEV":
+        raise BatchValidationError(f"{depth}BB: equilibrium must be chipEV, got {config.get('equilibrium')!r}")
+
+    # exploitability is conventionally NashConv/2; the two must not be conflated.
+    expl = doc.get("exploitabilityBB")
+    if expl is None or abs(expl - nash / 2.0) > 1e-12:
+        raise BatchValidationError(f"{depth}BB: exploitabilityBB {expl} != NashConv/2 {nash / 2.0}")
 
     if _snapshot_hash(doc) != doc.get("snapshotSHA256"):
         raise BatchValidationError(f"{depth}BB: snapshot hash mismatch")
 
     if source_lock is not None:
+        src = doc.get("source") or {}
+        if src.get("commit") != source_lock.get("commit"):
+            raise BatchValidationError(f"{depth}BB: source commit {src.get('commit')} != lock")
+        if src.get("licenseSpdx") != (source_lock.get("license") or {}).get("spdx"):
+            raise BatchValidationError(f"{depth}BB: source license != lock")
         locked = {e["path"]: e["sha256"] for e in source_lock["files"]}
-        recorded = (doc.get("source") or {}).get("lockedHashes") or {}
+        recorded = src.get("lockedHashes") or {}
         for path, sha in locked.items():
             if recorded.get(path) != sha:
                 raise BatchValidationError(

@@ -13,7 +13,7 @@
     "hasAnte": false,
     "nashConvThresholdBB": 0.001,
     "rayonThreads": 1,
-    "rustVersion": "1.56.0",
+    "rustVersion": "1.97.1",
     "smallBlindCentiBB": 50
   },
   "effectiveBigBlinds": 3,
@@ -21,7 +21,7 @@
   "exportedAt": "2026-08-13T00:00:00Z",
   "iterations": 10000,
   "nashConvBB": 1.2663620747171977e-07,
-  "snapshotSHA256": "a741d8e83ff29debe90b23029d5c3e45c82ff9a6e37218bf57044805dbe4a3a8",
+  "snapshotSHA256": "da0e3bc23a09599b230839fa27464081ca5fda423fed1d4033543a1147430354",
   "source": {
     "commit": "a5347082007ba1eda7932ef2fe7fad43cb3be2a1",
     "licenseSpdx": "BSD-2-Clause",

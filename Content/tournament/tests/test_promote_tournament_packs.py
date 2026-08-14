@@ -1,94 +1,112 @@
-"""Promotion tests: an incomplete review record is refused; a complete one
-produces reviewed packs whose strategy is byte-identical to the unverified
-baseline (promotion re-labels, never edits)."""
+"""Promotion tests (hardened): structural sign-off, measured-evidence gating,
+baseline-is-golden, new-version, and re-label-only (strategy preserved)."""
 
 import importlib.util
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[3]
 _SPEC = importlib.util.spec_from_file_location(
-    "promote_tournament_packs", _ROOT / "Content" / "promote-tournament-packs.py"
-)
+    "promote_tournament_packs", _ROOT / "Content" / "promote-tournament-packs.py")
 _MOD = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(_MOD)
 promote = _MOD.promote
 validate_review_record = _MOD.validate_review_record
 PromotionError = _MOD.PromotionError
 
-STRATEGY_IMPORT = _ROOT / "Packages/StrategyTooling/.build/release/strategy-import"
-EXPORTS = _ROOT / "Content/exports"
-BASELINE = _ROOT / "Content/packs"
+TOURN = _ROOT / "Content" / "tournament"
+BASELINE = _ROOT / "Content" / "packs"
+NORMALIZED = _ROOT / "Content" / "tournament-normalized"
+GOLDEN_PATH = TOURN / "golden-manifest.json"
+LOCK_PATH = TOURN / "source-lock.json"
+BASELINE_VERSION = "2026.08.13-hu-pf.1"
 
 
-def complete_record():
-    return {
-        "reviewer": "Reviewer Name",
-        "reviewedAt": "2026-08-14T00:00:00Z",
-        "decision": "approved",
-        "evidence": {"equityMaxDelta": 0.0, "exploitabilityMaxBB": 0.0, "reproducible": True},
-    }
+def record(**over):
+    r = {"reviewer": "Reviewer Name", "reviewedAt": "2026-08-14T00:00:00Z", "decision": "approved"}
+    r.update(over)
+    return r
 
 
-class PromotionRecordTests(unittest.TestCase):
-    def test_missing_reviewer_is_refused(self):
-        r = complete_record(); r["reviewer"] = ""
+def ok_evidence(*_a, **_k):
+    return {"equityMaxDelta": 0.0, "exploitabilityMaxBB": 0.0}
+
+
+class ReviewRecordTests(unittest.TestCase):
+    def test_missing_reviewer_refused(self):
         with self.assertRaisesRegex(PromotionError, "reviewer"):
-            validate_review_record(r)
+            validate_review_record(record(reviewer=""))
 
-    def test_unapproved_decision_is_refused(self):
-        r = complete_record(); r["decision"] = "needs-revision"
+    def test_unapproved_refused(self):
         with self.assertRaisesRegex(PromotionError, "approved"):
-            validate_review_record(r)
+            validate_review_record(record(decision="needs-revision"))
 
-    def test_failing_evidence_is_refused(self):
-        r = complete_record(); r["evidence"]["exploitabilityMaxBB"] = 0.5
-        with self.assertRaisesRegex(PromotionError, "exploitability"):
-            validate_review_record(r)
-
-    def test_missing_reproducibility_is_refused(self):
-        r = complete_record(); r["evidence"]["reproducible"] = False
-        with self.assertRaisesRegex(PromotionError, "reproducible"):
-            validate_review_record(r)
-
-    def test_complete_record_passes_validation(self):
-        reviewer, reviewed_at = validate_review_record(complete_record())
-        self.assertEqual(reviewer, "Reviewer Name")
-        self.assertEqual(reviewed_at, "2026-08-14T00:00:00Z")
+    def test_bad_timestamp_refused(self):
+        with self.assertRaisesRegex(PromotionError, "ISO8601"):
+            validate_review_record(record(reviewedAt="yesterday"))
 
 
-@unittest.skipUnless(STRATEGY_IMPORT.exists() and EXPORTS.exists() and BASELINE.exists(),
-                     "requires built strategy-import + Content exports/packs")
-class PromotionIntegrationTests(unittest.TestCase):
-    def test_promotion_preserves_strategy_and_relabels_manifest(self):
+@unittest.skipUnless(BASELINE.exists() and GOLDEN_PATH.exists(), "requires committed golden batch")
+class PromotionTests(unittest.TestCase):
+    def setUp(self):
+        self.golden = json.loads(GOLDEN_PATH.read_text())
+        self.lock = json.loads(LOCK_PATH.read_text())
+
+    def _promote(self, dest, version, rec=None, evidence=ok_evidence, golden=None):
+        return promote(BASELINE, dest, version, rec or record(),
+                       golden_manifest=golden or self.golden, normalized_dir=NORMALIZED,
+                       equity_path="unused-by-stub", source_lock=self.lock, evidence_runner=evidence)
+
+    def test_relabel_only_and_preserves_strategy(self):
         with tempfile.TemporaryDirectory() as tmp:
-            record_path = Path(tmp) / "record.json"
-            record_path.write_text(json.dumps(complete_record()), encoding="utf-8")
             dest = Path(tmp) / "reviewed"
-            names = promote(EXPORTS, BASELINE, dest, "2026.08.14-hu-pf.reviewed.1",
-                            complete_record(), str(STRATEGY_IMPORT))
+            names = self._promote(dest, "2026.08.14-hu-pf.reviewed.1")
             self.assertEqual(len(names), 20)
-
-            # Strategy identical to the unverified baseline; only manifest changed.
             for name in names:
                 base = json.loads((BASELINE / name).read_text())
                 rev = json.loads((dest / name).read_text())
-                base.pop("manifest"); rev_manifest = rev.pop("manifest")
-                self.assertEqual(base, rev, f"{name} strategy changed under promotion")
-                self.assertEqual(rev_manifest["reviewStatus"], "reviewed")
-                self.assertEqual(rev_manifest["origin"], "solver")
-                self.assertEqual(rev_manifest["reviewedBy"], "Reviewer Name")
-                self.assertEqual(rev_manifest["contentVersion"], "2026.08.14-hu-pf.reviewed.1")
+                base.pop("manifest"); m = rev.pop("manifest")
+                self.assertEqual(base, rev, f"{name} strategy changed")
+                self.assertEqual(m["reviewStatus"], "reviewed")
+                self.assertEqual(m["origin"], "solver")
+                self.assertEqual(m["reviewedBy"], "Reviewer Name")
+                self.assertEqual(m["contentVersion"], "2026.08.14-hu-pf.reviewed.1")
             self.assertTrue((dest / "promotion-record.json").is_file())
+
+    def test_failing_exploitability_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "reviewed"
+            bad = lambda *a, **k: {"equityMaxDelta": 0.0, "exploitabilityMaxBB": 0.5}
+            with self.assertRaisesRegex(PromotionError, "exploitability"):
+                self._promote(dest, "2026.08.14-hu-pf.reviewed.1", evidence=bad)
+            self.assertFalse(dest.exists())
+
+    def test_nan_evidence_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = lambda *a, **k: {"equityMaxDelta": float("nan"), "exploitabilityMaxBB": 0.0}
+            with self.assertRaisesRegex(PromotionError, "equity"):
+                self._promote(Path(tmp) / "r", "2026.08.14-hu-pf.reviewed.1", evidence=bad)
+
+    def test_same_content_version_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(PromotionError, "must differ"):
+                self._promote(Path(tmp) / "r", BASELINE_VERSION)
+
+    def test_baseline_not_golden_refused(self):
+        tampered = json.loads(GOLDEN_PATH.read_text())
+        tampered["depths"][0]["packSHA256"] = "0" * 64
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(PromotionError, "committed golden"):
+                self._promote(Path(tmp) / "r", "2026.08.14-hu-pf.reviewed.1", golden=tampered)
 
     def test_incomplete_record_writes_nothing(self):
         with tempfile.TemporaryDirectory() as tmp:
             dest = Path(tmp) / "reviewed"
-            bad = complete_record(); bad["reviewer"] = ""
             with self.assertRaises(PromotionError):
-                promote(EXPORTS, BASELINE, dest, "x", bad, str(STRATEGY_IMPORT))
+                self._promote(dest, "2026.08.14-hu-pf.reviewed.1", rec=record(reviewer=""))
             self.assertFalse(dest.exists())
 
 

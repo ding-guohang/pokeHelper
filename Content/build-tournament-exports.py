@@ -139,9 +139,19 @@ def build_export_doc(depth, normalized, content_version):
     nodes = [_open_jam_node(pack_id, depth, normalized["tables"]["openJam"])]
     if depth >= 2:
         nodes.append(_call_jam_node(pack_id, depth, normalized["tables"]["callJam"]))
+    # Bind the generating run's identity into the disclosed source: solver commit,
+    # depth, iterations, NashConv, and the normalized snapshot hash (which itself
+    # covers the frequencies, EVs, and configuration).
+    generated_source = (
+        f"poker-cfr@{commit} HU chipEV push/fold {depth}BB"
+        f" · iters={normalized['iterations']}"
+        f" · NashConv={normalized['nashConvBB']:.3e}"
+        f" · snapshot={normalized['snapshotSHA256'][:16]}"
+        f" (unverified solver output)"
+    )
     return {
         "packID": pack_id,
-        "generatedSource": f"poker-cfr@{commit} HU chipEV push/fold {depth}BB (unverified solver output)",
+        "generatedSource": generated_source,
         "exportedAt": EXPORTED_AT,
         "gameType": "NLHE tournament",
         "tableSize": 2,

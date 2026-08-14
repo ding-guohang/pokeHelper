@@ -12,7 +12,7 @@
   },
   "exportedAt": "2026-08-13T00:00:00Z",
   "gameType": "NLHE tournament",
-  "generatedSource": "poker-cfr@a5347082007ba1eda7932ef2fe7fad43cb3be2a1 HU chipEV push/fold 17BB (unverified solver output)",
+  "generatedSource": "poker-cfr@a5347082007ba1eda7932ef2fe7fad43cb3be2a1 HU chipEV push/fold 17BB · iters=10000 · NashConv=2.135e-07 · snapshot=c15fab31230ea1a0 (unverified solver output)",
   "nodes": [
     {
       "abilityDimension": "tournament-push-fold",

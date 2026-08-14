@@ -36,7 +36,11 @@ def make_doc(depth: int) -> dict:
     doc = {
         "effectiveBigBlinds": depth,
         "source": {"repository": "b-inary/poker-cfr", "commit": "a" * 40, "licenseSpdx": "BSD-2-Clause", "lockedHashes": {}},
-        "configuration": {"nashConvThresholdBB": 0.001, "equilibrium": "chipEV"},
+        "configuration": {
+            "nashConvThresholdBB": 0.001, "equilibrium": "chipEV",
+            "smallBlindCentiBB": 50, "bigBlindCentiBB": 100,
+            "hasAnte": False, "anteDescription": "no ante",
+        },
         "iterations": 10_000,
         "nashConvBB": 0.0001,
         "exploitabilityBB": 0.00005,
@@ -171,8 +175,51 @@ class BatchValidationTests(unittest.TestCase):
             with self.assertRaisesRegex(BatchValidationError, r"2BB: testOnly"):
                 validate_batch(Path(tmp))
 
+    def test_exploitability_must_equal_nashconv_half(self):
+        def mutate(depth, doc):
+            if depth == 13:
+                doc["exploitabilityBB"] = doc["nashConvBB"]  # not /2
+        with tempfile.TemporaryDirectory() as tmp:
+            self.write_batch(Path(tmp), mutate)
+            with self.assertRaisesRegex(BatchValidationError, r"exploitabilityBB"):
+                validate_batch(Path(tmp))
+
+    def test_wrong_equilibrium_or_ante_rejected(self):
+        def mutate(depth, doc):
+            if depth == 14:
+                doc["configuration"]["hasAnte"] = True
+        with tempfile.TemporaryDirectory() as tmp:
+            self.write_batch(Path(tmp), mutate)
+            with self.assertRaisesRegex(BatchValidationError, r"hasAnte must be false"):
+                validate_batch(Path(tmp))
+
+    def test_nan_nashconv_rejected(self):
+        def mutate(depth, doc):
+            if depth == 15:
+                doc["nashConvBB"] = float("nan")
+                doc["exploitabilityBB"] = float("nan")
+        with tempfile.TemporaryDirectory() as tmp:
+            self.write_batch(Path(tmp), mutate)
+            with self.assertRaisesRegex(BatchValidationError, r"not a finite number"):
+                validate_batch(Path(tmp))
+
+    def test_source_commit_mismatch_rejected(self):
+        source_lock = {
+            "commit": "b" * 40,  # differs from doc's "a"*40
+            "license": {"spdx": "BSD-2-Clause"},
+            "files": [],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            self.write_batch(Path(tmp))
+            with self.assertRaisesRegex(BatchValidationError, r"source commit"):
+                validate_batch(Path(tmp), source_lock=source_lock)
+
     def test_source_lock_hash_mismatch_is_rejected(self):
-        source_lock = {"files": [{"path": "src/cfr.rs", "sha256": "beef" * 16}]}
+        source_lock = {
+            "commit": "a" * 40,
+            "license": {"spdx": "BSD-2-Clause"},
+            "files": [{"path": "src/cfr.rs", "sha256": "beef" * 16}],
+        }
         with tempfile.TemporaryDirectory() as tmp:
             self.write_batch(Path(tmp))  # docs carry empty lockedHashes
             with self.assertRaisesRegex(BatchValidationError, r"source hash for src/cfr.rs"):

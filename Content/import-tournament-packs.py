@@ -56,11 +56,18 @@ def import_packs(exports_dir, destination, content_version, strategy_import):
     Writes nothing to `destination` unless every import and checksum succeeds."""
     exports_dir = Path(exports_dir)
     destination = Path(destination)
+
+    # The batch must be exactly the 1-20BB set — no missing depth, no extra file.
+    expected = {f"tourn-hu-chip-ev-noante-{d:02d}bb.json" for d in range(1, 21)}
+    present = {p.name for p in exports_dir.glob(EXPORT_GLOB)}
+    if present != expected:
+        missing = sorted(expected - present)
+        extra = sorted(present - expected)
+        raise RuntimeError(f"export batch is not exactly 1-20BB (missing={missing}, extra={extra})")
+
     staging = Path(tempfile.mkdtemp(prefix="tourn-packs-"))
     try:
         commands = plan_imports(exports_dir, staging, content_version, strategy_import)
-        if not commands:
-            raise RuntimeError(f"no export files matching {EXPORT_GLOB} in {exports_dir}")
         for command in commands:
             subprocess.run(command, check=True, capture_output=True, text=True)
         names = []

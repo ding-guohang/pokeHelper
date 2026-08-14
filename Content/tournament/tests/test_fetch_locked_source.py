@@ -126,7 +126,7 @@ class LockedSourceTests(unittest.TestCase):
         self.assertEqual(manifest["license"]["path"], "LICENSE.md")
         self.assertEqual(manifest["license"]["sha256"], "ee7dfe5dcfb39ddf633bf0fa099726d6f93dcb20c57616c5ba8203e9d1aad878")
         self.assertTrue(manifest["license"]["url"].endswith("/a5347082007ba1eda7932ef2fe7fad43cb3be2a1/LICENSE.md"))
-        self.assertEqual(manifest["rustVersion"], "1.56.0")
+        self.assertEqual(manifest["rustVersion"], "1.97.1")
         self.assertEqual(files["src/cfr.rs"]["sha256"], "6e67183dc0d05b34e3a866fecd3e0e76847b4feb406f37ea01f70563ba9bd6bf")
         self.assertEqual(files["src/game_push_fold.rs"]["sha256"], "31f40d9069bccf6c0bb06d172ef7f2d3ad11d80caa498c5bbeec684c0d23ce48")
         self.assertEqual(files["static/heads_up_pre_flop_equity.bin"]["sha256"], "006404b36d257fc9455da0d0f0ab89aef3e80ece56c8f3e770bad926cfe5ec8a")
