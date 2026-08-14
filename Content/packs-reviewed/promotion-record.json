@@ -1,0 +1,99 @@
+{
+  "baselineContentVersion": "2026.08.13-hu-pf.1",
+  "contentVersion": "2026.08.14-hu-pf.reviewed.1",
+  "evidenceArtifacts": {
+    "crossCheckReportSHA256": "552a7572879e68e18af39bcf97def1dd753414c4aee79b0aad62c745f5ecb1b0",
+    "equityVerifyReportSHA256": "59ecee31be3ff79d38b7f9befc8545e27cc5a264b79a19d5062483e724e2dec9",
+    "goldenManifestSHA256": "2293ba9898699a23421ea0e6b9648b9fa6e3ab313639bd1eefded93f20e65a09"
+  },
+  "measuredEvidence": {
+    "equityMaxDelta": 0.0,
+    "exploitabilityMaxBB": 0.0
+  },
+  "origin": "solver",
+  "packs": {
+    "tourn-hu-chip-ev-noante-01bb.json": {
+      "baseline": "2e5aecc1b5bf2d1e6b0846f647e48f5c84b3af8d1278c7834fff4e19f8823520",
+      "reviewed": "b772f62b21beca3eec4c28f241a39f5e911884e9619c665fc9e2bfb23ad89ec3"
+    },
+    "tourn-hu-chip-ev-noante-02bb.json": {
+      "baseline": "82dc1ef456bdd9cff719cde502b88dbd4bea0a4ce0b322a80b338932da9e4dab",
+      "reviewed": "ec94f0ab0fd76a527db1b9373c9ab292c81ba89f3455ad879be459b12c6015e5"
+    },
+    "tourn-hu-chip-ev-noante-03bb.json": {
+      "baseline": "25994e302c5112371f3f4fa3607d55ce8660bb89f0de2172696f4c882d6f3142",
+      "reviewed": "005e723343557d3155035f166e2523dfc8dc61cf2ee2e2f359e5ae6ec6c1a6b5"
+    },
+    "tourn-hu-chip-ev-noante-04bb.json": {
+      "baseline": "68ae6143a3f4f7d5f9cd701cfa6a1aad5f1c8fb8283c75cb0b6df3303f9b6dda",
+      "reviewed": "db67daa6a45ac66cf0173f7910520afb13c2fa2241695032ed58f8fc45c95f23"
+    },
+    "tourn-hu-chip-ev-noante-05bb.json": {
+      "baseline": "54970eb9399f72a3ad2d4a101f62b1df861223442f886113a5e23b0ff5f413f1",
+      "reviewed": "c688cad3a60361a3237bbeb6b01e11ce52af0ac39a9ebecb336b4b28e74d2cdd"
+    },
+    "tourn-hu-chip-ev-noante-06bb.json": {
+      "baseline": "5d17563a9edd69844650d53b0c6d8eb28885e8a247c0bd013ad7a59a71d5de70",
+      "reviewed": "2b9721c22bfceea4cf1191d2b45827c4cdeb0a828e69abd0036ac1b826bb49ec"
+    },
+    "tourn-hu-chip-ev-noante-07bb.json": {
+      "baseline": "a0ad9478e8b0277b5123c0b90edee12441f24ea77080b067143c44aa2c059b29",
+      "reviewed": "d0581ad7a0fdaca22637dd462f443ec416aa6793869605f22f3d2d62e98f802c"
+    },
+    "tourn-hu-chip-ev-noante-08bb.json": {
+      "baseline": "2d0829525e9b172fff7fa0e80b2cf9944fd22e68ed5fed840dd0ceafab8db6de",
+      "reviewed": "fd3bf8fe2f4eaaff35defcb6e931a59caaec7c37c6a807f578862adcd6ac4edd"
+    },
+    "tourn-hu-chip-ev-noante-09bb.json": {
+      "baseline": "9a6d6c2d3b49914618b365d56c6623c529f58d29d650faae74e029088c4047f6",
+      "reviewed": "fcab3e176dc5fd7f064c554403ce86ba34d4082582da39001eb04dc845a247a3"
+    },
+    "tourn-hu-chip-ev-noante-10bb.json": {
+      "baseline": "bb80b5f6bab881e857293e2651a59483344d068828913c5bd6a0dcbf5d259251",
+      "reviewed": "8cd0dc385d766172694e5f43c931b22d5cd71ea59560de1b940bfa74ef6d82e6"
+    },
+    "tourn-hu-chip-ev-noante-11bb.json": {
+      "baseline": "d5a76bddb7619cab0e5d05327f41c90a44b4c015817e12db916aa30c2b6c8f17",
+      "reviewed": "6ae36f1bad11cacace6cd5376f0315ba3a7049c2e3eb719b3715d650cbc35789"
+    },
+    "tourn-hu-chip-ev-noante-12bb.json": {
+      "baseline": "29125a3a39d4cbdb5feb2c3e430844aaceb04bdf2226f13c3a1e06bd9fac5671",
+      "reviewed": "da61d0007a411a689633b00430b4a78956bc126100f1c068f0846c1ea33de15d"
+    },
+    "tourn-hu-chip-ev-noante-13bb.json": {
+      "baseline": "3f8c8f3ada6512ccc1d3685b15c830ff79157316835ad48e69cd62e8669762f2",
+      "reviewed": "f72efcb6257bf5134855fed50391e0ca9e7c7d2c0c6ca34474272fbc2085e876"
+    },
+    "tourn-hu-chip-ev-noante-14bb.json": {
+      "baseline": "b6a060ea0cb2bc9b1b2be6462ec8e6b2c38178613116118cc9d6b4fff229633c",
+      "reviewed": "53dbca1003bb5e97af219aa54f002b3f2b95d747c0b171db5873536b6bf81b51"
+    },
+    "tourn-hu-chip-ev-noante-15bb.json": {
+      "baseline": "8409cb4cafc423a14c64e0c3de37aa0cfb68256344c4bab51ef48358396c5210",
+      "reviewed": "678247a151ac5740420e5c54359d6ccd568eac5b0c03b7044c9c6448e1a92e0b"
+    },
+    "tourn-hu-chip-ev-noante-16bb.json": {
+      "baseline": "836e0183f152eb57cd0bdf258678aecb079605efcfa57848dd636256b1d725ea",
+      "reviewed": "33aff854d6f71fa6769c0195225df624c23ac84f047df17dc5a7cf841d19f7aa"
+    },
+    "tourn-hu-chip-ev-noante-17bb.json": {
+      "baseline": "14cc1677f34fcbb5872a541622ef9376cef66220595e6633ea0f56eb08d74ca5",
+      "reviewed": "3337b49d6f5c141da99f0b8160808d080767472437047f00421e89fc7db3bee5"
+    },
+    "tourn-hu-chip-ev-noante-18bb.json": {
+      "baseline": "4804a919584609eb9bc9530a3aef4bf849c32059b3f3a9ff0007a297cdf5a1d2",
+      "reviewed": "7a35e8a8699a412240821c178528de303b8b4183481bd88bec30b222bfd21fa6"
+    },
+    "tourn-hu-chip-ev-noante-19bb.json": {
+      "baseline": "16b18224629a29ec4b77ed000ec3af7aabf3d81512a59cc796df88561e628697",
+      "reviewed": "a8492e0f9905af32a04cc36fab73d5b49bca487dd232002f005f83fb708f3047"
+    },
+    "tourn-hu-chip-ev-noante-20bb.json": {
+      "baseline": "5efa727bd6a1fcc681d0dc48585b65482cbdbf8e626fe15af59938eba0bdf8d2",
+      "reviewed": "673377fa343e369906a1096dd822821e65acceb761600c3b27a90973efd6f2e2"
+    }
+  },
+  "reviewStatus": "reviewed",
+  "reviewedAt": "2026-08-14T07:59:02Z",
+  "reviewer": "Meow Ding"
+}
