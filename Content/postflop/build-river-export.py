@@ -42,26 +42,29 @@ def _largest_remainder(fracs, total=10000):
 
 
 def _action_key_and_kind(label):
-    """Map a solver action label to (rangeCellKey, DecisionAction dict)."""
+    """Map a solver action label to (rangeCellKey, DecisionAction dict). Bet keys
+    include the size so multiple bet sizes get distinct keys."""
     if label == "Check":
         return "check", {"kind": "check"}
     m = re.match(r"Bet\((\d+)\)", label)
     if m:
-        return "bet", {"kind": "bet", "toCentiBB": int(m.group(1))}
+        size = int(m.group(1))
+        return f"bet{size}", {"kind": "bet", "toCentiBB": size}
     raise ExportError(f"unsupported OOP root action for river content: {label}")
 
 
 def build_export(snapshot, commit, content_version):
     actions = snapshot["oopRootActions"]
-    keys, kinds, bet_size = [], [], None
+    keys, kinds, bet_sizes = [], [], []
     for label in actions:
         key, kind = _action_key_and_kind(label)
         keys.append(key)
         kinds.append(kind)
         if kind["kind"] == "bet":
-            bet_size = kind["toCentiBB"]
-    if bet_size is None:
+            bet_sizes.append(kind["toCentiBB"])
+    if not bet_sizes:
         raise ExportError("river root has no bet size to configure")
+    configured = sorted(set(bet_sizes))
 
     cells = snapshot["rangeCells"]
     pot = snapshot["potCentiBB"]
@@ -95,6 +98,10 @@ def build_export(snapshot, commit, content_version):
         range_cells.append({"handClass": c["hand"], "actionWeightsBasisPoints": w, "actionEVs": e})
 
     board = [snapshot["board"][i:i + 2] for i in range(0, len(snapshot["board"]), 2)]
+    # Representative hero combo for display: the first range cell's combo, which
+    # the solver already guarantees does not overlap the board.
+    first_hand = cells[0]["hand"]
+    hero_cards = [first_hand[0:2], first_hand[2:4]]
     pack_id = f"content-river-{snapshot['board'].lower()}"
     generated_source = (
         f"postflop-solver@{commit} river OOP root {snapshot['board']}"
@@ -111,12 +118,12 @@ def build_export(snapshot, commit, content_version):
         "curriculumNodeID": CURRICULUM_NODE_ID,
         "heroSeatOffsetFromButton": 1,  # heads-up big blind = out of position
         "facing": "unopened",
-        "heroCards": ["As", "Ah"],  # representative in-range combo, not on this board
+        "heroCards": hero_cards,  # first in-range combo; solver guarantees no board overlap
         "board": board,
         "pot": {"centiBB": pot},
         "amountToCall": {"centiBB": 0},
         "minimumRaiseTo": None,
-        "configuredBetSizes": [{"centiBB": bet_size}],
+        "configuredBetSizes": [{"centiBB": s} for s in configured],
         "facingRaiseTo": None,
         "decisionEffectiveStack": {"centiBB": stack},
         "actions": node_actions,
@@ -140,7 +147,7 @@ def build_export(snapshot, commit, content_version):
         "tableSize": 2,
         "effectiveStack": {"centiBB": stack},
         "rakeDescription": "rake=0",
-        "allowedBetSizeDescription": f"single {bet_size} centi-BB river bet",
+        "allowedBetSizeDescription": "river bets at " + ", ".join(f"{s} centi-BB" for s in configured),
         "tournament": None,
         "curriculum": [{"id": CURRICULUM_NODE_ID, "title": "河牌决策", "prerequisiteNodeIDs": []}],
         "nodes": [node],

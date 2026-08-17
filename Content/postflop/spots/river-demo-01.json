@@ -8,8 +8,8 @@
   "river": "2s",
   "startingPotChips": 200,
   "effectiveStackChips": 900,
-  "oopBetSizes": "50%",
-  "ipBetSizes": "50%",
   "maxIterations": 2000,
-  "targetExploitabilityFraction": 0.001
+  "targetExploitabilityFraction": 0.001,
+  "betSizes": "50%",
+  "raiseSizes": "50%"
 }

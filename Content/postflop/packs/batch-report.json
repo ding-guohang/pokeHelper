@@ -1,0 +1,79 @@
+{
+  "batchId": "srp-checked-river-100bb",
+  "contentVersion": "2026.08.17-srp-river.1",
+  "line": "HU 100bb; SB open 2.5bb; BB call; flop x/x; turn x/x; river OOP=BB to act",
+  "boards": [
+    {
+      "id": "srp-river-01-dry-ace-high",
+      "board": "AsKd7h2c4s",
+      "solverExploitabilityChips": 2.2447521687,
+      "independentExploitabilityChips": 2.2447523305306634,
+      "deltaChips": 1.6183066353647746e-07,
+      "oopCells": 396,
+      "packSHA256": "32bd386ba148dda7929cd0b1e0585973b1bcde928744dec7b2fe731c713c5543"
+    },
+    {
+      "id": "srp-river-02-paired-dry",
+      "board": "KhKd5s8c2d",
+      "solverExploitabilityChips": 2.2206573486,
+      "independentExploitabilityChips": 2.2206564843382317,
+      "deltaChips": 8.642617683740639e-07,
+      "oopCells": 410,
+      "packSHA256": "a926233b1fae5e1ed10cb9cffdf105f6b00a5b2bb878fc489c9fc7cdd65a5f55"
+    },
+    {
+      "id": "srp-river-03-flush-board",
+      "board": "Qd9d4d2s7d",
+      "solverExploitabilityChips": 2.4329299927,
+      "independentExploitabilityChips": 2.432930334290731,
+      "deltaChips": 3.415907308124133e-07,
+      "oopCells": 407,
+      "packSHA256": "6b2db28c64db246876dc0d770730c35dd347dcb1814eceea1f51b786b006a337"
+    },
+    {
+      "id": "srp-river-04-wet-connected",
+      "board": "9h8h6c5d2s",
+      "solverExploitabilityChips": 2.4639549255,
+      "independentExploitabilityChips": 2.4639549988105607,
+      "deltaChips": 7.33105607331197e-08,
+      "oopCells": 411,
+      "packSHA256": "f23e8f9911be0460e1dd5031c1ee7127f6ee89ff551d092bb51a2ed971284ac0"
+    },
+    {
+      "id": "srp-river-05-broadway",
+      "board": "AhKdQsJc3h",
+      "solverExploitabilityChips": 2.4224662781,
+      "independentExploitabilityChips": 2.42246696017005,
+      "deltaChips": 6.820700502174759e-07,
+      "oopCells": 371,
+      "packSHA256": "f119fc8cbc0087e0d2da933a8c0ae5eebb3c2a48d0094ab212b30038f6c951ca"
+    },
+    {
+      "id": "srp-river-06-low-connected",
+      "board": "7c6d5h2s9c",
+      "solverExploitabilityChips": 2.3086357117,
+      "independentExploitabilityChips": 2.3086363176562905,
+      "deltaChips": 6.059562904781046e-07,
+      "oopCells": 415,
+      "packSHA256": "ff30367e12d905c053025088ea9ba505a8416d0ac46e9b45fd75426f13b72142"
+    },
+    {
+      "id": "srp-river-07-flush-completing",
+      "board": "AdTd6d3c2d",
+      "solverExploitabilityChips": 2.2691106796,
+      "independentExploitabilityChips": 2.2691104164177016,
+      "deltaChips": 2.6318229817690053e-07,
+      "oopCells": 395,
+      "packSHA256": "d83d398c5a3b0b609844e8c3761e8ab2c78635f96e0d6e147929c3c0b878930c"
+    },
+    {
+      "id": "srp-river-08-paired-river",
+      "board": "Jh8c4d9s9h",
+      "solverExploitabilityChips": 1.7634551525,
+      "independentExploitabilityChips": 1.7634551079589336,
+      "deltaChips": 4.4541066390735295e-08,
+      "oopCells": 385,
+      "packSHA256": "c9572a74ba12cc38822b93e0aa2d3b2dd8b700f5cc383836eee4331495689b4d"
+    }
+  ]
+}

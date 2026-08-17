@@ -130,8 +130,10 @@ fn main() {
     let river_str = req(&m, "river").to_string();
     let starting_pot: i32 = req(&m, "starting-pot-chips").parse().unwrap_or_else(|_| fail("bad starting-pot-chips"));
     let effective_stack: i32 = req(&m, "effective-stack-chips").parse().unwrap_or_else(|_| fail("bad effective-stack-chips"));
-    let oop_bets = req(&m, "oop-bet-sizes").to_string();
-    let ip_bets = req(&m, "ip-bet-sizes").to_string();
+    // BetSizeOptions::try_from((bet_sizes, raise_sizes)) — the tuple is
+    // (bet, raise), shared by both players, NOT (oop, ip).
+    let bet_sizes_str = req(&m, "bet-sizes").to_string();
+    let raise_sizes_str = req(&m, "raise-sizes").to_string();
     let max_iters: u32 = req(&m, "max-iterations").parse().unwrap_or_else(|_| fail("bad max-iterations"));
     let target_frac: f32 = req(&m, "target-exploitability-fraction").parse().unwrap_or_else(|_| fail("bad target fraction"));
 
@@ -145,8 +147,8 @@ fn main() {
         river: card_from_str(&river_str).unwrap_or_else(|_| fail("bad river")),
     };
 
-    let bets = BetSizeOptions::try_from((oop_bets.as_str(), ip_bets.as_str()))
-        .unwrap_or_else(|_| fail("bad bet sizes"));
+    let bets = BetSizeOptions::try_from((bet_sizes_str.as_str(), raise_sizes_str.as_str()))
+        .unwrap_or_else(|_| fail("bad bet/raise sizes"));
     let tree_config = TreeConfig {
         initial_state: BoardState::River,
         starting_pot,

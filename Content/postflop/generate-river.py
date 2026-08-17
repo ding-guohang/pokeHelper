@@ -139,8 +139,8 @@ def solve_river(spot: dict, *, lock: dict, cache_dir: Path) -> dict:
         "--river", spot["river"],
         "--starting-pot-chips", str(spot["startingPotChips"]),
         "--effective-stack-chips", str(spot["effectiveStackChips"]),
-        "--oop-bet-sizes", spot["oopBetSizes"],
-        "--ip-bet-sizes", spot["ipBetSizes"],
+        "--bet-sizes", spot["betSizes"],
+        "--raise-sizes", spot["raiseSizes"],
         "--max-iterations", str(spot["maxIterations"]),
         "--target-exploitability-fraction", str(spot["targetExploitabilityFraction"]),
     ]
