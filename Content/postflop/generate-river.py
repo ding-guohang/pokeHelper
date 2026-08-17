@@ -42,6 +42,11 @@ def _sha256(path: Path) -> str:
 def _cargo_env() -> dict:
     env = dict(os.environ)
     env["PATH"] = f"{Path.home() / '.cargo' / 'bin'}:{env.get('PATH', '')}"
+    # Pin a single rayon worker so the solve is byte-reproducible across machines:
+    # multi-threaded float reduction order can vary by core count. On this host
+    # single- and multi-threaded output already match, but pinning removes thread
+    # count as a variable (mirrors the push/fold rayonThreads=1 lock).
+    env["RAYON_NUM_THREADS"] = "1"
     return env
 
 

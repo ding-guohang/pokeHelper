@@ -19,7 +19,8 @@
       "--bin",
       "river_solve"
     ],
-    "note": "bincode feature dropped (its 2.x derive graph does not reconstruct under rustc 1.97); the driver reads the in-memory game and needs no serialization. The dangerous_implicit_autorefs lint became deny-by-default after the solver's 2023 commit and is allowed via RUSTFLAGS without editing locked source."
+    "rayonNumThreads": 1,
+    "note": "bincode feature dropped (its 2.x derive graph does not reconstruct under rustc 1.97); the driver reads the in-memory game and needs no serialization. The dangerous_implicit_autorefs lint became deny-by-default after the solver's 2023 commit and is allowed via RUSTFLAGS without editing locked source. RAYON_NUM_THREADS=1 pins the solve to a single worker so it is byte-reproducible across machines regardless of core count."
   },
   "files": {
     "Cargo.toml": "2b7f563ac5db2bbf86224c0074c9988f326ebe55775818767ca62c89ff6de7d8",
