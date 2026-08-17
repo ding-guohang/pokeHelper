@@ -1,0 +1,49 @@
+{
+  "baselineContentVersion": "2026.08.17-srp-river.1",
+  "contentVersion": "2026.08.17-srp-river.reviewed.1",
+  "evidenceArtifacts": {
+    "batchReportSHA256": "538dbbba2948869ad30e08a1b5c094f9b754b5a01564e9eef8980d2c1ef0ae2e"
+  },
+  "measuredEvidence": {
+    "gate": "verify-postflop-river.sh",
+    "passed": true
+  },
+  "origin": "solver",
+  "packs": {
+    "srp-river-01-dry-ace-high.json": {
+      "baseline": "32bd386ba148dda7929cd0b1e0585973b1bcde928744dec7b2fe731c713c5543",
+      "reviewed": "772ce6b0329d72b13e7d2e1bfa5529760ed209ede869141946f3f803c34fbd8d"
+    },
+    "srp-river-02-paired-dry.json": {
+      "baseline": "a926233b1fae5e1ed10cb9cffdf105f6b00a5b2bb878fc489c9fc7cdd65a5f55",
+      "reviewed": "03c753be88df4a7a1badf84f69de0c208b875fd85524adf251bd142adaa4bb4f"
+    },
+    "srp-river-03-flush-board.json": {
+      "baseline": "6b2db28c64db246876dc0d770730c35dd347dcb1814eceea1f51b786b006a337",
+      "reviewed": "21163fefb4e7c41238f26c6a00e1ad9c62a1a405d98f1807850561796b9bf4f2"
+    },
+    "srp-river-04-wet-connected.json": {
+      "baseline": "f23e8f9911be0460e1dd5031c1ee7127f6ee89ff551d092bb51a2ed971284ac0",
+      "reviewed": "ecb66d81926764f0a45cf6418ec933c2468201484fb1e62a34ea26319a1ee562"
+    },
+    "srp-river-05-broadway.json": {
+      "baseline": "f119fc8cbc0087e0d2da933a8c0ae5eebb3c2a48d0094ab212b30038f6c951ca",
+      "reviewed": "4dc698e30dc3870236833ea5869e80fdc27031e9ff9d7ac8baa08e097ef469d8"
+    },
+    "srp-river-06-low-connected.json": {
+      "baseline": "ff30367e12d905c053025088ea9ba505a8416d0ac46e9b45fd75426f13b72142",
+      "reviewed": "3c7743ef613f5910dd9456c98a5997e827966e862cf76544c35ecc915463f3a8"
+    },
+    "srp-river-07-flush-completing.json": {
+      "baseline": "d83d398c5a3b0b609844e8c3761e8ab2c78635f96e0d6e147929c3c0b878930c",
+      "reviewed": "b98e006af6fc77672c460f1c8d493349ca5eede349964282e974bdf3ed1c2ce3"
+    },
+    "srp-river-08-paired-river.json": {
+      "baseline": "c9572a74ba12cc38822b93e0aa2d3b2dd8b700f5cc383836eee4331495689b4d",
+      "reviewed": "db949be6990d94f7a75ebe5332af00a1f03f7840468a3db747dd8158db60f812"
+    }
+  },
+  "reviewStatus": "reviewed",
+  "reviewedAt": "2026-08-17T09:50:58Z",
+  "reviewer": "Meow Ding"
+}
