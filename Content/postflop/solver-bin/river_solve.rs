@@ -187,6 +187,22 @@ fn main() {
         format!("[{}]", items.join(","))
     };
 
+    // OOP root per-action EV (chips), needed so content range cells can carry an
+    // EV per action for EV-loss grading. Captured at the root before the walk.
+    // `back_to_root` clears the normalized-weight cache, so re-cache before
+    // reading EVs.
+    game.back_to_root();
+    game.cache_normalized_weights();
+    let root_actions = game.available_actions();
+    let root_ev = game.expected_values_detail(0); // [action * n_oop + hand], chips
+    let n_root_actions = root_actions.len();
+    let root_ev_json: Vec<String> = (0..n_root_actions)
+        .map(|i| {
+            let per_hand: Vec<String> = (0..n_oop).map(|j| num(root_ev[i * n_oop + j] as f64)).collect();
+            format!("[{}]", per_hand.join(","))
+        })
+        .collect();
+
     let mut nodes: Vec<String> = Vec::new();
     walk(&mut game, &[], n_oop, n_ip, &mut nodes);
 
@@ -197,6 +213,7 @@ fn main() {
             "\"startingPotChips\":{pot},\"effectiveStackChips\":{stack},",
             "\"iterations\":{iters},\"exploitabilityChips\":{expl},",
             "\"players\":{{\"oop\":{{\"hands\":{oopn}}},\"ip\":{{\"hands\":{ipn}}}}},",
+            "\"oopRootActionEVsChips\":[{rootev}],",
             "\"nodes\":[{nodes}]}}"
         ),
         board = esc(&format!("{flop_str}{turn_str}{river_str}")),
@@ -208,6 +225,7 @@ fn main() {
         expl = num(exploitability as f64),
         oopn = hand_arr(&oop_hands, &oop_w),
         ipn = hand_arr(&ip_hands, &ip_w),
+        rootev = root_ev_json.join(","),
         nodes = nodes.join(","),
     );
     println!("{out}");
