@@ -133,6 +133,18 @@ struct ReviewView: View {
                 }
                 .accessibilityIdentifier("review.tournamentPushFold")
             }
+
+            // River decision trainer over the bundled `reviewed` river packs
+            // (present in all channels, store included).
+            if !dependencies.riverTrainerLoader.availableBoards().isEmpty {
+                NavigationLink {
+                    RiverTrainerView(viewModel: dependencies.makeRiverTrainerViewModel())
+                } label: {
+                    Label("河牌决策训练", systemImage: "square.stack.3d.up.fill")
+                        .font(.headline)
+                }
+                .accessibilityIdentifier("review.riverTrainer")
+            }
         }
     }
 

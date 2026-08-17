@@ -1,0 +1,13 @@
+{
+  "packs": [
+    "srp-river-01-dry-ace-high",
+    "srp-river-02-paired-dry",
+    "srp-river-03-flush-board",
+    "srp-river-04-wet-connected",
+    "srp-river-05-broadway",
+    "srp-river-06-low-connected",
+    "srp-river-07-flush-completing",
+    "srp-river-08-paired-river"
+  ],
+  "line": "HU 100bb; SB open 2.5bb; BB call; flop x/x; turn x/x; river OOP=BB to act"
+}

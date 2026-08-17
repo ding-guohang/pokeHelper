@@ -494,6 +494,23 @@ final class AppDependencies {
         )
     }
 
+    /// Reads the bundled `reviewed` river packs listed in river-packs-index.json.
+    /// Present in every channel (the packs are reviewed); the trainer entry
+    /// disappears only if a build ships without them.
+    var riverTrainerLoader: RiverTrainerLoader {
+        RiverTrainerLoader(bundle: .main)
+    }
+
+    func makeRiverTrainerViewModel() -> RiverTrainerViewModel {
+        RiverTrainerViewModel(
+            loader: riverTrainerLoader,
+            scorer: scorer,
+            eventStore: eventStore,
+            localUserID: localUserID,
+            deviceID: deviceID
+        )
+    }
+
 #if DEVELOPMENT_STRATEGY_FIXTURES
     private static func resetTrainingEventsIfRequested(
         storageDirectory: URL
