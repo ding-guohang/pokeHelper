@@ -165,7 +165,8 @@ def main(argv=None) -> int:
     result = solve_river(spot, lock=lock, cache_dir=cache_dir)
     Path(args.output).write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"solved {result['board']}: exploitability {result['exploitabilityChips']:.4f} chips, "
-          f"{len(result['oopHands'])} OOP hands -> {args.output}")
+          f"{len(result['players']['oop']['hands'])} OOP / {len(result['players']['ip']['hands'])} IP hands, "
+          f"{len(result['nodes'])} nodes -> {args.output}")
     return 0
 
 

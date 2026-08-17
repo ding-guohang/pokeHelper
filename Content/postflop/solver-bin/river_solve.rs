@@ -1,17 +1,21 @@
 // River-spot driver for b-inary/postflop-solver (build-time content tool).
 //
 // Takes one river spot spec as command-line flags, solves it with the locked
-// solver, and writes the OOP root-node decision — per hand: the frequency and
-// EV of each available action — plus the measured exploitability, as JSON to
-// stdout. All numbers are the solver's raw units (chips for pot/stack/EV,
-// probabilities in [0,1]); conversion to exact centi-BB / milli-BB / basis
-// points happens downstream in Python, so this file carries no rounding policy
-// and pulls in no serialization dependency.
+// solver, and writes the COMPLETE solved river subtree as JSON to stdout:
+// both players' hand lists with their initial (range) reach weights, and every
+// decision node's per-hand per-action frequencies keyed by the action path from
+// the root. Terminal nodes are recorded by path only — their payoffs are a
+// function of the fixed board and the bet amounts in the action labels, which
+// the independent Python checker recomputes from scratch.
+//
+// Exporting the whole tree (not just the OOP root) is what lets a SEPARATE
+// best-response calculator recompute exploitability = (mes_ev[0]+mes_ev[1])/2
+// without sharing code with the solver. All numbers are the solver's raw units
+// (chips, probabilities in [0,1]); no rounding policy lives here.
 //
 // This is an ADDED file copied into a pristine checkout's `src/bin/` by the
-// generator; it never modifies the locked solver source. It does not use the
-// `bincode` feature (dropped at build time), reading everything from the
-// in-memory game after `solve`.
+// generator; it never modifies the locked solver source, and does not use the
+// `bincode` feature.
 
 use postflop_solver::*;
 use std::collections::HashMap;
@@ -22,7 +26,6 @@ fn fail(msg: &str) -> ! {
     exit(2);
 }
 
-/// Parse `--key value` pairs into a map.
 fn parse_flags() -> HashMap<String, String> {
     let mut map = HashMap::new();
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -46,8 +49,6 @@ fn req<'a>(m: &'a HashMap<String, String>, k: &str) -> &'a str {
     m.get(k).map(String::as_str).unwrap_or_else(|| fail(&format!("--{k} is required")))
 }
 
-/// Minimal JSON string escaping (labels are ASCII card/action text; escape the
-/// characters JSON requires anyway).
 fn esc(s: &str) -> String {
     let mut out = String::with_capacity(s.len() + 2);
     for c in s.chars() {
@@ -61,9 +62,63 @@ fn esc(s: &str) -> String {
     out
 }
 
-/// Fixed-precision float formatting so the output is deterministic across runs.
 fn num(x: f64) -> String {
     format!("{x:.10}")
+}
+
+/// Depth-first walk of the solved tree. Each call re-navigates from the root
+/// along `path` (river trees are shallow, so this is cheap) and emits one JSON
+/// node object; decision nodes recurse into every child action.
+fn walk(game: &mut PostFlopGame, path: &[usize], n_oop: usize, n_ip: usize, out: &mut Vec<String>) {
+    game.back_to_root();
+    for &a in path {
+        game.play(a);
+    }
+
+    let path_json = format!(
+        "[{}]",
+        path.iter().map(|a| a.to_string()).collect::<Vec<_>>().join(",")
+    );
+
+    if game.is_terminal_node() {
+        out.push(format!("{{\"path\":{path_json},\"type\":\"terminal\"}}"));
+        return;
+    }
+    if game.is_chance_node() {
+        // A river tree has no chance nodes; guard defensively rather than emit
+        // an ambiguous node.
+        fail("unexpected chance node in a river tree");
+    }
+
+    let player = game.current_player();
+    let actions = game.available_actions();
+    let n_actions = actions.len();
+    let n_hands = if player == 0 { n_oop } else { n_ip };
+    let strategy = game.strategy(); // [action * n_hands + hand]
+
+    let action_labels: Vec<String> =
+        actions.iter().map(|a| format!("\"{}\"", esc(&format!("{a:?}")))).collect();
+
+    // strategy[action][hand]
+    let per_action: Vec<String> = (0..n_actions)
+        .map(|i| {
+            let freqs: Vec<String> =
+                (0..n_hands).map(|j| num(strategy[i * n_hands + j] as f64)).collect();
+            format!("[{}]", freqs.join(","))
+        })
+        .collect();
+
+    out.push(format!(
+        "{{\"path\":{path_json},\"type\":\"decision\",\"player\":{player},\"actions\":[{}],\"strategy\":[{}]}}",
+        action_labels.join(","),
+        per_action.join(",")
+    ));
+
+    for i in 0..n_actions {
+        let mut child = path.to_vec();
+        child.push(i);
+        walk(game, &child, n_oop, n_ip, out);
+    }
 }
 
 fn main() {
@@ -115,39 +170,25 @@ fn main() {
 
     let target = starting_pot as f32 * target_frac;
     let exploitability = solve(&mut game, max_iters, target, false);
-
     game.cache_normalized_weights();
 
-    // Root node = OOP's first decision on the river.
-    let actions = game.available_actions();
-    let hands = game.private_cards(0);
-    let hand_strs = holes_to_strings(hands).unwrap_or_else(|_| fail("hole formatting failed"));
-    let strategy = game.strategy(); // [action * n_hands + hand] probability
-    let ev_detail = game.expected_values_detail(0); // [action * n_hands + hand] EV (chips)
-    let weights = game.normalized_weights(0);
-    let n = hands.len();
-    let n_actions = actions.len();
+    // Fixed hand lists + initial range reach weights for both players.
+    let oop_hands = holes_to_strings(game.private_cards(0)).unwrap_or_else(|_| fail("oop hole fmt"));
+    let ip_hands = holes_to_strings(game.private_cards(1)).unwrap_or_else(|_| fail("ip hole fmt"));
+    let oop_w = game.initial_weights(0).to_vec();
+    let ip_w = game.initial_weights(1).to_vec();
+    let n_oop = oop_hands.len();
+    let n_ip = ip_hands.len();
 
-    let action_labels: Vec<String> = actions.iter().map(|a| format!("{a:?}")).collect();
+    let hand_arr = |hands: &[String], w: &[f32]| -> String {
+        let items: Vec<String> = (0..hands.len())
+            .map(|j| format!("{{\"hand\":\"{}\",\"weight\":{}}}", esc(&hands[j]), num(w[j] as f64)))
+            .collect();
+        format!("[{}]", items.join(","))
+    };
 
-    let mut hand_json: Vec<String> = Vec::new();
-    for j in 0..n {
-        // Skip hands overlapping the board (undefined strategy per the docs).
-        if weights[j] <= 0.0 {
-            continue;
-        }
-        let freqs: Vec<String> = (0..n_actions).map(|i| num(strategy[i * n + j] as f64)).collect();
-        let evs: Vec<String> = (0..n_actions).map(|i| num(ev_detail[i * n + j] as f64)).collect();
-        hand_json.push(format!(
-            "{{\"hand\":\"{}\",\"weight\":{},\"actionFrequencies\":[{}],\"actionEVsChips\":[{}]}}",
-            esc(&hand_strs[j]),
-            num(weights[j] as f64),
-            freqs.join(","),
-            evs.join(","),
-        ));
-    }
-
-    let actions_json: Vec<String> = action_labels.iter().map(|a| format!("\"{}\"", esc(a))).collect();
+    let mut nodes: Vec<String> = Vec::new();
+    walk(&mut game, &[], n_oop, n_ip, &mut nodes);
 
     let out = format!(
         concat!(
@@ -155,7 +196,8 @@ fn main() {
             "\"board\":\"{board}\",\"oopRange\":\"{oop}\",\"ipRange\":\"{ip}\",",
             "\"startingPotChips\":{pot},\"effectiveStackChips\":{stack},",
             "\"iterations\":{iters},\"exploitabilityChips\":{expl},",
-            "\"oopActions\":[{acts}],\"oopHands\":[{hands}]}}"
+            "\"players\":{{\"oop\":{{\"hands\":{oopn}}},\"ip\":{{\"hands\":{ipn}}}}},",
+            "\"nodes\":[{nodes}]}}"
         ),
         board = esc(&format!("{flop_str}{turn_str}{river_str}")),
         oop = esc(&oop_range),
@@ -164,8 +206,9 @@ fn main() {
         stack = effective_stack,
         iters = max_iters,
         expl = num(exploitability as f64),
-        acts = actions_json.join(","),
-        hands = hand_json.join(","),
+        oopn = hand_arr(&oop_hands, &oop_w),
+        ipn = hand_arr(&ip_hands, &ip_w),
+        nodes = nodes.join(","),
     );
     println!("{out}");
 }
