@@ -1,0 +1,7 @@
+{
+  "reviewer": "Meow Ding",
+  "reviewedAt": "2026-08-18T14:35:49Z",
+  "decision": "approved",
+  "batch": "srp-single-barrel-river-40bb",
+  "note": "具名人类签署。4 个 40bb SRP 单桶线(check-call flop, turn 过牌到河)河牌决策;每个 river 子树在收窄范围下独立 BR 复核 ~0.1% 底池;前两街收敛信求解器自报+字节可复现(部分独立,已披露)。标准参考范围。"
+}
