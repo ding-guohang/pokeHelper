@@ -7,7 +7,11 @@
     "srp-river-05-broadway",
     "srp-river-06-low-connected",
     "srp-river-07-flush-completing",
-    "srp-river-08-paired-river"
+    "srp-river-08-paired-river",
+    "srp-line-river-01-dry",
+    "srp-line-river-02-wet",
+    "srp-line-river-03-paired",
+    "srp-line-river-04-fd"
   ],
   "line": "HU 100bb; SB open 2.5bb; BB call; flop x/x; turn x/x; river OOP=BB to act"
 }
