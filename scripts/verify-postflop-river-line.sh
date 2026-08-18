@@ -15,9 +15,11 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-CONTENT_VERSION="2026.08.18-srp-line-river.1"
-BATCH="Content/postflop/spots/srp-betting-line-river-batch.json"
-TRACKED="Content/postflop/packs-line"
+# Defaults target the two-barrel batch; override via env to gate another
+# betting-line batch (e.g. the single-barrel one) with the same script.
+CONTENT_VERSION="${LINE_CONTENT_VERSION:-2026.08.18-srp-line-river.1}"
+BATCH="${LINE_BATCH:-Content/postflop/spots/srp-betting-line-river-batch.json}"
+TRACKED="${LINE_TRACKED:-Content/postflop/packs-line}"
 export PATH="$HOME/.cargo/bin:$PATH"
 
 scratch="$(mktemp -d)"
@@ -44,14 +46,15 @@ python3 - "$scratch/packs/batch-report.json" <<'PY'
 import json, sys
 report = json.loads(open(sys.argv[1]).read())
 spots = report["spots"]
-pot = 2000  # river pot for the 40bb check-call/check-call line
-threshold = pot * 0.01
-bad = [(s["id"], s["independentRiverSubtreeExploitabilityChips"]) for s in spots
-       if s["independentRiverSubtreeExploitabilityChips"] > threshold]
+# Per-spot threshold: 1% of that spot's own river pot (varies by line — e.g. the
+# single-barrel line's turn checks through, so its river pot is smaller).
+bad = [(s["id"], s["independentRiverSubtreeExploitabilityChips"])
+       for s in spots
+       if s["independentRiverSubtreeExploitabilityChips"] > s["riverPotChips"] * 0.01]
 if bad:
-    raise SystemExit(f"river-subtree exploitability exceeds {threshold} chips for: {bad}")
-worst = max(s["independentRiverSubtreeExploitabilityChips"] for s in spots)
-print(f"   {len(spots)} spots, worst independent river-subtree exploitability {worst:.3f} chips")
+    raise SystemExit(f"river-subtree exploitability exceeds 1% of pot for: {bad}")
+worst = max(s["independentRiverSubtreeExploitabilityChips"] / s["riverPotChips"] for s in spots)
+print(f"   {len(spots)} spots, worst independent river-subtree exploitability {worst:.3%} of pot")
 PY
 
 echo "==> Content and tooling suites"
