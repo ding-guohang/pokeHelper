@@ -209,11 +209,16 @@ fn main() {
     let tba = game.total_bet_amount();
     let river_pot = starting_pot + tba[0] + tba[1];
 
-    game.cache_normalized_weights();
+    game.cache_normalized_weights(); // required for expected_values_detail below
     let oop_hands = holes_to_strings(game.private_cards(0)).unwrap_or_else(|_| fail("oop fmt"));
     let ip_hands = holes_to_strings(game.private_cards(1)).unwrap_or_else(|_| fail("ip fmt"));
-    let oop_w = game.normalized_weights(0).to_vec();
-    let ip_w = game.normalized_weights(1).to_vec();
+    // RAW reach (initial range weight x product of the player's action frequencies
+    // along the line), NOT normalized_weights: the latter bakes in card-removal
+    // marginalization, which the independent checker also applies -> double count.
+    // Raw reach matches the Batch A initial_weights convention (checker applies
+    // pairwise card removal itself).
+    let oop_w = game.weights(0).to_vec();
+    let ip_w = game.weights(1).to_vec();
     let n_oop = oop_hands.len();
     let n_ip = ip_hands.len();
 
