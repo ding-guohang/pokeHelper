@@ -243,6 +243,8 @@ final class RiverTrainerViewModel {
             let action: DecisionAction
             if key == "check" {
                 action = .check
+            } else if key.hasPrefix("allin"), let size = Int(key.dropFirst(5)) {
+                action = .allIn(to: BBAmount(centiBB: size))
             } else if key.hasPrefix("bet"), let size = Int(key.dropFirst(3)) {
                 action = .bet(to: BBAmount(centiBB: size))
             } else {

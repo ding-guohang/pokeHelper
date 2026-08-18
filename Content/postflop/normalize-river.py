@@ -102,6 +102,15 @@ def normalize(doc):
     # Base fields, identical for both modes. The river-start (Batch A) snapshot
     # keeps EXACTLY its original key set so its committed packs stay byte-
     # reproducible; from-flop (Batch B) adds its own fields.
+    # For a from-flop node the effective stack at the river is what remains after
+    # prior-street betting. For a symmetric call line both players invested
+    # (riverPot - flopPot)/2, so the remaining stack = full stack minus that.
+    if doc.get("mode") == "from-flop":
+        invested = (doc["riverPotChips"] - doc["startingPotChips"]) // 2
+        effective_stack_centi = doc["effectiveStackChips"] - invested
+    else:
+        effective_stack_centi = doc["effectiveStackChips"]
+
     out = {
         "solver": doc["solver"],
         "street": "river",
@@ -109,7 +118,7 @@ def normalize(doc):
         "oopRange": doc["oopRange"],
         "ipRange": doc["ipRange"],
         "potCentiBB": doc.get("riverPotChips", doc["startingPotChips"]),
-        "effectiveStackCentiBB": doc["effectiveStackChips"],
+        "effectiveStackCentiBB": effective_stack_centi,
         "iterations": doc["iterations"],
         "oopRootActions": actions,
         "rangeCells": cells,

@@ -50,6 +50,10 @@ def _action_key_and_kind(label):
     if m:
         size = int(m.group(1))
         return f"bet{size}", {"kind": "bet", "toCentiBB": size}
+    m = re.match(r"AllIn\((\d+)\)", label)
+    if m:
+        size = int(m.group(1))
+        return f"allin{size}", {"kind": "allIn", "toCentiBB": size}
     raise ExportError(f"unsupported OOP root action for river content: {label}")
 
 
