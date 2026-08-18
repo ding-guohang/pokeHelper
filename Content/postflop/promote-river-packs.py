@@ -57,22 +57,34 @@ def validate_review_record(record: dict):
     return reviewer, reviewed_at
 
 
+def _report_entries(report: dict):
+    """Batch A reports use 'boards'; Batch B (betting-line) uses 'spots'."""
+    return report.get("boards") or report.get("spots")
+
+
+def make_evidence_runner(gate: Path):
+    """An evidence runner that actually runs the given byte-repro + independent
+    best-response gate script."""
+    def runner() -> dict:
+        result = subprocess.run(["bash", str(gate)], capture_output=True, text=True)
+        if result.returncode != 0:
+            raise PromotionError(
+                f"evidence gate ({gate.name}) failed:\n" + result.stdout[-2000:] + result.stderr[-2000:]
+            )
+        return {"gate": gate.name, "passed": True}
+    return runner
+
+
 def default_evidence_runner() -> dict:
-    """Actually run the byte-reproducibility + independent best-response gate."""
-    result = subprocess.run(["bash", str(GATE)], capture_output=True, text=True)
-    if result.returncode != 0:
-        raise PromotionError(
-            "evidence gate (verify-postflop-river.sh) failed:\n" + result.stdout[-2000:] + result.stderr[-2000:]
-        )
-    return {"gate": "verify-postflop-river.sh", "passed": True}
+    return make_evidence_runner(GATE)()
 
 
 def _verify_baseline_is_golden(baseline_dir: Path, report: dict):
-    for board in report["boards"]:
-        pack = baseline_dir / f"{board['id']}.json"
+    for entry in _report_entries(report):
+        pack = baseline_dir / f"{entry['id']}.json"
         if not pack.is_file():
             raise PromotionError(f"baseline missing {pack.name}")
-        if _sha256(pack) != board["packSHA256"]:
+        if _sha256(pack) != entry["packSHA256"]:
             raise PromotionError(f"baseline {pack.name} does not match the committed batch report (sha256)")
 
 
@@ -90,7 +102,7 @@ def promote(baseline_dir, destination, content_version, review_record, *,
     report = json.loads((baseline_dir / "batch-report.json").read_text(encoding="utf-8"))
     _verify_baseline_is_golden(baseline_dir, report)
 
-    ids = [b["id"] for b in report["boards"]]
+    ids = [e["id"] for e in _report_entries(report)]
     baseline_version = json.loads((baseline_dir / f"{ids[0]}.json").read_text())["manifest"]["contentVersion"]
     if content_version == baseline_version:
         raise PromotionError(f"new content version must differ from baseline {baseline_version!r}")
@@ -146,10 +158,14 @@ def main(argv=None):
     parser.add_argument("--destination", required=True)
     parser.add_argument("--content-version", required=True)
     parser.add_argument("--review-record", required=True)
+    parser.add_argument("--gate", default=str(GATE),
+                        help="evidence gate script to run (Batch A: verify-postflop-river.sh; "
+                             "Batch B: verify-postflop-river-line.sh)")
     args = parser.parse_args(argv)
 
     record = json.loads(Path(args.review_record).read_text(encoding="utf-8"))
-    names = promote(args.baseline, args.destination, args.content_version, record)
+    names = promote(args.baseline, args.destination, args.content_version, record,
+                    evidence_runner=make_evidence_runner(Path(args.gate)))
     print(f"promoted {len(names)} river packs to reviewed at {args.destination}")
     return 0
 
