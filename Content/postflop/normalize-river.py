@@ -53,18 +53,22 @@ def _root_node(doc):
 
 
 def normalize(doc):
+    # Batch A (river-start): the acting player is OOP (0). Batch B (from-flop):
+    # the extracted river node's player is `nodePlayer`.
+    node_player = doc.get("nodePlayer", 0)
     root = _root_node(doc)
-    if root["player"] != 0:
-        raise NormalizeError("root node is not the OOP decision")
+    if root["player"] != node_player:
+        raise NormalizeError("root node player does not match nodePlayer")
     actions = root["actions"]  # e.g. ["Check", "Bet(100)"]
     strat = root["strategy"]   # [action][hand]
-    hands = doc["players"]["oop"]["hands"]
+    hands = doc["players"]["oop" if node_player == 0 else "ip"]["hands"]
     n_actions = len(actions)
     n_hands = len(hands)
     if len(strat) != n_actions or any(len(a) != n_hands for a in strat):
         raise NormalizeError("strategy shape mismatch")
 
-    ev_chips = doc["oopRootActionEVsChips"]  # [action][hand], chips (= centi-BB)
+    # Batch A carries oopRootActionEVsChips; Batch B carries nodeActionEVsChips.
+    ev_chips = doc.get("oopRootActionEVsChips") or doc["nodeActionEVsChips"]
     if len(ev_chips) != n_actions or any(len(a) != n_hands for a in ev_chips):
         raise NormalizeError("root EV shape mismatch")
 
@@ -75,11 +79,17 @@ def normalize(doc):
         if s <= 0:
             # Hand never reaches this node under its own weight; skip it.
             continue
+        # The combo's reach weight in the range (fractional for narrowed Batch B
+        # ranges); a plain round, not the distribution rounder.
+        weight_bp = max(0, min(10000, int(round(hand["weight"] * 10000))))
+        if weight_bp == 0:
+            # Combo effectively never reaches this node after the betting line;
+            # excluding it keeps the trainer from dealing spots that don't occur.
+            continue
         norm = [f / s for f in fracs]
         bp = largest_remainder(norm, 10000)
         if sum(bp) != 10000:
             raise NormalizeError(f"basis points for {hand['hand']} sum to {sum(bp)}")
-        weight_bp = largest_remainder([hand["weight"]], 10000)[0] if hand["weight"] < 1.0 else 10000
         # chips are centi-BB; milli-BB = round(chips * 10).
         evs_milli = {actions[a]: int(round(ev_chips[a][j] * 10.0)) for a in range(n_actions)}
         cells.append({
@@ -89,19 +99,30 @@ def normalize(doc):
             "actionEVsMilliBB": evs_milli,
         })
 
+    # Base fields, identical for both modes. The river-start (Batch A) snapshot
+    # keeps EXACTLY its original key set so its committed packs stay byte-
+    # reproducible; from-flop (Batch B) adds its own fields.
     out = {
         "solver": doc["solver"],
         "street": "river",
         "board": doc["board"],
         "oopRange": doc["oopRange"],
         "ipRange": doc["ipRange"],
-        "potCentiBB": doc["startingPotChips"],
+        "potCentiBB": doc.get("riverPotChips", doc["startingPotChips"]),
         "effectiveStackCentiBB": doc["effectiveStackChips"],
         "iterations": doc["iterations"],
-        "exploitabilityMilliBB": round(doc["exploitabilityChips"] * 10.0, 6),
         "oopRootActions": actions,
         "rangeCells": cells,
     }
+    if doc.get("mode") == "from-flop":
+        out["mode"] = "from-flop"
+        out["nodePlayer"] = node_player
+        if "line" in doc:
+            out["line"] = doc["line"]
+        if "fullGameExploitabilityChips" in doc:
+            out["fullGameExploitabilityMilliBB"] = round(doc["fullGameExploitabilityChips"] * 10.0, 6)
+    else:
+        out["exploitabilityMilliBB"] = round(doc["exploitabilityChips"] * 10.0, 6)
     out["snapshotSHA256"] = _snapshot_hash(out)
     return out
 

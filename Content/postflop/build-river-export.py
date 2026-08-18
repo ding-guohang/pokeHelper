@@ -102,21 +102,47 @@ def build_export(snapshot, commit, content_version):
     # the solver already guarantees does not overlap the board.
     first_hand = cells[0]["hand"]
     hero_cards = [first_hand[0:2], first_hand[2:4]]
-    pack_id = f"content-river-{snapshot['board'].lower()}"
-    generated_source = (
-        f"postflop-solver@{commit} river OOP root {snapshot['board']}"
-        f" · iters={snapshot['iterations']}"
-        f" · exploitability={snapshot['exploitabilityMilliBB']:.3f}mBB"
-        f" · snapshot={snapshot['snapshotSHA256'][:16]}"
-        f" (unverified solver output)"
-    )
+
+    node_player = snapshot.get("nodePlayer", 0)
+    # heroSeatOffsetFromButton: 0 = BTN (IP in heads-up), 1 = BB (OOP).
+    hero_seat = 1 if node_player == 0 else 0
+    hero_label = "OOP" if node_player == 0 else "IP"
+    from_flop = snapshot.get("mode") == "from-flop"
+
+    if from_flop:
+        pack_id = f"content-river-line-{snapshot['board'].lower()}"
+        line = snapshot.get("line", "")
+        generated_source = (
+            f"postflop-solver@{commit} FROM-FLOP river {hero_label} {snapshot['board']}"
+            f" · line={line}"
+            f" · iters={snapshot['iterations']}"
+            f" · fullGameExploitability={snapshot.get('fullGameExploitabilityMilliBB', 0):.3f}mBB"
+            f" · snapshot={snapshot['snapshotSHA256'][:16]}"
+            f" (unverified solver output; earlier-street convergence is solver-self-reported)"
+        )
+        range_reasoning = (
+            "频率来自锁定开源 CFR 翻后求解器；范围为经翻牌/转牌下注收窄后的到达范围。"
+            "独立验证只覆盖河牌子树在该范围下为最佳回应；前两街收敛信求解器自报+字节可复现（部分独立）。"
+        )
+        conclusion = f"{snapshot['board']} 单挑 {hero_label} 河牌决策（下注线：{line}）。"
+    else:
+        pack_id = f"content-river-{snapshot['board'].lower()}"
+        generated_source = (
+            f"postflop-solver@{commit} river {hero_label} root {snapshot['board']}"
+            f" · iters={snapshot['iterations']}"
+            f" · exploitability={snapshot.get('exploitabilityMilliBB', 0):.3f}mBB"
+            f" · snapshot={snapshot['snapshotSHA256'][:16]}"
+            f" (unverified solver output)"
+        )
+        range_reasoning = "频率来自锁定开源 CFR 翻后求解器的均衡平均策略，未经人工审核。"
+        conclusion = f"{snapshot['board']} 单挑 {hero_label} 翻牌后（河牌）无人下注时的 GTO 开局决策。"
 
     node = {
-        "id": f"{pack_id}-oop-root",
-        "title": f"River OOP 决策 {snapshot['board']}",
+        "id": f"{pack_id}-{hero_label.lower()}-root",
+        "title": f"River {hero_label} 决策 {snapshot['board']}",
         "abilityDimension": "river-decision",
         "curriculumNodeID": CURRICULUM_NODE_ID,
-        "heroSeatOffsetFromButton": 1,  # heads-up big blind = out of position
+        "heroSeatOffsetFromButton": hero_seat,
         "facing": "unopened",
         "heroCards": hero_cards,  # first in-range combo; solver guarantees no board overlap
         "board": board,
@@ -129,8 +155,8 @@ def build_export(snapshot, commit, content_version):
         "actions": node_actions,
         "rangeCells": range_cells,
         "explanation": {
-            "conclusion": f"{snapshot['board']} 单挑 OOP 翻牌后（河牌）无人下注时的 GTO 开局决策。",
-            "rangeReasoning": "频率来自锁定开源 CFR 翻后求解器的均衡平均策略，未经人工审核。",
+            "conclusion": conclusion,
+            "rangeReasoning": range_reasoning,
             "boardReasoning": "公共牌已完整（河牌），决策只依赖成手强度与阻挡牌。",
             "opponentReasoning": "对手为同一均衡下的最优回应，不做针对性剥削。",
             "futurePlan": "河牌为最后一条街，无后续街。",
