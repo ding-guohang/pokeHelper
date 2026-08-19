@@ -1,0 +1,47 @@
+{
+  "batchId": "srp-ip-check-river-40bb",
+  "contentVersion": "2026.08.19-srp-ipcheck-river.1",
+  "trustModel": "partial-independence (river subtree BR given ranges; earlier streets solver-self-reported + byte-reproducible)",
+  "spots": [
+    {
+      "id": "srp-ipcheck-river-01-dry",
+      "board": "AsKd7h2c4s",
+      "line": "check,check;2c;check,check;4s;check",
+      "riverPotChips": 500,
+      "fullGameExploitabilityChips": 0.9947910309,
+      "independentRiverSubtreeExploitabilityChips": 0.23427986481175322,
+      "reachingCells": 454,
+      "packSHA256": "140994cda4f8a7f2083b8a1b898f37fdf4233885fdb5c33e569e63ccba1f5ba0"
+    },
+    {
+      "id": "srp-ipcheck-river-02-wet",
+      "board": "9h8h6c2sQd",
+      "line": "check,check;2s;check,check;Qd;check",
+      "riverPotChips": 500,
+      "fullGameExploitabilityChips": 0.9342632294,
+      "independentRiverSubtreeExploitabilityChips": 0.15746866309793717,
+      "reachingCells": 359,
+      "packSHA256": "75fae6ccdd45b434d98ced636b0308952613e4901ec49a799b1568292ce4b310"
+    },
+    {
+      "id": "srp-ipcheck-river-03-paired",
+      "board": "KhKd5s8c2d",
+      "line": "check,check;8c;check,check;2d;check",
+      "riverPotChips": 500,
+      "fullGameExploitabilityChips": 0.9376430511,
+      "independentRiverSubtreeExploitabilityChips": 0.5067524422332497,
+      "reachingCells": 364,
+      "packSHA256": "77b916b0ca4a8b4aa7993d51787adb7408392a39eaf4951c3a630e0bba0acaf0"
+    },
+    {
+      "id": "srp-ipcheck-river-04-fd",
+      "board": "Qd9d4d2s7d",
+      "line": "check,check;2s;check,check;7d;check",
+      "riverPotChips": 500,
+      "fullGameExploitabilityChips": 0.9381175041,
+      "independentRiverSubtreeExploitabilityChips": 0.23920200401506264,
+      "reachingCells": 425,
+      "packSHA256": "b8908c2f9c47ff64e93ba8f0adf310049f594d81fd5c43ba20f37c9bc89d9d1f"
+    }
+  ]
+}
