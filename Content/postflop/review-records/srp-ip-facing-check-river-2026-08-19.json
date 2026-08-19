@@ -1,0 +1,7 @@
+{
+  "reviewer": "Meow Ding",
+  "reviewedAt": "2026-08-19T09:34:37Z",
+  "decision": "approved",
+  "batch": "srp-ip-check-river-40bb",
+  "note": "具名人类签署。4 个 40bb SRP 有位（BTN/IP）河牌决策：flop 双方过牌、turn 双方过牌、river BB 过牌，BTN 面对过牌决定过牌控池或下注（check-back / bet）。训练器首个 IP 视角河牌内容，是 checked-through OOP 批次在同 4 板的 IP 镜像。抽取节点 nodePlayer=1（IP），heroSeatOffsetFromButton=0（BTN），scenario id 以 -ip-root 与 OOP 区分。每个 river 子树在收窄范围下独立 BR 复核 ≤0.10% 底池（最坏 03-paired 0.101%）；前两街收敛信求解器自报 + 字节可复现（部分独立，已披露）。标准参考范围。driver 已修正 board 构造以支持 river 卡后带下注段的线（对旧 4 段线字节等价）。"
+}
