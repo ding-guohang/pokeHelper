@@ -246,9 +246,17 @@ fn main() {
     let mut nodes: Vec<String> = Vec::new();
     walk(&mut game, &prefix, &[], n_oop, n_ip, &mut nodes);
 
-    // River card is the last segment.
-    let river_card = segments.last().copied().unwrap_or("");
-    let board = format!("{flop_str}{}{}", segments.get(1).copied().unwrap_or(""), river_card);
+    // Board = flop + every dealt chance card, i.e. the odd-index segments
+    // (turn at 1, river at 3), in order. Do NOT assume the river card is the last
+    // segment: a line may carry river betting actions after the river card (e.g.
+    // an OOP check so the extracted node is the IP decision), which would make the
+    // last segment a betting token, not a card.
+    let mut board = flop_str.clone();
+    for (idx, seg) in segments.iter().enumerate() {
+        if idx % 2 == 1 {
+            board.push_str(seg);
+        }
+    }
 
     let out = format!(
         concat!(
