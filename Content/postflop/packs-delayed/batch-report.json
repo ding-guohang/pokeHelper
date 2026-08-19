@@ -1,0 +1,47 @@
+{
+  "batchId": "srp-delayed-cbet-river-40bb",
+  "contentVersion": "2026.08.18-srp-delayed-river.1",
+  "trustModel": "partial-independence (river subtree BR given ranges; earlier streets solver-self-reported + byte-reproducible)",
+  "spots": [
+    {
+      "id": "srp-delayed-river-01-dry",
+      "board": "AsKd7h2c4s",
+      "line": "check,check;2c;check,bet,call;4s",
+      "riverPotChips": 1000,
+      "fullGameExploitabilityChips": 0.9947910309,
+      "independentRiverSubtreeExploitabilityChips": 0.7893358822324927,
+      "reachingCells": 278,
+      "packSHA256": "1ee380e3f76cc4c8d690a676ff3afa65913422df5a864d056212ae2f99b8a369"
+    },
+    {
+      "id": "srp-delayed-river-02-wet",
+      "board": "9h8h6c2sQd",
+      "line": "check,check;2s;check,bet,call;Qd",
+      "riverPotChips": 1000,
+      "fullGameExploitabilityChips": 0.9342632294,
+      "independentRiverSubtreeExploitabilityChips": 1.0165450090281922,
+      "reachingCells": 203,
+      "packSHA256": "821a8a8cb7d85136a63d15979c345d37ef9a1bfde0669f6fc3a15a797c760a23"
+    },
+    {
+      "id": "srp-delayed-river-03-paired",
+      "board": "KhKd5s8c2d",
+      "line": "check,check;8c;check,bet,call;2d",
+      "riverPotChips": 1000,
+      "fullGameExploitabilityChips": 0.9376430511,
+      "independentRiverSubtreeExploitabilityChips": 1.0099747616130088,
+      "reachingCells": 313,
+      "packSHA256": "645388c4fa0a28eb22bb0447f14b82f366a7c3bce6c299c98f3cc822c3bb4e3c"
+    },
+    {
+      "id": "srp-delayed-river-04-fd",
+      "board": "Qd9d4d2s7d",
+      "line": "check,check;2s;check,bet,call;7d",
+      "riverPotChips": 1000,
+      "fullGameExploitabilityChips": 0.9381175041,
+      "independentRiverSubtreeExploitabilityChips": 0.5595382697340767,
+      "reachingCells": 244,
+      "packSHA256": "6f83a6461adc8569a79a993ff8adf971875de8cc0bb5c328997c61497e9c3ce0"
+    }
+  ]
+}

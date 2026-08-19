@@ -1,0 +1,19 @@
+{
+  "batchId": "srp-delayed-cbet-river-40bb",
+  "note": "Batch B3 — HU 40bb SRP from the flop; delayed c-bet line: flop checks through (BB check, BTN check), turn BB check / BTN 50% bet / BB call, river BB decision. Ranges narrowed by a delayed turn barrel after a checked flop — a distinct, common spot. Same 4 boards. Partial-independence model; standard reference ranges.",
+  "line_shape": "BB check, BTN check (flop); turn; BB check, BTN 50% bet, BB call (turn); river -> BB decision",
+  "oopRange": "QQ-22,AQs-A2s,K5s+,Q7s+,J8s+,T8s+,97s+,86s+,75s+,64s+,53s+,AQo-A2o,K9o+,Q9o+,J9o+,T9o,98o",
+  "ipRange": "22+,A2s+,K2s+,Q3s+,J6s+,T6s+,96s+,85s+,75s+,64s+,53s+,43s,A2o+,K6o+,Q8o+,J8o+,T8o+,98o,87o",
+  "startingPotChips": 500,
+  "effectiveStackChips": 3750,
+  "betSizes": "50%",
+  "raiseSizes": "60%",
+  "maxIterations": 2500,
+  "targetExploitabilityFraction": 0.002,
+  "spots": [
+    {"id": "srp-delayed-river-01-dry",   "flop": "AsKd7h", "line": "check,check;2c;check,bet,call;4s"},
+    {"id": "srp-delayed-river-02-wet",   "flop": "9h8h6c", "line": "check,check;2s;check,bet,call;Qd"},
+    {"id": "srp-delayed-river-03-paired","flop": "KhKd5s", "line": "check,check;8c;check,bet,call;2d"},
+    {"id": "srp-delayed-river-04-fd",    "flop": "Qd9d4d", "line": "check,check;2s;check,bet,call;7d"}
+  ]
+}
