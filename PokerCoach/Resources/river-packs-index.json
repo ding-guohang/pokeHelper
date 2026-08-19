@@ -15,7 +15,11 @@
     "srp-1barrel-river-01-dry",
     "srp-1barrel-river-02-wet",
     "srp-1barrel-river-03-paired",
-    "srp-1barrel-river-04-fd"
+    "srp-1barrel-river-04-fd",
+    "srp-delayed-river-01-dry",
+    "srp-delayed-river-02-wet",
+    "srp-delayed-river-03-paired",
+    "srp-delayed-river-04-fd"
   ],
   "line": "HU 100bb; SB open 2.5bb; BB call; flop x/x; turn x/x; river OOP=BB to act"
 }
