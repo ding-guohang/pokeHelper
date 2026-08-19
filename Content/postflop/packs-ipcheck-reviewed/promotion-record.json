@@ -1,0 +1,33 @@
+{
+  "baselineContentVersion": "2026.08.19-srp-ipcheck-river.1",
+  "contentVersion": "2026.08.19-srp-ipcheck-river.reviewed.1",
+  "evidenceArtifacts": {
+    "batchReportSHA256": "f664b764130cc0bc731420dcc521086313fcab6696e644a24820878017b78137"
+  },
+  "measuredEvidence": {
+    "gate": "verify-postflop-river-line.sh",
+    "passed": true
+  },
+  "origin": "solver",
+  "packs": {
+    "srp-ipcheck-river-01-dry.json": {
+      "baseline": "140994cda4f8a7f2083b8a1b898f37fdf4233885fdb5c33e569e63ccba1f5ba0",
+      "reviewed": "87c47f967891f4f96d1615f7c41dc560c9f563cc1d47ed2b325d55d1e2734e44"
+    },
+    "srp-ipcheck-river-02-wet.json": {
+      "baseline": "75fae6ccdd45b434d98ced636b0308952613e4901ec49a799b1568292ce4b310",
+      "reviewed": "511e3679ffa0d6caf8a18f3e9b8e81b6cda1757fdabe7e5f271cb8ac82917875"
+    },
+    "srp-ipcheck-river-03-paired.json": {
+      "baseline": "77b916b0ca4a8b4aa7993d51787adb7408392a39eaf4951c3a630e0bba0acaf0",
+      "reviewed": "7afaaaface7811c21db4dc04d50e926812bc5f60fa946979c8014e6e77c64f6f"
+    },
+    "srp-ipcheck-river-04-fd.json": {
+      "baseline": "b8908c2f9c47ff64e93ba8f0adf310049f594d81fd5c43ba20f37c9bc89d9d1f",
+      "reviewed": "f9cc65c0c604bfafe99eca6cb211ddfdd5f04565bb8a1bd6e6af59d3cbc56adb"
+    }
+  },
+  "reviewStatus": "reviewed",
+  "reviewedAt": "2026-08-19T09:34:37Z",
+  "reviewer": "Meow Ding"
+}
