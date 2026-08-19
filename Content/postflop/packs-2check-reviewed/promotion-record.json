@@ -1,0 +1,33 @@
+{
+  "baselineContentVersion": "2026.08.19-srp-2check-river.1",
+  "contentVersion": "2026.08.19-srp-2check-river.reviewed.1",
+  "evidenceArtifacts": {
+    "batchReportSHA256": "438e546a1d0ca04cb2288564a075254bc948482d97ba7e98f70d3a19df1c1cd9"
+  },
+  "measuredEvidence": {
+    "gate": "verify-postflop-river-line.sh",
+    "passed": true
+  },
+  "origin": "solver",
+  "packs": {
+    "srp-2check-river-01-dry.json": {
+      "baseline": "8af040a11aa445cf7d7b0636685aa6482e82b376f90d151174b247121a41639f",
+      "reviewed": "28b914ecb0e7e9777dbaf1f4f7299e5fe5b6ac34d4b3a61eba7f7f7dbf70597c"
+    },
+    "srp-2check-river-02-wet.json": {
+      "baseline": "2a223b3d6388b40d68e38139f0676825d7c8e9ecbf76afef862b1ba965d71890",
+      "reviewed": "0aff43e71e7f10b143c8f3aabc72521ff97cef7636baeeda571943c87a77b17f"
+    },
+    "srp-2check-river-03-paired.json": {
+      "baseline": "5f4d7d084700c2347ccde9ea663fe7cd25805059b43ccdd54082885995f1856d",
+      "reviewed": "269499261cf20571d32166f5741a23b77c6e0ddb90fa21155e251b81eb87fe74"
+    },
+    "srp-2check-river-04-fd.json": {
+      "baseline": "cf33efc6e29a67dc304ae8bc83c5e58dd813fe694994b2d5246c7ea9d5e29282",
+      "reviewed": "bc2ad6046e6f68145f425accf7937148116a5b214e9b60918a605effa38f21e4"
+    }
+  },
+  "reviewStatus": "reviewed",
+  "reviewedAt": "2026-08-19T07:42:27Z",
+  "reviewer": "Meow Ding"
+}
