@@ -1,0 +1,33 @@
+{
+  "baselineContentVersion": "2026.08.18-srp-1barrel-river.1",
+  "contentVersion": "2026.08.18-srp-1barrel-river.reviewed.1",
+  "evidenceArtifacts": {
+    "batchReportSHA256": "dfed566a7bc7810325d76386adb313988b147bedd2efa83de56459849cfa2145"
+  },
+  "measuredEvidence": {
+    "gate": "verify-postflop-river-line.sh",
+    "passed": true
+  },
+  "origin": "solver",
+  "packs": {
+    "srp-1barrel-river-01-dry.json": {
+      "baseline": "6fd83dccfd7eee1114b5eed3ea7dc2714e356682015c51a5b3e40fbbca3e86ba",
+      "reviewed": "0fcf4bfb6314d14ef573b5c7f6c288628e5c669a489fabe2d99984f5f08f698f"
+    },
+    "srp-1barrel-river-02-wet.json": {
+      "baseline": "e9569d72d59aaed7d23424ce241c1513e668bfb0a3ba5a993fb99301c510cd7d",
+      "reviewed": "788fcba2b647427beed5e321f5422a78c2d3dbe5ca3c484b5d2d8906396a3b7d"
+    },
+    "srp-1barrel-river-03-paired.json": {
+      "baseline": "2aff01d06124547c7a3e6c98eb83522f36d57060ec2d123f72102ecc47819976",
+      "reviewed": "22a4a25c7664b92e7b09390001b57b5a7e11565db1bd5e5d64e14b762be7af3a"
+    },
+    "srp-1barrel-river-04-fd.json": {
+      "baseline": "642d922f8f4f291e6cb65373dc486e22279f8ddf183217fdd16d3d67c1197bf3",
+      "reviewed": "8c89c4f6c87ec7bc7be518e5d02887666b9fe851092ee68f6baed190e27f1d70"
+    }
+  },
+  "reviewStatus": "reviewed",
+  "reviewedAt": "2026-08-18T14:35:49Z",
+  "reviewer": "Meow Ding"
+}
