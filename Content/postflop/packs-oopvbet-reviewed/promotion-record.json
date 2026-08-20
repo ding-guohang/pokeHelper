@@ -1,0 +1,33 @@
+{
+  "baselineContentVersion": "2026.08.20-srp-oopvbet-river.1",
+  "contentVersion": "2026.08.20-srp-oopvbet-river.reviewed.1",
+  "evidenceArtifacts": {
+    "batchReportSHA256": "0296269f1176c36a23fe623a435bb88572e12bdf9ddcc9336478208b18ef6395"
+  },
+  "measuredEvidence": {
+    "gate": "verify-postflop-river-line.sh",
+    "passed": true
+  },
+  "origin": "solver",
+  "packs": {
+    "srp-oopvbet-river-01-dry.json": {
+      "baseline": "d91f171d1bf8da7496e474d86ee661c3b89db3f956b5223425b3a29e1d601eed",
+      "reviewed": "b66b20cad02b24da52603e4657263648415eda9e9793f286b7e8582902a1ee61"
+    },
+    "srp-oopvbet-river-02-wet.json": {
+      "baseline": "499942d83e2a114f0d4212ded0022acf56e116052e4517db90cb61fd259576b6",
+      "reviewed": "53159ab3c0b1cd6b1d725753b26db32f9529fbb512ae39c9e7f9adcb5634c962"
+    },
+    "srp-oopvbet-river-03-paired.json": {
+      "baseline": "afb7f168ff9efd2a382a9bc1d4f47707035078fe50ffe31cf53f95c278fce726",
+      "reviewed": "66a477173f59c2000f34d4918f43b7bca55615bd57b65ba4e5379be035befd4e"
+    },
+    "srp-oopvbet-river-04-fd.json": {
+      "baseline": "808df818b3d28190ebbce8e3f8b89cf4af942793057613a15e3175e02434f5a9",
+      "reviewed": "15fe11d3c9deeca20ce5427187aa3f2e7558dc72f58a28d64a83a8fa816ec14d"
+    }
+  },
+  "reviewStatus": "reviewed",
+  "reviewedAt": "2026-08-20T09:24:28Z",
+  "reviewer": "Meow Ding"
+}
