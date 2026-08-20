@@ -1,0 +1,19 @@
+{
+  "batchId": "srp-oop-vs-bet-river-40bb",
+  "note": "Batch B7 — HU 40bb SRP from the flop; OOP (BB) facing the third barrel, the most common river decision in practice. BB check, BTN c-bet flop, BB call; BB check, BTN barrel turn, BB call; river BB check, BTN bets 50%, and BB decides fold/call/raise. Extracted node is nodePlayer=0 (OOP) facing a bet; export sets facing=singleRaise, heroSeatOffsetFromButton=1 (BB). Same 4 boards/cards as the betting-line batch, whose river node was BB acting unopened — this is the same line one action deeper. Partial-independence: the BTN river bet sizing is fixed OUTSIDE the verified subtree (weaker on the bettor side), earlier streets solver-self-reported + byte-reproducible — disclosed on the content. Solved harder than the shallower batches (target 0.001 vs 0.002, maxIterations bounded at 1000): this is the deepest line in the set (three streets of betting), so its river node is reached rarely and the 0.002 target left the local river subtree ~0.3% of pot exploitable — 2-6x worse than every other batch. Note the solver stops as soon as the target is met, so the shallower batches only ever ran a couple hundred iterations; iteration count, bounded by maxIterations, is the real precision knob here (an unbounded 10000-iteration attempt cost ~4h per spot and was abandoned).",
+  "line_shape": "BB check, BTN bet, BB call (flop); turn; BB check, BTN bet, BB call (turn); river; BB check, BTN bet 50% -> BB (OOP) fold/call/raise facing the third barrel",
+  "oopRange": "QQ-22,AQs-A2s,K5s+,Q7s+,J8s+,T8s+,97s+,86s+,75s+,64s+,53s+,AQo-A2o,K9o+,Q9o+,J9o+,T9o,98o",
+  "ipRange": "22+,A2s+,K2s+,Q3s+,J6s+,T6s+,96s+,85s+,75s+,64s+,53s+,43s,A2o+,K6o+,Q8o+,J8o+,T8o+,98o,87o",
+  "startingPotChips": 500,
+  "effectiveStackChips": 3750,
+  "betSizes": "50%",
+  "raiseSizes": "60%",
+  "maxIterations": 1000,
+  "targetExploitabilityFraction": 0.001,
+  "spots": [
+    {"id": "srp-oopvbet-river-01-dry",   "flop": "AsKd7h", "line": "check,bet,call;2c;check,bet,call;4s;check,bet"},
+    {"id": "srp-oopvbet-river-02-wet",   "flop": "9h8h6c", "line": "check,bet,call;2s;check,bet,call;Qd;check,bet"},
+    {"id": "srp-oopvbet-river-03-paired","flop": "KhKd5s", "line": "check,bet,call;8c;check,bet,call;2d;check,bet"},
+    {"id": "srp-oopvbet-river-04-fd",    "flop": "Qd9d4d", "line": "check,bet,call;2s;check,bet,call;7d;check,bet"}
+  ]
+}
