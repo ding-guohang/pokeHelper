@@ -1,0 +1,7 @@
+{
+  "reviewer": "Meow Ding",
+  "reviewedAt": "2026-08-20T09:24:28Z",
+  "decision": "approved",
+  "batch": "srp-oop-vs-bet-river-40bb",
+  "note": "具名人类签署。4 个 40bb SRP 无位（BB/OOP）河牌面对第三桶的决策：BTN 翻牌 c-bet、BB 跟注；BTN 转牌续注、BB 跟注；河牌 BB 过牌、BTN 下注 50%，BB 决定 fold/call/raise。facing=singleRaise，heroSeatOffsetFromButton=1，amountToCall=1000，decisionEffectiveStack=3000。四个节点均为 all-in-only 形态（该深度下求解器把加注并入全下），故 configuredBetSizes=[]、minimumRaiseTo=null；每个选项均按 BettingDecisionContext.legalActions() 复核合法，频率和恰为 10000。\n\n精度限制（已知并接受，不是遗漏）：这是全套最深的线（三街下注），河牌节点到达概率低，局部独立可利用度为 0.051%–0.332% 底池，而其他各批为 0.05%–0.15%；03-paired 的 0.332% 是全套最弱。已实测收紧全局求解目标（0.001，fullGameExploitability 4.84 mBB 对比其他批次 9.95 mBB）并不能修复：四个 spot 中两个改善、两个略变差，最坏值 0.305% → 0.332%——因为 CFR 收敛的是全局平均策略而非逐节点均匀收敛，故追加算力在此不是可靠杠杆（曾尝试无界 10000 次迭代，约 4 小时/spot，已放弃）。仍远在项目 1% 底池验收线内，且已在内容 rangeReasoning 中披露。\n\n另披露：BTN 的河牌下注尺度固定在被验证子树之外，独立性在下注方一侧更弱；前两街收敛信求解器自报 + 字节可复现（部分独立）。标准参考范围。"
+}
