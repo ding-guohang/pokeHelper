@@ -27,7 +27,11 @@
     "srp-ipcheck-river-01-dry",
     "srp-ipcheck-river-02-wet",
     "srp-ipcheck-river-03-paired",
-    "srp-ipcheck-river-04-fd"
+    "srp-ipcheck-river-04-fd",
+    "srp-ipvbet-river-01-dry",
+    "srp-ipvbet-river-02-wet",
+    "srp-ipvbet-river-03-paired",
+    "srp-ipvbet-river-04-fd"
   ],
-  "line": "HU river decisions: Batch A (100bb SRP, flop/turn x/x, OOP=BB); 40bb SRP c-bet matrix (betting-line / single-barrel / delayed / checked-through, OOP=BB); 40bb IP=BTN facing a check. Hero position is per-pack (see each pack's heroSeatOffsetFromButton)."
+  "line": "HU river decisions: Batch A (100bb SRP, flop/turn x/x, OOP=BB); 40bb SRP c-bet matrix (betting-line / single-barrel / delayed / checked-through, OOP=BB); 40bb IP=BTN facing a check; 40bb IP=BTN facing a river bet (fold/call/raise). Hero position and whether a bet is faced are per-pack (see each pack's heroSeatOffsetFromButton and facing)."
 }
