@@ -1,0 +1,4035 @@
+{
+  "curriculum": [
+    {
+      "id": "river-decision",
+      "prerequisiteNodeIDs": [],
+      "title": "河牌决策"
+    }
+  ],
+  "manifest": {
+    "contentVersion": "2026.08.20-srp-oopvbet-river.reviewed.1",
+    "generatedSource": "postflop-solver@9d1509fe5077d019825f833eed04b16d342dfda1 FROM-FLOP river OOP Qd9d4d2s7d · line=check,bet,call;2s;check,bet,call;7d;check,bet · iters=1000 · fullGameExploitability=4.727mBB · snapshot=36edc0c54e3f61c4 · faces a fixed river bet (bettor's sizing is outside the verified subtree) (unverified solver output; earlier-street convergence is solver-self-reported) · exported 2026-08-17T00:00:00Z",
+    "id": "content-river-line-qd9d4d2s7d",
+    "origin": "solver",
+    "reviewStatus": "reviewed",
+    "reviewedAt": "2026-08-20T09:24:28Z",
+    "reviewedBy": "Meow Ding",
+    "schemaVersion": 1
+  },
+  "scenarios": [
+    {
+      "abilityDimension": "river-decision",
+      "assumptions": {
+        "allowedBetSizeDescription": "river bets at ",
+        "effectiveStack": {
+          "centiBB": 3000
+        },
+        "gameType": "NLHE cash",
+        "rakeDescription": "rake=0",
+        "tableSize": 2
+      },
+      "board": [
+        "Qd",
+        "9d",
+        "4d",
+        "2s",
+        "7d"
+      ],
+      "curriculumNodeID": "river-decision",
+      "decision": {
+        "amountToCall": {
+          "centiBB": 1000
+        },
+        "configuredBetSizes": [],
+        "effectiveStack": {
+          "centiBB": 3000
+        },
+        "pot": {
+          "centiBB": 3000
+        }
+      },
+      "explanation": {
+        "boardReasoning": "公共牌已完整（河牌），决策只依赖成手强度与阻挡牌。",
+        "conclusion": "Qd9d4d2s7d 单挑 OOP 河牌面对下注的决策（下注线：check,bet,call;2s;check,bet,call;7d;check,bet）。",
+        "futurePlan": "河牌为最后一条街，无后续街。",
+        "gtoBaseline": "ChipEV 纳什均衡（rake=0，单挑）。",
+        "opponentReasoning": "对手为同一均衡下的最优回应，不做针对性剥削。",
+        "rangeReasoning": "频率来自锁定开源 CFR 翻后求解器；范围为经翻牌/转牌下注收窄后的到达范围。独立验证只覆盖河牌子树在该范围下为最佳回应；对手的河牌下注尺度固定在被验证子树之外，前两街收敛信求解器自报+字节可复现（部分独立，下注方一侧更弱）。"
+      },
+      "facing": "singleRaise",
+      "heroCards": [
+        "Ac",
+        "2d"
+      ],
+      "heroSeatOffsetFromButton": 1,
+      "id": "content-river-line-qd9d4d2s7d-oop-root",
+      "options": [
+        {
+          "action": {
+            "kind": "fold"
+          },
+          "ev": {
+            "milliBB": 0
+          },
+          "frequencyBasisPoints": 3504
+        },
+        {
+          "action": {
+            "kind": "call",
+            "toCentiBB": 1000
+          },
+          "ev": {
+            "milliBB": 6846
+          },
+          "frequencyBasisPoints": 4150
+        },
+        {
+          "action": {
+            "kind": "allIn",
+            "toCentiBB": 3000
+          },
+          "ev": {
+            "milliBB": 8176
+          },
+          "frequencyBasisPoints": 2346
+        }
+      ],
+      "rangeCells": [
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 202
+            },
+            "call": {
+              "milliBB": 609
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2552,
+            "call": 7448,
+            "fold": 0
+          },
+          "handClass": "Ac2d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 38899
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad2d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 202
+            },
+            "call": {
+              "milliBB": 609
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2552,
+            "call": 7448,
+            "fold": 0
+          },
+          "handClass": "Ah2d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 202
+            },
+            "call": {
+              "milliBB": 609
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2552,
+            "call": 7448,
+            "fold": 0
+          },
+          "handClass": "As2d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 182
+            },
+            "call": {
+              "milliBB": 302
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 208,
+            "call": 9792,
+            "fold": 0
+          },
+          "handClass": "3d3c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39109
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad3c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 182
+            },
+            "call": {
+              "milliBB": 302
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 208,
+            "call": 9792,
+            "fold": 0
+          },
+          "handClass": "3h3d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 186
+            },
+            "call": {
+              "milliBB": 306
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 212,
+            "call": 9788,
+            "fold": 0
+          },
+          "handClass": "3s3d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 399
+            },
+            "call": {
+              "milliBB": 518
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2,
+            "call": 9998,
+            "fold": 0
+          },
+          "handClass": "5d3d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39036
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad3d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39109
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad3h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39108
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad3s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39037
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad4c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39037
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad4h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39099
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad4s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 45
+            },
+            "call": {
+              "milliBB": 163
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 838,
+            "call": 7688,
+            "fold": 1474
+          },
+          "handClass": "5d5c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39154
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad5c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 45
+            },
+            "call": {
+              "milliBB": 163
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 838,
+            "call": 7688,
+            "fold": 1474
+          },
+          "handClass": "5h5d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 46
+            },
+            "call": {
+              "milliBB": 164
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 835,
+            "call": 7800,
+            "fold": 1365
+          },
+          "handClass": "5s5d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 398
+            },
+            "call": {
+              "milliBB": 514
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 501,
+            "call": 9499,
+            "fold": 0
+          },
+          "handClass": "6d5d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 19588
+            },
+            "call": {
+              "milliBB": 23059
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Kd5d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39037
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad5d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39154
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad5h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39153
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad5s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -570
+            },
+            "call": {
+              "milliBB": -278
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 102,
+            "call": 9293,
+            "fold": 605
+          },
+          "handClass": "6d6c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39327
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad6c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -570
+            },
+            "call": {
+              "milliBB": -278
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 102,
+            "call": 9293,
+            "fold": 605
+          },
+          "handClass": "6h6d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -463
+            },
+            "call": {
+              "milliBB": -178
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 107,
+            "call": 9427,
+            "fold": 466
+          },
+          "handClass": "6s6d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 1260
+            },
+            "call": {
+              "milliBB": 830
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2330,
+            "call": 7670,
+            "fold": 0
+          },
+          "handClass": "8d6d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 19588
+            },
+            "call": {
+              "milliBB": 23059
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Kd6d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39037
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad6d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39327
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad6h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39290
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad6s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 178
+            },
+            "call": {
+              "milliBB": 450
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1278,
+            "call": 8722,
+            "fold": 0
+          },
+          "handClass": "9c7c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 920
+            },
+            "call": {
+              "milliBB": 1185
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1183,
+            "call": 8817,
+            "fold": 0
+          },
+          "handClass": "Qc7c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 38790
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad7c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 178
+            },
+            "call": {
+              "milliBB": 450
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1278,
+            "call": 8722,
+            "fold": 0
+          },
+          "handClass": "9h7h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 920
+            },
+            "call": {
+              "milliBB": 1185
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1183,
+            "call": 8817,
+            "fold": 0
+          },
+          "handClass": "Qh7h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 38790
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad7h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 275
+            },
+            "call": {
+              "milliBB": 543
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1219,
+            "call": 8781,
+            "fold": 0
+          },
+          "handClass": "9s7s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 923
+            },
+            "call": {
+              "milliBB": 1185
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1109,
+            "call": 8891,
+            "fold": 0
+          },
+          "handClass": "Qs7s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 38789
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad7s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 1599
+            },
+            "call": {
+              "milliBB": 1329
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1378,
+            "call": 8622,
+            "fold": 0
+          },
+          "handClass": "8d8c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -46
+            },
+            "call": {
+              "milliBB": 257
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1136,
+            "call": 7464,
+            "fold": 1400
+          },
+          "handClass": "9c8c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -46
+            },
+            "call": {
+              "milliBB": 257
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1134,
+            "call": 7464,
+            "fold": 1402
+          },
+          "handClass": "9h8c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 46
+            },
+            "call": {
+              "milliBB": 348
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1145,
+            "call": 7495,
+            "fold": 1360
+          },
+          "handClass": "9s8c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 688
+            },
+            "call": {
+              "milliBB": 983
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 302,
+            "call": 9698,
+            "fold": 0
+          },
+          "handClass": "Qc8c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 38892
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad8c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 1599
+            },
+            "call": {
+              "milliBB": 1329
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1378,
+            "call": 8622,
+            "fold": 0
+          },
+          "handClass": "8h8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 1598
+            },
+            "call": {
+              "milliBB": 1328
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1377,
+            "call": 8623,
+            "fold": 0
+          },
+          "handClass": "8s8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 550
+            },
+            "call": {
+              "milliBB": 110
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2278,
+            "call": 6745,
+            "fold": 977
+          },
+          "handClass": "9c8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 550
+            },
+            "call": {
+              "milliBB": 110
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2278,
+            "call": 6745,
+            "fold": 977
+          },
+          "handClass": "9h8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 640
+            },
+            "call": {
+              "milliBB": 201
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2294,
+            "call": 6764,
+            "fold": 942
+          },
+          "handClass": "9s8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 1473
+            },
+            "call": {
+              "milliBB": 1154
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 3176,
+            "call": 6824,
+            "fold": 0
+          },
+          "handClass": "Td8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 1568
+            },
+            "call": {
+              "milliBB": 948
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 3519,
+            "call": 6481,
+            "fold": 0
+          },
+          "handClass": "Jd8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 24444
+            },
+            "call": {
+              "milliBB": 26296
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Kd8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39045
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad8d"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -46
+            },
+            "call": {
+              "milliBB": 257
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1134,
+            "call": 7464,
+            "fold": 1402
+          },
+          "handClass": "9c8h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -46
+            },
+            "call": {
+              "milliBB": 257
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1136,
+            "call": 7464,
+            "fold": 1400
+          },
+          "handClass": "9h8h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 46
+            },
+            "call": {
+              "milliBB": 348
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1145,
+            "call": 7495,
+            "fold": 1360
+          },
+          "handClass": "9s8h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 688
+            },
+            "call": {
+              "milliBB": 983
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 302,
+            "call": 9698,
+            "fold": 0
+          },
+          "handClass": "Qh8h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 38892
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad8h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -46
+            },
+            "call": {
+              "milliBB": 256
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1134,
+            "call": 7463,
+            "fold": 1403
+          },
+          "handClass": "9c8s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -46
+            },
+            "call": {
+              "milliBB": 256
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1134,
+            "call": 7463,
+            "fold": 1403
+          },
+          "handClass": "9h8s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 46
+            },
+            "call": {
+              "milliBB": 347
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1146,
+            "call": 7494,
+            "fold": 1360
+          },
+          "handClass": "9s8s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 687
+            },
+            "call": {
+              "milliBB": 982
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 303,
+            "call": 9697,
+            "fold": 0
+          },
+          "handClass": "Qs8s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 38892
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad8s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -1054
+            },
+            "call": {
+              "milliBB": -933
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 2288,
+            "fold": 7712
+          },
+          "handClass": "9h9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -961
+            },
+            "call": {
+              "milliBB": -839
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 2324,
+            "fold": 7676
+          },
+          "handClass": "9s9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -669
+            },
+            "call": {
+              "milliBB": -638
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Tc9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -145
+            },
+            "call": {
+              "milliBB": 100
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1792,
+            "call": 7999,
+            "fold": 209
+          },
+          "handClass": "Td9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -669
+            },
+            "call": {
+              "milliBB": -638
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Th9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -670
+            },
+            "call": {
+              "milliBB": -637
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ts9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -21
+            },
+            "call": {
+              "milliBB": -86
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1771,
+            "call": 7976,
+            "fold": 253
+          },
+          "handClass": "Jd9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -311
+            },
+            "call": {
+              "milliBB": -192
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 477,
+            "call": 6312,
+            "fold": 3211
+          },
+          "handClass": "Qc9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -311
+            },
+            "call": {
+              "milliBB": -192
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 477,
+            "call": 6312,
+            "fold": 3211
+          },
+          "handClass": "Qh9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -311
+            },
+            "call": {
+              "milliBB": -192
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 477,
+            "call": 6312,
+            "fold": 3211
+          },
+          "handClass": "Qs9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -788
+            },
+            "call": {
+              "milliBB": -668
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Kc9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18762
+            },
+            "call": {
+              "milliBB": 22508
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Kd9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -788
+            },
+            "call": {
+              "milliBB": -668
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Kh9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -507
+            },
+            "call": {
+              "milliBB": -387
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 29,
+            "call": 766,
+            "fold": 9205
+          },
+          "handClass": "Ks9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -763
+            },
+            "call": {
+              "milliBB": -642
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ac9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39272
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -763
+            },
+            "call": {
+              "milliBB": -642
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ah9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -763
+            },
+            "call": {
+              "milliBB": -642
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "As9c"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -961
+            },
+            "call": {
+              "milliBB": -839
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 2324,
+            "fold": 7676
+          },
+          "handClass": "9s9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -669
+            },
+            "call": {
+              "milliBB": -638
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Tc9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -145
+            },
+            "call": {
+              "milliBB": 100
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1792,
+            "call": 7999,
+            "fold": 209
+          },
+          "handClass": "Td9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -669
+            },
+            "call": {
+              "milliBB": -638
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Th9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -670
+            },
+            "call": {
+              "milliBB": -637
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ts9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -21
+            },
+            "call": {
+              "milliBB": -86
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1771,
+            "call": 7976,
+            "fold": 253
+          },
+          "handClass": "Jd9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -311
+            },
+            "call": {
+              "milliBB": -192
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 477,
+            "call": 6312,
+            "fold": 3211
+          },
+          "handClass": "Qc9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -311
+            },
+            "call": {
+              "milliBB": -192
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 477,
+            "call": 6312,
+            "fold": 3211
+          },
+          "handClass": "Qh9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -311
+            },
+            "call": {
+              "milliBB": -192
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 477,
+            "call": 6312,
+            "fold": 3211
+          },
+          "handClass": "Qs9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -788
+            },
+            "call": {
+              "milliBB": -668
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Kc9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18762
+            },
+            "call": {
+              "milliBB": 22508
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Kd9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -788
+            },
+            "call": {
+              "milliBB": -668
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Kh9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -507
+            },
+            "call": {
+              "milliBB": -387
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 29,
+            "call": 766,
+            "fold": 9205
+          },
+          "handClass": "Ks9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -763
+            },
+            "call": {
+              "milliBB": -642
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ac9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39272
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -763
+            },
+            "call": {
+              "milliBB": -642
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ah9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -763
+            },
+            "call": {
+              "milliBB": -642
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "As9h"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -572
+            },
+            "call": {
+              "milliBB": -541
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Tc9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -54
+            },
+            "call": {
+              "milliBB": 190
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1805,
+            "call": 8026,
+            "fold": 169
+          },
+          "handClass": "Td9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -572
+            },
+            "call": {
+              "milliBB": -541
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Th9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -573
+            },
+            "call": {
+              "milliBB": -540
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ts9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 68
+            },
+            "call": {
+              "milliBB": 3
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1830,
+            "call": 8096,
+            "fold": 74
+          },
+          "handClass": "Jd9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -222
+            },
+            "call": {
+              "milliBB": -103
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 498,
+            "call": 6319,
+            "fold": 3183
+          },
+          "handClass": "Qc9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -222
+            },
+            "call": {
+              "milliBB": -103
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 498,
+            "call": 6319,
+            "fold": 3183
+          },
+          "handClass": "Qh9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -222
+            },
+            "call": {
+              "milliBB": -103
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 498,
+            "call": 6319,
+            "fold": 3183
+          },
+          "handClass": "Qs9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -696
+            },
+            "call": {
+              "milliBB": -576
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Kc9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18871
+            },
+            "call": {
+              "milliBB": 22580
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "Kd9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -696
+            },
+            "call": {
+              "milliBB": -576
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Kh9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -416
+            },
+            "call": {
+              "milliBB": -297
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 24,
+            "call": 814,
+            "fold": 9162
+          },
+          "handClass": "Ks9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -671
+            },
+            "call": {
+              "milliBB": -550
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ac9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39242
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "Ad9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -671
+            },
+            "call": {
+              "milliBB": -550
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "Ah9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -671
+            },
+            "call": {
+              "milliBB": -550
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "As9s"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 287
+            },
+            "call": {
+              "milliBB": 448
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1276,
+            "call": 4195,
+            "fold": 4529
+          },
+          "handClass": "TdTc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 409
+            },
+            "call": {
+              "milliBB": 246
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1099,
+            "call": 5048,
+            "fold": 3853
+          },
+          "handClass": "JdTc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 101
+            },
+            "call": {
+              "milliBB": 131
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 207,
+            "call": 1793,
+            "fold": 8000
+          },
+          "handClass": "QcTc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 101
+            },
+            "call": {
+              "milliBB": 131
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 207,
+            "call": 1793,
+            "fold": 8000
+          },
+          "handClass": "QhTc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 101
+            },
+            "call": {
+              "milliBB": 131
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 208,
+            "call": 1792,
+            "fold": 8000
+          },
+          "handClass": "QsTc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18624
+            },
+            "call": {
+              "milliBB": 22416
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdTc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39078
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdTc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 287
+            },
+            "call": {
+              "milliBB": 448
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1276,
+            "call": 4195,
+            "fold": 4529
+          },
+          "handClass": "ThTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 287
+            },
+            "call": {
+              "milliBB": 448
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1279,
+            "call": 4193,
+            "fold": 4528
+          },
+          "handClass": "TsTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 203
+            },
+            "call": {
+              "milliBB": 282
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1832,
+            "call": 3204,
+            "fold": 4964
+          },
+          "handClass": "JcTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 881
+            },
+            "call": {
+              "milliBB": 936
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2823,
+            "call": 7177,
+            "fold": 0
+          },
+          "handClass": "JdTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 203
+            },
+            "call": {
+              "milliBB": 282
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1832,
+            "call": 3204,
+            "fold": 4964
+          },
+          "handClass": "JhTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 203
+            },
+            "call": {
+              "milliBB": 284
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1833,
+            "call": 3203,
+            "fold": 4964
+          },
+          "handClass": "JsTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 580
+            },
+            "call": {
+              "milliBB": 819
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1903,
+            "call": 8097,
+            "fold": 0
+          },
+          "handClass": "QcTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 580
+            },
+            "call": {
+              "milliBB": 819
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1903,
+            "call": 8097,
+            "fold": 0
+          },
+          "handClass": "QhTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 580
+            },
+            "call": {
+              "milliBB": 819
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1903,
+            "call": 8097,
+            "fold": 0
+          },
+          "handClass": "QsTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22366
+            },
+            "call": {
+              "milliBB": 24911
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39149
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdTd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 409
+            },
+            "call": {
+              "milliBB": 246
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1099,
+            "call": 5048,
+            "fold": 3853
+          },
+          "handClass": "JdTh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 101
+            },
+            "call": {
+              "milliBB": 131
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 207,
+            "call": 1793,
+            "fold": 8000
+          },
+          "handClass": "QcTh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 101
+            },
+            "call": {
+              "milliBB": 131
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 207,
+            "call": 1793,
+            "fold": 8000
+          },
+          "handClass": "QhTh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 101
+            },
+            "call": {
+              "milliBB": 131
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 208,
+            "call": 1792,
+            "fold": 8000
+          },
+          "handClass": "QsTh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18624
+            },
+            "call": {
+              "milliBB": 22416
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdTh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39078
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdTh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 409
+            },
+            "call": {
+              "milliBB": 247
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1103,
+            "call": 5046,
+            "fold": 3851
+          },
+          "handClass": "JdTs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 100
+            },
+            "call": {
+              "milliBB": 132
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 208,
+            "call": 1793,
+            "fold": 7999
+          },
+          "handClass": "QcTs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 100
+            },
+            "call": {
+              "milliBB": 132
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 208,
+            "call": 1793,
+            "fold": 7999
+          },
+          "handClass": "QhTs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 100
+            },
+            "call": {
+              "milliBB": 132
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 208,
+            "call": 1793,
+            "fold": 7999
+          },
+          "handClass": "QsTs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18625
+            },
+            "call": {
+              "milliBB": 22416
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdTs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39078
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdTs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 325
+            },
+            "call": {
+              "milliBB": 87
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1812,
+            "call": 3887,
+            "fold": 4301
+          },
+          "handClass": "JdJc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -399
+            },
+            "call": {
+              "milliBB": -628
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "JhJc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -399
+            },
+            "call": {
+              "milliBB": -626
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "JsJc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -25
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 133,
+            "call": 225,
+            "fold": 9642
+          },
+          "handClass": "QcJc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -25
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 133,
+            "call": 225,
+            "fold": 9642
+          },
+          "handClass": "QhJc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -25
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 133,
+            "call": 225,
+            "fold": 9642
+          },
+          "handClass": "QsJc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18623
+            },
+            "call": {
+              "milliBB": 22415
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdJc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39121
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdJc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 325
+            },
+            "call": {
+              "milliBB": 87
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1812,
+            "call": 3887,
+            "fold": 4301
+          },
+          "handClass": "JhJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 325
+            },
+            "call": {
+              "milliBB": 88
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1814,
+            "call": 3885,
+            "fold": 4301
+          },
+          "handClass": "JsJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 688
+            },
+            "call": {
+              "milliBB": 625
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2081,
+            "call": 7919,
+            "fold": 0
+          },
+          "handClass": "QcJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 688
+            },
+            "call": {
+              "milliBB": 625
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2081,
+            "call": 7919,
+            "fold": 0
+          },
+          "handClass": "QhJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 688
+            },
+            "call": {
+              "milliBB": 625
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 2081,
+            "call": 7919,
+            "fold": 0
+          },
+          "handClass": "QsJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 233
+            },
+            "call": {
+              "milliBB": 168
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1310,
+            "call": 7772,
+            "fold": 918
+          },
+          "handClass": "KcJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 21189
+            },
+            "call": {
+              "milliBB": 24126
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 233
+            },
+            "call": {
+              "milliBB": 168
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1310,
+            "call": 7772,
+            "fold": 918
+          },
+          "handClass": "KhJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 501
+            },
+            "call": {
+              "milliBB": 437
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1728,
+            "call": 8230,
+            "fold": 42
+          },
+          "handClass": "KsJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 257
+            },
+            "call": {
+              "milliBB": 193
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1468,
+            "call": 6721,
+            "fold": 1811
+          },
+          "handClass": "AcJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39042
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 257
+            },
+            "call": {
+              "milliBB": 193
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1468,
+            "call": 6721,
+            "fold": 1811
+          },
+          "handClass": "AhJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 257
+            },
+            "call": {
+              "milliBB": 193
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1468,
+            "call": 6721,
+            "fold": 1811
+          },
+          "handClass": "AsJd"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -399
+            },
+            "call": {
+              "milliBB": -626
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 0,
+            "fold": 10000
+          },
+          "handClass": "JsJh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -25
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 133,
+            "call": 225,
+            "fold": 9642
+          },
+          "handClass": "QcJh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -25
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 133,
+            "call": 225,
+            "fold": 9642
+          },
+          "handClass": "QhJh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -25
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 133,
+            "call": 225,
+            "fold": 9642
+          },
+          "handClass": "QsJh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18623
+            },
+            "call": {
+              "milliBB": 22415
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdJh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39121
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdJh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -23
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 121,
+            "call": 223,
+            "fold": 9656
+          },
+          "handClass": "QcJs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -23
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 121,
+            "call": 223,
+            "fold": 9656
+          },
+          "handClass": "QhJs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 22
+            },
+            "call": {
+              "milliBB": -23
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 121,
+            "call": 222,
+            "fold": 9657
+          },
+          "handClass": "QsJs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 18627
+            },
+            "call": {
+              "milliBB": 22418
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdJs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39122
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdJs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 398
+            },
+            "call": {
+              "milliBB": 514
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 883,
+            "call": 9117,
+            "fold": 0
+          },
+          "handClass": "QhQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 398
+            },
+            "call": {
+              "milliBB": 514
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 883,
+            "call": 9117,
+            "fold": 0
+          },
+          "handClass": "QsQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -57
+            },
+            "call": {
+              "milliBB": 60
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 549,
+            "call": 4164,
+            "fold": 5287
+          },
+          "handClass": "KcQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 19588
+            },
+            "call": {
+              "milliBB": 23059
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -57
+            },
+            "call": {
+              "milliBB": 60
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 549,
+            "call": 4164,
+            "fold": 5287
+          },
+          "handClass": "KhQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 211
+            },
+            "call": {
+              "milliBB": 328
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1321,
+            "call": 4984,
+            "fold": 3695
+          },
+          "handClass": "KsQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AcQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39037
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AhQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AsQc"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 398
+            },
+            "call": {
+              "milliBB": 514
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 883,
+            "call": 9117,
+            "fold": 0
+          },
+          "handClass": "QsQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -57
+            },
+            "call": {
+              "milliBB": 60
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 549,
+            "call": 4164,
+            "fold": 5287
+          },
+          "handClass": "KcQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 19588
+            },
+            "call": {
+              "milliBB": 23059
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -57
+            },
+            "call": {
+              "milliBB": 60
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 549,
+            "call": 4164,
+            "fold": 5287
+          },
+          "handClass": "KhQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 211
+            },
+            "call": {
+              "milliBB": 328
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1321,
+            "call": 4984,
+            "fold": 3695
+          },
+          "handClass": "KsQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AcQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39037
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AhQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AsQh"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -57
+            },
+            "call": {
+              "milliBB": 60
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 549,
+            "call": 4164,
+            "fold": 5287
+          },
+          "handClass": "KcQs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 19588
+            },
+            "call": {
+              "milliBB": 23059
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 0,
+            "call": 10000,
+            "fold": 0
+          },
+          "handClass": "KdQs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -57
+            },
+            "call": {
+              "milliBB": 60
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 549,
+            "call": 4164,
+            "fold": 5287
+          },
+          "handClass": "KhQs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 211
+            },
+            "call": {
+              "milliBB": 328
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 1321,
+            "call": 4984,
+            "fold": 3695
+          },
+          "handClass": "KsQs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AcQs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": 39037
+            },
+            "call": {
+              "milliBB": 30000
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 10000,
+            "call": 0,
+            "fold": 0
+          },
+          "handClass": "AdQs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AhQs"
+        },
+        {
+          "actionEVs": {
+            "allin3000": {
+              "milliBB": -33
+            },
+            "call": {
+              "milliBB": 85
+            },
+            "fold": {
+              "milliBB": 0
+            }
+          },
+          "actionWeightsBasisPoints": {
+            "allin3000": 106,
+            "call": 3749,
+            "fold": 6145
+          },
+          "handClass": "AsQs"
+        }
+      ],
+      "title": "River OOP 面对下注 Qd9d4d2s7d"
+    }
+  ]
+}
