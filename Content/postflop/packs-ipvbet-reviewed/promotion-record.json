@@ -1,0 +1,33 @@
+{
+  "baselineContentVersion": "2026.08.19-srp-ipvbet-river.1",
+  "contentVersion": "2026.08.19-srp-ipvbet-river.reviewed.1",
+  "evidenceArtifacts": {
+    "batchReportSHA256": "8082703cbcd2c636c40378bf51c8fe6d17e759bef278d8c19543d74f4e872b48"
+  },
+  "measuredEvidence": {
+    "gate": "verify-postflop-river-line.sh",
+    "passed": true
+  },
+  "origin": "solver",
+  "packs": {
+    "srp-ipvbet-river-01-dry.json": {
+      "baseline": "e77300a74ec460d68b42cb8ff011aba91436fa0d2a49e8d47a31615e360ef60d",
+      "reviewed": "d03da5982e9a92d70ed06c1ebffc335d1ac6bc0f1e0d6f44b954c594575598cc"
+    },
+    "srp-ipvbet-river-02-wet.json": {
+      "baseline": "6e2996d1584ca9bb170937d6e085dbc72964c9a139e79baf2e7330ec7e6414ef",
+      "reviewed": "3fcbbb8367e87e709328c6c9b4c942f1587c09d8f4a3b2937083e77fe54b569c"
+    },
+    "srp-ipvbet-river-03-paired.json": {
+      "baseline": "b8d97b01f3d0d3d6e90bd66d37126bcc5e18948791f28bb431e0df24a8470b3b",
+      "reviewed": "0a583fd0d6528ddaae5168319fac85cc522a9dd6d1fe34c239939ccb87de025c"
+    },
+    "srp-ipvbet-river-04-fd.json": {
+      "baseline": "da71fe6e794ff92352a26c47c5001675296cee55ff61fafd2443844cc56c7d5f",
+      "reviewed": "c017d8c91136a244f28bcb1bca14637bfd049299884df38b8bf3966407c537a2"
+    }
+  },
+  "reviewStatus": "reviewed",
+  "reviewedAt": "2026-08-20T02:42:21Z",
+  "reviewer": "Meow Ding"
+}
