@@ -264,6 +264,7 @@ fn main() {
             "\"board\":\"{board}\",\"flop\":\"{flop}\",\"line\":\"{line}\",",
             "\"oopRange\":\"{oop}\",\"ipRange\":\"{ip}\",",
             "\"startingPotChips\":{pot},\"riverPotChips\":{rpot},\"effectiveStackChips\":{stack},\"iterations\":{iters},",
+            "\"totalBetAmountChips\":[{tba0},{tba1}],",
             "\"fullGameExploitabilityChips\":{fge},\"nodePlayer\":{np},",
             "\"players\":{{\"oop\":{{\"hands\":{oopn}}},\"ip\":{{\"hands\":{ipn}}}}},",
             "\"nodeActionEVsChips\":[{nodeev}],\"nodes\":[{nodes}]}}"
@@ -277,6 +278,8 @@ fn main() {
         rpot = river_pot,
         stack = effective_stack,
         iters = max_iters,
+        tba0 = tba[0],
+        tba1 = tba[1],
         fge = num(full_game_exploitability as f64),
         np = node_player,
         oopn = hand_arr(&oop_hands, &oop_w),

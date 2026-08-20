@@ -41,34 +41,67 @@ def _largest_remainder(fracs, total=10000):
     return floors
 
 
-def _action_key_and_kind(label):
-    """Map a solver action label to (rangeCellKey, DecisionAction dict). Bet keys
-    include the size so multiple bet sizes get distinct keys."""
+def _action_key_and_kind(label, amount_to_call=0):
+    """Map a solver action label to (rangeCellKey, DecisionAction dict). Bet/raise
+    keys include the size so multiple sizes get distinct keys. `amount_to_call`
+    supplies the Call total (the solver's "Call" label carries no amount)."""
     if label == "Check":
         return "check", {"kind": "check"}
+    if label == "Fold":
+        return "fold", {"kind": "fold"}
+    if label == "Call":
+        return "call", {"kind": "call", "toCentiBB": amount_to_call}
     m = re.match(r"Bet\((\d+)\)", label)
     if m:
         size = int(m.group(1))
         return f"bet{size}", {"kind": "bet", "toCentiBB": size}
+    m = re.match(r"Raise\((\d+)\)", label)
+    if m:
+        size = int(m.group(1))
+        return f"raise{size}", {"kind": "raise", "toCentiBB": size}
     m = re.match(r"AllIn\((\d+)\)", label)
     if m:
         size = int(m.group(1))
         return f"allin{size}", {"kind": "allIn", "toCentiBB": size}
-    raise ExportError(f"unsupported OOP root action for river content: {label}")
+    raise ExportError(f"unsupported river root action for river content: {label}")
 
 
 def build_export(snapshot, commit, content_version):
     actions = snapshot["oopRootActions"]
-    keys, kinds, bet_sizes = [], [], []
+    # amountToCall > 0 ⇒ the root faces a bet (Fold/Call/Raise); == 0 ⇒ unopened
+    # (Check/Bet). Set by normalize only for facing-bet from-flop nodes.
+    amount_to_call = snapshot.get("amountToCallCentiBB", 0)
+    facing_bet = amount_to_call > 0
+
+    keys, kinds, bet_sizes, raise_sizes = [], [], [], []
     for label in actions:
-        key, kind = _action_key_and_kind(label)
+        key, kind = _action_key_and_kind(label, amount_to_call=amount_to_call)
         keys.append(key)
         kinds.append(kind)
         if kind["kind"] == "bet":
             bet_sizes.append(kind["toCentiBB"])
-    if not bet_sizes:
-        raise ExportError("river root has no bet size to configure")
-    configured = sorted(set(bet_sizes))
+        elif kind["kind"] == "raise":
+            raise_sizes.append(kind["toCentiBB"])
+
+    if facing_bet:
+        # Legal raise options must be listed in configuredBetSizes and be
+        # >= minimumRaiseTo. There may be NO raise at all (the solver can force
+        # the only aggressive option to all-in at short stacks, or OOP shoved) —
+        # that is valid: {fold, call[, allIn]} needs no bet sizes.
+        configured = sorted(set(raise_sizes))
+        minimum_raise_to = min(raise_sizes) if raise_sizes else None
+        # Belt-and-suspenders: every emitted amount must map to a legal action
+        # (strategy-import re-checks this against BettingDecisionContext).
+        for kind in kinds:
+            if kind["kind"] == "call" and kind["toCentiBB"] != amount_to_call:
+                raise ExportError("call amount does not equal amountToCall")
+            if kind["kind"] == "allIn" and kind["toCentiBB"] != snapshot["effectiveStackCentiBB"]:
+                raise ExportError("allIn to-amount does not equal decisionEffectiveStack")
+    else:
+        if not bet_sizes:
+            raise ExportError("river root has no bet size to configure")
+        configured = sorted(set(bet_sizes))
+        minimum_raise_to = None
 
     cells = snapshot["rangeCells"]
     pot = snapshot["potCentiBB"]
@@ -116,19 +149,36 @@ def build_export(snapshot, commit, content_version):
     if from_flop:
         pack_id = f"content-river-line-{snapshot['board'].lower()}"
         line = snapshot.get("line", "")
+        # A facing-bet node fixes the opponent's river bet OUTSIDE the extracted
+        # subtree, so the independent check re-optimizes only the hero's decision
+        # (and the opponent's response to a hero raise) — not the bet sizing
+        # itself. Disclose this weaker-on-the-bettor-side independence.
+        facing_note = (
+            " · faces a fixed river bet (bettor's sizing is outside the verified subtree)"
+            if facing_bet else ""
+        )
         generated_source = (
             f"postflop-solver@{commit} FROM-FLOP river {hero_label} {snapshot['board']}"
             f" · line={line}"
             f" · iters={snapshot['iterations']}"
             f" · fullGameExploitability={snapshot.get('fullGameExploitabilityMilliBB', 0):.3f}mBB"
             f" · snapshot={snapshot['snapshotSHA256'][:16]}"
+            f"{facing_note}"
             f" (unverified solver output; earlier-street convergence is solver-self-reported)"
         )
-        range_reasoning = (
-            "频率来自锁定开源 CFR 翻后求解器；范围为经翻牌/转牌下注收窄后的到达范围。"
-            "独立验证只覆盖河牌子树在该范围下为最佳回应；前两街收敛信求解器自报+字节可复现（部分独立）。"
-        )
-        conclusion = f"{snapshot['board']} 单挑 {hero_label} 河牌决策（下注线：{line}）。"
+        if facing_bet:
+            range_reasoning = (
+                "频率来自锁定开源 CFR 翻后求解器；范围为经翻牌/转牌下注收窄后的到达范围。"
+                "独立验证只覆盖河牌子树在该范围下为最佳回应；对手的河牌下注尺度固定在被验证子树之外，"
+                "前两街收敛信求解器自报+字节可复现（部分独立，下注方一侧更弱）。"
+            )
+            conclusion = f"{snapshot['board']} 单挑 {hero_label} 河牌面对下注的决策（下注线：{line}）。"
+        else:
+            range_reasoning = (
+                "频率来自锁定开源 CFR 翻后求解器；范围为经翻牌/转牌下注收窄后的到达范围。"
+                "独立验证只覆盖河牌子树在该范围下为最佳回应；前两街收敛信求解器自报+字节可复现（部分独立）。"
+            )
+            conclusion = f"{snapshot['board']} 单挑 {hero_label} 河牌决策（下注线：{line}）。"
     else:
         pack_id = f"content-river-{snapshot['board'].lower()}"
         generated_source = (
@@ -143,18 +193,18 @@ def build_export(snapshot, commit, content_version):
 
     node = {
         "id": f"{pack_id}-{hero_label.lower()}-root",
-        "title": f"River {hero_label} 决策 {snapshot['board']}",
+        "title": f"River {hero_label} {'面对下注' if facing_bet else '决策'} {snapshot['board']}",
         "abilityDimension": "river-decision",
         "curriculumNodeID": CURRICULUM_NODE_ID,
         "heroSeatOffsetFromButton": hero_seat,
-        "facing": "unopened",
+        "facing": "singleRaise" if facing_bet else "unopened",
         "heroCards": hero_cards,  # first in-range combo; solver guarantees no board overlap
         "board": board,
         "pot": {"centiBB": pot},
-        "amountToCall": {"centiBB": 0},
-        "minimumRaiseTo": None,
+        "amountToCall": {"centiBB": amount_to_call},
+        "minimumRaiseTo": ({"centiBB": minimum_raise_to} if minimum_raise_to is not None else None),
         "configuredBetSizes": [{"centiBB": s} for s in configured],
-        "facingRaiseTo": None,
+        "facingRaiseTo": ({"centiBB": amount_to_call} if facing_bet else None),
         "decisionEffectiveStack": {"centiBB": stack},
         "actions": node_actions,
         "rangeCells": range_cells,

@@ -105,9 +105,24 @@ def normalize(doc):
     # For a from-flop node the effective stack at the river is what remains after
     # prior-street betting. For a symmetric call line both players invested
     # (riverPot - flopPot)/2, so the remaining stack = full stack minus that.
+    #
+    # When the extracted node FACES A BET (an uncalled river bet, e.g. IP after
+    # OOP leads), investment is asymmetric: the acting player's remaining stack is
+    # the full stack minus ONLY its own cumulative contribution, and the pot
+    # already includes the bet it faces. `totalBetAmountChips` (per-player
+    # cumulative) makes this exact. The symmetric `(riverPot-starting)//2` formula
+    # is correct only when both players invested equally (amountToCall == 0), and
+    # is kept bit-identical for those nodes so shipped packs stay byte-reproducible.
+    amount_to_call = 0
+    tba = doc.get("totalBetAmountChips")
     if doc.get("mode") == "from-flop":
-        invested = (doc["riverPotChips"] - doc["startingPotChips"]) // 2
-        effective_stack_centi = doc["effectiveStackChips"] - invested
+        if tba is not None:
+            amount_to_call = tba[1 - node_player] - tba[node_player]
+        if amount_to_call > 0:
+            effective_stack_centi = doc["effectiveStackChips"] - tba[node_player]
+        else:
+            invested = (doc["riverPotChips"] - doc["startingPotChips"]) // 2
+            effective_stack_centi = doc["effectiveStackChips"] - invested
     else:
         effective_stack_centi = doc["effectiveStackChips"]
 
@@ -126,6 +141,8 @@ def normalize(doc):
     if doc.get("mode") == "from-flop":
         out["mode"] = "from-flop"
         out["nodePlayer"] = node_player
+        if amount_to_call > 0:
+            out["amountToCallCentiBB"] = amount_to_call
         if "line" in doc:
             out["line"] = doc["line"]
         if "fullGameExploitabilityChips" in doc:
